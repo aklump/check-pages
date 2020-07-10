@@ -79,9 +79,10 @@ When you're ready to run this using the live config add the config filename to t
 The test functions for your PHP test files are found in _includes/test_functions.inc_.
 
 ## Install In Another Composer Project
-If you want to share dependencies with another project, like Drupal 8 for example, then use the alternative installation method.  Run the following from your Drupal app root directory.
 
-    $ composer require aklump/check-pages
+If you want to share dependencies with another project, like Drupal 8 for example, then use the alternative installation method.  The `--dev` flag is shown here, but use your own discretion.  Run the following from your Drupal app root directory.
+
+    $ composer require aklump/check-pages --dev
 
 ### Usage
 
