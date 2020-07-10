@@ -10,23 +10,6 @@ use AKlump\LoftLib\Bash\Bash;
 use AKlump\LoftLib\Bash\Color;
 use AKlump\LoftLib\Storage\FilePath;
 
-$dir = __DIR__ . '/..';
-
-if (!file_exists($dir . '/autoload.php')) {
-  $dir = __DIR__ . '/../vendor';
-}
-
-if (!file_exists($dir . '/autoload.php')) {
-  $dir = __DIR__ . '/../../..';
-}
-
-if (!file_exists($dir . '/autoload.php')) {
-  echo 'Autoload not found.';
-  exit(1);
-}
-
-require $dir . '/autoload.php';
-
 $cli = new Bash($argv);
 
 // Validate flags.

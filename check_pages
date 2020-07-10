@@ -9,7 +9,23 @@
 
 use AKlump\LoftLib\Bash\Color;
 
-define('ROOT', dirname(__FILE__));
+define('ROOT', __DIR__);
+
+// Find and load the autoloader
+$autoloaders = [
+  ROOT . '/vendor/autoload.php',
+  ROOT . '/../../../vendor/autoload.php',
+];
+while ($autoloader = array_shift($autoloaders)) {
+  if (file_exists($autoloader)) {
+    require_once $autoloader;
+    break;
+  }
+  if (empty($autoloaders)) {
+    echo "Could not find autoload.php" . PHP_EOL;
+    exit(2);
+  }
+}
 
 try {
   require ROOT . '/includes/bootstrap.inc';
