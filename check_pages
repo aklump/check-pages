@@ -29,16 +29,21 @@ while ($autoloader = array_shift($autoloaders)) {
 
 try {
   require ROOT . '/includes/bootstrap.inc';
-  $test = $app->getTest();
-  echo Color::wrap('blue', sprintf('Running test "%s"', strtoupper(basename($test)))) . PHP_EOL;
-  $app->runTest($test);
+  $app->run($test);
 }
+
+  // Finish with an error response.
 catch (\Exception $exception) {
+  // Shift the first line so only that is read, in case we want to dump a
+  // pretty-print JSON variable.
+  $lines = explode(PHP_EOL, $exception->getMessage());
   echo PHP_EOL;
-  echo Color::wrap('red', $exception->getMessage() . PHP_EOL . PHP_EOL);
+  echo Color::wrap('white on red', array_shift($lines)) . PHP_EOL;
+  echo implode(PHP_EOL, $lines) . PHP_EOL . PHP_EOL;
   exit(1);
 }
 
+// Finish with a happy response.
 echo PHP_EOL;
-echo Color::wrap('green', 'Test complete.') . PHP_EOL . PHP_EOL;
+echo Color::wrap('white on green', 'Testing completed successfully.') . PHP_EOL . PHP_EOL;
 exit(0);

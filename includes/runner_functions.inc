@@ -5,8 +5,6 @@
  * These are functions available for writing tests.
  */
 
-use AKlump\CheckPages\SuiteFailedException;
-
 /**
  * Load the configuration file to use for the test.
  *
@@ -37,11 +35,5 @@ function load_config(string $config, bool $allow_override = TRUE) {
 function run_suite(string $path) {
   global $app;
 
-  try {
-    return $app->runSuite($path);
-  }
-  catch (SuiteFailedException $exception) {
-    // TODO Add ability to configure if this stops execution of all tests or not.
-    // Purposefully left blank.
-  }
+  return $app->runSuite($path);
 }

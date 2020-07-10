@@ -45,9 +45,9 @@ if (($dir = $cli->getParam('dir'))) {
   $app->addResolveDirectory($dir);
 }
 
-$test = $app->getTest();
+$test = $app->getRunner();
 if (!$test) {
-  throw new \InvalidArgumentException('You must pass a resolvable path to your test file, as the only argument, e.g., ./check_pages test.php');
+  throw new \InvalidArgumentException('You must pass a resolvable path to your PHP runner file, as the only argument, e.g., ./check_pages runner.php');
 }
 
-require_once ROOT . '/includes/test_functions.inc';
+require_once ROOT . '/includes/runner_functions.inc';

@@ -14,10 +14,11 @@ use Symfony\Component\Yaml\Yaml;
 
 class CheckPages {
 
-  /**
-   * @var int
-   */
-  public $failedSuiteCount = 0;
+  protected $totalTestCount = 0;
+
+  protected $failedTestCount = 0;
+
+  protected $failedSuiteCount = 0;
 
   /**
    * @var int
@@ -100,6 +101,8 @@ class CheckPages {
    *
    * @param string $path
    *   A resolvable path to the config file.
+   *
+   * @see load_config()
    */
   public function setConfig(string $path) {
     $this->configPath = $path;
@@ -119,7 +122,7 @@ class CheckPages {
    * @return string
    *   The resolved test filepath.
    */
-  public function getTest(): string {
+  public function getRunner(): string {
     try {
       return $this->resolve((string) $this->bash->getArg(1));
     }
@@ -131,13 +134,165 @@ class CheckPages {
   /**
    * Run a test file.
    *
-   * @param string $test
+   * @param string $path
+   *   A resolvable path to a PHP runner file.
+   *
+   * @throws \RuntimeException If the test completed with failures.
+   * @throws \AKlump\CheckPages\SuiteFailedException If the runner stopped
+   *   before it was finished due to a failure.
+   * @throws \AKlump\CheckPages\TestFailedException If the runner stopped
+   *   before it was finished due to a failure.
    */
-  public function runTest(string $test) {
-    $this->preflight = TRUE;
-    require $test;
-    $this->preflight = FALSE;
-    require $test;
+  public function run(string $path) {
+    try {
+      $runner = $this->getRunner();
+      echo Color::wrap('blue', sprintf('Testing started with "%s"', basename($runner))) . PHP_EOL;
+      $this->preflight = TRUE;
+      require $runner;
+      $this->preflight = FALSE;
+      require $runner;
+    }
+    catch (StopRunnerException $exception) {
+      throw $exception;
+    }
+
+    if ($this->failedTestCount) {
+      throw new \RuntimeException(sprintf("Testing complete with %d out of %d tests failing.", $this->failedTestCount, $this->totalTestCount));
+    }
+  }
+
+  /**
+   * Visit an URLs definition found in $path.
+   *
+   * @param string $path
+   *   A resolvable path to a yaml file.
+   *
+   * @throws \AKlump\CheckPages\TestFailedException
+   * @throws \AKlump\CheckPages\SuiteFailedException
+   * @see run_suite()
+   *
+   */
+  public function runSuite(string $path) {
+    $this->config = $this->validateAndLoadYaml($this->configPath, 'schema.config.json');
+    $data = $this->validateAndLoadYaml($path, 'schema.visit.json');
+
+    $this->longestUrl = array_reduce($data, function ($carry, $item) {
+      return max($carry, strlen($item['url'] ?? $item));
+    }, $this->longestUrl);
+    $results = [];
+
+    // The preflight is to determine the longest URL so that all our tables are
+    // the same width.
+    if ($this->preflight) {
+      return;
+    }
+
+    if (empty($this->printed['base_url'])) {
+      echo Color::wrap('blue', sprintf('Base URL is %s', $this->config['base_url'])) . PHP_EOL;
+      $this->printed['base_url'] = TRUE;
+    }
+    echo Color::wrap('blue', sprintf('Running "%s" suite...', $path)) . PHP_EOL;
+
+    $this->debug = [];
+    $failed_tests = 0;
+    foreach ($data as $config) {
+      $config += [
+        'expect' => 200,
+        'find' => '',
+      ];
+      $result = $this->runTest($config);
+
+      $status = $result['status'];
+      if ($this->debugging) {
+        $status = sprintf("Expected %d, got %d", $config['expect'], $result['status']);
+      }
+
+      $row = [
+        'url' => str_pad($config['url'], $this->longestUrl),
+        'status' => $status,
+        'result' => $result['pass'] ? 'pass' : 'FAIL',
+      ];
+      $results[] = $config + ['result' => $result];
+      $row = ['color' => $result['pass'] ? 'green' : 'red', 'data' => $row];
+      echo Output::columns([$row], array_fill_keys(array_keys($row), 'left'));
+
+      if ($this->debugging && $this->debug) {
+        $this->echoMessages();
+      }
+
+      // Decide if we should stop the runner or not.
+      if (!$result['pass']) {
+        $this->failedTestCount++;
+        $failed_tests++;
+        if ($this->config['stop_on_failed_test'] ?? FALSE) {
+          throw new TestFailedException($config);
+        }
+      }
+    }
+
+    if ($failed_tests) {
+      $this->failedSuiteCount++;
+      if ($this->config['stop_on_failed_suite'] ?? FALSE) {
+        throw new SuiteFailedException($path, $results);
+      }
+    }
+  }
+
+  protected function echoMessages() {
+    $messages = array_map(function ($item) {
+      $color_map = [
+        'error' => 'red',
+        'debug' => 'light gray',
+      ];
+
+      return Color::wrap($color_map[$item['level']], $item['data']);
+    }, $this->debug);
+    echo implode(PHP_EOL . PHP_EOL, $messages) . PHP_EOL;
+    $this->debug = [];
+  }
+
+  /**
+   * Handle visitation to a single URL.
+   *
+   * @param array $config
+   *
+   * @return array
+   * @throws \GuzzleHttp\Exception\GuzzleException
+   */
+  protected function runTest(array $config): array {
+    $this->totalTestCount++;
+    $client = new Client();
+    try {
+      $res = $client->request('GET', $this->url($config['url']));
+    }
+    catch (ClientException $exception) {
+      $res = $exception->getResponse();
+    }
+
+    $test_passed = $res->getStatusCode() == $config['expect'];
+
+    // Look for a piece of text on the page.
+    if ($config['find']) {
+      $body = strval($res->getBody());
+      foreach ($config['find'] as $needle) {
+        $assert = $this->handleFindAssert($needle, $body);
+        $test_passed = $test_passed ? $assert : FALSE;
+      }
+    }
+
+    if ($this->bash->hasParam('show-source')) {
+      if ($test_passed) {
+        $this->debug((string) $res->getBody());
+      }
+      else {
+        $this->fail((string) $res->getBody());
+      }
+    }
+
+    return [
+      'pass' => $test_passed,
+      'status' => $res->getStatusCode(),
+    ];
   }
 
   /**
@@ -198,120 +353,6 @@ class CheckPages {
   }
 
   /**
-   * Visit an URLs definition found in $path.
-   *
-   * @param string $path
-   *   A resolvable path to a yaml file.
-   */
-  public function runSuite(string $path) {
-    $this->config = $this->validateAndLoadYaml($this->configPath, 'schema.config.json');
-    $data = $this->validateAndLoadYaml($path, 'schema.visit.json');
-
-    $this->longestUrl = array_reduce($data, function ($carry, $item) {
-      return max($carry, strlen($item['url'] ?? $item));
-    }, $this->longestUrl);
-    $results = [];
-
-    // The preflight is to determine the longest URL so that all our tables are
-    // the same width.
-    if ($this->preflight) {
-      return;
-    }
-
-    if (empty($this->printed['base_url'])) {
-      echo Color::wrap('blue', sprintf('Base URL is %s', $this->config['base_url'])) . PHP_EOL;
-      $this->printed['base_url'] = TRUE;
-    }
-    echo Color::wrap('blue', sprintf('Running "%s" suite...', $path)) . PHP_EOL;
-
-    $this->debug = [];
-    foreach ($data as $config) {
-      $config += [
-        'expect' => 200,
-        'find' => '',
-      ];
-      $result = $this->visitUrl($config);
-
-      $status = $result['status'];
-      if ($this->debugging) {
-        $status = sprintf("Expected %d, got %d", $config['expect'], $result['status']);
-      }
-
-      $row = [
-        'url' => str_pad($config['url'], $this->longestUrl),
-        'status' => $status,
-        'result' => $result['pass'] ? 'pass' : 'FAIL',
-      ];
-      $results[] = $config + ['result' => $result];
-      $row = ['color' => $result['pass'] ? 'green' : 'red', 'data' => $row];
-      echo Output::columns([$row], array_fill_keys(array_keys($row), 'left'));
-
-      if ($this->debugging && $this->debug) {
-        $messages = array_map(function ($item) {
-          $color_map = [
-            'error' => 'red',
-            'debug' => 'light gray',
-          ];
-
-          return Color::wrap($color_map[$item['level']], $item['data']);
-        }, $this->debug);
-        echo PHP_EOL . implode(PHP_EOL . PHP_EOL, $messages) . PHP_EOL;
-      }
-
-      if (!$result['pass']) {
-        $this->failedSuiteCount++;
-        throw new SuiteFailedException($path, $results);
-      }
-    }
-  }
-
-  /**
-   * Handle visitation to a single URL.
-   *
-   * @param array $config
-   *
-   * @return array
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   */
-  protected function visitUrl(array $config): array {
-    $client = new Client();
-    try {
-      $res = $client->request('GET', $this->url($config['url']));
-    }
-    catch (ClientException $exception) {
-      $res = $exception->getResponse();
-    }
-
-    $pass = $res->getStatusCode() == $config['expect'];
-
-    // Look for a piece of text on the page.
-    if ($pass && $config['find']) {
-      $body = strval($res->getBody());
-      foreach ($config['find'] as $needle) {
-        $pass = $this->handleSingleFind($needle, $body);
-        if (!$pass) {
-          // TODO Make this a configurable option to break or continue.
-          break;
-        }
-      }
-    }
-
-    if ($this->bash->hasParam('show-source')) {
-      if ($pass) {
-        $this->debug((string) $res->getBody());
-      }
-      else {
-        $this->fail((string) $res->getBody());
-      }
-    }
-
-    return [
-      'pass' => $pass,
-      'status' => $res->getStatusCode(),
-    ];
-  }
-
-  /**
    * Apply a single find action in the text.
    *
    * @param array|string $needle
@@ -324,7 +365,7 @@ class CheckPages {
    * @return bool
    *   True if the find was successful.
    */
-  protected function handleSingleFind($needle, string $haystack): bool {
+  protected function handleFindAssert($needle, string $haystack): bool {
     $pass = NULL;
 
     // This is a text on page search.
@@ -369,21 +410,21 @@ class CheckPages {
         }
 
         if (!$pass) {
-          $this->fail(sprintf('Expecting %s to have a count of %d.  The actual count is %d.', $needle['dom'], $needle['count'], $actual));
+          $this->fail(sprintf('└──Expecting %s to have a count of %d.  The actual count is %d.', $needle['dom'], $needle['count'], $actual));
         }
       }
       elseif (isset($needle['match'])) {
         $actual = trim($crawler->first()->text());
         $pass = preg_match($needle['match'], $actual) === 1;
         if (!$pass) {
-          $this->fail(sprintf('Unable to match the "%s" value "%s" against the RegEx "%s".', $needle['dom'], $actual, $needle['match']));
+          $this->fail(sprintf('└──Unable to match the "%s" value "%s" against the RegEx "%s".', $needle['dom'], $actual, $needle['match']));
         }
       }
       elseif (is_string($needle['exact'])) {
         $actual = trim($crawler->first()->text());
         $pass = $actual === $needle['exact'];
         if (!$pass) {
-          $this->fail(sprintf('Expecting %s to have an exact text value of "%s".  The actual value is "%s".', $needle['dom'], $needle['exact'], $actual));
+          $this->fail(sprintf("└──Expecting %s to have an exact text value of:\n\n>>> %s\n\nThe actual value is:\n\n>>> %s\n\n", $needle['dom'], $needle['exact'], $actual));
         }
       }
     }
@@ -392,12 +433,12 @@ class CheckPages {
     elseif (isset($needle['match'])) {
       $pass = preg_match($needle['match'], $haystack);
       if (!$pass) {
-        $this->fail(sprintf('Could not match against RegEx "%s".', $needle['match']));
+        $this->fail(sprintf('└──Could not match against RegEx "%s".', $needle['match']));
       }
     }
 
     if (is_null($pass)) {
-      throw new \RuntimeException(sprintf("Unable to process single find %s", json_encode($needle)));
+      throw new \RuntimeException(sprintf("└──Unable to process single find %s", json_encode($needle)));
     }
 
     return $pass;

@@ -6,5 +6,5 @@
  */
 
 load_config('config');
-run_suite('fail_response_code');
 run_suite('fail_bad_url');
+run_suite('fail_response_code');

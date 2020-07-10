@@ -1,14 +1,14 @@
 # Check Pages
 
-This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain.  You write your test suites in YAML and they can look as simple as this:
+This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain.  You write your tests using YAML and they can look as simple as these two tests:
 
     - url: /
     - url: /admin
       expect: 403
 
-That suite will check the homepage to make sure it returns a 200 HTTP status code.  Then it will make sure the `/admin` path returns forbidden.
+The first test will check the homepage to make sure it returns a 200 HTTP status code.  The second test will make sure the `/admin` path returns 403 forbidden.
 
-In another suite we check that there is one logo image on the homepage, like so:
+In a third test we can assert there is one logo image on the homepage, like so:
 
     - url: /
       find:
@@ -16,6 +16,13 @@ In another suite we check that there is one logo image on the homepage, like so:
           count: 1
 
 For more code examples explore the _/install_ directory.
+
+## Terms Used
+
+* _Test Runner_ - A very simple PHP file that defines the configuration and what test suites to run, and in what order.  @see _includes/runner.php_.
+* _Test Suite_ - A YAML file that includes one or more checks against URLs. @see _includes/suite.yml_.
+* _Test_ - A single URL check within a suite.
+* _Assertion_ - A single find action against the response body of a test, or a validation that the HTTP response code matches an expected value.
 
 ## Install
 
@@ -25,14 +32,14 @@ The following creates a stand-alone project in a folder named _check-pages_.  _S
 
 ## Quick Start
 
-Run the example test suite<sup>1</sup> with the following commands.  Then open up the files in the _tests_ directory and study them to see how they work.
+Run the example tests with the following commands.  Then open up the files in the _tests_ directory and study them to see how they work.<sup>1</sup>
 
     $ cd check-pages
-    $ ./check_pages test.php
+    $ ./check_pages runner.php
 
 Some failing tests are also available to explore:
 
-    $ ./check_pages failing_test.php
+    $ ./check_pages failing_tests_runner.php
     
 <sup>1</sup> If you see no _tests_ directory then create one and copy the contents of _install_ into _tests_.  The example _tests_ directory will only be created if you use `create-project` as the installation method.
  
@@ -40,8 +47,8 @@ Some failing tests are also available to explore:
 
 Try using the `--debug` parameter to troubleshoot failures.  Add `--show-source` to see the response source code as well.
 
-    ./check_pages failing_test.php --debug
-    ./check_pages failing_test.php --debug --show-source  
+    ./check_pages failing_tests_runner.php --debug
+    ./check_pages failing_tests_runner.php --debug --show-source  
 
 ## On Your Own
 
@@ -53,7 +60,7 @@ You will need a bare minimum file structure resembling:
     └── tests
         └── config.yml
         ├── suite.yml
-        └── test.php
+        └── runner.php
 
 ### Multiple Configuration Files
 
@@ -64,15 +71,15 @@ The project is designed to be able to run the same tests using different configu
         ├── config.dev.yml
         ├── config.live.yml
         ├── suite.yml
-        └── test.php
+        └── runner.php
     
-In _test.php_ use the following line to specify the default config file:
+In _runner.php_ use the following line to specify the default config file:
 
     load_config('config.dev');
 
 When you're ready to run this using the live config add the config filename to the CLI command, e.g.,
 
-    $ ./check_pages test.php --config=config.live
+    $ ./check_pages runner.php --config=config.live
 
 ### Test functions
 
@@ -88,13 +95,13 @@ If you want to share dependencies with another project, like Drupal 8 for exampl
 
 In this case, since the project will be buried in your vendor directory, you will need to provide the directory path to your test files, when you run the test script, like this:
 
-    ./vendor/bin/check_pages test.php --dir=./tests_check_pages
+    ./vendor/bin/check_pages runner.php --dir=./tests_check_pages
     
 This example assumes a file structure like this:
 
     .
     ├── tests_check_pages
-    │   └── test.php
+    │   └── runner.php
     └── vendor
         └── bin
             └── check_pages  
