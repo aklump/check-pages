@@ -14,7 +14,15 @@ use Symfony\Component\Yaml\Yaml;
 
 class CheckPages {
 
+  /**
+   * @var int
+   */
   public $failedSuiteCount = 0;
+
+  /**
+   * @var array
+   */
+  protected $resolvePaths = [];
 
   /**
    * @var bool
@@ -62,6 +70,8 @@ class CheckPages {
    */
   public function __construct(string $root_dir, Bash $bash) {
     $this->rootDir = $root_dir;
+    $this->addResolveDirectory($this->rootDir);
+    $this->addResolveDirectory($this->rootDir . '/tests/');
     $this->bash = $bash;
   }
 
@@ -69,6 +79,14 @@ class CheckPages {
     $this->configPath = $path;
 
     return $this;
+  }
+
+  /**
+   * @param string $path
+   *   An absolute path to a directory to be used for resolving paths.
+   */
+  public function addResolveDirectory(string $path) {
+    $this->resolvePaths[] = $path;
   }
 
   public function getTest(): string {
@@ -81,14 +99,12 @@ class CheckPages {
   }
 
   protected function resolve(string $path) {
-    $candidates = [
-      $path,
-      $this->rootDir . '/tests/' . $path,
-      $this->rootDir . '/tests/' . $path . '.yml',
-      $this->rootDir . '/' . $path,
-      $this->rootDir . '/' . $path . '.yml',
-    ];
-
+    $candidates = [$path];
+    foreach ($this->resolvePaths as $resolve_path) {
+      $resolve_path = rtrim($resolve_path, '/');
+      $candidates[] = $resolve_path . '/' . $path;
+      $candidates[] = $resolve_path . '/' . $path . '.yml';
+    }
     while (($try = array_shift($candidates))) {
       if (is_file($try)) {
         return $try;

@@ -16,9 +16,10 @@ In the second suite we check that there is one logo image on the homepage, like 
           count: 1
 
 For other examples explore the _/install_ directory.
+
 ## Install
 
-Run the following and a folder named check-pages will be created with this project.
+Run the following and a stand-alone project will be created in a folder called _check-pages_.
 
     $ composer create-project aklump/check-pages
 
@@ -77,11 +78,16 @@ The test functions for your PHP test files are found in _includes/test_functions
 
 If you find this project useful... please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4E5KZHDQCEUV8&item_name=Gratitude%20for%20aklump%2Fcheck-pages).
 
-## Install as part of another Composer App
+## Install In Another Composer Project
 If you want to share dependencies with another project, like Drupal 8 for example, then run the following from your Drupal app root directory.
 
     $ composer require aklump/check-pages
-    
+
+### Usage
+
+In this case, since the project will be buried in your vendor directory, you will need to provide the directory path to your test files, e.g.,
+
+    ./check_pages test.php --dir=/Users/aklump/Projects/app/tests_check_pages    
 ## Limitations
 
 * This does not run Javascript, so DOM selections will not work if they require that JS run.

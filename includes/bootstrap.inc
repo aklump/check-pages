@@ -10,7 +10,22 @@ use AKlump\LoftLib\Bash\Bash;
 use AKlump\LoftLib\Bash\Color;
 use AKlump\LoftLib\Storage\FilePath;
 
-require_once ROOT . '/vendor/autoload.php';
+$dir = __DIR__ . '/..';
+
+if (!file_exists($dir . '/autoload.php')) {
+  $dir = __DIR__ . '/../vendor';
+}
+
+if (!file_exists($dir . '/autoload.php')) {
+  $dir = __DIR__ . '/../../..';
+}
+
+if (!file_exists($dir . '/autoload.php')) {
+  echo 'Autoload not found.';
+  exit(1);
+}
+
+require $dir . '/autoload.php';
 
 $cli = new Bash($argv);
 
@@ -23,6 +38,7 @@ if (($diff = array_diff($cli->getFlags(), ['v']))) {
 if (($diff = array_diff_key($cli->getParams(), array_flip([
 
   // Enter valid parameters.
+  'dir',
   'config',
   'debug',
   'show-source',
@@ -39,10 +55,16 @@ if ($cli->hasFlag('v')) {
 }
 
 $app = new CheckPages(ROOT, $cli);
+if (($dir = $cli->getParam('dir'))) {
+  if (!is_dir($dir)) {
+    throw new \InvalidArgumentException("\"$dir\" must be an existing directory.");
+  }
+  $app->addResolveDirectory($dir);
+}
 
 $test = $app->getTest();
 if (!$test) {
-  throw new \InvalidArgumentException('You must pass a resolvable path to your test file, as the only argument, e.g., ./run.php live');
+  throw new \InvalidArgumentException('You must pass a resolvable path to your test file, as the only argument, e.g., ./check_pages test.php');
 }
 
 require_once ROOT . '/includes/test_functions.inc';
