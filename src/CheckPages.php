@@ -20,6 +20,16 @@ class CheckPages {
   public $failedSuiteCount = 0;
 
   /**
+   * @var int
+   */
+  protected $longestUrl = 0;
+
+  /**
+   * @var bool
+   */
+  protected $preflight;
+
+  /**
    * @var array
    */
   protected $resolvePaths = [];
@@ -98,6 +108,13 @@ class CheckPages {
     }
   }
 
+  public function runTest(string $test) {
+    $this->preflight = TRUE;
+    require $test;
+    $this->preflight = FALSE;
+    require $test;
+  }
+
   protected function resolve(string $path) {
     $candidates = [$path];
     foreach ($this->resolvePaths as $resolve_path) {
@@ -158,18 +175,24 @@ class CheckPages {
    */
   public function runSuiteFromFile(string $path): array {
     $this->config = $this->validateAndLoadYaml($this->configPath, 'schema.config.json');
+    $data = $this->validateAndLoadYaml($path, 'schema.visit.json');
+
+    $this->longestUrl = array_reduce($data, function ($carry, $item) {
+      return max($carry, strlen($item['url'] ?? $item));
+    }, $this->longestUrl);
+    $results = [];
+
+    // The preflight is to determine the longest URL so that all our tables are
+    // the same width.
+    if ($this->preflight) {
+      return $results;
+    }
+
     if (empty($this->printed['base_url'])) {
       echo Color::wrap('blue', sprintf('Base URL is %s', $this->config['base_url'])) . PHP_EOL;
       $this->printed['base_url'] = TRUE;
     }
     echo Color::wrap('blue', sprintf('Running "%s" suite...', $path)) . PHP_EOL;
-
-    $results = [];
-    $data = $this->validateAndLoadYaml($path, 'schema.visit.json');
-
-    $longest_url = array_reduce($data, function ($carry, $item) {
-      return max($carry, strlen($item['url'] ?? $item));
-    });
 
     $this->debug = [];
     foreach ($data as $config) {
@@ -185,7 +208,7 @@ class CheckPages {
       }
 
       $row = [
-        'url' => str_pad($config['url'], $longest_url),
+        'url' => str_pad($config['url'], $this->longestUrl),
         'status' => $status,
         'result' => $result['pass'] ? 'pass' : 'FAIL',
       ];

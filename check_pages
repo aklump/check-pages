@@ -31,7 +31,7 @@ try {
   require ROOT . '/includes/bootstrap.inc';
   $test = $app->getTest();
   echo Color::wrap('blue', sprintf('Running test "%s"', strtoupper(basename($test)))) . PHP_EOL;
-  require $test;
+  $app->runTest($test);
 }
 catch (\Exception $exception) {
   echo PHP_EOL;
