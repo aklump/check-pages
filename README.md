@@ -2,21 +2,19 @@
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ac blandit risus. Mauris tempor a lacus a placerat. Vivamus viverra dapibus metus non finibus. Nulla ultricies est nulla, eget efficitur nibh viverra non. Sed sed est viverra nunc malesuada venenatis vitae at tellus. Suspendisse potenti. Morbi non blandit elit, sit amet consectetur mi.
 
-## Install Globally Using Composer
+## Install
 
-To be able to use `check` from any directory in your CLI you may want to install this globally.
-
-    composer global require aklump/check_pages
-
-Make sure you have the composer bin dir in your `PATH`. The default value is _~/.composer/vendor/bin_, but you can check the value that you need to use by running `composer global config bin-dir --absolute`.
-    
-To check this you must open _~/.bash_profile_ (or _~/.bashrc_); you're looking for a line that looks like the following, if you can't find, you'll need to add it.
-                                 
-    export PATH=~/.composer/vendor/bin:$PATH
+    $ composer require aklump/check-pages
 
 ## Usage
 
-    $ check
+    $ ./check suite.php
+    
+## Troubleshooting
+
+Try using the `--debug` parameter to troubleshoot failures.
+
+    ./check suite.php --debug    
     
 ## Contributing
 
