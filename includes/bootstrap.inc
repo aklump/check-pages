@@ -23,6 +23,7 @@ if (($diff = array_diff($cli->getFlags(), ['v']))) {
 if (($diff = array_diff_key($cli->getParams(), array_flip([
 
   // Enter valid parameters.
+  'config',
   'debug',
   'show-source',
 ])))) {
