@@ -379,11 +379,11 @@ class CheckPages {
           $this->fail(sprintf('Unable to match the "%s" value "%s" against the RegEx "%s".', $needle['dom'], $actual, $needle['match']));
         }
       }
-      elseif (is_string($needle['expect'])) {
+      elseif (is_string($needle['exact'])) {
         $actual = trim($crawler->first()->text());
-        $pass = $actual === $needle['expect'];
+        $pass = $actual === $needle['exact'];
         if (!$pass) {
-          $this->fail(sprintf('Expecting %s to have a text value of "%s".  The actual value is "%s".', $needle['dom'], $needle['expect'], $actual));
+          $this->fail(sprintf('Expecting %s to have an exact text value of "%s".  The actual value is "%s".', $needle['dom'], $needle['exact'], $actual));
         }
       }
     }

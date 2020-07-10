@@ -73,14 +73,14 @@
                             "type": "object",
                             "required": [
                                 "dom",
-                                "expect"
+                                "exact"
                             ],
                             "additionalProperties": false,
                             "properties": {
                                 "dom": {
                                     "$ref": "#/definitions/dom"
                                 },
-                                "expect": {
+                                "exact": {
                                     "type": [
                                         "string",
                                         "integer"
