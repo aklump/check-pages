@@ -1,5 +1,6 @@
 # Load the homepage of the website.
 - url: /
+
   # This can be omitted if it is 200, if you expect any other HTTP status code
   # you must enter it here or this URL test will fail.
   expect: 200

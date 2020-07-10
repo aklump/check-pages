@@ -2,12 +2,7 @@
 
 /**
  * @file
- * Assert ITLS pages are working.
- *
- * Run this test using the following CLI code:
- * @code
- *   ./check suite.php
- * @endcode
+ * A test that will purposeful, failing test suites.
  */
 
 load_config('config');
