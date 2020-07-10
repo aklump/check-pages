@@ -15,8 +15,6 @@ use AKlump\CheckPages\SuiteFailedException;
  * @param bool $allow_override
  *   By default the CLI option --config will override $config.  Set this to
  *   false to block that handling.
- *
- * @return \AKlump\CheckPages\CheckPages|\Drupal\TestSite\TestSiteApplication|\Silex\Application|\Symfony\Component\Console\Application
  */
 function load_config(string $config, bool $allow_override = TRUE) {
   global $app, $cli;
@@ -25,7 +23,7 @@ function load_config(string $config, bool $allow_override = TRUE) {
     $config = $override;
   }
 
-  return $app->setConfig($config);
+  $app->setConfig($config);
 }
 
 /**
@@ -40,7 +38,7 @@ function run_suite(string $path) {
   global $app;
 
   try {
-    return $app->runSuiteFromFile($path);
+    return $app->runSuite($path);
   }
   catch (SuiteFailedException $exception) {
     // TODO Add ability to configure if this stops execution of all tests or not.

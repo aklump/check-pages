@@ -85,10 +85,14 @@ class CheckPages {
     $this->bash = $bash;
   }
 
+  /**
+   * Set the config file.
+   *
+   * @param string $path
+   *   A resolvable path to the config file.
+   */
   public function setConfig(string $path) {
     $this->configPath = $path;
-
-    return $this;
   }
 
   /**
@@ -99,6 +103,12 @@ class CheckPages {
     $this->resolvePaths[] = $path;
   }
 
+  /**
+   * Get the resolved test filepath.
+   *
+   * @return string
+   *   The resolved test filepath.
+   */
   public function getTest(): string {
     try {
       return $this->resolve((string) $this->bash->getArg(1));
@@ -108,6 +118,11 @@ class CheckPages {
     }
   }
 
+  /**
+   * Run a test file.
+   *
+   * @param string $test
+   */
   public function runTest(string $test) {
     $this->preflight = TRUE;
     require $test;
@@ -115,6 +130,14 @@ class CheckPages {
     require $test;
   }
 
+  /**
+   * Resolve a path.
+   *
+   * @param string $path
+   *
+   * @return string
+   *   The resolved full path to a file if it exists.
+   */
   protected function resolve(string $path) {
     $candidates = [$path];
     foreach ($this->resolvePaths as $resolve_path) {
@@ -135,7 +158,6 @@ class CheckPages {
    *
    * @param string $relative_url
    *   THe relative URL, beginning with an '/'.
-   *
    *
    * @return string
    *   The absolute URL.
@@ -170,10 +192,8 @@ class CheckPages {
    *
    * @param string $path
    *   A resolvable path to a yaml file.
-   *
-   * @return array
    */
-  public function runSuiteFromFile(string $path): array {
+  public function runSuite(string $path) {
     $this->config = $this->validateAndLoadYaml($this->configPath, 'schema.config.json');
     $data = $this->validateAndLoadYaml($path, 'schema.visit.json');
 
@@ -185,7 +205,7 @@ class CheckPages {
     // The preflight is to determine the longest URL so that all our tables are
     // the same width.
     if ($this->preflight) {
-      return $results;
+      return;
     }
 
     if (empty($this->printed['base_url'])) {
@@ -233,8 +253,6 @@ class CheckPages {
         throw new SuiteFailedException($path, $results);
       }
     }
-
-    return $results;
   }
 
   /**
@@ -358,12 +376,22 @@ class CheckPages {
     return $pass;
   }
 
-  protected function debug($message) {
+  /**
+   * Add a debug message.
+   *
+   * @param $message
+   */
+  protected function debug(string $message) {
     $this->debug[] = ['data' => $message, 'level' => 'debug'];
   }
 
-  protected function fail($message) {
-    $this->debug[] = ['data' => $message, 'level' => 'error'];
+  /**
+   * Add a failure reason.
+   *
+   * @param string $reason
+   */
+  protected function fail(string $reason) {
+    $this->debug[] = ['data' => $reason, 'level' => 'error'];
   }
 
 }
