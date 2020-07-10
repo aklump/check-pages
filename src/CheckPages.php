@@ -194,10 +194,15 @@ class CheckPages {
       echo Output::columns([$row], array_fill_keys(array_keys($row), 'left'));
 
       if ($this->bash->hasParam('debug') && $this->debug) {
-        $debug = array_map(function ($item) {
-          return $item['data'];
+        $messages = array_map(function ($item) {
+          $color_map = [
+            'error' => 'red',
+            'debug' => 'light gray',
+          ];
+
+          return Color::wrap($color_map[$item['level']], $item['data']);
         }, $this->debug);
-        echo Color::wrap('red', PHP_EOL . implode(PHP_EOL . PHP_EOL, $debug) . PHP_EOL);
+        echo PHP_EOL . implode(PHP_EOL . PHP_EOL, $messages) . PHP_EOL;
       }
 
       if (!$result['pass']) {
@@ -209,6 +214,14 @@ class CheckPages {
     return $results;
   }
 
+  /**
+   * Handle visitation to a single URL.
+   *
+   * @param array $config
+   *
+   * @return array
+   * @throws \GuzzleHttp\Exception\GuzzleException
+   */
   protected function visitUrl(array $config): array {
     $client = new Client();
     try {
@@ -233,7 +246,12 @@ class CheckPages {
     }
 
     if ($this->bash->hasParam('show-source')) {
-      $this->debug((string) $res->getBody());
+      if ($pass) {
+        $this->debug((string) $res->getBody());
+      }
+      else {
+        $this->fail((string) $res->getBody());
+      }
     }
 
     return [
@@ -260,13 +278,13 @@ class CheckPages {
     if (!is_array($needle)) {
       $pass = strpos($haystack, $needle) !== FALSE;
       if (!$pass) {
-        $this->debug(sprintf('Could not find the "%s" in the response body.', $needle));
+        $this->fail(sprintf('Could not find the "%s" in the response body.', $needle));
       }
     }
     elseif (isset($needle['match'])) {
       $pass = preg_match($needle['match'], $haystack);
       if (!$pass) {
-        $this->debug(sprintf('Could not match against RegEx "%s".', $needle['match']));
+        $this->fail(sprintf('Could not match against RegEx "%s".', $needle['match']));
       }
     }
     elseif (isset($needle['dom'])) {
@@ -302,14 +320,14 @@ class CheckPages {
         }
 
         if (!$pass) {
-          $this->debug(sprintf('Expecting %s to have a count of %d.  The actual count is %d.', $needle['dom'], $needle['count'], $actual));
+          $this->fail(sprintf('Expecting %s to have a count of %d.  The actual count is %d.', $needle['dom'], $needle['count'], $actual));
         }
       }
       elseif (is_string($needle['expect'])) {
         $actual = trim($crawler->first()->text());
         $pass = $actual === $needle['expect'];
         if (!$pass) {
-          $this->debug(sprintf('Expecting %s to have a text value of "%s".  The actual value is "%s".', $needle['dom'], $needle['expect'], $actual));
+          $this->fail(sprintf('Expecting %s to have a text value of "%s".  The actual value is "%s".', $needle['dom'], $needle['expect'], $actual));
         }
       }
     }
@@ -318,7 +336,11 @@ class CheckPages {
   }
 
   protected function debug($message) {
-    $this->debug[] = ['data' => $message];
+    $this->debug[] = ['data' => $message, 'level' => 'debug'];
+  }
+
+  protected function fail($message) {
+    $this->debug[] = ['data' => $message, 'level' => 'error'];
   }
 
 }
