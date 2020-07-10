@@ -1,0 +1,31 @@
+{
+    "name": "aklump\/check-pages",
+    "type": "library",
+    "description": "",
+    "keywords": [],
+    "homepage": "https:\/\/github.com\/aklump\/check-pages",
+    "license": "BSD-3-Clause",
+    "autoload": {
+        "psr-4": {
+            "AKlump\\CheckPages\\": "src\/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Aaron Klump",
+            "email": "sourcecode@intheloftstudios.com"
+        }
+    ],
+    "require": {
+        "aklump/loft-lib": "^1.1",
+        "guzzlehttp/guzzle": "^7.0",
+        "symfony/yaml": "^5.1",
+        "justinrainbow/json-schema": "^5.2",
+        "symfony/dom-crawler": "^5.1",
+        "symfony/css-selector": "^5.1"
+    },
+    "version": "1.0",
+    "bin": [
+        ".\/check"
+    ]
+}

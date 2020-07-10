@@ -1,0 +1,28 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ *
+ * This is the CLI controller for check_pages
+ */
+
+use AKlump\LoftLib\Bash\Color;
+
+define('ROOT', dirname(__FILE__));
+
+try {
+  require ROOT . '/includes/bootstrap.inc';
+  $test = $app->getTest();
+  echo Color::wrap('blue', sprintf('Running test "%s"', strtoupper(basename($test)))) . PHP_EOL;
+  require $test;
+}
+catch (\Exception $exception) {
+  echo PHP_EOL;
+  echo Color::wrap('red', $exception->getMessage() . PHP_EOL . PHP_EOL);
+  exit(1);
+}
+
+echo PHP_EOL;
+echo Color::wrap('green', 'Test complete.') . PHP_EOL . PHP_EOL;
+exit(0);

@@ -1,0 +1,53 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Config Schema",
+  "type": "object",
+  "required": [
+    "base_url"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "base_url": {
+      "title": "Base URL",
+      "type": "string",
+      "default": "",
+      "examples": [
+        "https://www.mywebsite.com",
+        "http://mywebsite.local"
+      ],
+      "pattern": "^(http|https)://.+$"
+    },
+    "users": {
+      "title": "Users",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "pass"
+        ],
+        "properties": {
+          "name": {
+            "title": "Username",
+            "type": "string",
+            "default": "",
+            "examples": [
+              "uber"
+            ],
+            "pattern": "^.+$"
+          },
+          "pass": {
+            "title": "Password",
+            "type": "string",
+            "default": "",
+            "examples": [
+              "foo"
+            ],
+            "pattern": "^.+$"
+          }
+        }
+      }
+    }
+  }
+}

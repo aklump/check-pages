@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Visit Schema",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "url"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "url": {
+        "type": "string",
+        "examples": [
+          "/",
+          "/foo",
+          "/foo?do=re"
+        ],
+        "pattern": "^/"
+      },
+      "expect": {
+        "type": "integer",
+        "examples": [
+          200,
+          403,
+          404
+        ],
+        "default": 200
+      },
+      "find": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "oneOf": [
+            {
+              "type": "string",
+              "default": "",
+              "examples": [
+                "foo"
+              ],
+              "pattern": "^.+$"
+            },
+            {
+              "type": "object",
+              "required": [
+                "dom",
+                "expect"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "dom": {
+                  "type": "string",
+                  "examples": [
+                    "h1.layout-region__title"
+                  ]
+                },
+                "expect": {
+                  "type": [
+                    "string",
+                    "integer"
+                  ],
+                  "examples": [
+                    "My Front Page",
+                    1
+                  ]
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "match"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "match": {
+                  "type": "string",
+                  "pattern": "^\/.+\/",
+                  "examples": [
+                    "/\\d+ items in cart/i"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "dom",
+                "count"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "dom": {
+                  "type": "string",
+                  "examples": [
+                    "#foo-bar"
+                  ]
+                },
+                "count": {
+                  "type": [
+                    "integer",
+                    "string"
+                  ],
+                  "examples": [
+                    1
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
