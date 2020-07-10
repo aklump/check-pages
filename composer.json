@@ -21,8 +21,8 @@
         "guzzlehttp/guzzle": "^6.0",
         "symfony/yaml": "^4",
         "justinrainbow/json-schema": "^5.2",
-        "symfony/dom-crawler": "^3.0",
-        "symfony/css-selector": "~4.0"
+        "symfony/dom-crawler": "^3.0|^5.0",
+        "symfony/css-selector": "~4.0|^5.0"
     },
     "version": "0.1.0",
     "bin": [

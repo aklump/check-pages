@@ -290,7 +290,7 @@ class CheckPages {
         }
       }
       elseif (is_string($needle['expect'])) {
-        $actual = $crawler->first()->text();
+        $actual = trim($crawler->first()->text());
         $pass = $actual === $needle['expect'];
         if (!$pass) {
           $this->debug(sprintf('Expecting %s to have a text value of "%s".  The actual value is "%s".', $needle['dom'], $needle['expect'], $actual));
