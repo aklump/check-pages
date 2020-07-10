@@ -26,7 +26,7 @@
     },
     "version": "0.1.0",
     "bin": [
-        ".\/check"
+        ".\/check_pages"
     ],
     "scripts": {
         "post-create-project-cmd": [

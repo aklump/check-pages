@@ -27,18 +27,18 @@ Run the following and a folder named check-pages will be created with this proje
 To see the example test suite being run do the following.  Then open up the files in the _tests_ directory and study them to see how they work.
 
     $ cd check-pages
-    $ ./check test.php
+    $ ./check_pages test.php
 
 Some failing tests are also available to explore:
 
-    $ ./check failing_test.php
+    $ ./check_pages failing_test.php
     
 ### Troubleshooting
 
 Try using the `--debug` parameter to troubleshoot failures.  Add `--show-source` to see the response source code as well.
 
-    ./check failing_test.php --debug
-    ./check failing_test.php --debug --show-source  
+    ./check_pages failing_test.php --debug
+    ./check_pages failing_test.php --debug --show-source  
 
 ## On Your Own
 
@@ -67,7 +67,7 @@ In _test.php_ use the following line to specify the default config file:
 
 When you're ready to run this using the live config add the config filename to the CLI command, e.g.,
 
-    $ ./check test.php --config=config.live
+    $ ./check_pages test.php --config=config.live
 
 ### Test functions
 
