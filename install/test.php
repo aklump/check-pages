@@ -10,4 +10,5 @@
  * @endcode
  */
 
-run_suite('pages');
+load_config('config');
+run_suite('suite');

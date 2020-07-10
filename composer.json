@@ -27,5 +27,10 @@
     "version": "0.1.0",
     "bin": [
         ".\/check"
-    ]
+    ],
+    "scripts": {
+        "post-create-project-cmd": [
+            "cp -R install tests"
+        ]
+    }
 }

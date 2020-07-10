@@ -1,0 +1,6 @@
+# /foo does not exist, but if we expect a 404 the first test will pass...
+- url: /foo
+  expect: 404
+
+# ... yet this one will fail, because the default expect value is 200.
+- url: /foo

@@ -24,6 +24,7 @@ if (($diff = array_diff_key($cli->getParams(), array_flip([
 
   // Enter valid parameters.
   'debug',
+  'show-source',
 ])))) {
   throw new \InvalidArgumentException("Unknown parameter: " . key($diff));
 }
@@ -43,14 +44,4 @@ if (!$test) {
   throw new \InvalidArgumentException('You must pass a resolvable path to your test file, as the only argument, e.g., ./run.php live');
 }
 
-function read_config(string $config) {
-  global $app;
-
-  return $app->setConfig($config);
-}
-
-function run_suite(string $path) {
-  global $app;
-
-  return $app->runSuiteFromFile($path);
-}
+require_once ROOT . '/includes/test_functions.inc';

@@ -14,6 +14,8 @@ use Symfony\Component\Yaml\Yaml;
 
 class CheckPages {
 
+  public $failedSuiteCount = 0;
+
   /**
    * @var bool
    */
@@ -60,13 +62,6 @@ class CheckPages {
    */
   public function __construct(string $root_dir, Bash $bash) {
     $this->rootDir = $root_dir;
-    try {
-      $this->setConfig('config.yml');
-    }
-    catch (\Exception $exception) {
-      // We try to resolve with an expected name, but will not throw if it
-      // doesn't.  In such case the test file must contain read_config().
-    }
     $this->bash = $bash;
   }
 
@@ -167,10 +162,16 @@ class CheckPages {
         'find' => '',
       ];
       $result = $this->visitUrl($config);
+
+      $status = $result['status'];
+      if ($this->bash->hasParam('debug')) {
+        $status = sprintf("Expected %d, got %d", $config['expect'], $result['status']);
+      }
+
       $row = [
         'url' => str_pad($config['url'], $longest_url),
-        'status' => $result['status'],
-        'result' => $result['pass'] ? 'P' : 'F',
+        'status' => $status,
+        'result' => $result['pass'] ? 'pass' : 'FAIL',
       ];
       $results[] = $config + ['result' => $result];
       $row = ['color' => $result['pass'] ? 'green' : 'red', 'data' => $row];
@@ -184,8 +185,8 @@ class CheckPages {
       }
 
       if (!$result['pass']) {
+        $this->failedSuiteCount++;
         throw new SuiteFailedException($path, $results);
-        break;
       }
     }
 
@@ -215,7 +216,7 @@ class CheckPages {
       }
     }
 
-    if (!$pass) {
+    if ($this->bash->hasParam('show-source')) {
       $this->debug((string) $res->getBody());
     }
 
