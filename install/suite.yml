@@ -18,6 +18,8 @@
       count: 1
     - dom: h1.page-title
       expect: About In the Loft Studios
+    - dom: '#footer'
+      match: '/in the loft studios/i'
 
     # An example using a regex expression.
     - match: '/Copyright &copy; 2000\-\d{4} In the Loft Studios, PO Box 29294, Bellingham, WA/'

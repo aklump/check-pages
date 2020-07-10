@@ -45,6 +45,15 @@ class CheckPages {
   protected $printed = [];
 
   /**
+   * True if in debug mode.
+   *
+   * @var bool
+   */
+  protected $debugging = FALSE;
+
+  /**
+   * An array of debug messages.
+   *
    * @var array
    */
   protected $debug = [];
@@ -83,6 +92,7 @@ class CheckPages {
     $this->addResolveDirectory($this->rootDir);
     $this->addResolveDirectory($this->rootDir . '/tests/');
     $this->bash = $bash;
+    $this->debugging = $bash->hasParam('debug');
   }
 
   /**
@@ -223,7 +233,7 @@ class CheckPages {
       $result = $this->visitUrl($config);
 
       $status = $result['status'];
-      if ($this->bash->hasParam('debug')) {
+      if ($this->debugging) {
         $status = sprintf("Expected %d, got %d", $config['expect'], $result['status']);
       }
 
@@ -236,7 +246,7 @@ class CheckPages {
       $row = ['color' => $result['pass'] ? 'green' : 'red', 'data' => $row];
       echo Output::columns([$row], array_fill_keys(array_keys($row), 'left'));
 
-      if ($this->bash->hasParam('debug') && $this->debug) {
+      if ($this->debugging && $this->debug) {
         $messages = array_map(function ($item) {
           $color_map = [
             'error' => 'red',
@@ -267,7 +277,6 @@ class CheckPages {
     $client = new Client();
     try {
       $res = $client->request('GET', $this->url($config['url']));
-
     }
     catch (ClientException $exception) {
       $res = $exception->getResponse();
@@ -281,6 +290,7 @@ class CheckPages {
       foreach ($config['find'] as $needle) {
         $pass = $this->handleSingleFind($needle, $body);
         if (!$pass) {
+          // TODO Make this a configurable option to break or continue.
           break;
         }
       }
@@ -315,19 +325,17 @@ class CheckPages {
    *   True if the find was successful.
    */
   protected function handleSingleFind($needle, string $haystack): bool {
-    $pass = FALSE;
+    $pass = NULL;
+
+    // This is a text on page search.
     if (!is_array($needle)) {
       $pass = strpos($haystack, $needle) !== FALSE;
       if (!$pass) {
         $this->fail(sprintf('Could not find the "%s" in the response body.', $needle));
       }
     }
-    elseif (isset($needle['match'])) {
-      $pass = preg_match($needle['match'], $haystack);
-      if (!$pass) {
-        $this->fail(sprintf('Could not match against RegEx "%s".', $needle['match']));
-      }
-    }
+
+    // These are going to be finding withing a DOM-located element.
     elseif (isset($needle['dom'])) {
       $crawler = new Crawler($haystack);
       $crawler = $crawler->filter($needle['dom']);
@@ -364,6 +372,13 @@ class CheckPages {
           $this->fail(sprintf('Expecting %s to have a count of %d.  The actual count is %d.', $needle['dom'], $needle['count'], $actual));
         }
       }
+      elseif (isset($needle['match'])) {
+        $actual = trim($crawler->first()->text());
+        $pass = preg_match($needle['match'], $actual) === 1;
+        if (!$pass) {
+          $this->fail(sprintf('Unable to match the "%s" value "%s" against the RegEx "%s".', $needle['dom'], $actual, $needle['match']));
+        }
+      }
       elseif (is_string($needle['expect'])) {
         $actual = trim($crawler->first()->text());
         $pass = $actual === $needle['expect'];
@@ -371,6 +386,18 @@ class CheckPages {
           $this->fail(sprintf('Expecting %s to have a text value of "%s".  The actual value is "%s".', $needle['dom'], $needle['expect'], $actual));
         }
       }
+    }
+
+    // This is a RegEx match anywhere in the body.
+    elseif (isset($needle['match'])) {
+      $pass = preg_match($needle['match'], $haystack);
+      if (!$pass) {
+        $this->fail(sprintf('Could not match against RegEx "%s".', $needle['match']));
+      }
+    }
+
+    if (is_null($pass)) {
+      throw new \RuntimeException(sprintf("Unable to process single find %s", json_encode($needle)));
     }
 
     return $pass;
