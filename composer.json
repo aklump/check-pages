@@ -24,8 +24,8 @@
         "symfony/dom-crawler": "^5.1",
         "symfony/css-selector": "^5.1"
     },
-    "version": "1.0",
+    "version": "0.1.0",
     "bin": [
         ".\/check"
-    ]
+    ],
 }
