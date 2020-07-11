@@ -73,6 +73,25 @@
                             "type": "object",
                             "required": [
                                 "dom",
+                                "text"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "dom": {
+                                    "$ref": "#/definitions/dom"
+                                },
+                                "text": {
+                                    "type": "string",
+                                    "examples": [
+                                        "My Front Page"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "required": [
+                                "dom",
                                 "exact"
                             ],
                             "additionalProperties": false,

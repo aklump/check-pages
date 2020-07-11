@@ -346,7 +346,15 @@ class CheckPages {
   protected function validateAndLoadYaml(string $path, string $schema_basename): array {
     $data = Yaml::parseFile($this->resolve($path), Yaml::PARSE_OBJECT_FOR_MAP);
     $validator = new Validator();
-    $validator->validate($data, (object) ['$ref' => 'file://' . $this->rootDir . '/' . $schema_basename], Constraint::CHECK_MODE_EXCEPTIONS);
+    try {
+      $validator->validate($data, (object) ['$ref' => 'file://' . $this->rootDir . '/' . $schema_basename], Constraint::CHECK_MODE_EXCEPTIONS);
+    }
+    catch (\Exception $exception) {
+
+      // Add in the file context.
+      $class = get_class($exception);
+      throw new $class(sprintf('%s using %s: %s', $path, $schema_basename, $exception->getMessage()), $exception->getCode(), $exception);
+    }
 
     // Convert to arrays, we only needed objects for the validation.
     return json_decode(json_encode($data), TRUE);
@@ -414,17 +422,24 @@ class CheckPages {
         }
       }
       elseif (isset($needle['match'])) {
-        $actual = trim($crawler->first()->text());
+        $actual = trim($crawler->first()->html());
         $pass = preg_match($needle['match'], $actual) === 1;
         if (!$pass) {
-          $this->fail(sprintf('└──Unable to match the "%s" value "%s" against the RegEx "%s".', $needle['dom'], $actual, $needle['match']));
+          $this->fail(sprintf("└──Unable to match the markup in %s\n\n>>> %s\n\nagainst the RegEx expression:\n\n>>> %s\n\n", $needle['dom'], $actual, $needle['match']));
+        }
+      }
+      elseif (is_string($needle['text'])) {
+        $actual = trim($crawler->first()->text());
+        $pass = $actual === $needle['text'];
+        if (!$pass) {
+          $this->fail(sprintf("└──Expecting %s to have a text value of:\n\n>>> %s\n\nThe actual value is:\n\n>>> %s\n\n", $needle['dom'], $needle['text'], $actual));
         }
       }
       elseif (is_string($needle['exact'])) {
-        $actual = trim($crawler->first()->text());
+        $actual = trim($crawler->first()->html());
         $pass = $actual === $needle['exact'];
         if (!$pass) {
-          $this->fail(sprintf("└──Expecting %s to have an exact text value of:\n\n>>> %s\n\nThe actual value is:\n\n>>> %s\n\n", $needle['dom'], $needle['exact'], $actual));
+          $this->fail(sprintf("└──Expecting %s exact markup of:\n\n>>> %s\n\nThe actual markup is:\n\n>>> %s\n\n", $needle['dom'], $needle['exact'], $actual));
         }
       }
     }
