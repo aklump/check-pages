@@ -10,6 +10,37 @@
                 "[data-title=\"Begin Here\"]"
             ]
         },
+        "xpath": {
+            "type": "string",
+            "examples": [
+                ".layout-region__title[2]"
+            ]
+        },
+        "count": {
+            "type": [
+                "integer",
+                "string"
+            ],
+            "examples": [
+                1
+            ]
+        },
+        "text": {
+            "type": "string",
+            "examples": [
+                "My Front Page"
+            ]
+        },
+        "exact": {
+            "type": [
+                "string",
+                "integer"
+            ],
+            "examples": [
+                "My Front Page",
+                1
+            ]
+        },
         "match": {
             "type": "string",
             "pattern": "^\/.+\/",
@@ -81,10 +112,7 @@
                                     "$ref": "#/definitions/dom"
                                 },
                                 "text": {
-                                    "type": "string",
-                                    "examples": [
-                                        "My Front Page"
-                                    ]
+                                    "$ref": "#/definitions/text"
                                 }
                             }
                         },
@@ -100,14 +128,7 @@
                                     "$ref": "#/definitions/dom"
                                 },
                                 "exact": {
-                                    "type": [
-                                        "string",
-                                        "integer"
-                                    ],
-                                    "examples": [
-                                        "My Front Page",
-                                        1
-                                    ]
+                                    "$ref": "#/definitions/exact"
                                 }
                             }
                         },
@@ -139,13 +160,71 @@
                                     "$ref": "#/definitions/dom"
                                 },
                                 "count": {
-                                    "type": [
-                                        "integer",
-                                        "string"
-                                    ],
-                                    "examples": [
-                                        1
-                                    ]
+                                    "$ref": "#/definitions/count"
+                                }
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "required": [
+                                "xpath",
+                                "text"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "xpath": {
+                                    "$ref": "#/definitions/xpath"
+                                },
+                                "text": {
+                                    "$ref": "#/definitions/text"
+                                }
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "required": [
+                                "xpath",
+                                "exact"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "xpath": {
+                                    "$ref": "#/definitions/xpath"
+                                },
+                                "exact": {
+                                    "$ref": "#/definitions/exact"
+                                }
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "required": [
+                                "xpath",
+                                "match"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "xpath": {
+                                    "$ref": "#/definitions/xpath"
+                                },
+                                "match": {
+                                    "$ref": "#/definitions/match"
+                                }
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "required": [
+                                "xpath",
+                                "count"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "xpath": {
+                                    "$ref": "#/definitions/xpath"
+                                },
+                                "count": {
+                                    "$ref": "#/definitions/count"
                                 }
                             }
                         }

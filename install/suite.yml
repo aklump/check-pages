@@ -42,6 +42,10 @@
     - dom: form
       count: 0
 
+    # XPath can also be used to location things
+    - xpath: '(//*[contains(@class, "block-title")])[1]'
+      text: Latest Blog Post
+
 # Load the contact page and make sure the submit button is available.
 - url: /contact
   find:

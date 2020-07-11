@@ -9,7 +9,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
-use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Yaml\Yaml;
 
 class CheckPages {
@@ -242,12 +241,13 @@ class CheckPages {
     $messages = array_map(function ($item) {
       $color_map = [
         'error' => 'red',
+        'success' => 'green',
         'debug' => 'light gray',
       ];
 
       return Color::wrap($color_map[$item['level']], $item['data']);
     }, $this->debug);
-    echo implode(PHP_EOL . PHP_EOL, $messages) . PHP_EOL;
+    echo implode(PHP_EOL, $messages) . PHP_EOL;
     $this->debug = [];
   }
 
@@ -374,86 +374,46 @@ class CheckPages {
    *   True if the find was successful.
    */
   protected function handleFindAssert($needle, string $haystack): bool {
-    $pass = NULL;
+    $assert = new Assert($haystack);
 
-    // This is a text on page search.
+    // Set up the search.
     if (!is_array($needle)) {
-      $pass = strpos($haystack, $needle) !== FALSE;
-      if (!$pass) {
-        $this->fail(sprintf('Could not find the "%s" in the response body.', $needle));
-      }
+      $assert->setSearch(Assert::SEARCH_ALL);
     }
-
-    // These are going to be finding withing a DOM-located element.
     elseif (isset($needle['dom'])) {
-      $crawler = new Crawler($haystack);
-      $crawler = $crawler->filter($needle['dom']);
-
-      if (isset($needle['count'])) {
-        $actual = $crawler->count();
-
-        if (is_numeric($needle['count'])) {
-          $pass = $actual === $needle['count'];
-        }
-        else {
-          preg_match('/([><=]+)\s*(\d+)/', $needle['count'], $matches);
-          switch ($matches[1]) {
-            case '>':
-              $pass = $actual > $needle['count'];
-              break;
-
-            case '>=':
-              $pass = $actual >= $needle['count'];
-              break;
-
-            case '<':
-              $pass = $actual < $needle['count'];
-              break;
-
-            case '<=':
-              $pass = $actual <= $needle['count'];
-              break;
-          }
-
-        }
-
-        if (!$pass) {
-          $this->fail(sprintf('└──Expecting %s to have a count of %d.  The actual count is %d.', $needle['dom'], $needle['count'], $actual));
-        }
-      }
-      elseif (isset($needle['match'])) {
-        $actual = trim($crawler->first()->html());
-        $pass = preg_match($needle['match'], $actual) === 1;
-        if (!$pass) {
-          $this->fail(sprintf("└──Unable to match the markup in %s\n\n>>> %s\n\nagainst the RegEx expression:\n\n>>> %s\n\n", $needle['dom'], $actual, $needle['match']));
-        }
-      }
-      elseif (is_string($needle['text'])) {
-        $actual = trim($crawler->first()->text());
-        $pass = $actual === $needle['text'];
-        if (!$pass) {
-          $this->fail(sprintf("└──Expecting %s to have a text value of:\n\n>>> %s\n\nThe actual value is:\n\n>>> %s\n\n", $needle['dom'], $needle['text'], $actual));
-        }
-      }
-      elseif (is_string($needle['exact'])) {
-        $actual = trim($crawler->first()->html());
-        $pass = $actual === $needle['exact'];
-        if (!$pass) {
-          $this->fail(sprintf("└──Expecting %s exact markup of:\n\n>>> %s\n\nThe actual markup is:\n\n>>> %s\n\n", $needle['dom'], $needle['exact'], $actual));
-        }
-      }
+      $assert->setSearch(Assert::SEARCH_DOM, $needle['dom']);
     }
-
-    // This is a RegEx match anywhere in the body.
+    elseif (isset($needle['xpath'])) {
+      $assert->setSearch(Assert::SEARCH_XPATH, $needle['xpath']);
+    }
     elseif (isset($needle['match'])) {
-      $pass = preg_match($needle['match'], $haystack);
-      if (!$pass) {
-        $this->fail(sprintf('└──Could not match against RegEx "%s".', $needle['match']));
-      }
+      $assert->setSearch(Assert::SEARCH_ALL);
     }
 
-    if (is_null($pass)) {
-      throw new \RuntimeException(sprintf("└──Unable to process single find %s", json_encode($needle)));
+    // Setup the assert.
+    if (!is_array($needle)) {
+      $assert->setAssert(Assert::ASSERT_SUBSTRING, $needle);
+    }
+    elseif (isset($needle['text'])) {
+      $assert->setAssert(Assert::ASSERT_TEXT, $needle['text']);
+    }
+    elseif (isset($needle['count'])) {
+      $assert->setAssert(Assert::ASSERT_COUNT, $needle['count']);
+    }
+    elseif (isset($needle['exact'])) {
+      $assert->setAssert(Assert::ASSERT_EXACT, $needle['exact']);
+    }
+    elseif (isset($needle['match'])) {
+      $assert->setAssert(Assert::ASSERT_MATCH, $needle['match']);
+    }
+
+    $pass = $assert->run();
+    if (!$pass) {
+      $this->fail('├──' . $assert);
+      $this->fail('└──' . $assert->getReason());
+    }
+    else {
+      $this->pass('├──' . $assert);
     }
 
     return $pass;
@@ -462,7 +422,8 @@ class CheckPages {
   /**
    * Add a debug message.
    *
-   * @param $message
+   * @param string $message
+   *   The debug message.
    */
   protected function debug(string $message) {
     $this->debug[] = ['data' => $message, 'level' => 'debug'];
@@ -475,6 +436,17 @@ class CheckPages {
    */
   protected function fail(string $reason) {
     $this->debug[] = ['data' => $reason, 'level' => 'error'];
+  }
+
+
+  /**
+   * Add a failure reason.
+   *
+   * @param string $reason
+   *   The message.
+   */
+  protected function pass(string $reason) {
+    $this->debug[] = ['data' => $reason, 'level' => 'success'];
   }
 
 }
