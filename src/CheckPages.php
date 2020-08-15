@@ -4,7 +4,6 @@ namespace AKlump\CheckPages;
 
 use AKlump\LoftLib\Bash\Bash;
 use AKlump\LoftLib\Bash\Color;
-use AKlump\LoftLib\Bash\Output;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use JsonSchema\Constraints\Constraint;
@@ -92,7 +91,7 @@ class CheckPages {
     $this->addResolveDirectory($this->rootDir);
     $this->addResolveDirectory($this->rootDir . '/tests/');
     $this->bash = $bash;
-    $this->debugging = $bash->hasParam('debug');
+    $this->debugging = !$bash->hasParam('quiet');
   }
 
   /**
@@ -186,11 +185,11 @@ class CheckPages {
       return;
     }
 
-    if (empty($this->printed['base_url'])) {
-      echo Color::wrap('blue', sprintf('Base URL is %s', $this->config['base_url'])) . PHP_EOL;
+    if (!$this->debugging && empty($this->printed['base_url'])) {
+      echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->config['base_url'])) . PHP_EOL;
       $this->printed['base_url'] = TRUE;
     }
-    echo Color::wrap('blue', sprintf('Running "%s" suite...', $path)) . PHP_EOL;
+    echo PHP_EOL . Color::wrap('blue', '🔶 ' . strtoupper(sprintf('Running "%s" suite...', $path))) . PHP_EOL;
 
     $this->debug = [];
     $failed_tests = 0;
@@ -200,23 +199,13 @@ class CheckPages {
         'find' => '',
       ];
       $result = $this->runTest($config);
-
-      $status = $result['status'];
-      if ($this->debugging) {
-        $status = sprintf("Expected %d, got %d", $config['expect'], $result['status']);
-      }
-
-      $row = [
-        'url' => str_pad($config['url'], $this->longestUrl),
-        'status' => $status,
-        'result' => $result['pass'] ? 'pass' : 'FAIL',
-      ];
-      $results[] = $config + ['result' => $result];
-      $row = ['color' => $result['pass'] ? 'green' : 'red', 'data' => $row];
-      echo Output::columns([$row], array_fill_keys(array_keys($row), 'left'));
+      $color = $result['pass'] ? 'green' : 'white on red';
+      $url = $this->debugging ? $this->url($config['url']) : $config['url'];
+      echo '🔸 ' . Color::wrap($color, $url) . PHP_EOL;
 
       if ($this->debugging && $this->debug) {
         $this->echoMessages();
+        echo PHP_EOL;
       }
 
       // Decide if we should stop the runner or not.
@@ -238,13 +227,12 @@ class CheckPages {
   }
 
   protected function echoMessages() {
-    $messages = array_map(function ($item) {
-      $color_map = [
-        'error' => 'red',
-        'success' => 'green',
-        'debug' => 'light gray',
-      ];
-
+    $color_map = [
+      'error' => 'red',
+      'success' => 'green',
+      'debug' => 'light gray',
+    ];
+    $messages = array_map(function ($item) use ($color_map) {
       return Color::wrap($color_map[$item['level']], $item['data']);
     }, $this->debug);
     echo implode(PHP_EOL, $messages) . PHP_EOL;
@@ -269,7 +257,14 @@ class CheckPages {
       $res = $exception->getResponse();
     }
 
-    $test_passed = $res->getStatusCode() == $config['expect'];
+    $http_response_code = $res->getStatusCode();
+    $test_passed = $http_response_code == $config['expect'];
+    if ($http_response_code == $config['expect']) {
+      $this->pass('├── HTTP ' . $http_response_code);
+    }
+    else {
+      $this->fail(sprintf("├── Expected HTTP %d, got %d", $config['expect'], $http_response_code));
+    }
 
     // Look for a piece of text on the page.
     if ($config['find']) {
@@ -289,9 +284,16 @@ class CheckPages {
       }
     }
 
+    if ($test_passed) {
+      $this->pass('└── Test passed.');
+    }
+    else {
+      $this->fail('└── Test failed.');
+    }
+
     return [
       'pass' => $test_passed,
-      'status' => $res->getStatusCode(),
+      'status' => $http_response_code,
     ];
   }
 
@@ -332,7 +334,7 @@ class CheckPages {
       throw new \InvalidArgumentException("Relative URLS must begin with a forward slash.");
     }
 
-    return rtrim($this->config['base_url'], '/') . '/' . $relative_url;
+    return rtrim($this->config['base_url'], '/') . '/' . trim($relative_url, '/');
   }
 
   /**
@@ -409,11 +411,11 @@ class CheckPages {
 
     $pass = $assert->run();
     if (!$pass) {
-      $this->fail('├──' . $assert);
-      $this->fail('└──' . $assert->getReason());
+      $this->fail('├── ' . $assert);
+      $this->fail('└── ' . $assert->getReason());
     }
     else {
-      $this->pass('├──' . $assert);
+      $this->pass('├── ' . $assert);
     }
 
     return $pass;

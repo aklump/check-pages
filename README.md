@@ -45,10 +45,15 @@ Some failing tests are also available to explore:
  
 ### Troubleshooting
 
-Try using the `--debug` parameter to troubleshoot failures.  Add `--show-source` to see the response source code as well.
+Try using the `--show-source` to see the response source code as well.
+    
+    ./check_pages failing_tests_runner.php --show-source  
 
-    ./check_pages failing_tests_runner.php --debug
-    ./check_pages failing_tests_runner.php --debug --show-source  
+### Quiet Mode
+
+To make the output much simpler, use the `--quite` flag.  This will hide the assertions and reduce the output to simply pass/fail.
+
+    ./check_pages failing_tests_runner.php --quiet
 
 ## On Your Own
 

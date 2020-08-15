@@ -23,7 +23,7 @@ if (($diff = array_diff_key($cli->getParams(), array_flip([
   // Enter valid parameters.
   'dir',
   'config',
-  'debug',
+  'quiet',
   'show-source',
 ])))) {
   throw new \InvalidArgumentException("Unknown parameter: " . key($diff));
