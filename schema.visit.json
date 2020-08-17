@@ -17,12 +17,23 @@
             ]
         },
         "count": {
-            "type": [
-                "integer",
-                "string"
-            ],
-            "examples": [
-                1
+            "oneOf": [
+                {
+                    "type": "integer",
+                    "examples": [
+                        1
+                    ]
+                },
+                {
+                    "type": "string",
+                    "pattern": "^(>|>=|<|<=)\\s*\\d+$",
+                    "examples": [
+                        ">= 10",
+                        "<= 10",
+                        "> 10",
+                        "< 5"
+                    ]
+                }
             ]
         },
         "text": {

@@ -8,6 +8,11 @@
   # Now that the URL is loaded you may make assertions using simple find, DOM
   # find, or RegEx matching.
   find:
+    - dom: p
+      count: ">= 2"
+
+    - dom: p
+      count: "< 2000"
 
     # Locate the following text, at least once, anywhere in the page content.
     - Custom DRUPAL Modules, Themes and Web Apps

@@ -267,7 +267,9 @@ final class Assert {
     }
     else {
       preg_match('/([><=]+)\s*(\d+)/', $expected, $matches);
-      switch ($matches[1]) {
+      list(, $comparator, $expected) = $matches;
+      $expected = $matches[2];
+      switch ($comparator) {
         case '>':
           $pass = $actual > $expected;
           if (!$pass) {
