@@ -259,6 +259,16 @@ class CheckPages {
 
     $http_response_code = $res->getStatusCode();
     $test_passed = $http_response_code == $config['expect'];
+
+    if ($this->bash->hasParam('show-source')) {
+      if ($test_passed) {
+        $this->debug((string) $res->getBody());
+      }
+      else {
+        $this->fail((string) $res->getBody());
+      }
+    }
+
     if ($http_response_code == $config['expect']) {
       $this->pass('├── HTTP ' . $http_response_code);
     }
@@ -272,15 +282,6 @@ class CheckPages {
       foreach ($config['find'] as $needle) {
         $assert = $this->handleFindAssert($needle, $body);
         $test_passed = $test_passed ? $assert : FALSE;
-      }
-    }
-
-    if ($this->bash->hasParam('show-source')) {
-      if ($test_passed) {
-        $this->debug((string) $res->getBody());
-      }
-      else {
-        $this->fail((string) $res->getBody());
       }
     }
 
