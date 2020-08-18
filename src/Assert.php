@@ -146,6 +146,11 @@ final class Assert {
     }
 
     if ($haystack instanceof Crawler) {
+      if (!$haystack->getNode(0)) {
+        $this->reason = sprintf('"%s" does not exist in the DOM.', $this->searchValue);
+
+        return FALSE;
+      }
       switch ($this->assertType) {
         case self::ASSERT_TEXT:
           $haystack = trim($haystack->text());
@@ -156,6 +161,7 @@ final class Assert {
           $haystack = trim($haystack->html());
           break;
       }
+
     }
 
     switch ($this->assertType) {
