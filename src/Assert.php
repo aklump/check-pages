@@ -147,6 +147,11 @@ final class Assert {
 
     if ($haystack instanceof Crawler) {
       if (!$haystack->getNode(0)) {
+
+        // If we are expecting a count of 0, then this is a pass.
+        if ($this->assertType === self::ASSERT_COUNT && $this->assertValue === 0) {
+          return TRUE;
+        }
         $this->reason = sprintf('"%s" does not exist in the DOM.', $this->searchValue);
 
         return FALSE;
