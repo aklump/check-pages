@@ -2,6 +2,15 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Visit Schema",
     "definitions": {
+        "url": {
+            "type": "string",
+            "examples": [
+                "/",
+                "/foo",
+                "/foo?do=re"
+            ],
+            "pattern": "^/|http"
+        },
         "dom": {
             "type": "string",
             "examples": [
@@ -69,13 +78,7 @@
         "additionalProperties": false,
         "properties": {
             "url": {
-                "type": "string",
-                "examples": [
-                    "/",
-                    "/foo",
-                    "/foo?do=re"
-                ],
-                "pattern": "^/"
+                "$ref": "#/definitions/url"
             },
             "expect": {
                 "type": "integer",
@@ -85,6 +88,9 @@
                     404
                 ],
                 "default": 200
+            },
+            "location": {
+                "$ref": "#/definitions/url"
             },
             "find": {
                 "type": "array",

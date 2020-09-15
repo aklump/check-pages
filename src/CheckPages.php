@@ -6,6 +6,7 @@ use AKlump\LoftLib\Bash\Bash;
 use AKlump\LoftLib\Bash\Color;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\RequestOptions;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use Symfony\Component\Yaml\Yaml;
@@ -249,23 +250,41 @@ class CheckPages {
    */
   protected function runTest(array $config): array {
     $this->totalTestCount++;
-    $client = new Client();
+    $client = new Client([
+
+      // @link http://docs.guzzlephp.org/en/stable/faq.html#how-can-i-track-redirected-requests
+      RequestOptions::ALLOW_REDIRECTS => [
+        'max' => 10,        // allow at most 10 redirects.
+        'strict' => TRUE,      // use "strict" RFC compliant redirects.
+        'referer' => TRUE,      // add a Referer header
+        'track_redirects' => TRUE,
+      ],
+    ]);
     try {
-      $res = $client->request('GET', $this->url($config['url']));
+      $response = $client->request('GET', $this->url($config['url']));
     }
     catch (ClientException $exception) {
-      $res = $exception->getResponse();
+      $response = $exception->getResponse();
     }
 
-    $http_response_code = $res->getStatusCode();
+    $http_location = NULL;
+    if ($config['expect'] >= 300 && $config['expect'] <= 399) {
+      $http_location = $response->getHeader('X-Guzzle-Redirect-History');
+      $http_location = array_last($http_location);
+      $http_response_code = $response->getHeader('X-Guzzle-Redirect-Status-History')[0];
+    }
+    else {
+      $http_response_code = $response->getStatusCode();
+    }
+
     $test_passed = $http_response_code == $config['expect'];
 
     if ($this->bash->hasParam('show-source')) {
       if ($test_passed) {
-        $this->debug((string) $res->getBody());
+        $this->debug((string) $response->getBody());
       }
       else {
-        $this->fail((string) $res->getBody());
+        $this->fail((string) $response->getBody());
       }
     }
 
@@ -276,9 +295,17 @@ class CheckPages {
       $this->fail(sprintf("├── Expected HTTP %d, got %d", $config['expect'], $http_response_code));
     }
 
+    // Test the location if asked.
+    if ($http_location && $config['location']) {
+      $test_passed = $http_location === $this->url($config['location']);
+      if (!$test_passed) {
+        $this->fail(sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $config['location']));
+      }
+    }
+
     // Look for a piece of text on the page.
     if ($config['find']) {
-      $body = strval($res->getBody());
+      $body = strval($response->getBody());
       foreach ($config['find'] as $needle) {
         $assert = $this->handleFindAssert($needle, $body);
         $test_passed = $test_passed ? $assert : FALSE;
@@ -324,18 +351,21 @@ class CheckPages {
   /**
    * Resolve a relative URL to the configured base_url.
    *
-   * @param string $relative_url
+   * If the url does not being with a '/', it will be assumed it is already
+   * resolved and the value will pass through.
+   *
+   * @param string $possible_relative_url
    *   THe relative URL, beginning with an '/'.
    *
    * @return string
    *   The absolute URL.
    */
-  protected function url(string $relative_url): string {
-    if (substr($relative_url, 0, 1) !== '/') {
-      throw new \InvalidArgumentException("Relative URLS must begin with a forward slash.");
+  protected function url(string $possible_relative_url): string {
+    if (substr($possible_relative_url, 0, 1) !== '/') {
+      return $possible_relative_url;
     }
 
-    return rtrim($this->config['base_url'], '/') . '/' . trim($relative_url, '/');
+    return rtrim($this->config['base_url'], '/') . '/' . trim($possible_relative_url, '/');
   }
 
   /**
