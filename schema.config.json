@@ -24,6 +24,13 @@
         "stop_on_failed_suite": {
             "type": "boolean"
         },
+        "suites_to_ignore": {
+            "description": "A list of suite filenames that will be ignored by run_suite() when this configuration is used.  This allows you to write a suite called live_only.yml that can be skipped by your config.dev.yml file.",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
         "users": {
             "title": "Users",
             "type": "array",

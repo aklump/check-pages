@@ -173,6 +173,15 @@ class CheckPages {
    */
   public function runSuite(string $path) {
     $this->config = $this->validateAndLoadYaml($this->configPath, 'schema.config.json');
+
+    if (in_array($path, $this->config['suites_to_ignore'] ?? [])) {
+      if ($this->preflight) {
+        echo PHP_EOL . Color::wrap('blue', '😴 ' . strtoupper(sprintf('Ignoring "%s" suite...', $path))) . PHP_EOL;
+      }
+
+      return;
+    }
+
     $data = $this->validateAndLoadYaml($path, 'schema.visit.json');
 
     $this->longestUrl = array_reduce($data, function ($carry, $item) {
@@ -190,7 +199,7 @@ class CheckPages {
       echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->config['base_url'])) . PHP_EOL;
       $this->printed['base_url'] = TRUE;
     }
-    echo PHP_EOL . Color::wrap('blue', '🔶 ' . strtoupper(sprintf('Running "%s" suite...', $path))) . PHP_EOL;
+    echo PHP_EOL . Color::wrap('blue', '⏱  ' . strtoupper(sprintf('Running "%s" suite...', $path))) . PHP_EOL;
 
     $this->debug = [];
     $failed_tests = 0;
@@ -201,8 +210,10 @@ class CheckPages {
       ];
       $result = $this->runTest($config);
       $color = $result['pass'] ? 'green' : 'white on red';
+      $prefix = $result['pass'] ? '👍' : '👎';
+      $prefix = $result['pass'] ? '👍' : '🚫';
       $url = $this->debugging ? $this->url($config['url']) : $config['url'];
-      echo '🔸 ' . Color::wrap($color, $url) . PHP_EOL;
+      echo $prefix . ' ' . Color::wrap($color, $url) . PHP_EOL;
 
       if ($this->debugging && $this->debug) {
         $this->echoMessages();

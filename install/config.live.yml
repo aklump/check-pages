@@ -1,0 +1,19 @@
+# Set the base URL to use for generating absolute URLs.
+base_url: https://www.intheloftstudios.com
+
+# Set this flag to `true` during development.  If any test suite fails, then the
+# runner will stop running any additional suites.
+stop_on_failed_suite: false
+
+# Set this flag to `true` during development.  As soon as a single test against
+# an URL fails, then the runner will stop.
+stop_on_failed_test: false
+
+# Use this as a list of suites that will be skipped/ignored when you are using
+# this configuration file.  For example if you have a suite that can only be run
+# on your live environment, then in your config.dev.yml and config.stage.yml
+# files you can list said suite so it will not be run.  It should be the same
+# value (the filename) as provided to run_suite(), e.g.
+# run_suite('never_run_this_suite');
+suites_to_ignore:
+  - suite_dev_only
