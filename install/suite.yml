@@ -58,6 +58,6 @@
       count: 1
 
 # This example shows how to check for a redirect value and final location.
-- url: /pay/foo/29.95
-  expect: 302
-  location: https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=b2@itlsweb.com&item_name=Invoice-foo&amount=29.95
+- url: /packages/php/verify_age
+  expect: 301
+  location: https://www.intheloftstudios.com/packages/php/verify_age/demo/
