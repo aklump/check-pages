@@ -173,7 +173,10 @@ class CheckPages {
    */
   public function runSuite(string $path) {
     $this->config = $this->validateAndLoadYaml($this->configPath, 'schema.config.json');
-    $path = $this->resolve($path);
+
+    $suite_id = '';
+    $path = $this->resolve($path, $suite_id);
+    $suite_id = pathinfo(substr($path, strlen($suite_id) + 1), PATHINFO_FILENAME);
 
     $this->config['suites_to_ignore'] = array_map(function ($suite_to_ignore) {
       return $this->resolve($suite_to_ignore);
@@ -181,7 +184,7 @@ class CheckPages {
 
     if (in_array($path, $this->config['suites_to_ignore'])) {
       if ($this->preflight) {
-        echo PHP_EOL . Color::wrap('blue', '😴 ' . strtoupper(sprintf('Ignoring "%s" suite...', $path))) . PHP_EOL;
+        echo PHP_EOL . Color::wrap('blue', '😴 ' . strtoupper(sprintf('Ignoring "%s" suite...', $suite_id))) . PHP_EOL;
       }
 
       return;
@@ -204,7 +207,7 @@ class CheckPages {
       echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->config['base_url'])) . PHP_EOL;
       $this->printed['base_url'] = TRUE;
     }
-    echo PHP_EOL . Color::wrap('blue', '⏱  ' . strtoupper(sprintf('Running "%s" suite...', $path))) . PHP_EOL;
+    echo PHP_EOL . Color::wrap('blue', '⏱  ' . strtoupper(sprintf('Running "%s" suite...', $suite_id))) . PHP_EOL;
 
     $this->debug = [];
     $failed_tests = 0;
@@ -238,7 +241,7 @@ class CheckPages {
     if ($failed_tests) {
       $this->failedSuiteCount++;
       if ($this->config['stop_on_failed_suite'] ?? FALSE) {
-        throw new SuiteFailedException($path, $results);
+        throw new SuiteFailedException($suite_id, $results);
       }
     }
   }
@@ -345,18 +348,21 @@ class CheckPages {
    * Resolve a path.
    *
    * @param string $path
+   * @param string &$resolved_path
+   *   This variable will be set with the parents used to resolve $path.
    *
    * @return string
    *   The resolved full path to a file if it exists.
    */
-  protected function resolve(string $path) {
-    $candidates = [$path];
+  protected function resolve(string $path, &$resolved_path = NULL) {
+    $candidates = [['', $path]];
     foreach ($this->resolvePaths as $resolve_path) {
       $resolve_path = rtrim($resolve_path, '/');
-      $candidates[] = $resolve_path . '/' . $path;
-      $candidates[] = $resolve_path . '/' . $path . '.yml';
+      $candidates[] = [$resolve_path, $resolve_path . '/' . $path];
+      $candidates[] = [$resolve_path, $resolve_path . '/' . $path . '.yml'];
     }
     while (($try = array_shift($candidates))) {
+      list($resolved_path, $try) = $try;
       if (is_file($try)) {
         return $try;
       }
