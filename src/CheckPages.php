@@ -173,8 +173,13 @@ class CheckPages {
    */
   public function runSuite(string $path) {
     $this->config = $this->validateAndLoadYaml($this->configPath, 'schema.config.json');
+    $path = $this->resolve($path);
 
-    if (in_array($path, $this->config['suites_to_ignore'] ?? [])) {
+    $this->config['suites_to_ignore'] = array_map(function ($suite_to_ignore) {
+      return $this->resolve($suite_to_ignore);
+    }, $this->config['suites_to_ignore'] ?? []);
+
+    if (in_array($path, $this->config['suites_to_ignore'])) {
       if ($this->preflight) {
         echo PHP_EOL . Color::wrap('blue', '😴 ' . strtoupper(sprintf('Ignoring "%s" suite...', $path))) . PHP_EOL;
       }
