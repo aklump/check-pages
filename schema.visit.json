@@ -80,6 +80,10 @@
             "url": {
                 "$ref": "#/definitions/url"
             },
+            "js": {
+                "type": "boolean",
+                "description": "Set this to true if you need javascript to run on the page."
+            },
             "expect": {
                 "type": "integer",
                 "examples": [

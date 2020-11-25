@@ -7,5 +7,4 @@
 
 load_config('config/local');
 run_suite('suite');
-run_suite('javascript', ['js' => TRUE]);
 run_suite('suite_dev_only');

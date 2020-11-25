@@ -4,9 +4,6 @@ namespace AKlump\CheckPages;
 
 use AKlump\LoftLib\Bash\Bash;
 use AKlump\LoftLib\Bash\Color;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\RequestOptions;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use Symfony\Component\Yaml\Yaml;
@@ -270,28 +267,21 @@ class CheckPages {
    */
   protected function runTest(array $config): array {
     $this->totalTestCount++;
-    $client = new Client([
 
-      // @link http://docs.guzzlephp.org/en/stable/faq.html#how-can-i-track-redirected-requests
-      RequestOptions::ALLOW_REDIRECTS => [
-        'max' => 10,        // allow at most 10 redirects.
-        'strict' => TRUE,      // use "strict" RFC compliant redirects.
-        'referer' => TRUE,      // add a Referer header
-        'track_redirects' => TRUE,
-      ],
-    ]);
-    try {
-      $response = $client->request('GET', $this->url($config['url']));
+    if ($config['js'] ?? FALSE) {
+      $driver = new ChromeDriver($this->config['base_url']);
     }
-    catch (ClientException $exception) {
-      $response = $exception->getResponse();
+    else {
+      $driver = new GuzzleDriver();
     }
+    $response = $driver
+      ->setUrl($this->url($config['url']))
+      ->getResponse();
 
     $http_location = NULL;
     if ($config['expect'] >= 300 && $config['expect'] <= 399) {
-      $http_location = $response->getHeader('X-Guzzle-Redirect-History');
-      $http_location = array_last($http_location);
-      $http_response_code = $response->getHeader('X-Guzzle-Redirect-Status-History')[0];
+      $http_location = $driver->getLocation();
+      $http_response_code = $driver->getRedirectCode();
     }
     else {
       $http_response_code = $response->getStatusCode();

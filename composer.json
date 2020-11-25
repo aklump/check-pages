@@ -1,13 +1,13 @@
 {
-    "name": "aklump\/check-pages",
+    "name": "aklump/check-pages",
     "type": "library",
     "description": "Very simple QA for websites.",
     "keywords": [],
-    "homepage": "https:\/\/github.com\/aklump\/check-pages",
+    "homepage": "https://github.com/aklump/check-pages",
     "license": "BSD-3-Clause",
     "autoload": {
         "psr-4": {
-            "AKlump\\CheckPages\\": "src\/"
+            "AKlump\\CheckPages\\": "src/"
         }
     },
     "authors": [
@@ -17,20 +17,22 @@
         }
     ],
     "require": {
-        "aklump\/loft-lib": "^1.1",
-        "guzzlehttp\/guzzle": "^6.3|^7.0",
-        "symfony\/yaml": "^3.4|^4.0",
-        "justinrainbow\/json-schema": "^5.2",
-        "symfony\/dom-crawler": "^3.4.0 !=3.4.38|^4.0|^5.0",
-        "symfony\/css-selector": "^3.4.0|^4.0|^5.0"
+        "aklump/loft-lib": "^1.1",
+        "guzzlehttp/guzzle": "^6.3|^7.0",
+        "symfony/yaml": "^3.4|^4.0",
+        "justinrainbow/json-schema": "^5.2",
+        "symfony/dom-crawler": "^3.4.0 !=3.4.38|^4.0|^5.0",
+        "symfony/css-selector": "^3.4.0|^4.0|^5.0",
+        "dmore/chrome-mink-driver": "^2.7",
+        "behat/mink": "^1.8"
     },
     "version": "0.2.7",
     "bin": [
-        ".\/check_pages"
+        "./check_pages"
     ],
     "scripts": {
         "post-create-project-cmd": [
-            "cp -R install tests"
+            "cp -R example/tests tests"
         ]
     },
     "require-dev": {

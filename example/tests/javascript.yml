@@ -1,6 +1,0 @@
--
-  url: /javascript_subject.html
-  find:
-    - dom: h1
-      text: Loading...
-#      text: COVID 19 Pandemic

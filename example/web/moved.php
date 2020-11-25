@@ -1,3 +1,3 @@
 <?php
 header("HTTP/1.1 301 Moved Permanently");
-header('Location: /static.html');
+header('Location: /location.html');
