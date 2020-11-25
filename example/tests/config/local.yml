@@ -9,8 +9,10 @@ stop_on_failed_suite: true
 # an URL fails, then the runner will stop.
 stop_on_failed_test: false
 
-# Set this to true to enable javascript, this will slow things down so only use it as necessary.
-javascript: false
+# Set this to true to enable javascript, this will slow things down so only use
+# it as necessary.  You can also use the suite-only config as the second
+# argument to run_suite().
+js: false
 
 # Use this as a list of suites that will be skipped/ignored when you are using
 # this configuration file.  For example if you have a suite that can only be run

@@ -171,8 +171,9 @@ class CheckPages {
    * @see run_suite()
    *
    */
-  public function runSuite(string $path) {
-    $this->config = $this->validateAndLoadYaml($this->configPath, 'schema.config.json');
+  public function runSuite(string $path, array $suite_config = []) {
+    $this->config = $suite_config + Yaml::parseFile($this->resolve($this->configPath));
+    $this->validateConfig($this->config);
 
     $suite_id = '';
     $path = $this->resolve($path, $suite_id);
@@ -408,11 +409,35 @@ class CheckPages {
 
       // Add in the file context.
       $class = get_class($exception);
-      throw new $class(sprintf('%s using %s: %s', $path, $schema_basename, $exception->getMessage()), $exception->getCode(), $exception);
+      throw new $class(sprintf('%s using %s : %s', $path, $schema_basename, $exception->getMessage()), $exception->getCode(), $exception);
     }
 
     // Convert to arrays, we only needed objects for the validation.
     return json_decode(json_encode($data), TRUE);
+  }
+
+  /**
+   * Validate a configuration array against the configuration schema.
+   *
+   * @param array $config
+   *
+   * @throws \Exception
+   */
+  protected function validateConfig(array &$config) {
+    // Convert to objects.
+    $config = json_decode(json_encode($config));
+    $validator = new Validator();
+    try {
+      $validator->validate($config, (object) ['$ref' => 'file://' . $this->rootDir . '/' . 'schema.config.json'], Constraint::CHECK_MODE_EXCEPTIONS);
+    }
+    catch (\Exception $exception) {
+      // Add in the file context.
+      $class = get_class($exception);
+      throw new $class(sprintf('In configuration : %s', strtolower($exception->getMessage())), $exception->getCode(), $exception);
+    }
+
+    // Convert to arrays, we only needed objects for the validation.
+    $config = json_decode(json_encode($config), TRUE);
   }
 
   /**

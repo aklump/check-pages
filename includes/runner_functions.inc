@@ -32,8 +32,8 @@ function load_config(string $config, bool $allow_override = TRUE) {
  * @return array
  * @throws \AKlump\CheckPages\SuiteFailedException
  */
-function run_suite(string $path) {
+function run_suite(string $path, array $suite_config = []) {
   global $app;
 
-  return $app->runSuite($path);
+  return $app->runSuite($path, $suite_config);
 }
