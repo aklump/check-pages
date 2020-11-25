@@ -25,6 +25,9 @@ class ChromeDriver extends GuzzleDriver {
    *   Chrome.app/Contents/MacOS/Google Chrome'.
    */
   public function __construct(string $path_to_chrome) {
+    if (!$path_to_chrome || !file_exists($path_to_chrome)) {
+      throw new \InvalidArgumentException(sprintf('Missing or invalid path to Chrome "%s".', $path_to_chrome));
+    }
     $this->pathToChrome = $path_to_chrome;
   }
 

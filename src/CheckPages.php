@@ -269,7 +269,15 @@ class CheckPages {
     $this->totalTestCount++;
 
     if ($config['js'] ?? FALSE) {
-      $driver = new ChromeDriver($this->config['chrome']);
+      try {
+        if (empty($this->config['chrome'])) {
+          throw new \InvalidArgumentException(sprintf("Javascript testing is unavailable due to missing path to Chrome binary.  Add \"chrome\" in file %s.", $this->resolve($this->configPath)));
+        }
+        $driver = new ChromeDriver($this->config['chrome']);
+      }
+      catch (\Exception $exception) {
+        throw new TestFailedException($config, $exception);
+      }
     }
     else {
       $driver = new GuzzleDriver();
