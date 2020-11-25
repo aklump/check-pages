@@ -117,7 +117,7 @@ This example assumes a file structure like this:
 * Look to _bin/chrome.sh_ as an example of how to start up Chrome.
 * [Learn more](https://developers.google.com/web/updates/2017/04/headless-chrome)
 * https://github.com/GoogleChrome/chrome-launcher
-* https://peter.sh/experiments/chromium-command-line-switches/
+* <https://peter.sh/experiments/chromium-command-line-switches/>
 * https://raw.githubusercontent.com/GoogleChrome/chrome-launcher/v0.8.0/scripts/download-chrome.sh
 
 ## Limitations

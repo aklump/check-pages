@@ -269,7 +269,7 @@ class CheckPages {
     $this->totalTestCount++;
 
     if ($config['js'] ?? FALSE) {
-      $driver = new ChromeDriver($this->config['base_url']);
+      $driver = new ChromeDriver($this->config['chrome']);
     }
     else {
       $driver = new GuzzleDriver();

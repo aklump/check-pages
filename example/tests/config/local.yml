@@ -14,6 +14,9 @@ stop_on_failed_test: false
 # argument to run_suite().
 js: false
 
+# The system path to the chrome browser.  This is used for javascript tests.
+chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+
 # Use this as a list of suites that will be skipped/ignored when you are using
 # this configuration file.  For example if you have a suite that can only be run
 # on your live environment, then in your config.dev.yml and config.stage.yml
