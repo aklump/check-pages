@@ -38,6 +38,8 @@ if ($cli->hasFlag('v')) {
 }
 
 $app = new CheckPages(ROOT, $cli);
+$app->addResolveDirectory(dirname(rtrim(getcwd(), '/') . '/' . $cli->getArg(1)));
+
 if (($dir = $cli->getParam('dir'))) {
   if (!is_dir($dir)) {
     throw new \InvalidArgumentException("\"$dir\" must be an existing directory.");
