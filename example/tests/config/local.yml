@@ -1,13 +1,16 @@
 # Set the base URL to use for generating absolute URLs.
-base_url: https://www.intheloftstudios.com
+base_url: http://localhost:8000/
 
 # Set this flag to `true` during development.  If any test suite fails, then the
 # runner will stop running any additional suites.
-stop_on_failed_suite: false
+stop_on_failed_suite: true
 
 # Set this flag to `true` during development.  As soon as a single test against
 # an URL fails, then the runner will stop.
 stop_on_failed_test: false
+
+# Set this to true to enable javascript, this will slow things down so only use it as necessary.
+javascript: false
 
 # Use this as a list of suites that will be skipped/ignored when you are using
 # this configuration file.  For example if you have a suite that can only be run

@@ -16,7 +16,7 @@
                 "https://www.mywebsite.com",
                 "http://mywebsite.local"
             ],
-            "pattern": "^(http|https)://.+$"
+            "pattern": "^(http|https|localhost):.+$"
         },
         "stop_on_failed_test": {
             "type": "boolean"

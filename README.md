@@ -118,3 +118,10 @@ This example assumes a file structure like this:
 ## Contributing
 
 If you find this project useful... please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4E5KZHDQCEUV8&item_name=Gratitude%20for%20aklump%2Fcheck-pages).
+
+## Testing
+
+1. Open a new shell window which will run the PHP server for our test subject pages.
+1. `./bin/server.sh`
+1. Open a second shell window.
+1. `./bin/test.sh`

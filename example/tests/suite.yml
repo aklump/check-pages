@@ -15,8 +15,8 @@
       count: "< 2000"
 
     # Locate the following text, at least once, anywhere in the page content.
-    - Custom DRUPAL Modules, Themes and Web Apps
-    - Welcome to the website for In the Loft Studios.  My name is Aaron Klump. I've been developing websites for over 15 years and have spent over half of that time immersed in Drupal.
+    - Lorem ipsum dolor sit amet
+    - Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
 
     # An example using a RegEx expression against the entire page content.  MAKE
     # SURE TO USE SINGLE QUOTES WHEN YOU ARE ENTERING REGEX EXPRESSION, DOUBLE
@@ -25,7 +25,7 @@
     - match: '/Copyright &copy; 2000\-\d{4} In the Loft Studios, PO Box 29294, Bellingham, WA/'
 
     # Assertions in the DOM using CSS selectors.
-    - dom: '#logo img'
+    - dom: '#logo svg'
       count: 1
 
     # Notice the use or `text` vs. `exact` for accessing the contents of a DOM
@@ -40,7 +40,7 @@
       match: '/in the loft studios/i'
 
     # Make sure the hero image alt tag is correct.
-    - dom: '[alt="Aaron Klump, In the Loft Studios, Drupal solutions in Bellingham, WA"]'
+    - dom: '[title="An SVG image"]'
       count: 1
 
     # Make sure no forms appear on the homepage.
@@ -51,13 +51,10 @@
     - xpath: '(//*[contains(@class, "block-title")])[1]'
       text: Latest Blog Post
 
-# Load the contact page and make sure the submit button is available.
-- url: /contact
-  find:
-    - dom: '#content #edit-submit'
+    - dom: '#footer #copyright'
       count: 1
 
 # This example shows how to check for a redirect value and final location.
-- url: /packages/php/verify_age
+- url: /moved.php
   expect: 301
-  location: https://www.intheloftstudios.com/packages/php/verify_age/demo/
+  location: /static.html
