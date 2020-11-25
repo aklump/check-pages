@@ -24,6 +24,10 @@
         "stop_on_failed_suite": {
             "type": "boolean"
         },
+        "js": {
+            "type": "boolean",
+            "description": "Enable javascript for the suite of tests.  Be advised, this will slow things down."
+        },
         "suites_to_ignore": {
             "description": "A list of suite filenames that will be ignored by run_suite() when this configuration is used.  This allows you to write a suite called live_only.yml that can be skipped by your config.dev.yml file.",
             "type": "array",
