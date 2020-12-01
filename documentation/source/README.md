@@ -1,7 +1,6 @@
 # Check Pages
-## Very Simple QA
 
-![Check Pages](docs/images/check-pages.jpg)
+![Check Pages](images/check-pages.jpg)
 
 ## Summary
 

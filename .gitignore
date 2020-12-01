@@ -2,3 +2,5 @@
 /tests/
 /.idea/
 node_modules/
+documentation/core
+documentation/README.md
