@@ -1,3 +1,5 @@
+<!-- Compiled from ./source/CHANGELOG.md: DO NOT EDIT -->
+
 # Changelog
 All notable changes to this project will be documented in this file.
 

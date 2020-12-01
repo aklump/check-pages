@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Check Pages</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--readme">
+<header>
+  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title"></a><a href="index.html" class="next index">Index&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+
+<h1>Check Pages</h1>
+
+<section>
+
+<h2>Very Simple QA</h2>
+
+<p><img src="images/check-pages.jpg" alt="Check Pages" /></p>
+
+<h2>Summary</h2>
+
+<p>This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain.  You write your tests using YAML and they can look as simple as these two tests:</p>
+
+<pre><code>- url: /
+
+- url: /admin
+  expect: 403
+</code></pre>
+
+<p>The first test will check the homepage to make sure it returns a 200 HTTP status code.  The second test will make sure the <code>/admin</code> path returns 403 forbidden.</p>
+
+<p>In a third test we can assert there is one logo image on the homepage, like so:</p>
+
+<pre><code>- url: /
+  find:
+    - dom: '#logo img'
+      count: 1
+</code></pre>
+
+<p>For more code examples explore the <em>/examples</em> directory.</p>
+
+<p><strong>Visit <a href="https://aklump.github.io/check_pages">https://aklump.github.io/check_pages</a> for full documentation.</strong></p>
+
+<h2>Terms Used</h2>
+
+<ul>
+<li><em>Test Runner</em> - A very simple PHP file that defines the configuration and what test suites to run, and in what order.  @see <em>includes/runner.php</em>.</li>
+<li><em>Test Suite</em> - A YAML file that includes one or more checks against URLs. @see <em>includes/suite.yml</em>.</li>
+<li><em>Test</em> - A single URL check within a suite.</li>
+<li><em>Assertion</em> - A single find action against the response body of a test, or a validation that the HTTP response code matches an expected value.</li>
+</ul>
+
+<h2>Install</h2>
+
+<p>The following creates a stand-alone project in a folder named <em>check-pages</em>.  <em>See also Install In Another Composer Project</em>.</p>
+
+<pre><code>$ composer create-project aklump/check-pages
+</code></pre>
+
+<h2>Quick Start</h2>
+
+<p>Run the example tests with the following commands.  Then open up the files in the <em>example/tests</em> directory and study them to see how they work.<sup>1</sup></p>
+
+<ol>
+<li><p>Open a new shell window which will run the PHP server for our example test pages.</p>
+
+<p>$ ./bin/server.sh</p></li>
+<li><p>Open a second shell window to execute the tests.</p>
+
+<p>$ ./bin/test.sh</p></li>
+</ol>
+
+<p>Some failing tests are also available to explore:</p>
+
+<pre><code>$ ./check_pages failing_tests_runner.php
+</code></pre>
+
+<p><sup>1</sup> If you see no <em>tests</em> directory then create one and copy the contents of <em>examples</em> into <em>tests</em>.  The example <em>tests</em> directory will only be created if you use <code>create-project</code> as the installation method.</p>
+
+<h2>Requirements</h2>
+
+<ul>
+<li>alpha</li>
+<li>bravo</li>
+</ul>
+
+<h2>Troubleshooting</h2>
+
+<p>Try using the <code>--show-source</code> to see the response source code as well.</p>
+
+<pre><code>./check_pages failing_tests_runner.php --show-source  
+</code></pre>
+
+<h2>Quiet Mode</h2>
+
+<p>To make the output much simpler, use the <code>--quite</code> flag.  This will hide the assertions and reduce the output to simply pass/fail.</p>
+
+<pre><code>./check_pages failing_tests_runner.php --quiet
+</code></pre>
+
+<h2>On Your Own</h2>
+
+<p>When you are ready you should delete the contents of the <em>tests</em> folder and write your own tests there.  Don't worry, the original example files are located in the <em>examples</em> directory.  (If you have used the alternate installation method you will need to write your tests in another folder of your choosing not located in this project.  But for these examples, we'll assume a <code>create-project</code> installation.)</p>
+
+<p>You will need a bare minimum file structure resembling:</p>
+
+<pre><code>.
+└── tests
+    └── config.yml
+    ├── suite.yml
+    └── runner.php
+</code></pre>
+
+<h3>Multiple Configuration Files</h3>
+
+<p>The project is designed to be able to run the same tests using different configurations.  You can create multiple configuration files so that you are able to run the same test on live and then on dev, which have different base URLs.</p>
+
+<pre><code>.
+└── tests
+    ├── config.dev.yml
+    ├── config.live.yml
+    ├── suite.yml
+    └── runner.php
+</code></pre>
+
+<p>In <em>runner.php</em> use the following line to specify the default config file:</p>
+
+<pre><code>load_config('config.dev');
+</code></pre>
+
+<p>When you're ready to run this using the live config add the config filename to the CLI command, e.g.,</p>
+
+<pre><code>$ ./check_pages runner.php --config=config.live
+</code></pre>
+
+<h3>Test functions</h3>
+
+<p>The test functions for your PHP test files are found in <em>includes/test_functions.inc</em>.</p>
+
+<h2>Install In Another Composer Project</h2>
+
+<p>If you want to share dependencies with another project, like Drupal 8 for example, then use the alternative installation method.  The <code>--dev</code> flag is shown here, but use your own discretion.  Run the following from your Drupal app root directory.</p>
+
+<pre><code>$ composer require aklump/check-pages --dev
+</code></pre>
+
+<h3>Usage</h3>
+
+<p>In this case, since the project will be buried in your vendor directory, you will need to provide the directory path to your test files, when you run the test script, like this:</p>
+
+<pre><code>./vendor/bin/check_pages runner.php --dir=./tests_check_pages
+</code></pre>
+
+<p>This example assumes a file structure like this:</p>
+
+<pre><code>.
+├── tests_check_pages
+│   └── runner.php
+└── vendor
+    └── bin
+        └── check_pages  
+</code></pre>
+
+<h2>Javascript Is Supported</h2>
+
+<ul>
+<li>Javascript is supported if you have Chrome installed and you've added it's path to your runner config.</li>
+</ul>
+
+<h3>Dev Links Related to This</h3>
+
+<ul>
+<li><a href="https://developers.google.com/web/updates/2017/04/headless-chrome">Learn more</a></li>
+<li>https://github.com/GoogleChrome/chrome-launcher</li>
+<li><a href="https://peter.sh/experiments/chromium-command-line-switches/">https://peter.sh/experiments/chromium-command-line-switches/</a></li>
+<li>https://raw.githubusercontent.com/GoogleChrome/chrome-launcher/v0.8.0/scripts/download-chrome.sh</li>
+</ul>
+
+<h2>Contributing</h2>
+
+<p>If you find this project useful... please consider <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=4E5KZHDQCEUV8&amp;item_name=Gratitude%20for%20aklump%2Fcheck-pages">making a donation</a>.</p>
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title"></a><a href="index.html" class="next index">Index&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.2.11 &bull; Last Updated: Tue, 01 Dec 2020 13:05:07 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
+
