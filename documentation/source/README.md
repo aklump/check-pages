@@ -8,6 +8,7 @@
 This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain.  You write your tests using YAML and they can look as simple as these two tests:
 
     - url: /
+    
     - url: /admin
       expect: 403
 
