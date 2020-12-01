@@ -131,7 +131,7 @@ final class Assert {
   public function run(): bool {
     switch ($this->searchType) {
       case self::SEARCH_ALL:
-        $haystack = $this->haystack;
+        $haystack = [$this->haystack];
         break;
 
       case self::SEARCH_DOM:
@@ -145,6 +145,8 @@ final class Assert {
         break;
     }
 
+    // The asserts run against an array, so if $haystack is a Crawler, it must
+    // be converted to an array before the asserts are tested.
     if ($haystack instanceof Crawler) {
       if (!$haystack->getNode(0)) {
 
@@ -156,22 +158,31 @@ final class Assert {
 
         return FALSE;
       }
+
       switch ($this->assertType) {
         case self::ASSERT_TEXT:
-          $haystack = trim($haystack->text());
+          $haystack = $haystack->each(function ($node) {
+            return trim($node->text());
+          });
           break;
 
         case self::ASSERT_MATCH:
         case self::ASSERT_EXACT:
-          $haystack = trim($haystack->html());
+          $haystack = $haystack->each(function ($node) {
+            return trim($node->html());
+          });
           break;
       }
-
     }
 
     switch ($this->assertType) {
       case self::ASSERT_SUBSTRING:
-        $pass = strpos($haystack, $this->assertValue) !== FALSE;
+        foreach ($haystack as $item) {
+          $pass = strpos($item, $this->assertValue) !== FALSE;
+          if ($pass) {
+            break;
+          }
+        }
         if (!$pass) {
           $this->reason = sprintf("Unable to find:\n\n>>> %s\n\n", $this->assertValue);
         }
@@ -183,17 +194,28 @@ final class Assert {
 
       case self::ASSERT_TEXT:
       case self::ASSERT_EXACT:
-        $pass = $haystack == $this->assertValue;
+        foreach ($haystack as $item) {
+          $pass = $item == $this->assertValue;
+          if ($pass) {
+            break;
+          }
+        }
         if (!$pass) {
+          $haystack = '"' . implode('",, "', $haystack) . '"';
           $this->reason = sprintf("The actual value\n\n>>> %s\n\n is not the expected\n\n>>> %s", $haystack, $this->assertValue);
         }
 
         return $pass;
 
       case self::ASSERT_MATCH:
-        $pass = preg_match($this->assertValue, $haystack);
+        foreach ($haystack as $item) {
+          $pass = preg_match($this->assertValue, $item);
+          if ($pass) {
+            break;
+          }
+        }
         if (!$pass) {
-          $this->reason = sprintf("Unable to match using \"%s\".", $this->assertValue, $haystack);
+          $this->reason = sprintf("Unable to match using \"%s\".", $this->assertValue);
         }
 
         return $pass;
