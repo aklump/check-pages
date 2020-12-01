@@ -58,20 +58,25 @@ Some failing tests are also available to explore:
 
 ## Requirements
 
-* alpha
-* bravo
- 
-## Troubleshooting
+* You must install with Composer.
 
-Try using the `--show-source` to see the response source code as well.
-    
-    ./check_pages failing_tests_runner.php --show-source  
+## Is JS Supported?
+
+Yes, not by default, but you are able to indicate that given tests requires Javascript be run.  Read on...
+
+{% include('_javascript.md') %}
 
 ## Quiet Mode
 
 To make the output much simpler, use the `--quite` flag.  This will hide the assertions and reduce the output to simply pass/fail.
 
     ./check_pages failing_tests_runner.php --quiet
+
+## Troubleshooting
+
+Try using the `--show-source` to see the response source code as well.
+    
+    ./check_pages failing_tests_runner.php --show-source  
 
 ## On Your Own
 
@@ -128,17 +133,6 @@ This example assumes a file structure like this:
     └── vendor
         └── bin
             └── check_pages  
-        
-## Javascript Is Supported
-
-* Javascript is supported if you have Chrome installed and you've added it's path to your runner config.
-
-### Dev Links Related to This
-
-* [Learn more](https://developers.google.com/web/updates/2017/04/headless-chrome)
-* https://github.com/GoogleChrome/chrome-launcher
-* <https://peter.sh/experiments/chromium-command-line-switches/>
-* https://raw.githubusercontent.com/GoogleChrome/chrome-launcher/v0.8.0/scripts/download-chrome.sh
     
 ## Contributing
 
