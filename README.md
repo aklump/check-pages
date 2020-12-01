@@ -15,7 +15,7 @@ In a third test we can assert there is one logo image on the homepage, like so:
         - dom: '#logo img'
           count: 1
 
-For more code examples explore the _/install_ directory.
+For more code examples explore the _/examples_ directory.
 
 ## Terms Used
 
@@ -32,16 +32,21 @@ The following creates a stand-alone project in a folder named _check-pages_.  _S
 
 ## Quick Start
 
-Run the example tests with the following commands.  Then open up the files in the _tests_ directory and study them to see how they work.<sup>1</sup>
+Run the example tests with the following commands.  Then open up the files in the _example/tests_ directory and study them to see how they work.<sup>1</sup>
 
-    $ cd check-pages
-    $ ./check_pages runner.php
+1. Open a new shell window which will run the PHP server for our example test pages.
+
+       $ ./bin/server.sh
+        
+1. Open a second shell window to execute the tests.
+       
+       $ ./bin/test.sh
 
 Some failing tests are also available to explore:
 
     $ ./check_pages failing_tests_runner.php
     
-<sup>1</sup> If you see no _tests_ directory then create one and copy the contents of _install_ into _tests_.  The example _tests_ directory will only be created if you use `create-project` as the installation method.
+<sup>1</sup> If you see no _tests_ directory then create one and copy the contents of _examples_ into _tests_.  The example _tests_ directory will only be created if you use `create-project` as the installation method.
  
 ### Troubleshooting
 
@@ -57,7 +62,7 @@ To make the output much simpler, use the `--quite` flag.  This will hide the ass
 
 ## On Your Own
 
-When you are ready you should delete the contents of the _tests_ folder and write your own tests there.  Don't worry, the original example files are located in the _install_ directory.  (If you have used the alternate installation method you will need to write your tests in another folder of your choosing not located in this project.  But for these examples, we'll assume a `create-project` installation.)
+When you are ready you should delete the contents of the _tests_ folder and write your own tests there.  Don't worry, the original example files are located in the _examples_ directory.  (If you have used the alternate installation method you will need to write your tests in another folder of your choosing not located in this project.  But for these examples, we'll assume a `create-project` installation.)
 
 You will need a bare minimum file structure resembling:
     
@@ -113,24 +118,15 @@ This example assumes a file structure like this:
         
 ## Javascript Is Supported
 
-* Javascript is supported if you have Chrome installed.
-* Look to _bin/chrome.sh_ as an example of how to start up Chrome.
+* Javascript is supported if you have Chrome installed and you've added it's path to your runner config.
+
+### Dev Links Related to This
+
 * [Learn more](https://developers.google.com/web/updates/2017/04/headless-chrome)
 * https://github.com/GoogleChrome/chrome-launcher
 * <https://peter.sh/experiments/chromium-command-line-switches/>
 * https://raw.githubusercontent.com/GoogleChrome/chrome-launcher/v0.8.0/scripts/download-chrome.sh
-
-## Limitations
-
-* This does not run Javascript, so DOM selections will not work if they require that JS run.
     
 ## Contributing
 
 If you find this project useful... please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4E5KZHDQCEUV8&item_name=Gratitude%20for%20aklump%2Fcheck-pages).
-
-## Testing
-
-1. Open a new shell window which will run the PHP server for our test subject pages.
-1. `./bin/server.sh`
-1. Open a second shell window.
-1. `./bin/test.sh`
