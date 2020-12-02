@@ -9,7 +9,7 @@
 
 <body class="page--readme">
 <header>
-  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title"></a><a href="index.html" class="next index">Index&raquo;</a></div></header>
+  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cheatsheet.html" class="next cheatsheet">Quick Reference: Test Writing&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -25,21 +25,21 @@
 
 <section>
 
-<h2>Very Simple QA</h2>
+<h2>Very Simple QA for Websites</h2>
 
 <p><img src="images/check-pages.jpg" alt="Check Pages" /></p>
 
 <h2>Summary</h2>
 
-<p>This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain.  You write your tests using YAML and they can look as simple as these two tests:</p>
+<p>This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain.  You write your tests using YAML and they can look as simple as this:</p>
 
-<pre><code>- url: /
+<pre><code># Check the homepage to make sure it returns 200.
+- url: /
 
+# Make sure the `/admin` path returns 403 forbidden when not logged in.
 - url: /admin
   expect: 403
 </code></pre>
-
-<p>The first test will check the homepage to make sure it returns a 200 HTTP status code.  The second test will make sure the <code>/admin</code> path returns 403 forbidden.</p>
 
 <p>In a third test we can assert there is one logo image on the homepage, like so:</p>
 
@@ -62,6 +62,14 @@
 <li><em>Assertion</em> - A single find action against the response body of a test, or a validation that the HTTP response code matches an expected value.</li>
 </ul>
 
+<h2>Requirements</h2>
+
+<ul>
+<li>You must install with Composer.</li>
+<li>Tests suites are written in YAML.</li>
+<li>Little to no experience with PHP is necessary.  Copy and paste will suffice.</li>
+</ul>
+
 <h2>Install</h2>
 
 <p>The following creates a stand-alone project in a folder named <em>check-pages</em>.  <em>See also Install In Another Composer Project</em>.</p>
@@ -76,10 +84,12 @@
 <ol>
 <li><p>Open a new shell window which will run the PHP server for our example test pages.</p>
 
-<p>$ ./bin/server.sh</p></li>
+<pre><code>$ ./bin/test_server.sh
+</code></pre></li>
 <li><p>Open a second shell window to execute the tests.</p>
 
-<p>$ ./bin/test.sh</p></li>
+<pre><code>$ ./bin/test.sh
+</code></pre></li>
 </ol>
 
 <p>Some failing tests are also available to explore:</p>
@@ -89,28 +99,7 @@
 
 <p><sup>1</sup> If you see no <em>tests</em> directory then create one and copy the contents of <em>examples</em> into <em>tests</em>.  The example <em>tests</em> directory will only be created if you use <code>create-project</code> as the installation method.</p>
 
-<h2>Requirements</h2>
-
-<ul>
-<li>alpha</li>
-<li>bravo</li>
-</ul>
-
-<h2>Troubleshooting</h2>
-
-<p>Try using the <code>--show-source</code> to see the response source code as well.</p>
-
-<pre><code>./check_pages failing_tests_runner.php --show-source  
-</code></pre>
-
-<h2>Quiet Mode</h2>
-
-<p>To make the output much simpler, use the <code>--quite</code> flag.  This will hide the assertions and reduce the output to simply pass/fail.</p>
-
-<pre><code>./check_pages failing_tests_runner.php --quiet
-</code></pre>
-
-<h2>On Your Own</h2>
+<h3>Writing Your First Test Suite</h3>
 
 <p>When you are ready you should delete the contents of the <em>tests</em> folder and write your own tests there.  Don't worry, the original example files are located in the <em>examples</em> directory.  (If you have used the alternate installation method you will need to write your tests in another folder of your choosing not located in this project.  But for these examples, we'll assume a <code>create-project</code> installation.)</p>
 
@@ -147,7 +136,58 @@
 
 <h3>Test functions</h3>
 
-<p>The test functions for your PHP test files are found in <em>includes/test_functions.inc</em>.</p>
+<p>The test functions for your PHP test files are found in <em>includes/runner_functions.inc</em>.</p>
+
+<h2>Is JS Supported?</h2>
+
+<p>Yes, not by default, but you are able to indicate that given tests requires Javascript be run.  Read on...</p>
+
+<h2>Javascript Testing Requirements</h2>
+
+<ul>
+<li>Your testing machine must have Chrome installed.</li>
+</ul>
+
+<h2>Javascript Testing Setup</h2>
+
+<p>To support JS testing, you must indicate where your Chrome binary is located in your runner configuration file, like so:</p>
+
+<pre><code class="yaml">chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+</code></pre>
+
+<h2>Enable Javascript per Test</h2>
+
+<p>Unless you enable it, javascript is not run during testing.  If you need to assert that an element exists, which was created from Javascript (or otherwise need javascript to run on the page), you will need to indicate the following in your test, namely <code>js: true</code>.</p>
+
+<pre><code class="yaml">- url: /foo
+  js: true
+  find:
+    - dom: .js-created-page-title
+      text: Javascript added me to the DOM!
+</code></pre>
+
+<h2>Javascript Testing Related Links</h2>
+
+<ul>
+<li><a href="https://developers.google.com/web/updates/2017/04/headless-chrome">Learn more</a></li>
+<li>https://github.com/GoogleChrome/chrome-launcher</li>
+<li><a href="https://peter.sh/experiments/chromium-command-line-switches/">https://peter.sh/experiments/chromium-command-line-switches/</a></li>
+<li>https://raw.githubusercontent.com/GoogleChrome/chrome-launcher/v0.8.0/scripts/download-chrome.sh</li>
+</ul>
+
+<h2>Quiet Mode</h2>
+
+<p>To make the output much simpler, use the <code>--quite</code> flag.  This will hide the assertions and reduce the output to simply pass/fail.</p>
+
+<pre><code>./check_pages failing_tests_runner.php --quiet
+</code></pre>
+
+<h2>Troubleshooting</h2>
+
+<p>Try using the <code>--show-source</code> to see the response source code as well.</p>
+
+<pre><code>./check_pages failing_tests_runner.php --show-source  
+</code></pre>
 
 <h2>Install In Another Composer Project</h2>
 
@@ -173,21 +213,6 @@
         └── check_pages  
 </code></pre>
 
-<h2>Javascript Is Supported</h2>
-
-<ul>
-<li>Javascript is supported if you have Chrome installed and you've added it's path to your runner config.</li>
-</ul>
-
-<h3>Dev Links Related to This</h3>
-
-<ul>
-<li><a href="https://developers.google.com/web/updates/2017/04/headless-chrome">Learn more</a></li>
-<li>https://github.com/GoogleChrome/chrome-launcher</li>
-<li><a href="https://peter.sh/experiments/chromium-command-line-switches/">https://peter.sh/experiments/chromium-command-line-switches/</a></li>
-<li>https://raw.githubusercontent.com/GoogleChrome/chrome-launcher/v0.8.0/scripts/download-chrome.sh</li>
-</ul>
-
 <h2>Contributing</h2>
 
 <p>If you find this project useful... please consider <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=4E5KZHDQCEUV8&amp;item_name=Gratitude%20for%20aklump%2Fcheck-pages">making a donation</a>.</p>
@@ -198,9 +223,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title"></a><a href="index.html" class="next index">Index&raquo;</a></div>  
+  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cheatsheet.html" class="next cheatsheet">Quick Reference: Test Writing&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.2.12 &bull; Last Updated: Tue, 01 Dec 2020 13:07:48 -0800</p>
+    <p class="legaleeze center">Version: 0.2.12 &bull; Last Updated: Tue, 01 Dec 2020 19:10:43 -0800</p>
   </div>
 </footer>
 

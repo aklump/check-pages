@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Testing with Javascript</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--javascript">
+<header>
+  <div class="pager"><a href="cheatsheet.html" class="prev cheatsheet">&laquo;Quick Reference: Test Writing</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="index.html" class="next index">Index&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+
+<h1>Testing with Javascript</h1>
+
+<section>
+
+<h2>Javascript Testing Requirements</h2>
+
+<ul>
+<li>Your testing machine must have Chrome installed.</li>
+</ul>
+
+<h2>Javascript Testing Setup</h2>
+
+<p>To support JS testing, you must indicate where your Chrome binary is located in your runner configuration file, like so:</p>
+
+<pre><code class="yaml">chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+</code></pre>
+
+<h2>Enable Javascript per Test</h2>
+
+<p>Unless you enable it, javascript is not run during testing.  If you need to assert that an element exists, which was created from Javascript (or otherwise need javascript to run on the page), you will need to indicate the following in your test, namely <code>js: true</code>.</p>
+
+<pre><code class="yaml">- url: /foo
+  js: true
+  find:
+    - dom: .js-created-page-title
+      text: Javascript added me to the DOM!
+</code></pre>
+
+<h2>Javascript Testing Related Links</h2>
+
+<ul>
+<li><a href="https://developers.google.com/web/updates/2017/04/headless-chrome">Learn more</a></li>
+<li>https://github.com/GoogleChrome/chrome-launcher</li>
+<li><a href="https://peter.sh/experiments/chromium-command-line-switches/">https://peter.sh/experiments/chromium-command-line-switches/</a></li>
+<li>https://raw.githubusercontent.com/GoogleChrome/chrome-launcher/v0.8.0/scripts/download-chrome.sh</li>
+</ul>
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="cheatsheet.html" class="prev cheatsheet">&laquo;Quick Reference: Test Writing</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="index.html" class="next index">Index&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.2.12 &bull; Last Updated: Tue, 01 Dec 2020 19:10:44 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
+

@@ -1,20 +1,20 @@
 <!-- Compiled from ./source/README.md: DO NOT EDIT -->
 
 # Check Pages
-## Very Simple QA
+## Very Simple QA for Websites
 
 ![Check Pages](docs/images/check-pages.jpg)
 
 ## Summary
 
-This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain.  You write your tests using YAML and they can look as simple as these two tests:
+This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain.  You write your tests using YAML and they can look as simple as this:
 
+    # Check the homepage to make sure it returns 200.
     - url: /
     
+    # Make sure the `/admin` path returns 403 forbidden when not logged in.
     - url: /admin
       expect: 403
-
-The first test will check the homepage to make sure it returns a 200 HTTP status code.  The second test will make sure the `/admin` path returns 403 forbidden.
 
 In a third test we can assert there is one logo image on the homepage, like so:
 
@@ -34,6 +34,12 @@ For more code examples explore the _/examples_ directory.
 * _Test_ - A single URL check within a suite.
 * _Assertion_ - A single find action against the response body of a test, or a validation that the HTTP response code matches an expected value.
 
+## Requirements
+
+* You must install with Composer.
+* Tests suites are written in YAML.
+* Little to no experience with PHP is necessary.  Copy and paste will suffice.
+
 ## Install
 
 The following creates a stand-alone project in a folder named _check-pages_.  _See also Install In Another Composer Project_.
@@ -46,11 +52,11 @@ Run the example tests with the following commands.  Then open up the files in th
 
 1. Open a new shell window which will run the PHP server for our example test pages.
 
-       $ ./bin/server.sh
+        $ ./bin/test_server.sh
         
 1. Open a second shell window to execute the tests.
        
-       $ ./bin/test.sh
+        $ ./bin/test.sh
 
 Some failing tests are also available to explore:
 
@@ -58,24 +64,7 @@ Some failing tests are also available to explore:
     
 <sup>1</sup> If you see no _tests_ directory then create one and copy the contents of _examples_ into _tests_.  The example _tests_ directory will only be created if you use `create-project` as the installation method.
 
-## Requirements
-
-* alpha
-* bravo
- 
-## Troubleshooting
-
-Try using the `--show-source` to see the response source code as well.
-    
-    ./check_pages failing_tests_runner.php --show-source  
-
-## Quiet Mode
-
-To make the output much simpler, use the `--quite` flag.  This will hide the assertions and reduce the output to simply pass/fail.
-
-    ./check_pages failing_tests_runner.php --quiet
-
-## On Your Own
+### Writing Your First Test Suite
 
 When you are ready you should delete the contents of the _tests_ folder and write your own tests there.  Don't worry, the original example files are located in the _examples_ directory.  (If you have used the alternate installation method you will need to write your tests in another folder of your choosing not located in this project.  But for these examples, we'll assume a `create-project` installation.)
 
@@ -86,6 +75,7 @@ You will need a bare minimum file structure resembling:
         └── config.yml
         ├── suite.yml
         └── runner.php
+
 
 ### Multiple Configuration Files
 
@@ -108,7 +98,54 @@ When you're ready to run this using the live config add the config filename to t
 
 ### Test functions
 
-The test functions for your PHP test files are found in _includes/test_functions.inc_.
+The test functions for your PHP test files are found in _includes/runner_functions.inc_.
+
+## Is JS Supported?
+
+Yes, not by default, but you are able to indicate that given tests requires Javascript be run.  Read on...
+
+## Javascript Testing Requirements
+
+* Your testing machine must have Chrome installed.
+
+## Javascript Testing Setup
+
+To support JS testing, you must indicate where your Chrome binary is located in your runner configuration file, like so:
+
+```yaml
+chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+```
+
+## Enable Javascript per Test
+
+Unless you enable it, javascript is not run during testing.  If you need to assert that an element exists, which was created from Javascript (or otherwise need javascript to run on the page), you will need to indicate the following in your test, namely `js: true`.
+
+```yaml
+- url: /foo
+  js: true
+  find:
+    - dom: .js-created-page-title
+      text: Javascript added me to the DOM!
+```
+
+## Javascript Testing Related Links
+
+* [Learn more](https://developers.google.com/web/updates/2017/04/headless-chrome)
+* https://github.com/GoogleChrome/chrome-launcher
+* <https://peter.sh/experiments/chromium-command-line-switches/>
+* https://raw.githubusercontent.com/GoogleChrome/chrome-launcher/v0.8.0/scripts/download-chrome.sh
+
+## Quiet Mode
+
+To make the output much simpler, use the `--quite` flag.  This will hide the assertions and reduce the output to simply pass/fail.
+
+    ./check_pages failing_tests_runner.php --quiet
+
+## Troubleshooting
+
+Try using the `--show-source` to see the response source code as well.
+    
+    ./check_pages failing_tests_runner.php --show-source  
 
 ## Install In Another Composer Project
 
@@ -130,17 +167,6 @@ This example assumes a file structure like this:
     └── vendor
         └── bin
             └── check_pages  
-        
-## Javascript Is Supported
-
-* Javascript is supported if you have Chrome installed and you've added it's path to your runner config.
-
-### Dev Links Related to This
-
-* [Learn more](https://developers.google.com/web/updates/2017/04/headless-chrome)
-* https://github.com/GoogleChrome/chrome-launcher
-* <https://peter.sh/experiments/chromium-command-line-switches/>
-* https://raw.githubusercontent.com/GoogleChrome/chrome-launcher/v0.8.0/scripts/download-chrome.sh
     
 ## Contributing
 

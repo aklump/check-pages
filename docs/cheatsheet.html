@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Quick Reference: Test Writing</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--cheatsheet">
+<header>
+  <div class="pager"><a href="README.html" class="prev README">&laquo;Check Pages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="javascript.html" class="next javascript">Testing with Javascript&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+
+<h1>Quick Reference: Test Writing</h1>
+
+<section>
+
+<h2>Test Cheatsheet</h2>
+
+<table>
+<thead>
+<tr>
+  <th>operation</th>
+  <th>property</th>
+  <th><code>find</code> property</th>
+  <th>default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><em>Load page</em></td>
+  <td><code>url</code></td>
+  <td></td>
+  <td>-</td>
+</tr>
+<tr>
+  <td><em>Javascript</em></td>
+  <td><code>js</code></td>
+  <td></td>
+  <td><code>false</code></td>
+</tr>
+<tr>
+  <td><em>Status Code</em></td>
+  <td><code>expect</code></td>
+  <td></td>
+  <td>200</td>
+</tr>
+<tr>
+  <td><em>Redirect</em></td>
+  <td><code>location</code></td>
+  <td></td>
+  <td>-</td>
+</tr>
+<tr>
+  <td><em>Content</em></td>
+  <td><code>find</code></td>
+  <td></td>
+  <td>-</td>
+</tr>
+<tr>
+  <td><em>Selectors</em></td>
+  <td></td>
+  <td><code>dom|xpath</code></td>
+  <td>-</td>
+</tr>
+<tr>
+  <td><em>Assertions</em></td>
+  <td></td>
+  <td><code>contains|count|exact|match|text</code></td>
+  <td><code>contains</code></td>
+</tr>
+</tbody>
+</table>
+
+<h2>Check Page Loads</h2>
+
+<p>The most simple test involves checking that a page loads.</p>
+
+<pre><code class="yaml">- url: /foo
+</code></pre>
+
+<h2>Check with Javascript Enabled</h2>
+
+<p>By default the test will not run with Javascript.  Use <code>js: true</code> to run the test with Javascript enabled.  <a href="javascript.html">Learn more.</a></p>
+
+<h2>Check Status Code</h2>
+
+<p>By saying that the "page loads", we mean that it returns a status code of 200. The following is exactly the same in function as the previous example.  You can check for any code by changing the value of <code>expect</code>.</p>
+
+<pre><code class="yaml">- url: /foo
+  expect: 200
+</code></pre>
+
+<h2>Check Redirect</h2>
+
+<p>For pages that redirect you can check for both the status code and the final location:</p>
+
+<pre><code class="yaml">-
+  url: /moved.php
+  expect: 301
+  location: /location.html
+</code></pre>
+
+<h2>Check Content</h2>
+
+<p>Once loaded you can also look for things on the page with <code>find</code>.  The most simple <code>find</code> assertion looks for a substring of text anywhere on the page.  The following two examples are identical assertions.</p>
+
+<pre><code class="yaml">- url: /foo
+  find:
+    - Upcoming Events Calendar
+</code></pre>
+
+<pre><code class="yaml">- url: /foo
+  find:
+    -
+      contains: Upcoming Events Calendar
+</code></pre>
+
+<h3>Selectors</h3>
+
+<p><strong>Selectors reduce the entire page content to one or more sections.</strong></p>
+
+<ul>
+<li><p><code>dom</code>: Select from the DOM using CSS selectors.</p>
+
+<pre><code class="yaml">find:
+- 
+  dom: p.summary
+</code></pre>
+
+<pre><code class="yaml">find:
+- 
+  dom: main
+</code></pre>
+
+<pre><code class="yaml">find:
+- 
+  dom: .story__title
+</code></pre></li>
+<li><p><code>xpath</code>: Select from the DOM using XPath selectors.</p>
+
+<pre><code class="yaml">find:
+- 
+  xpath: (//*[contains(@class, "block-title")])[3]
+</code></pre></li>
+</ul>
+
+<h3>Assertions</h3>
+
+<p><strong>Assertions provide different ways to test the page or selected section(s).</strong></p>
+
+<p>In the case where there are multiple sections, such as multiple DOM elements, then the assertion is applied against all selections and only one must pass.</p>
+
+<ul>
+<li><p><code>contains</code>: Pass if the value is found in the selection.</p>
+
+<pre><code class="yaml">find:
+- 
+  dom: p.summary
+  contains: foo
+</code></pre></li>
+<li><p><code>count</code>: Pass if equal to the number of items in the selection.</p>
+
+<pre><code class="yaml">find:
+- 
+  dom: p.summary
+  count: 2
+</code></pre></li>
+<li><p><code>exact</code>: Pass if the selection's markup matches exactly.</p>
+
+<pre><code class="yaml">find:
+- 
+  dom: p.summary
+  exact: &lt;em&gt;lorem &lt;strong&gt;ipsum dolar&lt;/strong&gt; sit amet.&lt;/em&gt;
+</code></pre></li>
+<li><p><code>match</code>: Applies a REGEX expression against the selection.</p>
+
+<pre><code class="yaml">find:
+- 
+  dom: p.summary
+  match: /copyright\s+20\d{2}$/
+</code></pre></li>
+<li><p><code>text</code>: Pass if the selection's text value (all markup removed) matches exactly.</p>
+
+<pre><code class="yaml">find:
+- 
+  dom: p.summary
+  text: lorem ipsum dolar sit amet.
+</code></pre></li>
+</ul>
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="README.html" class="prev README">&laquo;Check Pages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="javascript.html" class="next javascript">Testing with Javascript&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.2.12 &bull; Last Updated: Tue, 01 Dec 2020 19:10:43 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
+
