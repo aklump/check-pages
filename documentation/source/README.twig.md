@@ -1,18 +1,18 @@
 # Check Pages
-## Very Simple QA
+## Very Simple QA for Websites
 
 ![Check Pages](images/check-pages.jpg)
 
 ## Summary
 
-This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain.  You write your tests using YAML and they can look as simple as these two tests:
+This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain.  You write your tests using YAML and they can look as simple as this:
 
+    # Check the homepage to make sure it returns 200.
     - url: /
     
+    # Make sure the `/admin` path returns 403 forbidden when not logged in.
     - url: /admin
       expect: 403
-
-The first test will check the homepage to make sure it returns a 200 HTTP status code.  The second test will make sure the `/admin` path returns 403 forbidden.
 
 In a third test we can assert there is one logo image on the homepage, like so:
 
@@ -32,6 +32,12 @@ For more code examples explore the _/examples_ directory.
 * _Test_ - A single URL check within a suite.
 * _Assertion_ - A single find action against the response body of a test, or a validation that the HTTP response code matches an expected value.
 
+## Requirements
+
+* You must install with Composer.
+* Tests suites are written in YAML.
+* Little to no experience with PHP is necessary.  Copy and paste will suffice.
+
 ## Install
 
 The following creates a stand-alone project in a folder named _check-pages_.  _See also Install In Another Composer Project_.
@@ -44,11 +50,11 @@ Run the example tests with the following commands.  Then open up the files in th
 
 1. Open a new shell window which will run the PHP server for our example test pages.
 
-       $ ./bin/test_server.sh
+        $ ./bin/test_server.sh
         
 1. Open a second shell window to execute the tests.
        
-       $ ./bin/test.sh
+        $ ./bin/test.sh
 
 Some failing tests are also available to explore:
 
@@ -56,29 +62,7 @@ Some failing tests are also available to explore:
     
 <sup>1</sup> If you see no _tests_ directory then create one and copy the contents of _examples_ into _tests_.  The example _tests_ directory will only be created if you use `create-project` as the installation method.
 
-## Requirements
-
-* You must install with Composer.
-
-## Is JS Supported?
-
-Yes, not by default, but you are able to indicate that given tests requires Javascript be run.  Read on...
-
-{% include('_javascript.md') %}
-
-## Quiet Mode
-
-To make the output much simpler, use the `--quite` flag.  This will hide the assertions and reduce the output to simply pass/fail.
-
-    ./check_pages failing_tests_runner.php --quiet
-
-## Troubleshooting
-
-Try using the `--show-source` to see the response source code as well.
-    
-    ./check_pages failing_tests_runner.php --show-source  
-
-## On Your Own
+### Writing Your First Test Suite
 
 When you are ready you should delete the contents of the _tests_ folder and write your own tests there.  Don't worry, the original example files are located in the _examples_ directory.  (If you have used the alternate installation method you will need to write your tests in another folder of your choosing not located in this project.  But for these examples, we'll assume a `create-project` installation.)
 
@@ -89,6 +73,7 @@ You will need a bare minimum file structure resembling:
         └── config.yml
         ├── suite.yml
         └── runner.php
+
 
 ### Multiple Configuration Files
 
@@ -111,7 +96,25 @@ When you're ready to run this using the live config add the config filename to t
 
 ### Test functions
 
-The test functions for your PHP test files are found in _includes/test_functions.inc_.
+The test functions for your PHP test files are found in _includes/runner_functions.inc_.
+
+## Is JS Supported?
+
+Yes, not by default, but you are able to indicate that given tests requires Javascript be run.  Read on...
+
+{% include('_javascript.md') %}
+
+## Quiet Mode
+
+To make the output much simpler, use the `--quite` flag.  This will hide the assertions and reduce the output to simply pass/fail.
+
+    ./check_pages failing_tests_runner.php --quiet
+
+## Troubleshooting
+
+Try using the `--show-source` to see the response source code as well.
+    
+    ./check_pages failing_tests_runner.php --show-source  
 
 ## Install In Another Composer Project
 

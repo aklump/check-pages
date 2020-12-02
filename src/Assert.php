@@ -12,45 +12,45 @@ final class Assert {
   /**
    * @var int
    */
-  const SEARCH_ALL = 1;
+  const SEARCH_ALL = 'page';
 
   /**
    * @var int
    */
-  const SEARCH_DOM = 2;
+  const SEARCH_DOM = 'dom';
 
   /**
    * @var int
    */
-  const SEARCH_XPATH = 3;
+  const SEARCH_XPATH = 'xpath';
 
   /**
    * @var int
    */
-  const ASSERT_COUNT = 1;
+  const ASSERT_COUNT = 'count';
 
   /**
    * @var int
    */
-  const ASSERT_EXACT = 2;
+  const ASSERT_EXACT = 'exact';
 
   /**
    * @var int
    */
-  const ASSERT_TEXT = 3;
+  const ASSERT_TEXT = 'text';
 
   /**
    * @var int
    */
-  const ASSERT_MATCH = 4;
+  const ASSERT_MATCH = 'match';
 
   /**
    * @var int
    */
-  const ASSERT_SUBSTRING = 5;
+  const ASSERT_SUBSTRING = 'contains';
 
   /**
-   * @var int
+   * @var string
    */
   private $searchType;
 
@@ -60,7 +60,7 @@ final class Assert {
   private $searchValue;
 
   /**
-   * @var int
+   * @var string
    */
   private $assertType;
 
@@ -95,7 +95,7 @@ final class Assert {
    * @return $this
    *   Self for chaining.
    */
-  public function setSearch(int $type, $value = NULL): self {
+  public function setSearch(string $type, $value = NULL): self {
     $this->searchType = $type;
     $this->searchValue = $value;
 
@@ -113,7 +113,7 @@ final class Assert {
    * @return $this
    *   Self for chaining.
    */
-  public function setAssert(int $type, $expected): self {
+  public function setAssert(string $type, $expected): self {
     $this->assertType = $type;
     $this->assertValue = $expected;
 
@@ -343,12 +343,12 @@ final class Assert {
    */
   public function getSelectorsInfo(): array {
     return [
-      new Help('dom', "Select from the DOM using CSS selectors.", [
+      new Help(self::SEARCH_DOM, "Select from the DOM using CSS selectors.", [
         'p.summary',
         'main',
         '.story__title',
       ]),
-      new Help('xpath', "Select from the DOM using XPath selectors.", ['(//*[contains(@class, "block-title")])[3]']),
+      new Help(self::SEARCH_XPATH, "Select from the DOM using XPath selectors.", ['(//*[contains(@class, "block-title")])[3]']),
     ];
   }
 
@@ -359,11 +359,11 @@ final class Assert {
    */
   public function getAssertionsInfo(): array {
     return [
-      new Help('contains', 'Pass if the value is found in the selection.', ['foo']),
-      new Help('count', 'Pass if equal to the number of items in the selection.', [2]),
-      new Help('exact', "Pass if the selection's markup (`innerText`) matches exactly.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),
-      new Help('match', 'Applies a REGEX expression against the selection.', ['/copyright\s+20\d{2}$/']),
-      new Help('text', "Pass if the selection's text value (all markup removed) matches exactly.", ['lorem ipsum dolar sit amet.']),
+      new Help(self::ASSERT_SUBSTRING, 'Pass if the value is found in the selection.', ['foo']),
+      new Help(self::ASSERT_COUNT, 'Pass if equal to the number of items in the selection.', [2]),
+      new Help(self::ASSERT_EXACT, "Pass if the selection's markup matches exactly.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),
+      new Help(self::ASSERT_MATCH, 'Applies a REGEX expression against the selection.', ['/copyright\s+20\d{2}$/']),
+      new Help(self::ASSERT_TEXT, "Pass if the selection's text value (all markup removed) matches exactly.", ['lorem ipsum dolar sit amet.']),
     ];
   }
 

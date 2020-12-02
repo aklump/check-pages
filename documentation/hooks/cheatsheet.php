@@ -60,4 +60,29 @@ $contents = selectors_to_markdown();
 echo $compiler->addInclude('_selectors.md', $contents)
     ->getBasename() . ' has been created.' || exit(1);
 
+
+$assert = new Assert('');
+$selectors = implode('|', array_map(function ($item) {
+  return $item->code();
+}, $assert->getSelectorsInfo()));
+$assertions = implode('|', array_map(function ($item) {
+  return $item->code();
+}, $assert->getAssertionsInfo()));
+$contents = <<<EOD
+## Test Cheatsheet
+
+| operation | property  | `find` property  | default |
+|----------|----------|----------|--|
+| _Load page_       | `url`      |                              | - |
+| _Javascript_  | `js`      |                              | `false` |
+| _Status Code_     | `expect`   | | 200 |
+| _Redirect_  | `location` |                               | - |
+| _Content_    | `find`      |                                   | - |
+| _Selectors_   |            | `{$selectors}`                       | - |
+| _Assertions_  |            | `{$assertions}` | `contains` |
+
+EOD;
+echo $compiler->addInclude('_cheatsheet.md', $contents)
+    ->getBasename() . ' has been created.' || exit(1);
+
 exit(0);

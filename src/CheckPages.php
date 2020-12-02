@@ -454,14 +454,18 @@ class CheckPages {
   protected function handleFindAssert($needle, string $haystack): bool {
     $assert = new Assert($haystack);
 
-    // Set up the search.
-    if (isset($needle['dom'])) {
-      $assert->setSearch(Assert::SEARCH_DOM, $needle['dom']);
+    $search_type = NULL;
+    $selectors = array_map(function ($help) {
+      return $help->code();
+    }, $assert->getSelectorsInfo());
+    foreach ($selectors as $code) {
+      if (isset($needle[$code])) {
+        $search_type = $code;
+        $assert->setSearch($code, $needle[$code]);
+        break;
+      }
     }
-    elseif (isset($needle['xpath'])) {
-      $assert->setSearch(Assert::SEARCH_XPATH, $needle['xpath']);
-    }
-    else {
+    if (!$search_type) {
       $assert->setSearch(Assert::SEARCH_ALL);
     }
 
@@ -469,20 +473,16 @@ class CheckPages {
     if (!is_array($needle)) {
       $assert->setAssert(Assert::ASSERT_SUBSTRING, $needle);
     }
-    elseif (isset($needle['contains'])) {
-      $assert->setAssert(Assert::ASSERT_SUBSTRING, $needle['contains']);
-    }
-    elseif (isset($needle['text'])) {
-      $assert->setAssert(Assert::ASSERT_TEXT, $needle['text']);
-    }
-    elseif (isset($needle['count'])) {
-      $assert->setAssert(Assert::ASSERT_COUNT, $needle['count']);
-    }
-    elseif (isset($needle['exact'])) {
-      $assert->setAssert(Assert::ASSERT_EXACT, $needle['exact']);
-    }
-    elseif (isset($needle['match'])) {
-      $assert->setAssert(Assert::ASSERT_MATCH, $needle['match']);
+    else {
+      $assertions = array_map(function ($help) {
+        return $help->code();
+      }, $assert->getAssertionsInfo());
+      foreach ($assertions as $code) {
+        if (isset($needle[$code])) {
+          $assert->setAssert($code, $needle[$code]);
+          break;
+        }
+      }
     }
 
     $pass = $assert->run();

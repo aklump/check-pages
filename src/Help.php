@@ -6,14 +6,11 @@ class Help implements HelpInfoInterface {
 
   protected $code;
 
-  protected $constant;
-
   protected $description;
 
   protected $examples = [];
 
-  public function __construct(string $class_constant, string $code, string $description, array $examples) {
-    $this->constant = $class_constant;
+  public function __construct(string $code, string $description, array $examples) {
     $this->code = $code;
     $this->description = $description;
     $this->examples = $examples;

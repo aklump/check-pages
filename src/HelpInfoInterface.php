@@ -5,14 +5,7 @@ namespace AKlump\CheckPages;
 interface HelpInfoInterface {
 
   /**
-   * The name of the class constant.
-   *
-   * @return string
-   */
-  public function constant(): string;
-
-  /**
-   * The code to use in assertions.
+   * The (machine) code to use when writing assertions.
    *
    * @return string
    */
