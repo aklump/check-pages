@@ -26,7 +26,7 @@
         "dmore\/chrome-mink-driver": "^2.7",
         "behat\/mink": "^1.8"
     },
-    "version": "0.2.12",
+    "version": "0.2.13",
     "bin": [
         ".\/check_pages"
     ],
