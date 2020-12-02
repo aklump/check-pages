@@ -9,8 +9,11 @@
 </a>
 
 <h1 class="page-title"><span>About In the Loft Studios</span></h1>
+
+<h2 class="block-title">Quick Start</h2>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </p>
 
+<h2 class="block-title">Upcoming Events</h2>
 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam aspernatur deserunt expedita explicabo labore quam quod ullam, vero. Molestiae, nulla pariatur? Ab accusamus blanditiis enim nostrum perferendis qui quisquam vitae?</p>
 
 <h2 class="block-title">Latest Blog Post</h2>

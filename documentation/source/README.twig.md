@@ -44,7 +44,7 @@ Run the example tests with the following commands.  Then open up the files in th
 
 1. Open a new shell window which will run the PHP server for our example test pages.
 
-       $ ./bin/server.sh
+       $ ./bin/test_server.sh
         
 1. Open a second shell window to execute the tests.
        

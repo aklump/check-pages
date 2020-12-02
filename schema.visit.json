@@ -45,6 +45,12 @@
                 }
             ]
         },
+        "contains": {
+            "type": "string",
+            "examples": [
+                "My Front Page"
+            ]
+        },
         "text": {
             "type": "string",
             "examples": [
@@ -124,6 +130,18 @@
                         {
                             "type": "object",
                             "required": [
+                                "contains"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "contains": {
+                                    "$ref": "#/definitions/contains"
+                                }
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "required": [
                                 "dom",
                                 "text"
                             ],
@@ -150,6 +168,22 @@
                                 },
                                 "exact": {
                                     "$ref": "#/definitions/exact"
+                                }
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "required": [
+                                "dom",
+                                "contains"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "dom": {
+                                    "$ref": "#/definitions/dom"
+                                },
+                                "contains": {
+                                    "$ref": "#/definitions/contains"
                                 }
                             }
                         },
@@ -230,6 +264,22 @@
                                 },
                                 "match": {
                                     "$ref": "#/definitions/match"
+                                }
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "required": [
+                                "xpath",
+                                "contains"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "xpath": {
+                                    "$ref": "#/definitions/xpath"
+                                },
+                                "contains": {
+                                    "$ref": "#/definitions/contains"
                                 }
                             }
                         },

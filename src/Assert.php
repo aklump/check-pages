@@ -336,4 +336,35 @@ final class Assert {
     return $pass;
   }
 
+  /**
+   * Return information about available selectors.
+   *
+   * @return \AKlump\CheckPages\Help[]
+   */
+  public function getSelectorsInfo(): array {
+    return [
+      new Help('dom', "Select from the DOM using CSS selectors.", [
+        'p.summary',
+        'main',
+        '.story__title',
+      ]),
+      new Help('xpath', "Select from the DOM using XPath selectors.", ['(//*[contains(@class, "block-title")])[3]']),
+    ];
+  }
+
+  /**
+   * Return information about available assertions.
+   *
+   * @return \AKlump\CheckPages\Help[]
+   */
+  public function getAssertionsInfo(): array {
+    return [
+      new Help('contains', 'Pass if the value is found in the selection.', ['foo']),
+      new Help('count', 'Pass if equal to the number of items in the selection.', [2]),
+      new Help('exact', "Pass if the selection's markup (`innerText`) matches exactly.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),
+      new Help('match', 'Applies a REGEX expression against the selection.', ['/copyright\s+20\d{2}$/']),
+      new Help('text', "Pass if the selection's text value (all markup removed) matches exactly.", ['lorem ipsum dolar sit amet.']),
+    ];
+  }
+
 }

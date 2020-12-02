@@ -455,22 +455,22 @@ class CheckPages {
     $assert = new Assert($haystack);
 
     // Set up the search.
-    if (!is_array($needle)) {
-      $assert->setSearch(Assert::SEARCH_ALL);
-    }
-    elseif (isset($needle['dom'])) {
+    if (isset($needle['dom'])) {
       $assert->setSearch(Assert::SEARCH_DOM, $needle['dom']);
     }
     elseif (isset($needle['xpath'])) {
       $assert->setSearch(Assert::SEARCH_XPATH, $needle['xpath']);
     }
-    elseif (isset($needle['match'])) {
+    else {
       $assert->setSearch(Assert::SEARCH_ALL);
     }
 
     // Setup the assert.
     if (!is_array($needle)) {
       $assert->setAssert(Assert::ASSERT_SUBSTRING, $needle);
+    }
+    elseif (isset($needle['contains'])) {
+      $assert->setAssert(Assert::ASSERT_SUBSTRING, $needle['contains']);
     }
     elseif (isset($needle['text'])) {
       $assert->setAssert(Assert::ASSERT_TEXT, $needle['text']);

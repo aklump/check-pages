@@ -1,14 +1,18 @@
-
 # This example tests our redirect when running javascript.  It's contrived
-- url: /moved.php
+-
+  url: /moved.php
   js: true
   expect: 301
   location: /location.html
   find:
     - We've moved!
 
+    # The previous is shorthand for this.
+    -
+      contains: We've moved!
 
-- url: /
+-
+  url: /
 
   # This can be omitted if it is 200, if you expect any other HTTP status code
   # you must enter it here or this URL test will fail.
@@ -17,10 +21,12 @@
   # Now that the URL is loaded you may make assertions using simple find, DOM
   # find, or RegEx matching.
   find:
-    - dom: p
+    -
+      dom: p
       count: ">= 2"
 
-    - dom: p
+    -
+      dom: p
       count: "< 2000"
 
     # Locate the following text, at least once, anywhere in the page content.
@@ -31,40 +37,63 @@
     # SURE TO USE SINGLE QUOTES WHEN YOU ARE ENTERING REGEX EXPRESSION, DOUBLE
     # QUOTES WILL CAUSE PROBLEMS. YOU ALSO MUST ESCAPE CHARACTERS AS
     # APPROPRIATE.
-    - match: '/Copyright &copy; 2000\-\d{4} In the Loft Studios, PO Box 29294, Bellingham, WA/'
+    -
+      match: '/Copyright &copy; 2000\-\d{4} In the Loft Studios, PO Box 29294, Bellingham, WA/'
 
     # Assertions in the DOM using CSS selectors.
-    - dom: '#logo svg'
+    -
+      dom: '#logo svg'
       count: 1
 
     # Notice the use or `text` vs. `exact` for accessing the contents of a DOM
     # find as either plaintext or markup respectively.
-    - dom: h1.page-title
+    -
+      dom: h1.page-title
       text: About In the Loft Studios
-    - dom: h1.page-title
+    -
+      dom: h1.page-title
       exact: '<span>About In the Loft Studios</span>'
 
     # Case-insensitive RegEx match against the markup of #footer.
-    - dom: '#footer'
+    -
+      dom: '#footer'
       match: '/in the loft studios/i'
 
     # Make sure the hero image alt tag is correct.
-    - dom: '[title="An SVG image"]'
+    -
+      dom: '[title="An SVG image"]'
       count: 1
 
     # Make sure no forms appear on the homepage.
-    - dom: form
+    -
+      dom: form
       count: 0
 
-    # XPath can also be used to location things
-    - xpath: '(//*[contains(@class, "block-title")])[1]'
+    -
+      dom: '.block-title'
+      text: Quick Start
+
+    -
+      dom: '.block-title'
+      text: Upcoming Events
+
+    -
+      dom: '.block-title'
       text: Latest Blog Post
 
-    - dom: '#footer #copyright'
+    # XPath can also be used to locate things, so if you want to be sure that
+    # the third .block-title is a given value, you should use xpath.
+    -
+      xpath: '(//*[contains(@class, "block-title")])[3]'
+      text: Latest Blog Post
+
+    -
+      dom: '#footer #copyright'
       count: 1
 
 # This example shows how to check for a redirect value and final location.
-- url: /moved.php
+-
+  url: /moved.php
   expect: 301
   location: /location.html
 
@@ -74,5 +103,6 @@
   url: /javascript.html
   js: true
   find:
-    - dom: h1
+    -
+      dom: h1
       text: COVID 19 Pandemic
