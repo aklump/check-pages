@@ -178,7 +178,9 @@ final class Assert {
     switch ($this->assertType) {
       case self::ASSERT_SUBSTRING:
         foreach ($haystack as $item) {
-          $pass = strpos($item, $this->assertValue) !== FALSE;
+          $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            return strpos($item_variation, $this->assertValue) !== FALSE;
+          });
           if ($pass) {
             break;
           }
@@ -193,6 +195,21 @@ final class Assert {
         return $this->assertCount($this->assertValue, count($haystack));
 
       case self::ASSERT_TEXT:
+        foreach ($haystack as $item) {
+          $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            return $item_variation == $this->assertValue;
+          });
+          if ($pass) {
+            break;
+          }
+        }
+        if (!$pass) {
+          $haystack = '"' . implode('",, "', $haystack) . '"';
+          $this->reason = sprintf("The actual value\n\n>>> %s\n\n is not the expected\n\n>>> %s", $haystack, $this->assertValue);
+        }
+
+        return $pass;
+
       case self::ASSERT_EXACT:
         foreach ($haystack as $item) {
           $pass = $item == $this->assertValue;
@@ -365,6 +382,29 @@ final class Assert {
       new Help(self::ASSERT_MATCH, 'Applies a REGEX expression against the selection.', ['/copyright\s+20\d{2}$/']),
       new Help(self::ASSERT_TEXT, "Pass if the selection's text value (all markup removed) matches exactly.", ['lorem ipsum dolar sit amet.']),
     ];
+  }
+
+  /**
+   * Apply a callback using variations of $item.
+   *
+   * @param $item
+   *   This may contain special characters like &nbps;, which we want to match
+   *   against a ' ' for loose-matching.  This value and variances based on
+   *   string replacements will be passed to $callback.
+   * @param callable $callback
+   *   This should receive one argument and return a true based on comparing
+   *   that item to $this->asserValue.  The callback will be called more than
+   *   once, using variations of $item.  Only one pass is necessary for a true
+   *   response.
+   *
+   * @return bool
+   *   True if the callback returns true at least once.
+   */
+  private function applyCallbackWithVariations($item, callable $callback): bool {
+    return $callback($item)
+
+      // Replace ASCII 160 with 32.
+      || $callback(str_replace(' ', ' ', $item));
   }
 
 }
