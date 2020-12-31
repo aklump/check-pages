@@ -141,6 +141,12 @@ To make the output much simpler, use the `--quite` flag.  This will hide the ass
 
     ./check_pages failing_tests_runner.php --quiet
 
+## Filter
+
+Use the `--filter` parameter combined with a suite name to limit the runner to a single suite.  This is faster than editing your runner file.
+
+    ./check_pages runner.php --filter=page_header
+
 ## Troubleshooting
 
 Try using the `--show-source` to see the response source code as well.
