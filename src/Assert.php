@@ -226,7 +226,9 @@ final class Assert {
 
       case self::ASSERT_MATCH:
         foreach ($haystack as $item) {
-          $pass = preg_match($this->assertValue, $item);
+          $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            return preg_match($this->assertValue, $item_variation);
+          });
           if ($pass) {
             break;
           }
