@@ -11,6 +11,10 @@ use AKlump\LoftLib\Bash\Color;
 
 define('ROOT', __DIR__);
 
+global $app;
+global $cli;
+global $test_runner;
+
 // Find and load the autoloader
 $autoloaders = [
   ROOT . '/vendor/autoload.php',
@@ -29,7 +33,8 @@ while ($autoloader = array_shift($autoloaders)) {
 
 try {
   require ROOT . '/includes/bootstrap.inc';
-  $app->run($test);
+  $app->setSuiteFilter($cli->getParam('filter'));
+  $app->run($test_runner);
 }
 
   // Finish with an error response.

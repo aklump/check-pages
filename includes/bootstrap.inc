@@ -25,6 +25,7 @@ if (($diff = array_diff_key($cli->getParams(), array_flip([
   'config',
   'quiet',
   'show-source',
+  'filter',
 ])))) {
   throw new \InvalidArgumentException("Unknown parameter: " . key($diff));
 }
@@ -47,8 +48,8 @@ if (($dir = $cli->getParam('dir'))) {
   $app->addResolveDirectory($dir);
 }
 
-$test = $app->getRunner();
-if (!$test) {
+$test_runner = $app->getRunner();
+if (!$test_runner) {
   throw new \InvalidArgumentException('You must pass a resolvable path to your PHP runner file, as the only argument, e.g., ./check_pages runner.php');
 }
 

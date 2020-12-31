@@ -205,7 +205,7 @@ final class Assert {
         }
         if (!$pass) {
           $haystack = '"' . implode('",, "', $haystack) . '"';
-          $this->reason = sprintf("The actual value\n\n>>> %s\n\n is not the expected\n\n>>> %s", $haystack, $this->assertValue);
+          $this->reason = sprintf("The actual value\n\n>>> %s\n\n is not the expected\n\n>>> \"%s\"", $haystack, $this->assertValue);
         }
 
         return $pass;
@@ -219,7 +219,7 @@ final class Assert {
         }
         if (!$pass) {
           $haystack = '"' . implode('",, "', $haystack) . '"';
-          $this->reason = sprintf("The actual value\n\n>>> %s\n\n is not the expected\n\n>>> %s", $haystack, $this->assertValue);
+          $this->reason = sprintf("The actual value\n\n>>> %s\n\n is not the expected\n\n>>> \"%s\"", $haystack, $this->assertValue);
         }
 
         return $pass;

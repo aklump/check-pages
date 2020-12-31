@@ -98,10 +98,32 @@ class CheckPages {
    * @param string $path
    *   A resolvable path to the config file.
    *
+   * @return
+   *   Self for chaining.
+   *
    * @see load_config()
    */
-  public function setConfig(string $path) {
+  public function setConfig(string $path): CheckPages {
     $this->configPath = $path;
+
+    return $this;
+  }
+
+  /**
+   * Set the suite filter.
+   *
+   * All other suites will be ignored when set.
+   *
+   * @param string $filter
+   *   The suite id to filter by.
+   *
+   * @return
+   *   Self for chaining.
+   */
+  public function setSuiteFilter(string $filter): CheckPages {
+    $this->filter = $filter;
+
+    return $this;
   }
 
   /**
@@ -142,7 +164,11 @@ class CheckPages {
   public function run(string $path) {
     try {
       $runner = $this->getRunner();
-      echo Color::wrap('blue', sprintf('Testing started with "%s"', basename($runner))) . PHP_EOL;
+      $filter_message = '';
+      if ($this->filter) {
+        $filter_message = sprintf(' (using suite filter "%s")', $this->filter);
+      }
+      echo Color::wrap('blue', sprintf('Testing started with "%s"%s', basename($runner), $filter_message)) . PHP_EOL;
       $this->preflight = TRUE;
       require $runner;
       $this->preflight = FALSE;
@@ -168,19 +194,19 @@ class CheckPages {
    * @see run_suite()
    *
    */
-  public function runSuite(string $path, array $suite_config = []) {
+  public function runSuite(string $path_to_suite, array $suite_config = []) {
     $this->config = $suite_config + Yaml::parseFile($this->resolve($this->configPath));
     $this->validateConfig($this->config);
 
     $suite_id = '';
-    $path = $this->resolve($path, $suite_id);
-    $suite_id = pathinfo(substr($path, strlen($suite_id) + 1), PATHINFO_FILENAME);
+    $path_to_suite = $this->resolve($path_to_suite, $suite_id);
+    $suite_id = pathinfo(substr($path_to_suite, strlen($suite_id) + 1), PATHINFO_FILENAME);
 
     $this->config['suites_to_ignore'] = array_map(function ($suite_to_ignore) {
       return $this->resolve($suite_to_ignore);
     }, $this->config['suites_to_ignore'] ?? []);
 
-    if (in_array($path, $this->config['suites_to_ignore'])) {
+    if (in_array($path_to_suite, $this->config['suites_to_ignore'])) {
       if ($this->preflight) {
         echo PHP_EOL . Color::wrap('blue', '😴 ' . strtoupper(sprintf('Ignoring "%s" suite...', $suite_id))) . PHP_EOL;
       }
@@ -188,7 +214,11 @@ class CheckPages {
       return;
     }
 
-    $data = $this->validateAndLoadYaml($path, 'schema.visit.json');
+    if ($this->filter && $this->resolve($this->filter) !== $path_to_suite) {
+      return;
+    }
+
+    $data = $this->validateAndLoadYaml($path_to_suite, 'schema.visit.json');
 
     $this->longestUrl = array_reduce($data, function ($carry, $item) {
       return max($carry, strlen($item['url'] ?? $item));
