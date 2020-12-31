@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - Add `login` and `logout` in _includes/drupal_ to be able to run suites as authenticated users.
 
+## [0.5] - 2021-12-30
+### Added
+- `--filter` parameter to limit runner to a single suite from the CLI.
+  
 ## [0.4] - 2020-12-01
 
 ### Added
