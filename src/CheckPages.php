@@ -17,6 +17,16 @@ class CheckPages {
   protected $failedSuiteCount = 0;
 
   /**
+   * Holds a true state only when the filter is set and after a suite matching
+   * the filter is used.  If a filter is set and all suites are run and this is
+   * still false, it means that the filter was for a suite that was not
+   * registered in the runner.
+   *
+   * @var bool
+   */
+  protected $filterApplied = FALSE;
+
+  /**
    * @var int
    */
   protected $longestUrl = 0;
@@ -173,6 +183,10 @@ class CheckPages {
       require $runner;
       $this->preflight = FALSE;
       require $runner;
+
+      if ($this->filter && !$this->filterApplied) {
+        throw new \RuntimeException(sprintf("The filter was not applied; have you added `run_suite('%s');` to %s?", $this->filter, $runner));
+      }
     }
     catch (StopRunnerException $exception) {
       throw $exception;
@@ -214,8 +228,11 @@ class CheckPages {
       return;
     }
 
-    if ($this->filter && $this->resolve($this->filter) !== $path_to_suite) {
-      return;
+    if ($this->filter) {
+      if ($this->resolve($this->filter) !== $path_to_suite) {
+        return;
+      }
+      $this->filterApplied = TRUE;
     }
 
     $data = $this->validateAndLoadYaml($path_to_suite, 'schema.visit.json');
