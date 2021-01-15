@@ -34,16 +34,16 @@
 <p>This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain.  You write your tests using YAML and they can look as simple as this:</p>
 
 <pre><code># Check the homepage to make sure it returns 200.
-- url: /
+- visit: /
 
 # Make sure the `/admin` path returns 403 forbidden when not logged in.
-- url: /admin
+- visit: /admin
   expect: 403
 </code></pre>
 
 <p>In a third test we can assert there is one logo image on the homepage, like so:</p>
 
-<pre><code>- url: /
+<pre><code>- visit: /
   find:
     - dom: '#logo img'
       count: 1
@@ -159,7 +159,7 @@
 
 <p>Unless you enable it, javascript is not run during testing.  If you need to assert that an element exists, which was created from Javascript (or otherwise need javascript to run on the page), you will need to indicate the following in your test, namely <code>js: true</code>.</p>
 
-<pre><code class="yaml">- url: /foo
+<pre><code class="yaml">- visit: /foo
   js: true
   find:
     - dom: .js-created-page-title
@@ -232,7 +232,7 @@
 <footer>
   <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cheatsheet.html" class="next cheatsheet">Quick Reference: Test Writing&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.5.0 &bull; Last Updated: Wed, 30 Dec 2020 16:50:10 -0800</p>
+    <p class="legaleeze center">Version: 0.5.1 &bull; Last Updated: Thu, 14 Jan 2021 18:35:26 -0800</p>
   </div>
 </footer>
 

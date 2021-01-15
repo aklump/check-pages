@@ -10,15 +10,15 @@
 This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain.  You write your tests using YAML and they can look as simple as this:
 
     # Check the homepage to make sure it returns 200.
-    - url: /
+    - visit: /
     
     # Make sure the `/admin` path returns 403 forbidden when not logged in.
-    - url: /admin
+    - visit: /admin
       expect: 403
 
 In a third test we can assert there is one logo image on the homepage, like so:
 
-    - url: /
+    - visit: /
       find:
         - dom: '#logo img'
           count: 1
@@ -121,7 +121,7 @@ chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 Unless you enable it, javascript is not run during testing.  If you need to assert that an element exists, which was created from Javascript (or otherwise need javascript to run on the page), you will need to indicate the following in your test, namely `js: true`.
 
 ```yaml
-- url: /foo
+- visit: /foo
   js: true
   find:
     - dom: .js-created-page-title

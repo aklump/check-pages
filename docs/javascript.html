@@ -42,7 +42,7 @@
 
 <p>Unless you enable it, javascript is not run during testing.  If you need to assert that an element exists, which was created from Javascript (or otherwise need javascript to run on the page), you will need to indicate the following in your test, namely <code>js: true</code>.</p>
 
-<pre><code class="yaml">- url: /foo
+<pre><code class="yaml">- visit: /foo
   js: true
   find:
     - dom: .js-created-page-title
@@ -66,7 +66,7 @@
 <footer>
   <div class="pager"><a href="cheatsheet.html" class="prev cheatsheet">&laquo;Quick Reference: Test Writing</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="index.html" class="next index">Index&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.5.0 &bull; Last Updated: Wed, 30 Dec 2020 16:50:11 -0800</p>
+    <p class="legaleeze center">Version: 0.5.1 &bull; Last Updated: Thu, 14 Jan 2021 18:35:27 -0800</p>
   </div>
 </footer>
 
