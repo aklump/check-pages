@@ -8,15 +8,15 @@
 This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain.  You write your tests using YAML and they can look as simple as this:
 
     # Check the homepage to make sure it returns 200.
-    - url: /
+    - visit: /
     
     # Make sure the `/admin` path returns 403 forbidden when not logged in.
-    - url: /admin
+    - visit: /admin
       expect: 403
 
 In a third test we can assert there is one logo image on the homepage, like so:
 
-    - url: /
+    - visit: /
       find:
         - dom: '#logo img'
           count: 1

@@ -15,7 +15,7 @@ chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 Unless you enable it, javascript is not run during testing.  If you need to assert that an element exists, which was created from Javascript (or otherwise need javascript to run on the page), you will need to indicate the following in your test, namely `js: true`.
 
 ```yaml
-- url: /foo
+- visit: /foo
   js: true
   find:
     - dom: .js-created-page-title

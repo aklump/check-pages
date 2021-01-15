@@ -10,7 +10,7 @@ id: cheatsheet
 The most simple test involves checking that a page loads.
 
 ```yaml
-- url: /foo
+- visit: /foo
 ```
 
 ## Check with Javascript Enabled
@@ -22,7 +22,7 @@ By default the test will not run with Javascript.  Use `js: true` to run the tes
 By saying that the "page loads", we mean that it returns a status code of 200. The following is exactly the same in function as the previous example.  You can check for any code by changing the value of `expect`.
 
 ```yaml
-- url: /foo
+- visit: /foo
   expect: 200
 ```
 
@@ -32,7 +32,7 @@ For pages that redirect you can check for both the status code and the final loc
 
 ```yaml
 -
-  url: /moved.php
+  visit: /moved.php
   expect: 301
   location: /location.html
 ```
@@ -42,13 +42,13 @@ For pages that redirect you can check for both the status code and the final loc
 Once loaded you can also look for things on the page with `find`.  The most simple `find` assertion looks for a substring of text anywhere on the page.  The following two examples are identical assertions.
 
 ```yaml
-- url: /foo
+- visit: /foo
   find:
     - Upcoming Events Calendar
 ```
 
 ```yaml
-- url: /foo
+- visit: /foo
   find:
     -
       contains: Upcoming Events Calendar

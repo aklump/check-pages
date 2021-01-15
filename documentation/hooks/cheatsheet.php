@@ -73,7 +73,7 @@ $contents = <<<EOD
 
 | operation | property  | `find` property  | default |
 |----------|----------|----------|--|
-| _Load page_       | `url`      |                              | - |
+| _Load page_       | `visit|url`      |                              | - |
 | _Javascript_  | `js`      |                              | `false` |
 | _Status Code_     | `expect`   | | 200 |
 | _Redirect_  | `location` |                               | - |

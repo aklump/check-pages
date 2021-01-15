@@ -219,6 +219,7 @@ class CheckPages {
     }
 
     $data = $this->validateAndLoadYaml($path_to_suite, 'schema.visit.json');
+    $this->normalizeSuiteData($data);
 
     $this->longestUrl = array_reduce($data, function ($carry, $item) {
       return max($carry, strlen($item['url'] ?? $item));
@@ -555,6 +556,21 @@ class CheckPages {
    */
   protected function pass(string $reason) {
     $this->debug[] = ['data' => $reason, 'level' => 'success'];
+  }
+
+  /**
+   * Since we may have different schemas, this method will normalize them.
+   *
+   * Remap some schema keys to the original, base schema.
+   *
+   * @param array &$data
+   *   The YAML data from a test suite.
+   */
+  protected function normalizeSuiteData(array &$data) {
+    foreach ($data as &$datum) {
+      $datum['url'] = $datum['visit'] ?? $datum['url'];
+      unset($datum['visit']);
+    }
   }
 
 }
