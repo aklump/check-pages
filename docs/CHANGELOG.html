@@ -28,12 +28,23 @@
 <p>All notable changes to this project will be documented in this file.</p>
 
 <p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>,
-and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+and this project adheres
+to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 
 <h2>[Unreleased]</h2>
 
 <ul>
-<li>Add <code>login</code> and <code>logout</code> in <em>includes/drupal</em> to be able to run suites as authenticated users.</li>
+<li>Add <code>login</code> and <code>logout</code> in <em>includes/drupal</em> to be able to run suites as
+authenticated users.</li>
+</ul>
+
+<h2>[0.5.1] - 2021-01-14</h2>
+
+<h3>Added</h3>
+
+<ul>
+<li>The alias <code>visit:</code> may be used instead of <code>url:</code></li>
+<li>Examples now show using <code>visit:</code>, though <code>url:</code> still works.</li>
 </ul>
 
 <h2>[0.5] - 2021-12-30</h2>
@@ -55,23 +66,28 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h3>Changed</h3>
 
 <ul>
-<li><p>The way the CSS selector works has changed fundamentally and may break your tests.  Refer to the following test YAML.  Prior to 0.4 that would only choose the first <code>.card__title</code> on the page and assert it's text matched the expected.  Starting in 0.4, all <code>.card__titles</code> found on the page will be matched and the assert will pass if any of them have matching text.</p>
+<li><p>The way the CSS selector works has changed fundamentally and may break your
+tests. Refer to the following test YAML. Prior to 0.4 that would only choose
+the first <code>.card__title</code> on the page and assert it's text matched the
+expected. Starting in 0.4, all <code>.card__titles</code> found on the page will be
+matched and the assert will pass if any of them have matching text.</p>
 
 <pre><code class="yaml">-
-  url: /foo/bar
+  visit: /foo/bar
   find:
     -
       dom: .card__title
       text: The Top of the Mountain
 </code></pre></li>
-<li><p>If you need the earlier functionality you should use the <code>xpath</code> selector as shown here to indicate just the first element with that class.</p>
+<li><p>If you need the earlier functionality you should use the <code>xpath</code> selector as
+shown here to indicate just the first element with that class.</p>
 
 <pre><code class="yaml">-
-  url: /foo/bar
-  find:
-    -
-      xpath: '(//*[contains(@class, "card__title")])[1]'
-      text: The Top of the Mountain
+ visit: /foo/bar
+ find:
+   -
+     xpath: '(//*[contains(@class, "card__title")])[1]'
+     text: The Top of the Mountain
 </code></pre></li>
 </ul>
 
@@ -86,7 +102,8 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h3>Changed</h3>
 
 <ul>
-<li>The default output is now how it was when adding the <code>--debug</code> flag, use the <code>--quiet</code> flag for less verbosity.</li>
+<li>The default output is now how it was when adding the <code>--debug</code> flag, use
+the <code>--quiet</code> flag for less verbosity.</li>
 <li>Visual layout to make reading results easier and more clear.</li>
 </ul>
 
@@ -104,7 +121,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <footer>
   <div class="pager"><a href="index.html" class="prev index">&laquo;Check Pages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="README.html" class="next readme">Check Pages&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.5.0 &bull; Last Updated: Wed, 30 Dec 2020 16:50:10 -0800</p>
+    <p class="legaleeze center">Version: 0.5.1 &bull; Last Updated: Thu, 14 Jan 2021 18:35:26 -0800</p>
   </div>
 </footer>
 

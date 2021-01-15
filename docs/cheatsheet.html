@@ -39,7 +39,7 @@
 <tbody>
 <tr>
   <td><em>Load page</em></td>
-  <td><code>url</code></td>
+  <td><code>visit|url</code></td>
   <td></td>
   <td>-</td>
 </tr>
@@ -86,7 +86,7 @@
 
 <p>The most simple test involves checking that a page loads.</p>
 
-<pre><code class="yaml">- url: /foo
+<pre><code class="yaml">- visit: /foo
 </code></pre>
 
 <h2>Check with Javascript Enabled</h2>
@@ -97,7 +97,7 @@
 
 <p>By saying that the "page loads", we mean that it returns a status code of 200. The following is exactly the same in function as the previous example.  You can check for any code by changing the value of <code>expect</code>.</p>
 
-<pre><code class="yaml">- url: /foo
+<pre><code class="yaml">- visit: /foo
   expect: 200
 </code></pre>
 
@@ -106,7 +106,7 @@
 <p>For pages that redirect you can check for both the status code and the final location:</p>
 
 <pre><code class="yaml">-
-  url: /moved.php
+  visit: /moved.php
   expect: 301
   location: /location.html
 </code></pre>
@@ -115,12 +115,12 @@
 
 <p>Once loaded you can also look for things on the page with <code>find</code>.  The most simple <code>find</code> assertion looks for a substring of text anywhere on the page.  The following two examples are identical assertions.</p>
 
-<pre><code class="yaml">- url: /foo
+<pre><code class="yaml">- visit: /foo
   find:
     - Upcoming Events Calendar
 </code></pre>
 
-<pre><code class="yaml">- url: /foo
+<pre><code class="yaml">- visit: /foo
   find:
     -
       contains: Upcoming Events Calendar
@@ -207,7 +207,7 @@
 <footer>
   <div class="pager"><a href="README.html" class="prev README">&laquo;Check Pages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="javascript.html" class="next javascript">Testing with Javascript&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.5.0 &bull; Last Updated: Wed, 30 Dec 2020 16:50:11 -0800</p>
+    <p class="legaleeze center">Version: 0.5.1 &bull; Last Updated: Thu, 14 Jan 2021 18:35:27 -0800</p>
   </div>
 </footer>
 
