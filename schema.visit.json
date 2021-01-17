@@ -84,6 +84,237 @@
             "examples": [
                 "/\\d+ items in cart/i"
             ]
+        },
+        "js": {
+            "type": "boolean",
+            "description": "Set this to true if you need javascript to run on the page."
+        },
+        "expect": {
+            "type": "integer",
+            "examples": [
+                200,
+                403,
+                404
+            ],
+            "default": 200
+        },
+        "find": {
+            "type": "array",
+            "default": [],
+            "items": {
+                "oneOf": [
+                    {
+                        "type": "string",
+                        "default": "",
+                        "examples": [
+                            "foo"
+                        ],
+                        "pattern": "^.+$"
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "match"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "match": {
+                                "$ref": "#/definitions/match"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "contains"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "contains": {
+                                "$ref": "#/definitions/contains"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "dom",
+                            "text"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "dom": {
+                                "$ref": "#/definitions/dom"
+                            },
+                            "text": {
+                                "$ref": "#/definitions/text"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "dom",
+                            "exact"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "dom": {
+                                "$ref": "#/definitions/dom"
+                            },
+                            "attribute": {
+                                "$ref": "#/definitions/attribute"
+                            },
+                            "exact": {
+                                "$ref": "#/definitions/exact"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "dom",
+                            "contains"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "dom": {
+                                "$ref": "#/definitions/dom"
+                            },
+                            "attribute": {
+                                "$ref": "#/definitions/attribute"
+                            },
+                            "contains": {
+                                "$ref": "#/definitions/contains"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "dom",
+                            "match"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "dom": {
+                                "$ref": "#/definitions/dom"
+                            },
+                            "attribute": {
+                                "$ref": "#/definitions/attribute"
+                            },
+                            "match": {
+                                "$ref": "#/definitions/match"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "dom",
+                            "count"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "dom": {
+                                "$ref": "#/definitions/dom"
+                            },
+                            "count": {
+                                "$ref": "#/definitions/count"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "xpath",
+                            "text"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "xpath": {
+                                "$ref": "#/definitions/xpath"
+                            },
+                            "text": {
+                                "$ref": "#/definitions/text"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "xpath",
+                            "exact"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "xpath": {
+                                "$ref": "#/definitions/xpath"
+                            },
+                            "attribute": {
+                                "$ref": "#/definitions/attribute"
+                            },
+                            "exact": {
+                                "$ref": "#/definitions/exact"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "xpath",
+                            "match"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "xpath": {
+                                "$ref": "#/definitions/xpath"
+                            },
+                            "attribute": {
+                                "$ref": "#/definitions/attribute"
+                            },
+                            "match": {
+                                "$ref": "#/definitions/match"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "xpath",
+                            "contains"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "xpath": {
+                                "$ref": "#/definitions/xpath"
+                            },
+                            "attribute": {
+                                "$ref": "#/definitions/attribute"
+                            },
+                            "contains": {
+                                "$ref": "#/definitions/contains"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "xpath",
+                            "count"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "xpath": {
+                                "$ref": "#/definitions/xpath"
+                            },
+                            "count": {
+                                "$ref": "#/definitions/count"
+                            }
+                        }
+                    }
+                ]
+            }
         }
     },
     "type": "array",
@@ -100,238 +331,16 @@
                         "$ref": "#/definitions/url"
                     },
                     "js": {
-                        "type": "boolean",
-                        "description": "Set this to true if you need javascript to run on the page."
+                        "$ref": "#/definitions/js"
                     },
                     "expect": {
-                        "type": "integer",
-                        "examples": [
-                            200,
-                            403,
-                            404
-                        ],
-                        "default": 200
+                        "$ref": "#/definitions/expect"
                     },
                     "location": {
                         "$ref": "#/definitions/url"
                     },
                     "find": {
-                        "type": "array",
-                        "default": [],
-                        "items": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "default": "",
-                                    "examples": [
-                                        "foo"
-                                    ],
-                                    "pattern": "^.+$"
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "match"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "match": {
-                                            "$ref": "#/definitions/match"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "contains"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "contains": {
-                                            "$ref": "#/definitions/contains"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "dom",
-                                        "text"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "dom": {
-                                            "$ref": "#/definitions/dom"
-                                        },
-                                        "text": {
-                                            "$ref": "#/definitions/text"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "dom",
-                                        "exact"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "dom": {
-                                            "$ref": "#/definitions/dom"
-                                        },
-                                        "attribute": {
-                                            "$ref": "#/definitions/attribute"
-                                        },
-                                        "exact": {
-                                            "$ref": "#/definitions/exact"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "dom",
-                                        "contains"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "dom": {
-                                            "$ref": "#/definitions/dom"
-                                        },
-                                        "attribute": {
-                                            "$ref": "#/definitions/attribute"
-                                        },
-                                        "contains": {
-                                            "$ref": "#/definitions/contains"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "dom",
-                                        "match"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "dom": {
-                                            "$ref": "#/definitions/dom"
-                                        },
-                                        "attribute": {
-                                            "$ref": "#/definitions/attribute"
-                                        },
-                                        "match": {
-                                            "$ref": "#/definitions/match"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "dom",
-                                        "count"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "dom": {
-                                            "$ref": "#/definitions/dom"
-                                        },
-                                        "count": {
-                                            "$ref": "#/definitions/count"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "xpath",
-                                        "text"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "xpath": {
-                                            "$ref": "#/definitions/xpath"
-                                        },
-                                        "text": {
-                                            "$ref": "#/definitions/text"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "xpath",
-                                        "exact"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "xpath": {
-                                            "$ref": "#/definitions/xpath"
-                                        },
-                                        "attribute": {
-                                            "$ref": "#/definitions/attribute"
-                                        },
-                                        "exact": {
-                                            "$ref": "#/definitions/exact"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "xpath",
-                                        "match"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "xpath": {
-                                            "$ref": "#/definitions/xpath"
-                                        },
-                                        "attribute": {
-                                            "$ref": "#/definitions/attribute"
-                                        },
-                                        "match": {
-                                            "$ref": "#/definitions/match"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "xpath",
-                                        "contains"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "xpath": {
-                                            "$ref": "#/definitions/xpath"
-                                        },
-                                        "attribute": {
-                                            "$ref": "#/definitions/attribute"
-                                        },
-                                        "contains": {
-                                            "$ref": "#/definitions/contains"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "xpath",
-                                        "count"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "xpath": {
-                                            "$ref": "#/definitions/xpath"
-                                        },
-                                        "count": {
-                                            "$ref": "#/definitions/count"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
+                        "$ref": "#/definitions/find"
                     }
                 }
             },
@@ -346,238 +355,16 @@
                         "$ref": "#/definitions/url"
                     },
                     "js": {
-                        "type": "boolean",
-                        "description": "Set this to true if you need javascript to run on the page."
+                        "$ref": "#/definitions/js"
                     },
                     "expect": {
-                        "type": "integer",
-                        "examples": [
-                            200,
-                            403,
-                            404
-                        ],
-                        "default": 200
+                        "$ref": "#/definitions/expect"
                     },
                     "location": {
                         "$ref": "#/definitions/url"
                     },
                     "find": {
-                        "type": "array",
-                        "default": [],
-                        "items": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "default": "",
-                                    "examples": [
-                                        "foo"
-                                    ],
-                                    "pattern": "^.+$"
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "match"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "match": {
-                                            "$ref": "#/definitions/match"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "contains"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "contains": {
-                                            "$ref": "#/definitions/contains"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "dom",
-                                        "text"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "dom": {
-                                            "$ref": "#/definitions/dom"
-                                        },
-                                        "text": {
-                                            "$ref": "#/definitions/text"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "dom",
-                                        "exact"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "dom": {
-                                            "$ref": "#/definitions/dom"
-                                        },
-                                        "attribute": {
-                                            "$ref": "#/definitions/attribute"
-                                        },
-                                        "exact": {
-                                            "$ref": "#/definitions/exact"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "dom",
-                                        "contains"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "dom": {
-                                            "$ref": "#/definitions/dom"
-                                        },
-                                        "attribute": {
-                                            "$ref": "#/definitions/attribute"
-                                        },
-                                        "contains": {
-                                            "$ref": "#/definitions/contains"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "dom",
-                                        "match"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "dom": {
-                                            "$ref": "#/definitions/dom"
-                                        },
-                                        "attribute": {
-                                            "$ref": "#/definitions/attribute"
-                                        },
-                                        "match": {
-                                            "$ref": "#/definitions/match"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "dom",
-                                        "count"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "dom": {
-                                            "$ref": "#/definitions/dom"
-                                        },
-                                        "count": {
-                                            "$ref": "#/definitions/count"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "xpath",
-                                        "text"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "xpath": {
-                                            "$ref": "#/definitions/xpath"
-                                        },
-                                        "text": {
-                                            "$ref": "#/definitions/text"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "xpath",
-                                        "exact"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "xpath": {
-                                            "$ref": "#/definitions/xpath"
-                                        },
-                                        "attribute": {
-                                            "$ref": "#/definitions/attribute"
-                                        },
-                                        "exact": {
-                                            "$ref": "#/definitions/exact"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "xpath",
-                                        "match"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "xpath": {
-                                            "$ref": "#/definitions/xpath"
-                                        },
-                                        "attribute": {
-                                            "$ref": "#/definitions/attribute"
-                                        },
-                                        "match": {
-                                            "$ref": "#/definitions/match"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "xpath",
-                                        "contains"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "xpath": {
-                                            "$ref": "#/definitions/xpath"
-                                        },
-                                        "attribute": {
-                                            "$ref": "#/definitions/attribute"
-                                        },
-                                        "contains": {
-                                            "$ref": "#/definitions/contains"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "object",
-                                    "required": [
-                                        "xpath",
-                                        "count"
-                                    ],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "xpath": {
-                                            "$ref": "#/definitions/xpath"
-                                        },
-                                        "count": {
-                                            "$ref": "#/definitions/count"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
+                        "$ref": "#/definitions/find"
                     }
                 }
             }
