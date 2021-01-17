@@ -4,8 +4,10 @@ namespace AKlump\CheckPages;
 
 use ChromeDevtoolsProtocol\Context;
 use ChromeDevtoolsProtocol\Instance\Launcher;
+use ChromeDevtoolsProtocol\Model\CSS\GetComputedStyleForNodeRequest;
 use ChromeDevtoolsProtocol\Model\DOM\GetDocumentRequest;
 use ChromeDevtoolsProtocol\Model\DOM\GetOuterHTMLRequest;
+use ChromeDevtoolsProtocol\Model\DOM\QuerySelectorRequest;
 use ChromeDevtoolsProtocol\Model\Page\NavigateRequest;
 use Psr\Http\Message\ResponseInterface;
 
@@ -16,6 +18,13 @@ use Psr\Http\Message\ResponseInterface;
  * @link https://stackoverflow.com/questions/55441105/running-google-chrome-headless-with-php-exec-doesn-t-return-output-till-iis-rest
  */
 final class ChromeDriver extends GuzzleDriver {
+
+  /**
+   * An array of optional query selectors to fill with computed CSS style info.
+   *
+   * @var array
+   */
+  private $styleRequests = [];
 
   /**
    * @var \ChromeDevtoolsProtocol\DevtoolsClient
@@ -56,6 +65,7 @@ final class ChromeDriver extends GuzzleDriver {
     // that with Chrome too, but I didn't quickly see a way and  need to move on
     // right now.
     $response = parent::getResponse();
+    $headers = $response->getHeaders();
 
     // TODO Get headers with Chrome.
     // TODO Get status with Chrome.
@@ -74,18 +84,35 @@ final class ChromeDriver extends GuzzleDriver {
       $tab->activate($this->ctx);
       // Open the devtools tab in the browser.
       $this->devtools = $tab->devtools();
-
       try {
+        $this->devtools->dom()->enable($this->ctx);
         $this->devtools->page()->enable($this->ctx);
+        $this->devtools->css()->enable($this->ctx);
         $this->devtools->page()->navigate($this->ctx, NavigateRequest::builder()
           ->setUrl($this->url)
           ->build());
         $this->devtools->page()->awaitLoadEventFired($this->ctx);
         $page_contents = $this->getPage();
 
-        // TODO Get the computed CSS for elements.
+        if ($this->styleRequests) {
+          foreach ($this->styleRequests as $selector => &$request) {
+            $request = $this->getStyle($selector);
+          }
+
+          // By passing as a custom header, we are able to still utilize the
+          // ResponseInterface.
+          $headers['X-Computed-Styles'] = json_encode($this->styleRequests);
+        }
+
         // TODO Handle a click before getting page.
 
+      }
+      catch (\Exception $e) {
+        $class = get_class($e);
+
+        // Add some additional context to any errors.
+        $message = sprintf("Test failure in %s(): %s", __METHOD__, $e->getMessage());
+        throw new $class($message, $e->getCode(), $e);
       }
       finally {
         // Close the devtools tab.
@@ -100,7 +127,7 @@ final class ChromeDriver extends GuzzleDriver {
     return new Response(
       $page_contents,
       $response->getStatusCode(),
-      $response->getHeaders()
+      $headers,
     );
   }
 
@@ -118,6 +145,51 @@ final class ChromeDriver extends GuzzleDriver {
     $page_contents = json_encode($page_contents);
 
     return json_decode($page_contents)->outerHTML;
+  }
+
+  /**
+   * Get computed style for a query selection.
+   *
+   * @param string $selector
+   *   The query selector to get the style for.
+   */
+  private function getStyle(string $selector): array {
+    $document = $this->devtools->dom()
+      ->getDocument($this->ctx, GetDocumentRequest::make());
+
+    $node = $this->devtools->dom()
+      ->querySelector($this->ctx, QuerySelectorRequest::fromJson((object) [
+        'nodeId' => $document->root->nodeId,
+        'selector' => $selector,
+      ]));
+
+    $computed_style = $this->devtools->css()
+      ->getComputedStyleForNode($this->ctx, GetComputedStyleForNodeRequest::fromJson((object) [
+        'nodeId' => $node->nodeId,
+      ]));
+    $computed_style = json_decode(json_encode($computed_style), TRUE)['computedStyle'] ?? [];
+
+    $style = [];
+    foreach ($computed_style as $datum) {
+      $style[$datum['name']] = $datum['value'];
+    }
+
+    return $style;
+  }
+
+  /**
+   * Make a request for a computed styles value to be retrieved.
+   *
+   * @param string $query_selector
+   *   The query selector.
+   *
+   * @return $this
+   *   Self for chaining.
+   */
+  public function addStyleRequest(string $query_selector): ChromeDriver {
+    $this->styleRequests[$query_selector] = [];
+
+    return $this;
   }
 
 }

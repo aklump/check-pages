@@ -27,6 +27,11 @@ final class Assert {
   /**
    * @var string
    */
+  const SEARCH_CSS = 'css';
+
+  /**
+   * @var string
+   */
   const SEARCH_ATTRIBUTE = 'attribute';
 
   /**
@@ -86,7 +91,22 @@ final class Assert {
    *   The starting string to search and assert within.
    */
   public function __construct(string $haystack) {
+    $this->setHaystack($haystack);
+  }
+
+  /**
+   * Overwrite the haystack.
+   *
+   * @param string $haystack
+   *   The haystack to search.
+   *
+   * @return $this
+   *   Self for chaining.
+   */
+  public function setHaystack(string $haystack): self {
     $this->haystack = $haystack;
+
+    return $this;
   }
 
   /**
@@ -136,6 +156,11 @@ final class Assert {
    */
   public function run(): bool {
     switch ($this->searchType) {
+      case self::SEARCH_CSS:
+        $haystack = json_decode($this->haystack, TRUE);
+        $haystack = [$haystack[$this->searchValue] ?? ''];
+        break;
+
       case self::SEARCH_ALL:
         $haystack = [$this->haystack];
         break;
@@ -166,7 +191,6 @@ final class Assert {
       }
 
       switch ($this->assertType) {
-
         case self::ASSERT_TEXT:
           $haystack = $haystack->each(function ($node) {
             return trim($node->text());
@@ -190,6 +214,7 @@ final class Assert {
       }
     }
 
+    $pass = NULL;
     switch ($this->assertType) {
       case self::ASSERT_SUBSTRING:
         foreach ($haystack as $item) {
@@ -203,11 +228,11 @@ final class Assert {
         if (!$pass) {
           $this->reason = sprintf("Unable to find:\n\n>>> %s\n\n", $this->assertValue);
         }
-
-        return $pass;
+        break;
 
       case self::ASSERT_COUNT:
-        return $this->assertCount($this->assertValue, count($haystack));
+        $pass = $this->assertCount($this->assertValue, count($haystack));
+        break;
 
       case self::ASSERT_TEXT:
         foreach ($haystack as $item) {
@@ -222,8 +247,7 @@ final class Assert {
           $haystack = '"' . implode('",, "', $haystack) . '"';
           $this->reason = sprintf("The actual value\n\n>>> %s\n\n is not the expected\n\n>>> \"%s\"", $haystack, $this->assertValue);
         }
-
-        return $pass;
+        break;
 
       case self::ASSERT_EXACT:
         foreach ($haystack as $item) {
@@ -236,8 +260,7 @@ final class Assert {
           $haystack = '"' . implode('",, "', $haystack) . '"';
           $this->reason = sprintf("The actual value\n\n>>> %s\n\n is not the expected\n\n>>> \"%s\"", $haystack, $this->assertValue);
         }
-
-        return $pass;
+        break;
 
       case self::ASSERT_MATCH:
         foreach ($haystack as $item) {
@@ -251,13 +274,16 @@ final class Assert {
         if (!$pass) {
           $this->reason = sprintf("Unable to match using \"%s\".", $this->assertValue);
         }
-
-        return $pass;
+        break;
     }
 
-    $this->reason = 'Invalid assertion';
+    if (is_null($pass)) {
+      $this->reason = sprintf('Invalid assertion "%s".', $this->assertType);
 
-    return FALSE;
+      return FALSE;
+    }
+
+    return $pass;
   }
 
   /**
@@ -302,6 +328,10 @@ final class Assert {
     }
 
     switch ($this->searchType) {
+      case static::SEARCH_CSS:
+        $suffix = sprintf('for the CSS "%s" property', $this->searchValue);
+        break;
+
       case static::SEARCH_ALL:
         $suffix = 'on the page';
         break;

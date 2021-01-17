@@ -322,6 +322,13 @@ class CheckPages {
           throw new \InvalidArgumentException(sprintf("Javascript testing is unavailable due to missing path to Chrome binary.  Add \"chrome\" in file %s.", $this->resolve($this->configPath)));
         }
         $driver = new ChromeDriver($this->config['chrome']);
+
+        // Look for assert keys that require we get computed styles.
+        foreach ($config['find'] ?? [] as $item) {
+          if (array_intersect_key($item, array_flip(['hidden']))) {
+            $driver->addStyleRequest($item['dom']);
+          }
+        }
       }
       catch (\Exception $exception) {
         throw new TestFailedException($config, $exception);
@@ -373,7 +380,7 @@ class CheckPages {
     if ($config['find']) {
       $body = strval($response->getBody());
       foreach ($config['find'] as $needle) {
-        $assert = $this->handleFindAssert($needle, $body);
+        $assert = $this->handleFindAssert($needle, $body, $response);
         $test_passed = $test_passed ? $assert : FALSE;
       }
     }
@@ -499,9 +506,8 @@ class CheckPages {
    * @return bool
    *   True if the find was successful.
    */
-  protected function handleFindAssert($needle, string $haystack): bool {
+  protected function handleFindAssert($needle, string $haystack, Response $response): bool {
     $assert = new Assert($haystack);
-
     $search_type = NULL;
     $selectors = array_map(function ($help) {
       return $help->code();
@@ -520,6 +526,21 @@ class CheckPages {
     // Setup the assert.
     if (!is_array($needle)) {
       $assert->setAssert(Assert::ASSERT_SUBSTRING, $needle);
+    }
+    elseif (isset($needle['hidden'])) {
+      $styles = json_decode($response->getHeader('X-Computed-Styles')[0] ?? '{}', TRUE);
+
+      // By reducing the array, the assert search has far less to look in.
+      $styles = ['display' => $styles[$needle['dom']]['display'] ?? ''];
+      $assert
+        ->setHaystack(json_encode($styles))
+
+        // Search all means that the haystack value will be taken as is and not
+        // crawled by the DOM crawler.
+        ->setSearch(Assert::SEARCH_CSS, 'display')
+
+        // Convert our boolean hidden to a regex that will match the CSS value.
+        ->setAssert(Assert::ASSERT_MATCH, $needle['hidden'] ? '/^none$/' : '/^(?!none$).*$/');
     }
     else {
       $assertions = array_map(function ($help) {

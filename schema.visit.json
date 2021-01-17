@@ -56,6 +56,10 @@
                 }
             ]
         },
+        "hidden": {
+            "type": "boolean",
+            "description": "Assert if an element is :hidden (true) or :hidden (false)"
+        },
         "contains": {
             "type": "string",
             "examples": [
@@ -155,6 +159,22 @@
                         "type": "object",
                         "required": [
                             "dom",
+                            "hidden"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "dom": {
+                                "$ref": "#/definitions/dom"
+                            },
+                            "hidden": {
+                                "$ref": "#/definitions/hidden"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "dom",
                             "exact"
                         ],
                         "additionalProperties": false,
@@ -237,6 +257,22 @@
                             },
                             "text": {
                                 "$ref": "#/definitions/text"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "xpath",
+                            "hidden"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "xpath": {
+                                "$ref": "#/definitions/xpath"
+                            },
+                            "hidden": {
+                                "$ref": "#/definitions/hidden"
                             }
                         }
                     },

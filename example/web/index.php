@@ -1,4 +1,38 @@
 <html>
+<head>
+  <style type="text/css">
+      .visually-hidden {
+          display: none;
+      }
+
+      #logo svg {
+          width: 200px;
+      }
+  </style>
+  <script type="application/javascript">
+    function ready(fn) {
+      if (document.readyState != 'loading') {
+        fn()
+      } else {
+        document.addEventListener('DOMContentLoaded', fn)
+      }
+    }
+
+    ready(() => {
+      document.getElementById('toggler').onclick = function() {
+        const isVisible = document.getElementsByClassName('visually-hidden').length ? false : true
+        const set = document.querySelectorAll('.hidden-by-class')
+        set.forEach((item) => {
+          if (isVisible) {
+            item.classList.add('visually-hidden')
+          } else {
+            item.classList.remove('visually-hidden')
+          }
+        })
+      }
+    })
+  </script>
+</head>
 <body>
 
 <a id="logo" title="An SVG image">
@@ -8,7 +42,8 @@
   </svg>
 </a>
 
-<h1 class="page-title" data-timestamp="<?= time()?>"><span>About In the Loft Studios</span></h1>
+<h1 class="page-title" data-timestamp="<?= time() ?>">
+  <span>About In the Loft Studios</span></h1>
 
 <h2 class="block-title">Quick Start</h2>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </p>
@@ -18,6 +53,13 @@
 
 <h2 class="block-title">Latest Blog Post</h2>
 <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+<a href="#" id="toggler">Expose hidden elements</a>
+
+<p class="hidden-by-style" style="display:none">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+
+<p class="hidden-by-class visually-hidden">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+
 
 <div id="footer">
   <p id="copyright">Copyright &copy; 2000-<?php echo date('Y') ?> In the Loft Studios, PO Box 29294, Bellingham, WA</p>

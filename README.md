@@ -131,6 +131,8 @@ Unless you enable it, javascript is not run during testing.  If you need to asse
 ## Javascript Testing Related Links
 
 * [Learn more](https://developers.google.com/web/updates/2017/04/headless-chrome)
+* [CLI parameters](https://source.chromium.org/chromium/chromium/src/+/master:headless/app/headless_shell_switches.cc)
+* [More on parameters](https://developers.google.com/web/updates/2017/04/headless-chrome#command_line_features)  
 * https://github.com/GoogleChrome/chrome-launcher
 * <https://peter.sh/experiments/chromium-command-line-switches/>
 * https://raw.githubusercontent.com/GoogleChrome/chrome-launcher/v0.8.0/scripts/download-chrome.sh

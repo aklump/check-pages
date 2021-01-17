@@ -1,0 +1,15 @@
+-
+  visit: /
+  js: true
+  find:
+    -
+      dom: .hidden-by-class
+      hidden: true
+#    -
+#      dom: '#toggler'
+#      event: click
+#    -
+#      dom: .hidden-by-class
+#      hidden: false
+
+
