@@ -2,19 +2,35 @@
 
 namespace AKlump\CheckPages;
 
+use ChromeDevtoolsProtocol\Context;
+use ChromeDevtoolsProtocol\Instance\Launcher;
+use ChromeDevtoolsProtocol\Model\DOM\GetDocumentRequest;
+use ChromeDevtoolsProtocol\Model\DOM\GetOuterHTMLRequest;
+use ChromeDevtoolsProtocol\Model\Page\NavigateRequest;
 use Psr\Http\Message\ResponseInterface;
 
 /**
  * Provide a driver that can run Javascript by using headless chrome.
  *
+ * @link https://chromedevtools.github.io/devtools-protocol/1-2/
  * @link https://stackoverflow.com/questions/55441105/running-google-chrome-headless-with-php-exec-doesn-t-return-output-till-iis-rest
  */
-class ChromeDriver extends GuzzleDriver {
+final class ChromeDriver extends GuzzleDriver {
+
+  /**
+   * @var \ChromeDevtoolsProtocol\DevtoolsClient
+   */
+  private $devtools;
+
+  /**
+   * @var \ChromeDevtoolsProtocol\Context
+   */
+  private $ctx;
 
   /**
    * @var string
    */
-  protected $pathToChrome;
+  private $pathToChrome;
 
   /**
    * ChromeDriver constructor.
@@ -41,43 +57,67 @@ class ChromeDriver extends GuzzleDriver {
     // right now.
     $response = parent::getResponse();
 
-    $command = escapeshellarg($this->pathToChrome) . " --headless --disable-gpu --dump-dom " . escapeshellarg($this->url);
-    $descriptorspec = [
-      0 => ["pipe", "rb"],
-      1 => ["pipe", "wb"],
-      2 => ["pipe", "wb"],
-    ];
-    $chrome_process = proc_open($command, $descriptorspec, $pipes);
-    if (!$chrome_process) {
-      throw new \RuntimeException("failed to create process! \"{$command}\"");
-    }
-    $stdout = "";
-    $stderr = "";
-    $fetch = function () use (&$stdout, &$stderr, &$pipes) {
-      $tmp = stream_get_contents($pipes[1]);
-      if (is_string($tmp) && strlen($tmp) > 0) {
-        $stdout .= $tmp;
-      }
-      $tmp = stream_get_contents($pipes[2]);
-      if (is_string($tmp) && strlen($tmp) > 0) {
-        $stderr .= $tmp;
-      }
-    };
-    fclose($pipes[0]);
+    // TODO Get headers with Chrome.
+    // TODO Get status with Chrome.
 
-    while (($status = proc_get_status($chrome_process))['running']) {
-      $fetch();
+    // Context creates deadline for operations.
+    $this->ctx = Context::withTimeout(Context::background(), 30 /* seconds */);
+
+    // Launcher starts chrome process ($instance)
+    $launcher = new Launcher();
+    $instance = $launcher->launch($this->ctx);
+
+    try {
+
+      // Create a new browser tab with our URL.
+      $tab = $instance->open($this->ctx);
+      $tab->activate($this->ctx);
+      // Open the devtools tab in the browser.
+      $this->devtools = $tab->devtools();
+
+      try {
+        $this->devtools->page()->enable($this->ctx);
+        $this->devtools->page()->navigate($this->ctx, NavigateRequest::builder()
+          ->setUrl($this->url)
+          ->build());
+        $this->devtools->page()->awaitLoadEventFired($this->ctx);
+        $page_contents = $this->getPage();
+
+        // TODO Get the computed CSS for elements.
+        // TODO Handle a click before getting page.
+
+      }
+      finally {
+        // Close the devtools tab.
+        $this->devtools->close();
+      }
     }
-    $fetch();
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-    proc_close($chrome_process);
+    finally {
+      // Kill the system process that is running the Chrome instance.
+      $instance->close();
+    }
 
     return new Response(
-      $stdout,
+      $page_contents,
       $response->getStatusCode(),
       $response->getHeaders()
     );
+  }
+
+  /**
+   * Return the entire page HTML.
+   *
+   * @return string
+   *   HTML for the page.
+   */
+  private function getPage(): string {
+    $document = $this->devtools->dom()
+      ->getDocument($this->ctx, GetDocumentRequest::make());
+    $page_contents = $this->devtools->dom()
+      ->getOuterHTML($this->ctx, GetOuterHTMLRequest::fromJson((object) ['nodeId' => $document->root->nodeId]));
+    $page_contents = json_encode($page_contents);
+
+    return json_decode($page_contents)->outerHTML;
   }
 
 }
