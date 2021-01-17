@@ -11,13 +11,19 @@ function selectors_to_markdown() {
   $markdown = [];
   foreach ($info as $item) {
     $markdown[] = '* `' . $item->code() . '`: ' . $item->description();
+
+    $dom = '';
+    if ($item->code() === 'attribute') {
+      $dom = "dom: .foo-bar\n      ";
+    }
+
     foreach ($item->examples() as $example) {
       $markdown[] = <<<EOD
 
   ```yaml
   find:
     - 
-      {$item->code()}: {$example}
+      {$dom}{$item->code()}: {$example}
   ```
     
 EOD;
@@ -25,6 +31,9 @@ EOD;
   }
 
   return implode(PHP_EOL, $markdown) . PHP_EOL;
+}
+function supports_attribute(\AKlump\CheckPages\HelpInfoInterface $item) {
+  return strpos($item->description(), '`attribute`') !== FALSE;
 }
 
 function asserts_to_markdown() {
@@ -46,6 +55,20 @@ function asserts_to_markdown() {
   ```
     
 EOD;
+
+      if (supports_attribute($item)) {
+        $markdown[] = <<<EOD
+
+  ```yaml
+  find:
+    - 
+      {$selector->code()}: {$selector_example}
+      attribute: id
+      {$item->code()}: {$example}
+  ```
+    
+EOD;
+      }
     }
   }
 
@@ -66,7 +89,7 @@ $selectors = implode('|', array_map(function ($item) {
   return $item->code();
 }, $assert->getSelectorsInfo()));
 $assertions = implode('|', array_map(function ($item) {
-  return $item->code();
+  return $item->code() . (supports_attribute($item) ? '*' : '');
 }, $assert->getAssertionsInfo()));
 $contents = <<<EOD
 ## Test Cheatsheet
@@ -81,6 +104,7 @@ $contents = <<<EOD
 | _Selectors_   |            | `{$selectors}`                       | - |
 | _Assertions_  |            | `{$assertions}` | `contains` |
 
+\* Works with the `attribute` selector.
 EOD;
 echo $compiler->addInclude('_cheatsheet.md', $contents)
     ->getBasename() . ' has been created.' || exit(1);

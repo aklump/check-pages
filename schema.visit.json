@@ -13,6 +13,7 @@
         },
         "dom": {
             "type": "string",
+            "pattern": ".+",
             "examples": [
                 "h1.layout-region__title",
                 "#top",
@@ -21,8 +22,18 @@
         },
         "xpath": {
             "type": "string",
+            "pattern": ".+",
             "examples": [
                 ".layout-region__title[2]"
+            ]
+        },
+        "attribute": {
+            "type": "string",
+            "pattern": ".+",
+            "examples": [
+                "value",
+                "data-foo",
+                "class"
             ]
         },
         "count": {
@@ -168,6 +179,9 @@
                                         "dom": {
                                             "$ref": "#/definitions/dom"
                                         },
+                                        "attribute": {
+                                            "$ref": "#/definitions/attribute"
+                                        },
                                         "exact": {
                                             "$ref": "#/definitions/exact"
                                         }
@@ -184,6 +198,9 @@
                                         "dom": {
                                             "$ref": "#/definitions/dom"
                                         },
+                                        "attribute": {
+                                            "$ref": "#/definitions/attribute"
+                                        },
                                         "contains": {
                                             "$ref": "#/definitions/contains"
                                         }
@@ -199,6 +216,9 @@
                                     "properties": {
                                         "dom": {
                                             "$ref": "#/definitions/dom"
+                                        },
+                                        "attribute": {
+                                            "$ref": "#/definitions/attribute"
                                         },
                                         "match": {
                                             "$ref": "#/definitions/match"
@@ -248,6 +268,9 @@
                                         "xpath": {
                                             "$ref": "#/definitions/xpath"
                                         },
+                                        "attribute": {
+                                            "$ref": "#/definitions/attribute"
+                                        },
                                         "exact": {
                                             "$ref": "#/definitions/exact"
                                         }
@@ -264,6 +287,9 @@
                                         "xpath": {
                                             "$ref": "#/definitions/xpath"
                                         },
+                                        "attribute": {
+                                            "$ref": "#/definitions/attribute"
+                                        },
                                         "match": {
                                             "$ref": "#/definitions/match"
                                         }
@@ -279,6 +305,9 @@
                                     "properties": {
                                         "xpath": {
                                             "$ref": "#/definitions/xpath"
+                                        },
+                                        "attribute": {
+                                            "$ref": "#/definitions/attribute"
                                         },
                                         "contains": {
                                             "$ref": "#/definitions/contains"
@@ -396,6 +425,9 @@
                                         "dom": {
                                             "$ref": "#/definitions/dom"
                                         },
+                                        "attribute": {
+                                            "$ref": "#/definitions/attribute"
+                                        },
                                         "exact": {
                                             "$ref": "#/definitions/exact"
                                         }
@@ -412,6 +444,9 @@
                                         "dom": {
                                             "$ref": "#/definitions/dom"
                                         },
+                                        "attribute": {
+                                            "$ref": "#/definitions/attribute"
+                                        },
                                         "contains": {
                                             "$ref": "#/definitions/contains"
                                         }
@@ -427,6 +462,9 @@
                                     "properties": {
                                         "dom": {
                                             "$ref": "#/definitions/dom"
+                                        },
+                                        "attribute": {
+                                            "$ref": "#/definitions/attribute"
                                         },
                                         "match": {
                                             "$ref": "#/definitions/match"
@@ -476,6 +514,9 @@
                                         "xpath": {
                                             "$ref": "#/definitions/xpath"
                                         },
+                                        "attribute": {
+                                            "$ref": "#/definitions/attribute"
+                                        },
                                         "exact": {
                                             "$ref": "#/definitions/exact"
                                         }
@@ -492,6 +533,9 @@
                                         "xpath": {
                                             "$ref": "#/definitions/xpath"
                                         },
+                                        "attribute": {
+                                            "$ref": "#/definitions/attribute"
+                                        },
                                         "match": {
                                             "$ref": "#/definitions/match"
                                         }
@@ -507,6 +551,9 @@
                                     "properties": {
                                         "xpath": {
                                             "$ref": "#/definitions/xpath"
+                                        },
+                                        "attribute": {
+                                            "$ref": "#/definitions/attribute"
                                         },
                                         "contains": {
                                             "$ref": "#/definitions/contains"

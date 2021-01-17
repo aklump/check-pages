@@ -1,16 +1,3 @@
-# This example tests our redirect when running javascript.  It's contrived
--
-  url: /moved.php
-  js: true
-  expect: 301
-  location: /location.html
-  find:
-    - We've moved!
-
-    # The previous is shorthand for this.
-    -
-      contains: We've moved!
-
 -
   url: /
 
@@ -50,6 +37,7 @@
     -
       dom: h1.page-title
       text: About In the Loft Studios
+
     -
       dom: h1.page-title
       exact: '<span>About In the Loft Studios</span>'
@@ -59,10 +47,15 @@
       dom: '#footer'
       match: '/in the loft studios/i'
 
-    # Make sure the hero image alt tag is correct.
+    # Showing how to check the hero alt tag two different ways.
     -
       dom: '[title="An SVG image"]'
       count: 1
+
+    -
+      dom: '#logo'
+      attribute: title
+      exact: An SVG image
 
     # Make sure no forms appear on the homepage.
     -
@@ -106,3 +99,15 @@
     -
       dom: h1
       text: COVID 19 Pandemic
+# This example tests our redirect when running javascript.  It's contrived
+-
+  url: /moved.php
+  js: true
+  expect: 301
+  location: /location.html
+  find:
+    - We've moved!
+
+    # The previous is shorthand for this.
+    -
+      contains: We've moved!

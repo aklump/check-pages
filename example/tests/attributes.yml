@@ -1,0 +1,21 @@
+- # 'visit' or 'url' can be used interchangeably as you see fit.
+  visit: /
+
+  find:
+
+    # This time we select the attribute and check it's value, rather than the
+    # innerHtml of .page-title.
+    -
+      dom: .page-title
+      attribute: data-timestamp
+      match: /^\d{10}$/
+
+    -
+      dom: '#logo'
+      attribute: title
+      exact: An SVG image
+
+    -
+      dom: '#logo'
+      attribute: title
+      contains: image

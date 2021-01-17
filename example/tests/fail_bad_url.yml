@@ -2,5 +2,6 @@
 - url: /foo.html
   expect: 404
 
-# ... yet this one will fail, because the default expect value is 200.
+# ... yet this one will fail, because /bar.html does not exist and the default
+# expect value is 200.
 - url: /bar.html

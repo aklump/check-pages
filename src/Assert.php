@@ -10,42 +10,47 @@ use Symfony\Component\DomCrawler\Crawler;
 final class Assert {
 
   /**
-   * @var int
+   * @var string
    */
   const SEARCH_ALL = 'page';
 
   /**
-   * @var int
+   * @var string
    */
   const SEARCH_DOM = 'dom';
 
   /**
-   * @var int
+   * @var string
    */
   const SEARCH_XPATH = 'xpath';
 
   /**
-   * @var int
+   * @var string
+   */
+  const SEARCH_ATTRIBUTE = 'attribute';
+
+  /**
+   * @var string
    */
   const ASSERT_COUNT = 'count';
 
   /**
-   * @var int
+   * @var string
    */
   const ASSERT_EXACT = 'exact';
 
   /**
-   * @var int
+   * @var string
    */
   const ASSERT_TEXT = 'text';
 
   /**
-   * @var int
+   * @var string
    */
   const ASSERT_MATCH = 'match';
 
   /**
-   * @var int
+   * @var string
    */
   const ASSERT_SUBSTRING = 'contains';
 
@@ -95,9 +100,10 @@ final class Assert {
    * @return $this
    *   Self for chaining.
    */
-  public function setSearch(string $type, $value = NULL): self {
+  public function setSearch(string $type, $value = NULL, $attribute = NULL): self {
     $this->searchType = $type;
     $this->searchValue = $value;
+    $this->searchAttribute = $attribute;
 
     return $this;
   }
@@ -160,16 +166,25 @@ final class Assert {
       }
 
       switch ($this->assertType) {
+
         case self::ASSERT_TEXT:
           $haystack = $haystack->each(function ($node) {
             return trim($node->text());
           });
           break;
 
+        case self::ASSERT_SUBSTRING:
         case self::ASSERT_MATCH:
         case self::ASSERT_EXACT:
           $haystack = $haystack->each(function ($node) {
-            return trim($node->html());
+            if ($this->searchAttribute) {
+              $value = $node->attr($this->searchAttribute);
+            }
+            else {
+              $value = $node->html();
+            }
+
+            return trim($value);
           });
           break;
       }
@@ -260,21 +275,25 @@ final class Assert {
    */
   public function __toString() {
     $prefix = '';
+
+    $attribute = $this->searchAttribute ? "attribute \"{$this->searchAttribute}\" " : '';
     switch ($this->assertType) {
       case static::ASSERT_MATCH:
-        $prefix = sprintf('Match against RegExp "%s"', $this->assertValue);
+        $prefix = sprintf('Match %sagainst RegExp "%s"', $attribute, $this->assertValue);
         break;
 
       case static::ASSERT_TEXT:
-        $prefix = sprintf('Convert to plaintext and compare to "%s"', $this->assertValue);
+        $prefix = sprintf('Convert %sto plaintext and compare to "%s"', $attribute, $this->assertValue);
         break;
 
       case static::ASSERT_EXACT:
-        $prefix = sprintf('Compare exact value to "%s"', $this->assertValue);
+        $attribute = $attribute ? "of $attribute" : '';
+        $prefix = sprintf('Compare exact value %sto "%s"', $attribute, $this->assertValue);
         break;
 
       case static::ASSERT_SUBSTRING:
-        $prefix = sprintf('Find "%s"', $this->assertValue);
+        $attribute = $attribute ? ' in ' . trim($attribute) : '';
+        $prefix = sprintf('Find "%s"%s', $this->assertValue, $attribute);
         break;
 
       case static::ASSERT_COUNT:
@@ -366,8 +385,14 @@ final class Assert {
         'p.summary',
         'main',
         '.story__title',
+        '\'#edit-submit[value="Create new account"]\'',
       ]),
       new Help(self::SEARCH_XPATH, "Select from the DOM using XPath selectors.", ['(//*[contains(@class, "block-title")])[3]']),
+      new Help(self::SEARCH_ATTRIBUTE, "Change selection to an element's DOM attribute.  Must be combined with `dom` or `xpath`.  Does not work with all assertions.", [
+        'id',
+        'data-foo',
+        'class',
+      ]),
     ];
   }
 
@@ -378,10 +403,10 @@ final class Assert {
    */
   public function getAssertionsInfo(): array {
     return [
-      new Help(self::ASSERT_SUBSTRING, 'Pass if the value is found in the selection.', ['foo']),
+      new Help(self::ASSERT_SUBSTRING, 'Pass if the value is found in the selection. Works with `attribute`.', ['foo']),
       new Help(self::ASSERT_COUNT, 'Pass if equal to the number of items in the selection.', [2]),
-      new Help(self::ASSERT_EXACT, "Pass if the selection's markup matches exactly.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),
-      new Help(self::ASSERT_MATCH, 'Applies a REGEX expression against the selection.', ['/copyright\s+20\d{2}$/']),
+      new Help(self::ASSERT_EXACT, "Pass if the selection's markup matches exactly. Works with `attribute`.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),
+      new Help(self::ASSERT_MATCH, 'Applies a REGEX expression against the selection. Works with `attribute`.', ['/copyright\s+20\d{2}$/']),
       new Help(self::ASSERT_TEXT, "Pass if the selection's text value (all markup removed) matches exactly.", ['lorem ipsum dolar sit amet.']),
     ];
   }

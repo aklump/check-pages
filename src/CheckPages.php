@@ -509,7 +509,7 @@ class CheckPages {
     foreach ($selectors as $code) {
       if (isset($needle[$code])) {
         $search_type = $code;
-        $assert->setSearch($code, $needle[$code]);
+        $assert->setSearch($code, $needle[$code], $needle['attribute'] ?? NULL);
         break;
       }
     }
