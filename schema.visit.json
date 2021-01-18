@@ -56,10 +56,6 @@
                 }
             ]
         },
-        "hidden": {
-            "type": "boolean",
-            "description": "Assert if an element is :hidden (true) or :hidden (false)"
-        },
         "contains": {
             "type": "string",
             "examples": [
@@ -102,13 +98,17 @@
             ],
             "default": 200
         },
+        "property": {
+            "type": "string",
+            "pattern": "/.+/"
+        },
         "find": {
             "type": "array",
             "default": [],
             "items": {
                 "oneOf": [
                     {
-                        "type": "string",
+                            "type": "string",
                         "default": "",
                         "examples": [
                             "foo"
@@ -347,6 +347,16 @@
                             "count": {
                                 "$ref": "#/definitions/count"
                             }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "required": ["style", "property", "exact"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "style": {"$ref":  "#/definitions/dom"},
+                            "property": {"$ref":  "#/definitions/property"},
+                            "exact": {"$ref":  "#/definitions/exact"},
                         }
                     }
                 ]

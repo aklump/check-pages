@@ -18,7 +18,6 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Added new selector 'attribute'.
-- Added new assert 'hidden'.
 
 ## [0.5.1] - 2021-01-14
 

@@ -3,8 +3,9 @@
   js: true
   find:
     -
-      dom: .hidden-by-class
-      hidden: true
+      style: .hidden-by-class
+      property: display
+      exact: none
 #    -
 #      dom: '#toggler'
 #      event: click

@@ -130,6 +130,7 @@ Unless you enable it, javascript is not run during testing.  If you need to asse
 
 ## Javascript Testing Related Links
 
+* [Chrome DevTools Protocol 1.3](https://chromedevtools.github.io/devtools-protocol/1-3/)
 * [Learn more](https://developers.google.com/web/updates/2017/04/headless-chrome)
 * [CLI parameters](https://source.chromium.org/chromium/chromium/src/+/master:headless/app/headless_shell_switches.cc)
 * [More on parameters](https://developers.google.com/web/updates/2017/04/headless-chrome#command_line_features)  

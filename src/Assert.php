@@ -27,12 +27,17 @@ final class Assert {
   /**
    * @var string
    */
-  const SEARCH_CSS = 'css';
+  const SEARCH_CSS = 'style';
 
   /**
    * @var string
    */
-  const SEARCH_ATTRIBUTE = 'attribute';
+  const MODIFIER_ATTRIBUTE = 'attribute';
+
+  /**
+   * @var string
+   */
+  const MODIFIER_PROPERTY = 'property';
 
   /**
    * @var string
@@ -405,6 +410,39 @@ final class Assert {
   }
 
   /**
+   * Return the search and assert intersections for a modifier.
+   *
+   * @param string $modifier
+   *   One of the self::MODIFIER_* values.
+   *
+   * @return array|\string[][]
+   *   With keys:
+   *   - search array
+   *   - assert array
+   */
+  public function getIntersectionsByModifier(string $modifier): array {
+    $intersections = [];
+    $intersections[self::MODIFIER_PROPERTY] = [
+      'search' => [self::SEARCH_CSS],
+      'assert' => [
+        self::ASSERT_SUBSTRING,
+        self::ASSERT_EXACT,
+        self::ASSERT_MATCH,
+      ],
+    ];
+    $intersections[self::MODIFIER_ATTRIBUTE] = [
+      'search' => [self::SEARCH_DOM, self::SEARCH_XPATH],
+      'assert' => [
+        self::ASSERT_SUBSTRING,
+        self::ASSERT_EXACT,
+        self::ASSERT_MATCH,
+      ],
+    ];
+
+    return $intersections[$modifier] ?? [];
+  }
+
+  /**
    * Return information about available selectors.
    *
    * @return \AKlump\CheckPages\Help[]
@@ -417,8 +455,30 @@ final class Assert {
         '.story__title',
         '\'#edit-submit[value="Create new account"]\'',
       ]),
+      new Help(self::SEARCH_CSS, "Select computed styles for an element using CSS selectors.", [
+        'p.summary',
+        'main',
+        '.story__title',
+        '\'#edit-submit[value="Create new account"]\'',
+      ]),
       new Help(self::SEARCH_XPATH, "Select from the DOM using XPath selectors.", ['(//*[contains(@class, "block-title")])[3]']),
-      new Help(self::SEARCH_ATTRIBUTE, "Change selection to an element's DOM attribute.  Must be combined with `dom` or `xpath`.  Does not work with all assertions.", [
+
+    ];
+  }
+
+  /**
+   * Return information about modifiers.
+   *
+   * @return \AKlump\CheckPages\Help[]
+   */
+  public function getModifiersInfo() {
+    return [
+      new Help(self::MODIFIER_ATTRIBUTE, "Modify the assert to act against an element's DOM attribute.  Must be combined with `dom` or `xpath`.  Does not work with all assertions.", [
+        'id',
+        'data-foo',
+        'class',
+      ]),
+      new Help(self::MODIFIER_PROPERTY, "Indicate which style property to assert against.  Used for style searches.", [
         'id',
         'data-foo',
         'class',
