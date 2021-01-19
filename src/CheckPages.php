@@ -326,8 +326,8 @@ class CheckPages {
 
         // Look for assert keys that require we get computed styles.
         foreach ($config['find'] ?? [] as $item) {
-          if (array_intersect_key($item, array_flip(['hidden']))) {
-            $driver->addStyleRequest($item['dom']);
+          if (!empty($item[Assert::SEARCH_STYLE])) {
+            $driver->addStyleRequest($item[Assert::SEARCH_STYLE]);
           }
         }
       }
@@ -515,7 +515,10 @@ class CheckPages {
     foreach ($selectors as $code) {
       if (isset($needle[$code])) {
         $search_type = $code;
-        $assert->setSearch($code, $needle[$code], $needle['attribute'] ?? NULL);
+        $assert->setSearch($code, $needle[$code]);
+        if (!empty($needle[Assert::MODIFIER_ATTRIBUTE])) {
+          $assert->setModifer(Assert::MODIFIER_ATTRIBUTE, $needle[Assert::MODIFIER_ATTRIBUTE]);
+        }
         break;
       }
     }
@@ -524,7 +527,9 @@ class CheckPages {
       case Assert::SEARCH_STYLE:
         $haystack = json_decode($response->getHeader('X-Computed-Styles')[0] ?? '{}', TRUE);
         $haystack = json_encode($haystack);
-        $assert->setHaystack($haystack);
+        $assert
+          ->setHaystack($haystack)
+          ->setModifer(Assert::MODIFIER_PROPERTY, $needle[Assert::MODIFIER_PROPERTY]);
         break;
 
       default:

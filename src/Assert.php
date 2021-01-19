@@ -85,9 +85,42 @@ final class Assert {
   private $assertValue;
 
   /**
+   * One of the self::MODIFIER_* values.
+   *
+   * @var string
+   */
+  private $modifierType;
+
+  /**
+   * @var string
+   */
+  private $modifierValue;
+
+  /**
    * @var string
    */
   private $reason = '';
+
+  /**
+   * Set the assert modifier.
+   *
+   * @param string $modifierValue
+   *
+   * @return \AKlump\CheckPages\Assert
+   *   Self for chaining.
+   */
+  public function setModifer(string $type, $value): self {
+    if (!in_array($type, [
+      self::MODIFIER_ATTRIBUTE,
+      self::MODIFIER_PROPERTY,
+    ])) {
+      throw new \InvalidArgumentException("Unrecognized modifier: {$type}");
+    }
+    $this->modifierType = $type;
+    $this->modifierValue = $value;
+
+    return $this;
+  }
 
   /**
    * Overwrite the haystack.
@@ -115,10 +148,9 @@ final class Assert {
    * @return $this
    *   Self for chaining.
    */
-  public function setSearch(string $type, $value = NULL, $attribute = NULL): self {
+  public function setSearch(string $type, $value = NULL): self {
     $this->searchType = $type;
     $this->searchValue = $value;
-    $this->searchAttribute = $attribute;
 
     return $this;
   }
@@ -153,7 +185,7 @@ final class Assert {
     switch ($this->searchType) {
       case self::SEARCH_STYLE:
         $haystack = json_decode($this->haystack, TRUE);
-        $haystack = [$haystack[$this->searchValue] ?? ''];
+        $haystack = [$haystack[$this->searchValue][$this->modifierValue] ?? ''];
         break;
 
       case self::SEARCH_ALL:
@@ -196,8 +228,8 @@ final class Assert {
         case self::ASSERT_MATCH:
         case self::ASSERT_EXACT:
           $haystack = $haystack->each(function ($node) {
-            if ($this->searchAttribute) {
-              $value = $node->attr($this->searchAttribute);
+            if ($this->modifierType === self::MODIFIER_ATTRIBUTE) {
+              $value = $node->attr($this->modifierValue);
             }
             else {
               $value = $node->html();
@@ -297,24 +329,38 @@ final class Assert {
   public function __toString() {
     $prefix = '';
 
-    $attribute = $this->searchAttribute ? "attribute \"{$this->searchAttribute}\" " : '';
+    if ($this->searchType === self::SEARCH_STYLE) {
+
+    }
+
+    $modifier = '';
+    switch ($this->modifierType) {
+      case static::MODIFIER_ATTRIBUTE:
+        $modifier = "attribute \"{$this->modifierValue}\" ";
+        break;
+
+      case static::MODIFIER_PROPERTY:
+        $modifier = "style property \"{$this->modifierValue}\" ";
+        break;
+    }
+
     switch ($this->assertType) {
       case static::ASSERT_MATCH:
-        $prefix = sprintf('Match %sagainst RegExp "%s"', $attribute, $this->assertValue);
+        $prefix = sprintf('Match %sagainst RegExp "%s"', $modifier, $this->assertValue);
         break;
 
       case static::ASSERT_TEXT:
-        $prefix = sprintf('Convert %sto plaintext and compare to "%s"', $attribute, $this->assertValue);
+        $prefix = sprintf('Convert %sto plaintext and compare to "%s"', $modifier, $this->assertValue);
         break;
 
       case static::ASSERT_EXACT:
-        $attribute = $attribute ? "of $attribute" : '';
-        $prefix = sprintf('Compare exact value %sto "%s"', $attribute, $this->assertValue);
+        $modifier = $modifier ? "of $modifier" : '';
+        $prefix = sprintf('Compare exact value %sto "%s"', $modifier, $this->assertValue);
         break;
 
       case static::ASSERT_SUBSTRING:
-        $attribute = $attribute ? ' in ' . trim($attribute) : '';
-        $prefix = sprintf('Find "%s"%s', $this->assertValue, $attribute);
+        $modifier = $modifier ? ' in ' . trim($modifier) : '';
+        $prefix = sprintf('Find "%s"%s', $this->assertValue, $modifier);
         break;
 
       case static::ASSERT_COUNT:
@@ -324,7 +370,7 @@ final class Assert {
 
     switch ($this->searchType) {
       case static::SEARCH_STYLE:
-        $suffix = sprintf('for the CSS "%s" property', $this->searchValue);
+        $suffix = sprintf('for the element "%s"', $this->searchValue);
         break;
 
       case static::SEARCH_ALL:
