@@ -34,7 +34,10 @@ EOD;
 }
 
 function supports_attribute(\AKlump\CheckPages\HelpInfoInterface $item) {
-  return strpos($item->description(), '`attribute`') !== FALSE;
+  $assert = new Assert('');
+  $info = $assert->getIntersectionsByModifier('attribute');
+
+  return in_array($item->code(), $info['assert']);
 }
 
 function asserts_to_markdown() {
@@ -89,9 +92,6 @@ $assert = new Assert('');
 $selectors = implode('|', array_map(function ($item) {
   return $item->code();
 }, $assert->getSelectorsInfo()));
-$modifiers = implode('|', array_map(function ($item) {
-  return $item->code();
-}, $assert->getModifiersInfo()));
 $assertions = implode('|', array_map(function ($item) {
   return $item->code() . (supports_attribute($item) ? '*' : '');
 }, $assert->getAssertionsInfo()));
@@ -108,35 +108,26 @@ $contents[] = <<<EOD
 | _Redirect_  | `location` |                               | - |
 | _Content_    | `find`      |                                   | - |
 | _Selectors_   |            | `dom|xpath`                       | - |
-| _Assertions_  |            | `contains|exact|match|count|text` | `contains` |
+| _Assertions_  |            | `contains|exact|match|count|text` | - |
 EOD;
 
-$info = $assert->getIntersectionsByModifier(Assert::MODIFIER_ATTRIBUTE);
-$info_search = implode('|', $info['search']);
-$info_assert = implode('|', $info['assert']);
-$contents[] = <<<EOD
-### Using the `attribute` modifier
+// Demonstrate the usage of each of the modifiers.
+foreach ($assert->getModifiersInfo() as $modifier) {
+  $info = $assert->getIntersectionsByModifier($modifier->code());
+  $info['search'] = implode('|', $info['search']);
+  $info['assert'] = implode('|', $info['assert']);
+  $contents[] = <<<EOD
+### Using the `{$modifier->code()}` Modifier
 
 | operation | property  | `find` property  | default |
 |----------|----------|----------|--|
+|...|...|...|...|
 | _Content_    | `find`      |                                   | - |
-| _Selectors_   |            | `{$info_search}`                       | - |
-| _Modifiers_   |            | `attribute`                       | - |
-| _Assertions_  |            | `{$info_assert}` | `contains` |
+| _Selectors_   |            | `{$info['search']}`                       | - |
+| _Modifiers_   |            | `{$modifier->code()}`                       | - |
+| _Assertions_  |            | `{$info['assert']}` | - |
 EOD;
-
-$contents[] = <<<EOD
-### Using the `style` selector
-
-| operation | property  | `find` property  | default |
-|----------|----------|----------|--|
-| _Content_    | `find`      |                                   | - |
-| _Selectors_   |            | `style`                       | - |
-| _Modifiers_   |            | `property`                       | - |
-| _Assertions_  |            | `contains|exact|match` | `contains` |
-EOD;
-
-
+}
 
 echo $compiler->addInclude('_cheatsheet.md', implode(PHP_EOL, $contents))
     ->getBasename() . ' has been created.' || exit(1);

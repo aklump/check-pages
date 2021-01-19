@@ -99,7 +99,8 @@
     -
       dom: h1
       text: COVID 19 Pandemic
-# This example tests our redirect when running javascript.  It's contrived
+
+# This example tests our redirect when running javascript.  It's contrived.
 -
   url: /moved.php
   js: true
