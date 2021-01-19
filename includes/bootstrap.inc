@@ -39,13 +39,16 @@ if ($cli->hasFlag('v')) {
 }
 
 $app = new CheckPages(ROOT, $cli);
-$app->addResolveDirectory(dirname(rtrim(getcwd(), '/') . '/' . $cli->getArg(1)));
+$runner_dir = dirname(rtrim(getcwd(), '/') . '/' . $cli->getArg(1));
+$app->addResolveDirectory($runner_dir);
+$app->setPathToSuites($runner_dir);
 
 if (($dir = $cli->getParam('dir'))) {
   if (!is_dir($dir)) {
     throw new \InvalidArgumentException("\"$dir\" must be an existing directory.");
   }
   $app->addResolveDirectory($dir);
+  $app->setPathToSuites($dir);
 }
 
 $test_runner = $app->getRunner();

@@ -43,6 +43,11 @@ class CheckPages {
   protected $resolvePaths = [];
 
   /**
+   * @var string
+   */
+  protected $pathToSuites = '';
+
+  /**
    * @var bool
    */
   protected $outcome = TRUE;
@@ -140,9 +145,40 @@ class CheckPages {
   /**
    * @param string $path
    *   An absolute path to a directory to be used for resolving paths.
+   *
+   * @return \AKlump\CheckPages\CheckPages
+   *   Self for chaining.
    */
-  public function addResolveDirectory(string $path) {
+  public function addResolveDirectory(string $path): self {
     $this->resolvePaths[] = $path;
+
+    return $this;
+  }
+
+  /**
+   * @param string $path
+   *   This directory will be used for resolving globs.
+   *
+   * @return \AKlump\CheckPages\CheckPages
+   *   Self for chaining.
+   */
+  public function setPathToSuites(string $path): self {
+    if (!is_dir($path)) {
+      throw new \InvalidArgumentException("The suites directory \"$path\" does not exist.");
+    }
+    $this->pathToSuites = $path;
+
+    return $this;
+  }
+
+  /**
+   * Get directory to the test suites.
+   *
+   * @return string
+   *   Path to the suites directory.
+   */
+  public function getPathToSuites(): string {
+    return $this->pathToSuites;
   }
 
   /**
@@ -408,7 +444,7 @@ class CheckPages {
    * @return string
    *   The resolved full path to a file if it exists.
    */
-  protected function resolve(string $path, &$resolved_path = NULL) {
+  public function resolve(string $path, &$resolved_path = NULL) {
     $candidates = [['', $path]];
     foreach ($this->resolvePaths as $resolve_path) {
       $resolve_path = rtrim($resolve_path, '/');

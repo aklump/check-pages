@@ -6,5 +6,6 @@
  */
 
 load_config('config/local');
-run_suite('fail_bad_url');
-run_suite('fail_response_code');
+
+// This shows how we can use globbing.
+run_suite('fail_*');
