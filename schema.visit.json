@@ -89,14 +89,27 @@
             "type": "string",
             "pattern": "^.+$"
         },
-        "page_contains": {
+        "string": {
             "title": "Search by string (using contains)",
             "type": "string",
             "pattern": "^.+$"
         },
+        "page_contains": {
+            "title": "ASSERT_CONTAINS",
+            "type": "object",
+            "required": ["contains"],
+            "additionalProperties": false,
+            "properties": {
+                "contains": {
+                    "$ref": "#/definitions/contains"
+                }
+            }
+        },
         "page_match": {
             "title": "ASSERT_CONTAINS",
             "type": "object",
+            "required": ["match"],
+            "additionalProperties": false,
             "properties": {
                 "match": {
                     "$ref": "#/definitions/match"
@@ -394,6 +407,9 @@
                 "default": [],
                 "items": {
                     "oneOf": [
+                        {
+                            "$ref": "#/definitions/string"
+                        },
                         {
                             "$ref": "#/definitions/page_contains"
                         },
