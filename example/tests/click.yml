@@ -3,6 +3,10 @@
   js: true
   find:
     -
+      style: .hidden-by-style
+      property: display
+      exact: none
+    -
       style: .hidden-by-class
       property: display
       exact: none
@@ -10,7 +14,7 @@
 #      dom: '#toggler'
 #      event: click
 #    -
-#      dom: .hidden-by-class
-#      hidden: false
-
+#      style: .hidden-by-class
+#      property: display
+#      exact: block
 
