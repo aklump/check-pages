@@ -6,8 +6,8 @@ use AKlump\LoftLib\Bash\Bash;
 use AKlump\LoftLib\Bash\Color;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
-use Symfony\Component\Yaml\Yaml;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\Yaml\Yaml;
 
 class CheckPages {
 
@@ -379,9 +379,8 @@ class CheckPages {
 
     // Look for a piece of text on the page.
     if ($config['find']) {
-      $body = strval($response->getBody());
       foreach ($config['find'] as $needle) {
-        $assert = $this->handleFindAssert($needle, $body, $response);
+        $assert = $this->handleFindAssert($needle, $response);
         $test_passed = $test_passed ? $assert : FALSE;
       }
     }
@@ -501,14 +500,14 @@ class CheckPages {
    *   When a string a case-sensitive search will be made in $haystack.  As an
    *   array it should contain an "expect" key and a key "dom", which is a CSS
    *   selector.
-   * @param string $haystack
-   *   The large string to search within.
+   * @param \Psr\Http\Message\ResponseInterface
+   *   The response containing the custom headers and body.
    *
    * @return bool
    *   True if the find was successful.
    */
-  protected function handleFindAssert($needle, string $haystack, ResponseInterface $response): bool {
-    $assert = new Assert($haystack);
+  protected function handleFindAssert($needle, ResponseInterface $response): bool {
+    $assert = new Assert();
     $search_type = NULL;
     $selectors = array_map(function ($help) {
       return $help->code();
@@ -520,6 +519,19 @@ class CheckPages {
         break;
       }
     }
+
+    switch ($search_type) {
+      case Assert::SEARCH_STYLE:
+        $haystack = json_decode($response->getHeader('X-Computed-Styles')[0] ?? '{}', TRUE);
+        $haystack = json_encode($haystack);
+        $assert->setHaystack($haystack);
+        break;
+
+      default:
+        $assert->setHaystack(strval($response->getBody()));
+        break;
+    }
+
     if (!$search_type) {
       $assert->setSearch(Assert::SEARCH_ALL);
     }
@@ -527,21 +539,6 @@ class CheckPages {
     // Setup the assert.
     if (!is_array($needle)) {
       $assert->setAssert(Assert::ASSERT_SUBSTRING, $needle);
-    }
-    elseif (isset($needle['hidden'])) {
-      $styles = json_decode($response->getHeader('X-Computed-Styles')[0] ?? '{}', TRUE);
-
-      // By reducing the array, the assert search has far less to look in.
-      $styles = ['display' => $styles[$needle['dom']]['display'] ?? ''];
-      $assert
-        ->setHaystack(json_encode($styles))
-
-        // Search all means that the haystack value will be taken as is and not
-        // crawled by the DOM crawler.
-        ->setSearch(Assert::SEARCH_CSS, 'display')
-
-        // Convert our boolean hidden to a regex that will match the CSS value.
-        ->setAssert(Assert::ASSERT_MATCH, $needle['hidden'] ? '/^none$/' : '/^(?!none$).*$/');
     }
     else {
       $assertions = array_map(function ($help) {

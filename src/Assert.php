@@ -27,7 +27,7 @@ final class Assert {
   /**
    * @var string
    */
-  const SEARCH_CSS = 'style';
+  const SEARCH_STYLE = 'style';
 
   /**
    * @var string
@@ -88,16 +88,6 @@ final class Assert {
    * @var string
    */
   private $reason = '';
-
-  /**
-   * Assert constructor.
-   *
-   * @param string $haystack
-   *   The starting string to search and assert within.
-   */
-  public function __construct(string $haystack) {
-    $this->setHaystack($haystack);
-  }
 
   /**
    * Overwrite the haystack.
@@ -161,7 +151,7 @@ final class Assert {
    */
   public function run(): bool {
     switch ($this->searchType) {
-      case self::SEARCH_CSS:
+      case self::SEARCH_STYLE:
         $haystack = json_decode($this->haystack, TRUE);
         $haystack = [$haystack[$this->searchValue] ?? ''];
         break;
@@ -333,7 +323,7 @@ final class Assert {
     }
 
     switch ($this->searchType) {
-      case static::SEARCH_CSS:
+      case static::SEARCH_STYLE:
         $suffix = sprintf('for the CSS "%s" property', $this->searchValue);
         break;
 
@@ -423,7 +413,7 @@ final class Assert {
   public function getIntersectionsByModifier(string $modifier): array {
     $intersections = [];
     $intersections[self::MODIFIER_PROPERTY] = [
-      'search' => [self::SEARCH_CSS],
+      'search' => [self::SEARCH_STYLE],
       'assert' => [
         self::ASSERT_SUBSTRING,
         self::ASSERT_EXACT,
@@ -455,7 +445,7 @@ final class Assert {
         '.story__title',
         '\'#edit-submit[value="Create new account"]\'',
       ]),
-      new Help(self::SEARCH_CSS, "Select computed styles for an element using CSS selectors.", [
+      new Help(self::SEARCH_STYLE, "Select computed styles for an element using CSS selectors.", [
         'p.summary',
         'main',
         '.story__title',
