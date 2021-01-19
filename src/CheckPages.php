@@ -7,6 +7,7 @@ use AKlump\LoftLib\Bash\Color;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use Symfony\Component\Yaml\Yaml;
+use Psr\Http\Message\ResponseInterface;
 
 class CheckPages {
 
@@ -506,7 +507,7 @@ class CheckPages {
    * @return bool
    *   True if the find was successful.
    */
-  protected function handleFindAssert($needle, string $haystack, Response $response): bool {
+  protected function handleFindAssert($needle, string $haystack, ResponseInterface $response): bool {
     $assert = new Assert($haystack);
     $search_type = NULL;
     $selectors = array_map(function ($help) {
