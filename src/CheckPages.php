@@ -184,7 +184,7 @@ class CheckPages {
    *   Self for chaining.
    */
   public function addResolveDirectory(string $path): self {
-    $this->resolvePaths[] = $path;
+    $this->resolvePaths[] = rtrim($path, '/');
 
     return $this;
   }
@@ -200,7 +200,7 @@ class CheckPages {
     if (!is_dir($path)) {
       throw new \InvalidArgumentException("The suites directory \"$path\" does not exist.");
     }
-    $this->pathToSuites = $path;
+    $this->pathToSuites = rtrim($path, '/');
 
     return $this;
   }
