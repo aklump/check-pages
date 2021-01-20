@@ -49,3 +49,18 @@ function run_suite(string $path_to_suite, array $suite_config = []): void {
     $app->runSuite($suite, $suite_config);
   }
 }
+
+/**
+ * Add a custom command.
+ *
+ * @param string $name
+ *   The name of the command, this will be used when you write your test.
+ * @param callable $callback
+ *   A callback to execute, with optional parameters.  If you typehint your
+ *   parameters this will affect the validation.
+ */
+function add_command(string $name, callable $callback): void {
+  global $app;
+
+  $app->addCommand($name, $callback);
+}

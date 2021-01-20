@@ -7,6 +7,7 @@ use AKlump\LoftLib\Bash\Color;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use Psr\Http\Message\ResponseInterface;
+use ReflectionFunction;
 use Symfony\Component\Yaml\Yaml;
 
 class CheckPages {
@@ -92,6 +93,11 @@ class CheckPages {
   protected $config = [];
 
   /**
+   * @var array
+   */
+  protected $commands = [];
+
+  /**
    * App constructor.
    *
    * @param string $root_dir
@@ -138,6 +144,34 @@ class CheckPages {
    */
   public function setSuiteFilter(string $filter): CheckPages {
     $this->filter = $filter;
+
+    return $this;
+  }
+
+  /**
+   * Add a custom command.
+   *
+   * @param string $name
+   *   The unique command name.
+   * @param callable $callback
+   *   The callback function to execute.
+   *
+   * @return \AKlump\CheckPages\CheckPages
+   *   Self for chaining.
+   */
+  public function addCommand(string $name, callable $callback): self {
+    $cb = new ReflectionFunction($callback);
+    $arguments = array_map(function ($param) {
+      return [
+        (string) $param->getType(),
+        $param->getName(),
+      ];
+    }, $cb->getParameters());
+    $this->commands[$name] = [
+      'name' => $name,
+      'arguments' => $arguments,
+      'callback' => $callback,
+    ];
 
     return $this;
   }
