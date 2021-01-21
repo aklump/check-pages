@@ -71,6 +71,7 @@ final class ChromeDriver extends GuzzleDriver {
     // TODO Get status with Chrome.
 
     // Context creates deadline for operations.
+    // TODO Make the timeout configurable.
     $this->ctx = Context::withTimeout(Context::background(), 30 /* seconds */);
 
     // Launcher starts chrome process ($instance)

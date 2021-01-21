@@ -59,14 +59,14 @@ class GuzzleDriver implements RequestDriverInterface {
    * {@inheritdoc}
    */
   public function getLocation(): string {
-    return array_last($this->response->getHeader('X-Guzzle-Redirect-History'));
+    return (string) array_last($this->response->getHeader('X-Guzzle-Redirect-History') ?? []);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getRedirectCode(): int {
-    return $this->response->getHeader('X-Guzzle-Redirect-Status-History')[0] ?? 0;
+    return (int) ($this->response->getHeader('X-Guzzle-Redirect-Status-History')[0] ?? 0);
   }
 
 }
