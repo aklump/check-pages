@@ -385,6 +385,16 @@ class CheckPages {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function runTest(array $config): array {
+
+    $test_passed = function (bool $result = NULL): bool {
+      static $state;
+      if (!is_null($result)) {
+        $state = is_null($state) || $state ? $result : FALSE;
+      }
+
+      return boolval($state);
+    };
+
     $this->totalTestCount++;
 
     if ($config['js'] ?? FALSE) {
@@ -421,10 +431,10 @@ class CheckPages {
       $http_response_code = $response->getStatusCode();
     }
 
-    $test_passed = $http_response_code == $config['expect'];
+    $test_passed($http_response_code == $config['expect']);
 
     if ($this->bash->hasParam('show-source')) {
-      if ($test_passed) {
+      if ($test_passed()) {
         $this->debug((string) $response->getBody());
       }
       else {
@@ -432,7 +442,7 @@ class CheckPages {
       }
     }
 
-    if ($http_response_code == $config['expect']) {
+    if ($test_passed()) {
       $this->pass('├── HTTP ' . $http_response_code);
     }
     else {
@@ -441,21 +451,21 @@ class CheckPages {
 
     // Test the location if asked.
     if ($http_location && $config['location']) {
-      $test_passed = $http_location === $this->url($config['location']);
-      if (!$test_passed) {
-        $this->fail(sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $config['location']));
+      $location_test = $http_location === $this->url($config['location']);
+      $test_passed($location_test);
+      if (!$location_test) {
+        $this->fail(sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $this->url($config['location'])));
       }
     }
 
     // Look for a piece of text on the page.
     if ($config['find']) {
       foreach ($config['find'] as $needle) {
-        $assert = $this->handleFindAssert($needle, $response);
-        $test_passed = $test_passed ? $assert : FALSE;
+        $test_passed($this->handleFindAssert($needle, $response));
       }
     }
 
-    if ($test_passed) {
+    if ($test_passed()) {
       $this->pass('└── Test passed.');
     }
     else {
@@ -463,7 +473,7 @@ class CheckPages {
     }
 
     return [
-      'pass' => $test_passed,
+      'pass' => $test_passed(),
       'status' => $http_response_code,
     ];
   }
