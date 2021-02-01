@@ -112,3 +112,6 @@
     # The previous is shorthand for this.
     -
       contains: We've moved!
+
+- url: /
+  find: Quick Start

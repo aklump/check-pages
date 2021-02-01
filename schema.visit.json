@@ -97,7 +97,9 @@
         "page_contains": {
             "title": "ASSERT_CONTAINS",
             "type": "object",
-            "required": ["contains"],
+            "required": [
+                "contains"
+            ],
             "additionalProperties": false,
             "properties": {
                 "contains": {
@@ -108,7 +110,9 @@
         "page_match": {
             "title": "ASSERT_CONTAINS",
             "type": "object",
-            "required": ["match"],
+            "required": [
+                "match"
+            ],
             "additionalProperties": false,
             "properties": {
                 "match": {
@@ -403,30 +407,38 @@
                 "$ref": "#/definitions/url"
             },
             "find": {
-                "type": "array",
-                "default": [],
-                "items": {
-                    "oneOf": [
-                        {
-                            "$ref": "#/definitions/string"
-                        },
-                        {
-                            "$ref": "#/definitions/page_contains"
-                        },
-                        {
-                            "$ref": "#/definitions/page_match"
-                        },
-                        {
-                            "$ref": "#/definitions/search_without_modifiers"
-                        },
-                        {
-                            "$ref": "#/definitions/modifier_attribute"
-                        },
-                        {
-                            "$ref": "#/definitions/modifier_property"
+                "oneOf": [
+                    {
+                        "type": "string",
+                        "match": ".+"
+                    },
+                    {
+                        "type": "array",
+                        "default": [],
+                        "items": {
+                            "oneOf": [
+                                {
+                                    "$ref": "#/definitions/string"
+                                },
+                                {
+                                    "$ref": "#/definitions/page_contains"
+                                },
+                                {
+                                    "$ref": "#/definitions/page_match"
+                                },
+                                {
+                                    "$ref": "#/definitions/search_without_modifiers"
+                                },
+                                {
+                                    "$ref": "#/definitions/modifier_attribute"
+                                },
+                                {
+                                    "$ref": "#/definitions/modifier_property"
+                                }
+                            ]
                         }
-                    ]
-                }
+                    }
+                ]
             }
         }
     }
