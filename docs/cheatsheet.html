@@ -76,8 +76,98 @@
 <tr>
   <td><em>Assertions</em></td>
   <td></td>
-  <td><code>contains|count|exact|match|text</code></td>
-  <td><code>contains</code></td>
+  <td><code>contains|exact|match|count|text</code></td>
+  <td>-</td>
+</tr>
+</tbody>
+</table>
+
+<h3>Using the <code>attribute</code> Modifier</h3>
+
+<table>
+<thead>
+<tr>
+  <th>operation</th>
+  <th>property</th>
+  <th><code>find</code> property</th>
+  <th>default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>...</td>
+  <td>...</td>
+  <td>...</td>
+  <td>...</td>
+</tr>
+<tr>
+  <td><em>Content</em></td>
+  <td><code>find</code></td>
+  <td></td>
+  <td>-</td>
+</tr>
+<tr>
+  <td><em>Selectors</em></td>
+  <td></td>
+  <td><code>dom|xpath</code></td>
+  <td>-</td>
+</tr>
+<tr>
+  <td><em>Modifiers</em></td>
+  <td></td>
+  <td><code>attribute</code></td>
+  <td>-</td>
+</tr>
+<tr>
+  <td><em>Assertions</em></td>
+  <td></td>
+  <td><code>contains|exact|match</code></td>
+  <td>-</td>
+</tr>
+</tbody>
+</table>
+
+<h3>Using the <code>property</code> Modifier</h3>
+
+<table>
+<thead>
+<tr>
+  <th>operation</th>
+  <th>property</th>
+  <th><code>find</code> property</th>
+  <th>default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>...</td>
+  <td>...</td>
+  <td>...</td>
+  <td>...</td>
+</tr>
+<tr>
+  <td><em>Content</em></td>
+  <td><code>find</code></td>
+  <td></td>
+  <td>-</td>
+</tr>
+<tr>
+  <td><em>Selectors</em></td>
+  <td></td>
+  <td><code>style</code></td>
+  <td>-</td>
+</tr>
+<tr>
+  <td><em>Modifiers</em></td>
+  <td></td>
+  <td><code>property</code></td>
+  <td>-</td>
+</tr>
+<tr>
+  <td><em>Assertions</em></td>
+  <td></td>
+  <td><code>contains|exact|match</code></td>
+  <td>-</td>
 </tr>
 </tbody>
 </table>
@@ -146,6 +236,32 @@
 <pre><code class="yaml">find:
 - 
   dom: .story__title
+</code></pre>
+
+<pre><code class="yaml">find:
+- 
+  dom: '#edit-submit[value="Create new account"]'
+</code></pre></li>
+<li><p><code>style</code>: Select computed styles for an element using CSS selectors.</p>
+
+<pre><code class="yaml">find:
+- 
+  style: p.summary
+</code></pre>
+
+<pre><code class="yaml">find:
+- 
+  style: main
+</code></pre>
+
+<pre><code class="yaml">find:
+- 
+  style: .story__title
+</code></pre>
+
+<pre><code class="yaml">find:
+- 
+  style: '#edit-submit[value="Create new account"]'
 </code></pre></li>
 <li><p><code>xpath</code>: Select from the DOM using XPath selectors.</p>
 
@@ -162,11 +278,18 @@
 <p>In the case where there are multiple sections, such as multiple DOM elements, then the assertion is applied against all selections and only one must pass.</p>
 
 <ul>
-<li><p><code>contains</code>: Pass if the value is found in the selection.</p>
+<li><p><code>contains</code>: Pass if the value is found in the selection. Works with <code>attribute</code>.</p>
 
 <pre><code class="yaml">find:
 - 
   dom: p.summary
+  contains: foo
+</code></pre>
+
+<pre><code class="yaml">find:
+- 
+  dom: p.summary
+  attribute: id
   contains: foo
 </code></pre></li>
 <li><p><code>count</code>: Pass if equal to the number of items in the selection.</p>
@@ -176,18 +299,32 @@
   dom: p.summary
   count: 2
 </code></pre></li>
-<li><p><code>exact</code>: Pass if the selection's markup matches exactly.</p>
+<li><p><code>exact</code>: Pass if the selection's markup matches exactly. Works with <code>attribute</code>.</p>
 
 <pre><code class="yaml">find:
 - 
   dom: p.summary
   exact: &lt;em&gt;lorem &lt;strong&gt;ipsum dolar&lt;/strong&gt; sit amet.&lt;/em&gt;
-</code></pre></li>
-<li><p><code>match</code>: Applies a REGEX expression against the selection.</p>
+</code></pre>
 
 <pre><code class="yaml">find:
 - 
   dom: p.summary
+  attribute: id
+  exact: &lt;em&gt;lorem &lt;strong&gt;ipsum dolar&lt;/strong&gt; sit amet.&lt;/em&gt;
+</code></pre></li>
+<li><p><code>match</code>: Applies a REGEX expression against the selection. Works with <code>attribute</code>.</p>
+
+<pre><code class="yaml">find:
+- 
+  dom: p.summary
+  match: /copyright\s+20\d{2}$/
+</code></pre>
+
+<pre><code class="yaml">find:
+- 
+  dom: p.summary
+  attribute: id
   match: /copyright\s+20\d{2}$/
 </code></pre></li>
 <li><p><code>text</code>: Pass if the selection's text value (all markup removed) matches exactly.</p>
@@ -207,7 +344,7 @@
 <footer>
   <div class="pager"><a href="README.html" class="prev README">&laquo;Check Pages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="javascript.html" class="next javascript">Testing with Javascript&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.5.1 &bull; Last Updated: Thu, 14 Jan 2021 18:35:27 -0800</p>
+    <p class="legaleeze center">Version: 0.5.2 &bull; Last Updated: Wed, 17 Feb 2021 18:28:38 -0800</p>
   </div>
 </footer>
 

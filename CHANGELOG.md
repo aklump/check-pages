@@ -18,6 +18,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Added new selector 'attribute'.
+- Added ability to do style asserts.
+- Added globbing to run_suite(), e.g. `run_suite('*')` to run all suites. Normal
+  glob patterns work as well, which are relative to the --dir directory, or
+  defaults to the directory containing _runner.php_.
+
+### Changed
+
+- run_suite() now returns void().
 
 ## [0.5.1] - 2021-01-14
 
