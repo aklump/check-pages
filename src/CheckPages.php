@@ -397,6 +397,11 @@ class CheckPages {
 
     $this->totalTestCount++;
 
+    // Ensure find is an array so we don't have to check below in two places.
+    if (!is_array($config['find'])) {
+      $config['find'] = empty($config['find']) ? [] : [$config['find']];
+    }
+
     if ($config['js'] ?? FALSE) {
       try {
         if (empty($this->config['chrome'])) {
@@ -459,10 +464,8 @@ class CheckPages {
     }
 
     // Look for a piece of text on the page.
-    if ($config['find']) {
-      foreach ($config['find'] as $needle) {
-        $test_passed($this->handleFindAssert($needle, $response));
-      }
+    foreach ($config['find'] as $needle) {
+      $test_passed($this->handleFindAssert($needle, $response));
     }
 
     if ($test_passed()) {
