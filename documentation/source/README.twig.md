@@ -21,6 +21,12 @@ In a third test we can assert there is one logo image on the homepage, like so:
         - dom: '#logo img'
           count: 1
 
+Lastly, make sure there are no unprocessed tokens on the page (a.k.a. a substring does not appear):
+
+    - visit: /
+      find:
+        - never: '[site:name]'
+
 For more code examples explore the _/examples_ directory.
 
 **Visit <https://aklump.github.io/check_pages> for full documentation.**

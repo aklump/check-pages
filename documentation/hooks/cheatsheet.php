@@ -47,6 +47,12 @@ function asserts_to_markdown() {
   $info = $assert->getAssertionsInfo();
   $markdown = [];
   foreach ($info as $item) {
+
+    // This one only works per page.
+    if ($item->code() === 'none') {
+      continue;
+    }
+
     $markdown[] = '* `' . $item->code() . '`: ' . $item->description();
     foreach ($item->examples() as $example) {
       $markdown[] = <<<EOD
@@ -108,7 +114,7 @@ $contents[] = <<<EOD
 | _Redirect_  | `location` |                               | - |
 | _Content_    | `find`      |                                   | - |
 | _Selectors_   |            | `dom|xpath`                       | - |
-| _Assertions_  |            | `contains|exact|match|count|text` | - |
+| _Assertions_  |            | `none|contains|exact|match|count|text` | - |
 EOD;
 
 // Demonstrate the usage of each of the modifiers.

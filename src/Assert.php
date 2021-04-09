@@ -67,6 +67,11 @@ final class Assert {
   /**
    * @var string
    */
+  const ASSERT_NOT_SUBSTRING = 'none';
+
+  /**
+   * @var string
+   */
   private $searchType;
 
   /**
@@ -225,6 +230,7 @@ final class Assert {
           break;
 
         case self::ASSERT_SUBSTRING:
+        case self::ASSERT_NOT_SUBSTRING:
         case self::ASSERT_MATCH:
         case self::ASSERT_EXACT:
           $haystack = $haystack->each(function ($node) {
@@ -243,6 +249,19 @@ final class Assert {
 
     $pass = NULL;
     switch ($this->assertType) {
+
+      case self::ASSERT_NOT_SUBSTRING:
+        foreach ($haystack as $item) {
+          $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            return strpos($item_variation, $this->assertValue) === FALSE;
+          });
+          if (!$pass) {
+            $this->reason = sprintf("The following is not supposed to be found:\n\n>>> %s\n\n", $this->assertValue);
+            break;
+          }
+        }
+        break;
+
       case self::ASSERT_SUBSTRING:
         foreach ($haystack as $item) {
           $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
@@ -356,6 +375,10 @@ final class Assert {
       case static::ASSERT_EXACT:
         $modifier = $modifier ? "of $modifier" : '';
         $prefix = sprintf('Compare exact value %sto "%s"', $modifier, $this->assertValue);
+        break;
+
+      case static::ASSERT_NOT_SUBSTRING:
+        $prefix = sprintf('"%s" was not found', $this->assertValue);
         break;
 
       case static::ASSERT_SUBSTRING:
@@ -529,6 +552,7 @@ final class Assert {
    */
   public function getAssertionsInfo(): array {
     return [
+      new Help(self::ASSERT_NOT_SUBSTRING, 'Pass if the value is not found in the selection.', ['[token:123]']),
       new Help(self::ASSERT_SUBSTRING, 'Pass if the value is found in the selection. Works with `attribute`.', ['foo']),
       new Help(self::ASSERT_COUNT, 'Pass if equal to the number of items in the selection.', [2]),
       new Help(self::ASSERT_EXACT, "Pass if the selection's markup matches exactly. Works with `attribute`.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),

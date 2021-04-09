@@ -56,6 +56,12 @@
                 }
             ]
         },
+        "none": {
+            "type": "string",
+            "examples": [
+                "[audio:card:123]"
+            ]
+        },
         "contains": {
             "type": "string",
             "examples": [
@@ -104,6 +110,19 @@
             "properties": {
                 "contains": {
                     "$ref": "#/definitions/contains"
+                }
+            }
+        },
+        "page_not_contains": {
+            "title": "ASSERT_NOT_CONTAINS",
+            "type": "object",
+            "required": [
+                "none"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "none": {
+                    "$ref": "#/definitions/none"
                 }
             }
         },
@@ -422,6 +441,9 @@
                                 },
                                 {
                                     "$ref": "#/definitions/page_contains"
+                                },
+                                {
+                                    "$ref": "#/definitions/page_not_contains"
                                 },
                                 {
                                     "$ref": "#/definitions/page_match"

@@ -54,6 +54,15 @@ Once loaded you can also look for things on the page with `find`.  The most simp
       contains: Upcoming Events Calendar
 ```
 
+Ensure something does NOT appear on the page like this:
+
+```yaml
+- visit: /foo
+  find:
+    -
+      none: "[token:123]"
+```
+
 ### Selectors
 **Selectors reduce the entire page content to one or more sections.**
 
