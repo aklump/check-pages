@@ -49,6 +49,13 @@
       count: 1
 </code></pre>
 
+<p>Lastly, make sure there are no unprocessed tokens on the page (a.k.a. a substring does not appear):</p>
+
+<pre><code>- visit: /
+  find:
+    - never: '[site:name]'
+</code></pre>
+
 <p>For more code examples explore the <em>/examples</em> directory.</p>
 
 <p><strong>Visit <a href="https://aklump.github.io/check_pages">https://aklump.github.io/check_pages</a> for full documentation.</strong></p>
@@ -235,7 +242,7 @@
 <footer>
   <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cheatsheet.html" class="next cheatsheet">Quick Reference: Test Writing&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.5.2 &bull; Last Updated: Wed, 17 Feb 2021 18:28:38 -0800</p>
+    <p class="legaleeze center">Version: 0.6.0 &bull; Last Updated: Thu, 08 Apr 2021 17:50:28 -0700</p>
   </div>
 </footer>
 

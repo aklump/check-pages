@@ -76,7 +76,7 @@
 <tr>
   <td><em>Assertions</em></td>
   <td></td>
-  <td><code>contains|exact|match|count|text</code></td>
+  <td><code>none|contains|exact|match|count|text</code></td>
   <td>-</td>
 </tr>
 </tbody>
@@ -216,6 +216,14 @@
       contains: Upcoming Events Calendar
 </code></pre>
 
+<p>Ensure something does NOT appear on the page like this:</p>
+
+<pre><code class="yaml">- visit: /foo
+  find:
+    -
+      none: "[token:123]"
+</code></pre>
+
 <h3>Selectors</h3>
 
 <p><strong>Selectors reduce the entire page content to one or more sections.</strong></p>
@@ -344,7 +352,7 @@
 <footer>
   <div class="pager"><a href="README.html" class="prev README">&laquo;Check Pages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="javascript.html" class="next javascript">Testing with Javascript&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.5.2 &bull; Last Updated: Wed, 17 Feb 2021 18:28:38 -0800</p>
+    <p class="legaleeze center">Version: 0.6.0 &bull; Last Updated: Thu, 08 Apr 2021 17:50:28 -0700</p>
   </div>
 </footer>
 
