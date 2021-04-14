@@ -13,6 +13,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.8.0] - 2021-04-14
 
+### Added
+
+- The `javascript` selector for expression evaluation.
+
 ### Changed
 
 - It's no longer required to add `js: true` to a test implementing a `style`

@@ -19,3 +19,12 @@ find:
     property: opacity
     exact: 1
 ```
+
+## Assert the URL Hash Matches RegEx Pattern
+
+```yaml
+find:
+    -
+      javascript: location.hash
+      match: /^#foo=bar&alpha=bravo$/
+```

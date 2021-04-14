@@ -20,6 +20,13 @@
                 "[data-title=\"Begin Here\"]"
             ]
         },
+        "javascript": {
+            "type": "string",
+            "pattern": "^.+$",
+            "examples": [
+                "location.hash"
+            ]
+        },
         "xpath": {
             "type": "string",
             "pattern": "^.+$",
@@ -123,6 +130,45 @@
             "properties": {
                 "none": {
                     "$ref": "#/definitions/none"
+                }
+            }
+        },
+        "evaluate_javascript": {
+            "title": "ASSERT_JAVASCRIPT",
+            "type": "object",
+            "oneOf": [
+                {
+                    "required": [
+                        "javascript",
+                        "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "javascript",
+                        "exact"
+                    ]
+                },
+                {
+                    "required": [
+                        "javascript",
+                        "match"
+                    ]
+                }
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "javascript": {
+                    "$ref": "#/definitions/javascript"
+                },
+                "contains": {
+                    "$ref": "#/definitions/contains"
+                },
+                "exact": {
+                    "$ref": "#/definitions/exact"
+                },
+                "match": {
+                    "$ref": "#/definitions/match"
                 }
             }
         },
@@ -447,6 +493,9 @@
                                 },
                                 {
                                     "$ref": "#/definitions/page_match"
+                                },
+                                {
+                                    "$ref": "#/definitions/evaluate_javascript"
                                 },
                                 {
                                     "$ref": "#/definitions/search_without_modifiers"

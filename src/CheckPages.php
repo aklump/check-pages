@@ -386,7 +386,7 @@ class CheckPages {
 
     // Make sure JS is TRUE if the find uses a style assertion.
     foreach ($config['find'] ?? [] as $item) {
-      if (array_key_exists('style', $item)) {
+      if (array_key_exists('style', $item) || array_key_exists('javascript', $item)) {
         $config['js'] = TRUE;
         break;
       }
@@ -431,6 +431,9 @@ class CheckPages {
         foreach ($config['find'] ?? [] as $item) {
           if (!empty($item[Assert::SEARCH_STYLE])) {
             $driver->addStyleRequest($item[Assert::SEARCH_STYLE]);
+          }
+          if (!empty($item[Assert::SEARCH_JAVASCRIPT])) {
+            $driver->addJavascriptEval($item[Assert::SEARCH_JAVASCRIPT]);
           }
         }
       }
@@ -631,6 +634,12 @@ class CheckPages {
         $assert
           ->setHaystack($haystack)
           ->setModifer(Assert::MODIFIER_PROPERTY, $needle[Assert::MODIFIER_PROPERTY]);
+        break;
+
+      case Assert::SEARCH_JAVASCRIPT:
+        $haystack = json_decode($response->getHeader('X-Javascript-Evals')[0] ?? '{}', TRUE);
+        $haystack = json_encode($haystack);
+        $assert->setHaystack($haystack);
         break;
 
       default:

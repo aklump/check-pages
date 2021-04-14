@@ -10,6 +10,10 @@ function selectors_to_markdown() {
   $info = $assert->getSelectorsInfo();
   $markdown = [];
   foreach ($info as $item) {
+    if ($item->code() === 'javascript') {
+      continue;
+    }
+
     $markdown[] = '* `' . $item->code() . '`: ' . $item->description();
 
     $dom = '';
@@ -109,11 +113,11 @@ $contents[] = <<<EOD
 | operation | property  | `find` property  | default |
 |----------|----------|----------|--|
 | _Load page_       | `visit|url`      |                              | - |
-| _Javascript_  | `js`      |                              | `false` |
+| _Javascript_  | `js`      |                              | auto |
 | _Status Code_     | `expect`   | | 200 |
 | _Redirect_  | `location` |                               | - |
 | _Content_    | `find`      |                                   | - |
-| _Selectors_   |            | `dom|xpath`                       | - |
+| _Selectors_   |            | `dom|xpath|javascript`                       | - |
 | _Assertions_  |            | `none|contains|exact|match|count|text` | - |
 EOD;
 

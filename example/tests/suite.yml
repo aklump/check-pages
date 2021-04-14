@@ -1,3 +1,15 @@
+# This example shows how to check the window location hash by using the
+# javascript selector.  It also checks that js is set to true automatically.
+-
+  url: /javascript.html
+  find:
+    -
+      javascript: location.hash
+      match: /^#foo=bar&alpha=bravo$/
+    -
+      javascript: location.query
+      exact: ""
+
 -
   url: /
 

@@ -32,6 +32,11 @@ final class Assert {
   /**
    * @var string
    */
+  const SEARCH_JAVASCRIPT = 'javascript';
+
+  /**
+   * @var string
+   */
   const MODIFIER_ATTRIBUTE = 'attribute';
 
   /**
@@ -191,6 +196,19 @@ final class Assert {
       case self::SEARCH_STYLE:
         $haystack = json_decode($this->haystack, TRUE);
         $haystack = [$haystack[$this->searchValue][$this->modifierValue] ?? ''];
+        break;
+
+      case self::SEARCH_JAVASCRIPT:
+        $haystack = json_decode($this->haystack, TRUE);
+        $haystack = [
+          array_reduce($haystack, function ($result, $item) {
+            if ($this->searchValue === $item['eval']) {
+              $result .= $item['result'];
+            }
+
+            return $result;
+          }),
+        ];
         break;
 
       case self::SEARCH_ALL:
@@ -407,6 +425,10 @@ final class Assert {
       case static::SEARCH_DOM:
         $suffix = sprintf('after selecting with "%s"', $this->searchValue);
         break;
+
+      case static::SEARCH_JAVASCRIPT:
+        $suffix = sprintf('after JS evaluation of "%s"', $this->searchValue);
+        break;
     }
 
     return implode(' ', [$prefix, $suffix]) . '.';
@@ -521,6 +543,7 @@ final class Assert {
         '\'#edit-submit[value="Create new account"]\'',
       ]),
       new Help(self::SEARCH_XPATH, "Select from the DOM using XPath selectors.", ['(//*[contains(@class, "block-title")])[3]']),
+      new Help(self::SEARCH_JAVASCRIPT, "Select the result of a javascript expression", ['location.hash']),
 
     ];
   }
@@ -555,7 +578,7 @@ final class Assert {
       new Help(self::ASSERT_NOT_SUBSTRING, 'Pass if the value is not found in the selection.', ['[token:123]']),
       new Help(self::ASSERT_SUBSTRING, 'Pass if the value is found in the selection. Works with `attribute`.', ['foo']),
       new Help(self::ASSERT_COUNT, 'Pass if equal to the number of items in the selection.', [2]),
-      new Help(self::ASSERT_EXACT, "Pass if the selection's markup matches exactly. Works with `attribute`.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),
+      new Help(self::ASSERT_EXACT, "Pass if the selection's markup matches exactly.  All numeric values, regardless of type are considered an exact match.  Works with `attribute`.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),
       new Help(self::ASSERT_MATCH, 'Applies a REGEX expression against the selection. Works with `attribute`.', ['/copyright\s+20\d{2}$/']),
       new Help(self::ASSERT_TEXT, "Pass if the selection's text value (all markup removed) matches exactly.", ['lorem ipsum dolar sit amet.']),
     ];
