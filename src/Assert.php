@@ -336,7 +336,7 @@ final class Assert {
           }
         }
         if (!$pass) {
-          $this->reason = sprintf("Unable to match using \"%s\".", $this->assertValue);
+          $this->reason = sprintf("Unable to match actual value \"%s\" using \"%s\".", $item, $this->assertValue);
         }
         break;
     }
