@@ -12,7 +12,7 @@ chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 
 ## Enable Javascript per Test
 
-Unless you enable it, javascript is not run during testing.  If you need to assert that an element exists, which was created from Javascript (or otherwise need javascript to run on the page), you will need to indicate the following in your test, namely `js: true`.
+Unless you enable it, or in the case the assertion type (i.e., `style`) requires it, javascript is not run during testing.  If you need to assert that an element exists, which was created from Javascript (or otherwise need javascript to run on the page), you will need to indicate the following in your test, namely `js: true`.
 
 ```yaml
 - visit: /foo

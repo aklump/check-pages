@@ -377,6 +377,23 @@ class CheckPages {
   }
 
   /**
+   * Make adjustments to the configuration if necessary.
+   *
+   * @param array $config
+   *   The test configuration array.
+   */
+  private function processConfiguration(array &$config) {
+
+    // Make sure JS is TRUE if the find uses a style assertion.
+    foreach ($config['find'] ?? [] as $item) {
+      if (array_key_exists('style', $item)) {
+        $config['js'] = TRUE;
+        break;
+      }
+    }
+  }
+
+  /**
    * Handle visitation to a single URL.
    *
    * @param array $config
@@ -385,6 +402,7 @@ class CheckPages {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function runTest(array $config): array {
+    $this->processConfiguration($config);
 
     $test_passed = function (bool $result = NULL): bool {
       static $state;
