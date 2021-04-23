@@ -184,7 +184,10 @@ class CheckPages {
    *   Self for chaining.
    */
   public function addResolveDirectory(string $path): self {
-    $this->resolvePaths[] = rtrim($path, '/');
+    $path = rtrim($path, '/');
+    if (!in_array($path, $this->resolvePaths)) {
+      $this->resolvePaths[] = $path;
+    }
 
     return $this;
   }
