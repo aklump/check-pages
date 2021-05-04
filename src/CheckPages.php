@@ -514,6 +514,9 @@ class CheckPages {
    *
    * @return string
    *   The resolved full path to a file if it exists.
+   *
+   * @throws \AKlump\CheckPages\UnresolvablePathException
+   *   If the path cannot be resolved.
    */
   public function resolve(string $path, &$resolved_path = NULL) {
     $candidates = [['', $path]];
@@ -528,7 +531,7 @@ class CheckPages {
         return $try;
       }
     }
-    throw new \InvalidArgumentException("Cannot resolve \"$path\".");
+    throw new UnresolvablePathException($path);
   }
 
   /**
