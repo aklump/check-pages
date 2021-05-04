@@ -388,10 +388,13 @@ class CheckPages {
   private function processConfiguration(array &$config) {
 
     // Make sure JS is TRUE if the find uses a style assertion.
-    foreach ($config['find'] ?? [] as $item) {
-      if (array_key_exists('style', $item) || array_key_exists('javascript', $item)) {
-        $config['js'] = TRUE;
-        break;
+    if (!empty($config['find']) && is_array($config['find'])) {
+      foreach ($config['find'] as $item) {
+        if (is_array($item)
+          && (array_key_exists('style', $item) || array_key_exists('javascript', $item))) {
+          $config['js'] = TRUE;
+          break;
+        }
       }
     }
   }
