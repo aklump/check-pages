@@ -1,0 +1,12 @@
+{
+    "type": "object",
+    "required": [
+        "click"
+    ],
+    "properties": {
+        "click": {
+            "$ref": "#/definitions/dom"
+        }
+    },
+    "additionalProperties": false
+}

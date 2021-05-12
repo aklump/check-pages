@@ -1,0 +1,33 @@
+<html>
+<head>
+  <script type="text/javascript">
+    function ready(fn) {
+      if (document.readyState != 'loading') {
+        fn()
+      } else {
+        document.addEventListener('DOMContentLoaded', fn)
+      }
+    }
+
+    ready(function() {
+      var tally = 0
+      var messageEl = document.getElementById('events__message')
+      var inputEl = document.getElementById('events__textfield')
+
+      document.getElementById('events__button').addEventListener('click', function() {
+        tally += 1
+        var output = 'Button clicked ' + tally + ' times'
+        if (inputEl.value) {
+          output = 'You entered: ' + inputEl.value
+        }
+        messageEl.innerHTML = output
+      })
+    })
+  </script>
+</head>
+<body>
+<input type="text" id="events__textfield">
+<button id="events__button">Process</button>
+<div id="events__message"></div>
+</body>
+</html>

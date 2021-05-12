@@ -93,7 +93,7 @@
         },
         "match": {
             "type": "string",
-            "pattern": "^/.+/",
+            "pattern": "^\/.+\/",
             "examples": [
                 "/\\d+ items in cart/i"
             ]
@@ -430,18 +430,6 @@
                     "$ref": "#/definitions/property"
                 }
             }
-        },
-        "click": {
-            "type": "object",
-            "required": [
-                "click"
-            ],
-            "properties": {
-                "click": {
-                    "$ref": "#/definitions/dom"
-                }
-            },
-            "additionalProperties": false
         }
     },
     "type": "array",
@@ -517,9 +505,6 @@
                                 },
                                 {
                                     "$ref": "#/definitions/modifier_property"
-                                },
-                                {
-                                    "$ref": "#/definitions/click"
                                 }
                             ]
                         }
