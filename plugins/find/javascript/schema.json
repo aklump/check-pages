@@ -1,0 +1,39 @@
+{
+    "title": "ASSERT_JAVASCRIPT",
+    "type": "object",
+    "oneOf": [
+        {
+            "required": [
+                "javascript",
+                "contains"
+            ]
+        },
+        {
+            "required": [
+                "javascript",
+                "exact"
+            ]
+        },
+        {
+            "required": [
+                "javascript",
+                "match"
+            ]
+        }
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "javascript": {
+            "$ref": "#/definitions/js_eval"
+        },
+        "contains": {
+            "$ref": "#/definitions/contains"
+        },
+        "exact": {
+            "$ref": "#/definitions/exact"
+        },
+        "match": {
+            "$ref": "#/definitions/match"
+        }
+    }
+}

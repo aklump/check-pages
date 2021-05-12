@@ -99,15 +99,21 @@ final class PluginCompiler {
       return pathinfo($path, PATHINFO_FILENAME) === 'test_subject';
     }));
     $extension = pathinfo($subject, PATHINFO_EXTENSION);
-    copy("$path_to_plugin/$subject", $this->examplesPath . "/web/plugin_$id.$extension");
+    $destination_basename = "plugin_$id.$extension";
+    copy("$path_to_plugin/$subject", $this->examplesPath . "/web/${destination_basename}");
 
     // The test suite.
-    $plugin_suite = [
-      [
-        'visit' => "/{$subject}",
-        'find' => Yaml::parseFile($path_to_plugin . '/find.yml'),
-      ],
-    ];
+    $plugin_suite = Yaml::parseFile($path_to_plugin . '/suite.yml');
+    $plugin_suite = array_map(function (array $test) use ($subject, $destination_basename) {
+      if (array_key_exists('visit', $test)) {
+        $test['visit'] = str_replace($subject, $destination_basename, $test['visit']);
+      }
+      if (array_key_exists('url', $test)) {
+        $test['url'] = str_replace($subject, $destination_basename, $test['url']);
+      }
+
+      return $test;
+    }, $plugin_suite);
     file_put_contents($this->examplesPath . "/tests/plugins/{$id}.yml", Yaml::dump($plugin_suite, 6));
   }
 
@@ -120,18 +126,20 @@ final class PluginCompiler {
    *   The filepath to the plugin definition directory.
    */
   private function compilePluginSchema(string $id, string $path_to_plugin) {
-    $master = $this->loadJson(str_replace('.json', '.template.json', $this->schemaPath));
+    if (empty($this->master)) {
+      $this->master = $this->loadJson(str_replace('.json', '.template.json', $this->schemaPath));
+    }
 
-    if (isset($master['definitions'][$id])) {
+    if (isset($this->master['definitions'][$id])) {
       throw new \RuntimeException(sprintf('Plugin ID conflict; %s.definitions.%s already exists', basename($this->schemaPath), $id));
     }
 
     $schema_path = $path_to_plugin . '/schema.json';
-    $master['definitions'][$id] = $this->loadJson($schema_path);
-    $master['items']['properties']['find']['oneOf'][1]['items']['oneOf'][] = [
+    $this->master['definitions'][$id] = $this->loadJson($schema_path);
+    $this->master['items']['properties']['find']['oneOf'][1]['items']['oneOf'][] = [
       '$ref' => "#/definitions/{$id}",
     ];
-    $this->saveJson($this->schemaPath, $master);
+    $this->saveJson($this->schemaPath, $this->master);
   }
 
   private function loadJson(string $filepath) {

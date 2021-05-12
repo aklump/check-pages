@@ -1,0 +1,16 @@
+-
+    visit: /plugin_javascript.html
+    find:
+        -
+            javascript: location.hash
+            match: '/^#foo=bar&alpha=bravo$/'
+        -
+            javascript: location.query
+            exact: ''
+-
+    visit: /plugin_javascript.html
+    js: true
+    find:
+        -
+            dom: h1
+            text: 'COVID 19 Pandemic'
