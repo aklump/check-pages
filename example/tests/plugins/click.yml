@@ -2,10 +2,4 @@
     visit: /plugins/click.html
     find:
         -
-            dom: '#events__message'
-            text: ''
-        -
             click: '#events__button'
-        -
-            dom: '#events__message'
-            text: 'Button clicked 1 times'

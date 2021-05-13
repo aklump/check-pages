@@ -112,6 +112,11 @@ final class Assert {
   private $reason = '';
 
   /**
+   * @var string
+   */
+  private $result = '';
+
+  /**
    * Set the assert modifier.
    *
    * @param string $modifierValue
@@ -184,14 +189,12 @@ final class Assert {
   }
 
   /**
-   * Run the search and assertion.
+   * Run the test assertion.
    *
-   * @return bool
-   *   True or false.
-   *
+   * @see \AKlump\CheckPages\Assert::getResult()
    * @see \AKlump\CheckPages\Assert::getReason()
    */
-  public function run(): bool {
+  public function run() {
     switch ($this->searchType) {
       case self::SEARCH_STYLE:
         $haystack = json_decode($this->haystack, TRUE);
@@ -233,11 +236,15 @@ final class Assert {
 
         // If we are expecting a count of 0, then this is a pass.
         if ($this->assertType === self::ASSERT_COUNT && $this->assertValue === 0) {
-          return TRUE;
+          $this->result = TRUE;
+
+          return;
         }
         $this->reason = sprintf('"%s" does not exist in the DOM.', $this->searchValue);
 
-        return FALSE;
+        $this->result = FALSE;
+
+        return;
       }
 
       switch ($this->assertType) {
@@ -344,10 +351,12 @@ final class Assert {
     if (is_null($pass)) {
       $this->reason = sprintf('Invalid assertion "%s".', $this->assertType);
 
-      return FALSE;
+      $this->result = FALSE;
+
+      return;
     }
 
-    return $pass;
+    $this->result = $pass;
   }
 
   /**
@@ -358,6 +367,16 @@ final class Assert {
    */
   public function getReason(): string {
     return $this->reason;
+  }
+
+  /**
+   * Get the failure result.
+   *
+   * @return string
+   *   The result for failure.
+   */
+  public function getResult(): string {
+    return $this->result;
   }
 
   /**

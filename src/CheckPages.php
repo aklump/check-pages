@@ -109,9 +109,13 @@ class CheckPages {
   public function __construct(string $root_dir, Bash $bash) {
     $this->rootDir = $root_dir;
     $this->addResolveDirectory($this->rootDir);
-    $this->addResolveDirectory($this->rootDir . '/tests/');
+    $this->addResolveDirectory($this->rootDir . '/tests');
     $this->bash = $bash;
     $this->debugging = !$bash->hasParam('quiet');
+
+    $this->pluginsManager = new PluginsManager($this->rootDir . '/plugins');
+    $schema = json_decode(file_get_contents($this->rootDir . '/schema.visit.json'), TRUE);
+    $this->pluginsManager->setSchema($schema);
   }
 
   /**
@@ -408,6 +412,8 @@ class CheckPages {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function runTest(array $config): array {
+
+    $this->pluginsManager->onBeforeDriver($config);
     $this->processConfiguration($config);
 
     $test_passed = function (bool $result = NULL): bool {
@@ -450,6 +456,8 @@ class CheckPages {
     else {
       $driver = new GuzzleDriver();
     }
+    $this->pluginsManager->onBeforeRequest($driver);
+
     $response = $driver
       ->setUrl($this->url($config['url']))
       ->getResponse();
@@ -625,6 +633,7 @@ class CheckPages {
     $selectors = array_map(function ($help) {
       return $help->code();
     }, $assert->getSelectorsInfo());
+
     foreach ($selectors as $code) {
       if (isset($needle[$code])) {
         $search_type = $code;
@@ -676,7 +685,9 @@ class CheckPages {
       }
     }
 
-    $pass = $assert->run();
+    $this->pluginsManager->onBeforeAssert($assert, $response);
+    $assert->run();
+    $pass = $assert->getResult();
     if (!$pass) {
       $this->fail('├── ' . $assert);
       $this->fail('└── ' . $assert->getReason());

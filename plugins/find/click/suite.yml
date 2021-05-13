@@ -1,14 +1,14 @@
 -
   visit: /test_subject.html
   find:
-    -
-      dom: '#events__message'
-      text: ''
+#    -
+#      dom: '#events__message'
+#      text: ''
     -
       click: '#events__button'
-    -
-      dom: '#events__message'
-      text: 'Button clicked 1 times'
+#    -
+#      dom: '#events__message'
+#      text: 'Button clicked 1 times'
     #    -
     #      dom: '#events__button'
     #      trigger: click

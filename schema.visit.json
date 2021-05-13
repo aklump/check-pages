@@ -20,13 +20,6 @@
                 "[data-title=\"Begin Here\"]"
             ]
         },
-        "js_eval": {
-            "type": "string",
-            "pattern": "^.+$",
-            "examples": [
-                "location.hash"
-            ]
-        },
         "xpath": {
             "type": "string",
             "pattern": "^.+$",
@@ -404,8 +397,15 @@
             },
             "additionalProperties": false
         },
+        "js_eval": {
+            "type": "string",
+            "pattern": "^.+$",
+            "examples": [
+                "location.hash"
+            ]
+        },
         "javascript": {
-            "title": "ASSERT_JAVASCRIPT",
+            "title": "SEARCH_JAVASCRIPT",
             "type": "object",
             "oneOf": [
                 {
