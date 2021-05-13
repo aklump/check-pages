@@ -23,7 +23,7 @@ final class PluginsCompiler {
    * Compile all plugins into the app.
    */
   public function compile() {
-    $plugins = $this->pluginsManager->getFindPlugins();
+    $plugins = $this->pluginsManager->getAllPlugins();
     foreach ($plugins as $plugin) {
       $this->compilePlugin($plugin['id'], $plugin['path']);
     }

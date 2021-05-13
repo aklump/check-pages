@@ -394,8 +394,7 @@ class CheckPages {
     // Make sure JS is TRUE if the find uses a style assertion.
     if (!empty($config['find']) && is_array($config['find'])) {
       foreach ($config['find'] as $item) {
-        if (is_array($item)
-          && (array_key_exists('style', $item) || array_key_exists('javascript', $item))) {
+        if (is_array($item) && (array_key_exists('style', $item))) {
           $config['js'] = TRUE;
           break;
         }
@@ -412,7 +411,6 @@ class CheckPages {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function runTest(array $config): array {
-
     $this->pluginsManager->onBeforeDriver($config);
     $this->processConfiguration($config);
 
@@ -439,13 +437,10 @@ class CheckPages {
         }
         $driver = new ChromeDriver($this->config['chrome']);
 
-        // Look for assert keys that require we get computed styles.
+        // Look for assert keys that require we getPluginInstance computed styles.
         foreach ($config['find'] ?? [] as $item) {
           if (!empty($item[Assert::SEARCH_STYLE])) {
             $driver->addStyleRequest($item[Assert::SEARCH_STYLE]);
-          }
-          if (!empty($item[Assert::SEARCH_JAVASCRIPT])) {
-            $driver->addJavascriptEval($item[Assert::SEARCH_JAVASCRIPT]);
           }
         }
       }
@@ -652,12 +647,6 @@ class CheckPages {
         $assert
           ->setHaystack($haystack)
           ->setModifer(Assert::MODIFIER_PROPERTY, $needle[Assert::MODIFIER_PROPERTY]);
-        break;
-
-      case Assert::SEARCH_JAVASCRIPT:
-        $haystack = json_decode($response->getHeader('X-Javascript-Evals')[0] ?? '{}', TRUE);
-        $haystack = json_encode($haystack);
-        $assert->setHaystack($haystack);
         break;
 
       default:

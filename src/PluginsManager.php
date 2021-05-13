@@ -11,7 +11,7 @@ final class PluginsManager implements TestPluginInterface {
   /**
    * @var array
    */
-  private $pluginsDir;
+  private $testPluginsDir;
 
   /**
    * @var array
@@ -46,15 +46,15 @@ final class PluginsManager implements TestPluginInterface {
   }
 
   /**
-   * Return a list of all find plugins.
+   * Return a list of all plugins.
    *
    * @return array
    *   Each element is keyed with:
    *   - id string Plugin id.
    *   - filepath string Path to the plugin directory.
    */
-  public function getFindPlugins(): array {
-    $basepath = $this->testPluginsDir . '/find';
+  public function getAllPlugins(): array {
+    $basepath = $this->testPluginsDir;
     $directory_listing = scandir($basepath);
     $plugins = [];
     foreach ($directory_listing as $basename) {
@@ -86,8 +86,8 @@ final class PluginsManager implements TestPluginInterface {
    */
   public function handleAssert(Assert $assert, array $needle, ResponseInterface $response) {
     $validator = new Validator();
-    foreach ($this->getFindPlugins() as $find_plugin) {
-      $plugin_schema = $this->getPluginSchema($find_plugin['id']);
+    foreach ($this->getAllPlugins() as $plugin) {
+      $plugin_schema = $this->getPluginSchema($plugin['id']);
 
       // Convert to an object for the validator needs it so.
       $data = json_decode(json_encode($needle));
@@ -97,7 +97,7 @@ final class PluginsManager implements TestPluginInterface {
         // This means that this plugin's schema matches $needle, therefore this
         // plugin should handle the assert.  We will allow more than one plugin
         // to handle an assert, if it's schema matches.
-        $instance = $this->get($find_plugin['id']);
+        $instance = $this->getPluginInstance($plugin['id']);
         if ($instance instanceof TestPluginInterface) {
           $instance->handleAssert($assert, $needle, $response);
         }
@@ -105,8 +105,20 @@ final class PluginsManager implements TestPluginInterface {
     }
   }
 
-  private function get(string $plugin_id) {
-    $plugins = $this->getFindPlugins();
+  /**
+   * Return a new plugin instance by ID.
+   *
+   * @param string $plugin_id
+   *   The plugin ID.
+   *
+   * @return \AKlump\CheckPages\TestPluginInterface
+   *   A plugin instance.
+   *
+   * @throws \RuntimeException
+   *   If the class cannot be instantiated.
+   */
+  private function getPluginInstance(string $plugin_id): TestPluginInterface {
+    $plugins = $this->getAllPlugins();
     foreach ($plugins as $plugin) {
       if ($plugin['id'] === $plugin_id) {
         require_once $plugin['autoload'];
@@ -117,7 +129,16 @@ final class PluginsManager implements TestPluginInterface {
     throw new \RuntimeException(sprintf('Could not instantiate plugin %s', $plugin_id['id']));
   }
 
-  private function getPluginSchema($plugin_id): array {
+  /**
+   * Get plugin's JSON schema for a single assertion.
+   *
+   * @param string $plugin_id
+   *   The plugin ID.
+   *
+   * @return array
+   *   The JSON schema for a single assertion handled by this plugin.
+   */
+  private function getPluginSchema(string $plugin_id): array {
     $schema = $this->schema['definitions'][$plugin_id] ?? NULL;
     if (!$schema) {
       throw new \RuntimeException(sprintf('Missing schema for plugin %s', $plugin_id));
@@ -132,9 +153,9 @@ final class PluginsManager implements TestPluginInterface {
    * {@inheritdoc}
    */
   public function onBeforeDriver(array &$config) {
-    $validator = new Validator();
-    $this->testPlugins = array_filter(array_map(function ($plugin) use ($config, $validator) {
+    $this->testPlugins = array_filter(array_map(function ($plugin) use ($config) {
       $plugin_schema = $this->getPluginSchema($plugin['id']);
+      $validator = new Validator();
       foreach ($config['find'] as $needle) {
         $data = json_decode(json_encode($needle));
         $validator->validate($data, $plugin_schema);
@@ -142,7 +163,7 @@ final class PluginsManager implements TestPluginInterface {
           // This means that this plugin's schema matches $needle, therefore this
           // plugin should handle the assert.  We will allow more than one plugin
           // to handle an assert, if it's schema matches.
-          $instance = $this->get($plugin['id']);
+          $instance = $this->getPluginInstance($plugin['id']);
           if ($instance instanceof TestPluginInterface) {
             return $plugin + ['test' => $instance];
           }
@@ -150,7 +171,7 @@ final class PluginsManager implements TestPluginInterface {
       }
 
       return NULL;
-    }, $this->getFindPlugins()));
+    }, $this->getAllPlugins()));
 
     foreach ($this->testPlugins as $plugin) {
       $plugin['test']->{__FUNCTION__}($config);

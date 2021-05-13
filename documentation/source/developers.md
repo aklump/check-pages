@@ -3,7 +3,7 @@
 ## Plugins & Testing
 
 Do not edit the following, as they are created in the build step and will be
-overwritten. To affect these files you need to look to _plugins/find/_
+overwritten. To affect these files you need to look to _plugins/_
 directory, which contains the source code.
 
 ```

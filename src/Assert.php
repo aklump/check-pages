@@ -171,6 +171,17 @@ final class Assert {
   }
 
   /**
+   * Return the search for this assertion.
+   *
+   * @return array
+   *   - 0 The search type.
+   *   - 1 The search value.
+   */
+  public function getSearch(): array {
+    return [$this->searchType, $this->searchValue];
+  }
+
+  /**
    * Set the type of assertion to execute.
    *
    * @param int $type
