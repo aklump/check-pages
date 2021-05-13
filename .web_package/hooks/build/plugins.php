@@ -90,26 +90,34 @@ final class PluginCompiler {
    *   The filepath to the plugin definition directory.
    */
   private function handleTests(string $id, string $path_to_plugin) {
+
     if (!is_dir($this->examplesPath . "/tests/plugins/")) {
-      mkdir($this->examplesPath . "/tests/plugins/");
+      mkdir($this->examplesPath . "/tests/plugins/", 0755, TRUE);
     }
 
-    // The test subject file.
+    // Locate the file with the filename of 'test_subject'.
     $subject = array_first(array_filter(scandir($path_to_plugin), function ($path) {
       return pathinfo($path, PATHINFO_FILENAME) === 'test_subject';
     }));
+    if (empty($subject)) {
+      throw new \RuntimeException(sprintf('Missing filename "test_subject.*" for plugin %s.', $id));
+    }
+
     $extension = pathinfo($subject, PATHINFO_EXTENSION);
-    $destination_basename = "plugin_$id.$extension";
-    copy("$path_to_plugin/$subject", $this->examplesPath . "/web/${destination_basename}");
+    $suite_relative_path_final = "plugins/$id.$extension";
+    copy("$path_to_plugin/$subject", $this->examplesPath . "/web/${suite_relative_path_final}");
 
     // The test suite.
+    if (!is_dir($this->examplesPath . "/web/plugins/")) {
+      mkdir($this->examplesPath . "/web/plugins/", 0755, TRUE);
+    }
     $plugin_suite = Yaml::parseFile($path_to_plugin . '/suite.yml');
-    $plugin_suite = array_map(function (array $test) use ($subject, $destination_basename) {
+    $plugin_suite = array_map(function (array $test) use ($subject, $suite_relative_path_final) {
       if (array_key_exists('visit', $test)) {
-        $test['visit'] = str_replace($subject, $destination_basename, $test['visit']);
+        $test['visit'] = str_replace($subject, $suite_relative_path_final, $test['visit']);
       }
       if (array_key_exists('url', $test)) {
-        $test['url'] = str_replace($subject, $destination_basename, $test['url']);
+        $test['url'] = str_replace($subject, $suite_relative_path_final, $test['url']);
       }
 
       return $test;

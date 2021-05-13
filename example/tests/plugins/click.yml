@@ -1,5 +1,5 @@
 -
-    visit: /plugin_click.html
+    visit: /plugins/click.html
     find:
         -
             dom: '#events__message'

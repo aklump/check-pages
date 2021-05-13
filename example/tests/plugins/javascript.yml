@@ -1,5 +1,5 @@
 -
-    visit: /plugin_javascript.html
+    visit: /plugins/javascript.html
     find:
         -
             javascript: location.hash
@@ -8,7 +8,7 @@
             javascript: location.query
             exact: ''
 -
-    visit: /plugin_javascript.html
+    visit: /plugins/javascript.html
     js: true
     find:
         -
