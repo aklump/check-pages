@@ -1,5 +1,14 @@
 -
     visit: /plugins/javascript.html
+    js: true
+    find:
+        -
+            javascript: 'document.querySelector(''body'').classList.add(''foo'')'
+        -
+            dom: h1
+            text: 'COVID 19 Pandemic'
+-
+    visit: /plugins/javascript.html
     find:
         -
             javascript: location.hash
@@ -7,10 +16,3 @@
         -
             javascript: location.query
             exact: ''
--
-    visit: /plugins/javascript.html
-    js: true
-    find:
-        -
-            dom: h1
-            text: 'COVID 19 Pandemic'

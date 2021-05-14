@@ -53,6 +53,7 @@ final class Javascript implements TestPluginInterface {
   public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
     $search_value = $assert->{self::SEARCH_TYPE};
     $assert->setSearch(self::SEARCH_TYPE, $search_value);
+
     $haystack = json_decode($response->getHeader('X-Javascript-Evals')[0] ?? '{}', TRUE);
     $haystack = array_reduce($haystack, function ($result, $item) use ($search_value) {
       if ($search_value === $item['eval']) {
@@ -61,6 +62,13 @@ final class Javascript implements TestPluginInterface {
 
       return $result;
     });
+
+    // If we are simply running JS, then the assertion is not necessary and
+    // we'll make the check the haystack so it will always pass.
+    list($assertion_type) = $assert->getAssertion();
+    if (is_null($assertion_type)) {
+      $assert->setAssertion(Assert::ASSERT_EXACT, $haystack);
+    }
 
     $assert->setHaystack([$haystack]);
   }

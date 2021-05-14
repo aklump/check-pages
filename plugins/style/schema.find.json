@@ -1,7 +1,7 @@
 {
     "type": "object",
     "additionalProperties": false,
-    "anyOf": [
+    "oneOf": [
         {
             "required": [
                 "style",

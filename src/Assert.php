@@ -32,11 +32,6 @@ final class Assert {
   /**
    * @var string
    */
-  const SEARCH_JAVASCRIPT = 'javascript';
-
-  /**
-   * @var string
-   */
   const MODIFIER_ATTRIBUTE = 'attribute';
 
   /**
@@ -254,11 +249,15 @@ final class Assert {
    * @return $this
    *   Self for chaining.
    */
-  public function setAssert(string $type, $expected): self {
+  public function setAssertion(string $type, $expected): self {
     $this->assertType = $type;
     $this->assertValue = $expected;
 
     return $this;
+  }
+
+  public function getAssertion(): array {
+    return [$this->assertType, $this->assertValue];
   }
 
   /**
@@ -494,7 +493,7 @@ final class Assert {
         $suffix = sprintf('after selecting with "%s"', $this->searchValue);
         break;
 
-      case static::SEARCH_JAVASCRIPT:
+      case Javascript::SEARCH_TYPE:
         $suffix = sprintf('after JS evaluation of "%s"', $this->searchValue);
         break;
     }
@@ -611,7 +610,7 @@ final class Assert {
       //        '\'#edit-submit[value="Create new account"]\'',
       //      ]),
       new Help(self::SEARCH_XPATH, "Select from the DOM using XPath selectors.", ['(//*[contains(@class, "block-title")])[3]']),
-//      new Help(self::SEARCH_JAVASCRIPT, "Select the result of a javascript expression", ['location.hash']),
+//            new Help(Javascript::SEARCH_TYPE, "Select the result of a javascript expression", ['location.hash']),
 
     ];
   }

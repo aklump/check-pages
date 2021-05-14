@@ -468,6 +468,9 @@ class CheckPages {
 
     // Look for a piece of text on the page.
     foreach ($config['find'] as $index => $needle) {
+      if (is_scalar($needle)) {
+        $needle = [Assert::ASSERT_SUBSTRING => $needle];
+      }
       $test_passed($this->handleFindAssert($index, $needle, $response));
     }
 
@@ -595,7 +598,7 @@ class CheckPages {
    * @return bool
    *   True if the find was successful.
    */
-  protected function handleFindAssert($index, $needle, ResponseInterface $response): bool {
+  protected function handleFindAssert($index, array $needle, ResponseInterface $response): bool {
     $assert = new Assert($needle, strval($index));
     $selectors = array_map(function ($help) {
       return $help->code();
@@ -612,18 +615,13 @@ class CheckPages {
     }
 
     // Setup the assert.
-    if (!is_array($needle)) {
-      $assert->setAssert(Assert::ASSERT_SUBSTRING, $needle);
-    }
-    else {
-      $assertions = array_map(function ($help) {
-        return $help->code();
-      }, $assert->getAssertionsInfo());
-      foreach ($assertions as $code) {
-        if (isset($needle[$code])) {
-          $assert->setAssert($code, $needle[$code]);
-          break;
-        }
+    $assertions = array_map(function ($help) {
+      return $help->code();
+    }, $assert->getAssertionsInfo());
+    foreach ($assertions as $code) {
+      if (isset($needle[$code])) {
+        $assert->setAssertion($code, $needle[$code]);
+        break;
       }
     }
 

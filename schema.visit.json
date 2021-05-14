@@ -381,7 +381,7 @@
             "title": "Style Plugin Assertion",
             "type": "object",
             "additionalProperties": false,
-            "anyOf": [
+            "oneOf": [
                 {
                     "required": [
                         "style",

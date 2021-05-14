@@ -6,7 +6,6 @@
  */
 
 load_config('config/local');
-run_suite('visible');
 run_suite('attributes');
 run_suite('suite');
 run_suite('suite_dev_only');
