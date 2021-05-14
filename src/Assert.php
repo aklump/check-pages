@@ -107,6 +107,13 @@ final class Assert {
   private $modifierValue;
 
   /**
+   * That which is to be searched.
+   *
+   * @var array
+   */
+  private $haystack = [];
+
+  /**
    * @var string
    */
   private $reason = '';
@@ -115,6 +122,46 @@ final class Assert {
    * @var string
    */
   private $result = '';
+
+  /**
+   * Store the raw assertion array.
+   *
+   * @var array
+   */
+  private $data = [];
+
+  /**
+   * @var string
+   */
+  private $id = '';
+
+  /**
+   * Assert constructor.
+   *
+   * @param array $data
+   *   The raw assert key/value array.
+   * @param string $id
+   *   An arbitrary value to track this assert by outside consumers.
+   */
+  public function __construct(array $data, string $id) {
+    $this->data = $data;
+    $this->id = $id;
+  }
+
+  public function getId(): string {
+    return $this->id;
+  }
+
+  /**
+   * Allow direct access to $this->data, e.g. $this->style
+   *
+   * @param $key
+   *
+   * @return mixed|null
+   */
+  public function __get($key) {
+    return $this->data[$key] ?? NULL;
+  }
 
   /**
    * Set the assert modifier.
@@ -138,15 +185,26 @@ final class Assert {
   }
 
   /**
+   * Return the modifier for this assertion.
+   *
+   * @return array
+   *   - 0 The modifier type.
+   *   - 1 The modifier value.
+   */
+  public function getModifer(): array {
+    return [$this->modifierType, $this->modifierValue];
+  }
+
+  /**
    * Overwrite the haystack.
    *
-   * @param string $haystack
-   *   The haystack to search.
+   * @param array $haystack
+   *   The haystack to search.  If the value is a string then simply wrap it as the only element of an indexed array, e.g., `[$string]`.
    *
    * @return $this
    *   Self for chaining.
    */
-  public function setHaystack(string $haystack): self {
+  public function setHaystack(array $haystack): self {
     $this->haystack = $haystack;
 
     return $this;
@@ -207,11 +265,6 @@ final class Assert {
    */
   public function run() {
     switch ($this->searchType) {
-      case self::SEARCH_STYLE:
-        $haystack = json_decode($this->haystack, TRUE);
-        $haystack = [$haystack[$this->searchValue][$this->modifierValue] ?? ''];
-        break;
-
       case self::SEARCH_JAVASCRIPT:
         $haystack = json_decode($this->haystack, TRUE);
         $haystack = [
@@ -225,10 +278,6 @@ final class Assert {
         ];
         break;
 
-      case self::SEARCH_ALL:
-        $haystack = [$this->haystack];
-        break;
-
       case self::SEARCH_DOM:
         $crawler = new Crawler($this->haystack);
         $haystack = $crawler->filter($this->searchValue);
@@ -238,6 +287,9 @@ final class Assert {
         $crawler = new Crawler($this->haystack);
         $haystack = $crawler->filterXPath($this->searchValue);
         break;
+
+      default:
+        $haystack = $this->haystack;
     }
 
     // The asserts run against an array, so if $haystack is a Crawler, it must
@@ -395,11 +447,6 @@ final class Assert {
    */
   public function __toString() {
     $prefix = '';
-
-    if ($this->searchType === self::SEARCH_STYLE) {
-
-    }
-
     $modifier = '';
     switch ($this->modifierType) {
       case static::MODIFIER_ATTRIBUTE:
@@ -566,12 +613,12 @@ final class Assert {
         '.story__title',
         '\'#edit-submit[value="Create new account"]\'',
       ]),
-      new Help(self::SEARCH_STYLE, "Select computed styles for an element using CSS selectors.", [
-        'p.summary',
-        'main',
-        '.story__title',
-        '\'#edit-submit[value="Create new account"]\'',
-      ]),
+      //      new Help(self::SEARCH_STYLE, "Select computed styles for an element using CSS selectors.", [
+      //        'p.summary',
+      //        'main',
+      //        '.story__title',
+      //        '\'#edit-submit[value="Create new account"]\'',
+      //      ]),
       new Help(self::SEARCH_XPATH, "Select from the DOM using XPath selectors.", ['(//*[contains(@class, "block-title")])[3]']),
       new Help(self::SEARCH_JAVASCRIPT, "Select the result of a javascript expression", ['location.hash']),
 

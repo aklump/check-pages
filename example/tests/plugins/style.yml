@@ -1,0 +1,12 @@
+-
+    visit: /plugins/style.html
+    js: true
+    find:
+        -
+            style: .hidden-by-style
+            property: display
+            exact: none
+        -
+            style: .hidden-by-class
+            property: display
+            exact: none

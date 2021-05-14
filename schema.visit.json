@@ -91,10 +91,6 @@
                 "/\\d+ items in cart/i"
             ]
         },
-        "property": {
-            "type": "string",
-            "pattern": "^.+$"
-        },
         "string": {
             "title": "Search by string (using contains)",
             "type": "string",
@@ -326,8 +322,71 @@
                 }
             }
         },
-        "modifier_property": {
-            "title": "MODIFIER_PROPERTY",
+        "click": {
+            "title": "Click Plugin Assertion",
+            "type": "object",
+            "required": [
+                "click"
+            ],
+            "properties": {
+                "click": {
+                    "$ref": "#/definitions/dom"
+                }
+            },
+            "additionalProperties": false
+        },
+        "js_eval": {
+            "type": "string",
+            "pattern": "^.+$",
+            "examples": [
+                "location.hash"
+            ]
+        },
+        "javascript": {
+            "title": "Javascript Plugin Assertion",
+            "type": "object",
+            "oneOf": [
+                {
+                    "required": [
+                        "javascript",
+                        "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "javascript",
+                        "exact"
+                    ]
+                },
+                {
+                    "required": [
+                        "javascript",
+                        "match"
+                    ]
+                }
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "javascript": {
+                    "$ref": "#/definitions/js_eval"
+                },
+                "contains": {
+                    "$ref": "#/definitions/contains"
+                },
+                "exact": {
+                    "$ref": "#/definitions/exact"
+                },
+                "match": {
+                    "$ref": "#/definitions/match"
+                }
+            }
+        },
+        "property": {
+            "type": "string",
+            "pattern": "^.+$"
+        },
+        "style": {
+            "title": "Style Plugin Assertion",
             "type": "object",
             "additionalProperties": false,
             "oneOf": [
@@ -382,64 +441,12 @@
                 },
                 "property": {
                     "$ref": "#/definitions/property"
-                }
-            }
-        },
-        "click": {
-            "type": "object",
-            "required": [
-                "click"
-            ],
-            "properties": {
-                "click": {
-                    "$ref": "#/definitions/dom"
-                }
-            },
-            "additionalProperties": false
-        },
-        "js_eval": {
-            "type": "string",
-            "pattern": "^.+$",
-            "examples": [
-                "location.hash"
-            ]
-        },
-        "javascript": {
-            "title": "SEARCH_JAVASCRIPT",
-            "type": "object",
-            "oneOf": [
-                {
-                    "required": [
-                        "javascript",
-                        "contains"
-                    ]
                 },
-                {
-                    "required": [
-                        "javascript",
-                        "exact"
-                    ]
+                "text": {
+                    "$ref": "#/definitions/text"
                 },
-                {
-                    "required": [
-                        "javascript",
-                        "match"
-                    ]
-                }
-            ],
-            "additionalProperties": false,
-            "properties": {
-                "javascript": {
-                    "$ref": "#/definitions/js_eval"
-                },
-                "contains": {
-                    "$ref": "#/definitions/contains"
-                },
-                "exact": {
-                    "$ref": "#/definitions/exact"
-                },
-                "match": {
-                    "$ref": "#/definitions/match"
+                "count": {
+                    "$ref": "#/definitions/count"
                 }
             }
         }
@@ -510,16 +517,13 @@
                                     "$ref": "#/definitions/search_without_modifiers"
                                 },
                                 {
-                                    "$ref": "#/definitions/modifier_attribute"
-                                },
-                                {
-                                    "$ref": "#/definitions/modifier_property"
-                                },
-                                {
                                     "$ref": "#/definitions/click"
                                 },
                                 {
                                     "$ref": "#/definitions/javascript"
+                                },
+                                {
+                                    "$ref": "#/definitions/style"
                                 }
                             ]
                         }

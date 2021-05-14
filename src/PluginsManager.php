@@ -23,7 +23,7 @@ final class PluginsManager implements TestPluginInterface {
    *
    * @var array
    */
-  private $testPlugins = [];
+  private $handlers = [];
 
   /**
    * PluginsManager constructor.
@@ -153,11 +153,16 @@ final class PluginsManager implements TestPluginInterface {
    * {@inheritdoc}
    */
   public function onBeforeDriver(array &$config) {
-    $this->testPlugins = array_filter(array_map(function ($plugin) use ($config) {
-      $plugin_schema = $this->getPluginSchema($plugin['id']);
-      $validator = new Validator();
-      foreach ($config['find'] as $needle) {
-        $data = json_decode(json_encode($needle));
+    $all_plugins = $this->getAllPlugins();
+    $this->handlers = [];
+
+    // We need to index each find and figure out which plugin(s) should handle
+    // it, if any.
+    foreach ($config['find'] as $index => $needle) {
+      $data = json_decode(json_encode($needle));
+      foreach ($all_plugins as $plugin) {
+        $plugin_schema = $this->getPluginSchema($plugin['id']);
+        $validator = new Validator();
         $validator->validate($data, $plugin_schema);
         if ($validator->isValid()) {
           // This means that this plugin's schema matches $needle, therefore this
@@ -165,16 +170,16 @@ final class PluginsManager implements TestPluginInterface {
           // to handle an assert, if it's schema matches.
           $instance = $this->getPluginInstance($plugin['id']);
           if ($instance instanceof TestPluginInterface) {
-            return $plugin + ['test' => $instance];
+            $this->handlers[$index][] = $plugin + ['instance' => $instance];
           }
         }
       }
+    }
 
-      return NULL;
-    }, $this->getAllPlugins()));
-
-    foreach ($this->testPlugins as $plugin) {
-      $plugin['test']->{__FUNCTION__}($config);
+    foreach ($this->handlers as $plugin_collection) {
+      foreach ($plugin_collection as $plugin) {
+        $plugin['instance']->{__FUNCTION__}($config);
+      }
     }
   }
 
@@ -182,8 +187,10 @@ final class PluginsManager implements TestPluginInterface {
    * {@inheritdoc}
    */
   public function onBeforeRequest(&$driver) {
-    foreach ($this->testPlugins as $plugin) {
-      $plugin['test']->{__FUNCTION__}($driver);
+    foreach ($this->handlers as $plugin_collection) {
+      foreach ($plugin_collection as $plugin) {
+        $plugin['instance']->{__FUNCTION__}($driver);
+      }
     }
   }
 
@@ -191,13 +198,10 @@ final class PluginsManager implements TestPluginInterface {
    * {@inheritdoc}
    */
   public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
-    foreach ($this->testPlugins as $plugin) {
-      $plugin['test']->{__FUNCTION__}($assert, $response);
+    $plugin_collection = $this->handlers[$assert->getId()] ?? [];
+    foreach ($plugin_collection as $plugin) {
+      $plugin['instance']->{__FUNCTION__}($assert, $response);
     }
-
-    // Reset the testPlugins since the test is over.
-    // TODO Really?  Not sure about this. May 12, 2021 at 9:58:53 PM PDT, aklump.
-    $this->testPlugins = [];
   }
 
 }

@@ -1,0 +1,45 @@
+<html>
+<head>
+  <style type="text/css">
+      .visually-hidden {
+          display: none;
+      }
+
+      #logo svg {
+          width: 200px;
+      }
+  </style>
+  <script type="application/javascript">
+    function ready(fn) {
+      if (document.readyState != 'loading') {
+        fn()
+      } else {
+        document.addEventListener('DOMContentLoaded', fn)
+      }
+    }
+
+    ready(function() {
+      document.getElementById('toggler').onclick = function() {
+        const isVisible = document.getElementsByClassName('visually-hidden').length ? false : true
+        const set = document.querySelectorAll('.hidden-by-class')
+        set.forEach((item) => {
+          if (isVisible) {
+            item.classList.add('visually-hidden')
+          } else {
+            item.classList.remove('visually-hidden')
+          }
+        })
+      }
+    })
+  </script>
+</head>
+<body>
+
+<a href="#" id="toggler">Toggle visibility</a>
+
+<p class="hidden-by-style" style="display:none">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+
+<p class="hidden-by-class visually-hidden">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+
+</body>
+</html>

@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\LoftLib\Code\Strings;
 use Symfony\Component\Yaml\Yaml;
 
 final class PluginsCompiler {
@@ -137,7 +138,10 @@ final class PluginsCompiler {
 
     // The plugin must provide the find schema.
     $schema_find_path = $path_to_plugin . '/schema.find.json';
-    $this->master['definitions'][$id] = $this->loadJson($schema_find_path);
+    $this->master['definitions'][$id] = [
+      'title' => Strings::title("$id Plugin Assertion"),
+    ];
+    $this->master['definitions'][$id] += $this->loadJson($schema_find_path);
     $this->master['items']['properties']['find']['oneOf'][1]['items']['oneOf'][] = [
       '$ref' => "#/definitions/{$id}",
     ];

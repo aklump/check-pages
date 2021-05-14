@@ -384,25 +384,6 @@ class CheckPages {
   }
 
   /**
-   * Make adjustments to the configuration if necessary.
-   *
-   * @param array $config
-   *   The test configuration array.
-   */
-  private function processConfiguration(array &$config) {
-
-    // Make sure JS is TRUE if the find uses a style assertion.
-    if (!empty($config['find']) && is_array($config['find'])) {
-      foreach ($config['find'] as $item) {
-        if (is_array($item) && (array_key_exists('style', $item))) {
-          $config['js'] = TRUE;
-          break;
-        }
-      }
-    }
-  }
-
-  /**
    * Handle visitation to a single URL.
    *
    * @param array $config
@@ -412,7 +393,6 @@ class CheckPages {
    */
   protected function runTest(array $config): array {
     $this->pluginsManager->onBeforeDriver($config);
-    $this->processConfiguration($config);
 
     $test_passed = function (bool $result = NULL): bool {
       static $state;
@@ -436,13 +416,6 @@ class CheckPages {
           throw new \InvalidArgumentException(sprintf("Javascript testing is unavailable due to missing path to Chrome binary.  Add \"chrome\" in file %s.", $this->resolve($this->configPath)));
         }
         $driver = new ChromeDriver($this->config['chrome']);
-
-        // Look for assert keys that require we getPluginInstance computed styles.
-        foreach ($config['find'] ?? [] as $item) {
-          if (!empty($item[Assert::SEARCH_STYLE])) {
-            $driver->addStyleRequest($item[Assert::SEARCH_STYLE]);
-          }
-        }
       }
       catch (\Exception $exception) {
         throw new TestFailedException($config, $exception);
@@ -494,8 +467,8 @@ class CheckPages {
     }
 
     // Look for a piece of text on the page.
-    foreach ($config['find'] as $needle) {
-      $test_passed($this->handleFindAssert($needle, $response));
+    foreach ($config['find'] as $index => $needle) {
+      $test_passed($this->handleFindAssert($index, $needle, $response));
     }
 
     if ($test_passed()) {
@@ -622,13 +595,18 @@ class CheckPages {
    * @return bool
    *   True if the find was successful.
    */
-  protected function handleFindAssert($needle, ResponseInterface $response): bool {
-    $assert = new Assert();
-    $search_type = NULL;
+  protected function handleFindAssert($index, $needle, ResponseInterface $response): bool {
+    $assert = new Assert($needle, strval($index));
+
+    // Set the haystack from the response.  Later, plugins may alter the
+    // haystack as they see fit.  This is the starting point however.
+    $assert->setHaystack([strval($response->getBody())]);
+
     $selectors = array_map(function ($help) {
       return $help->code();
     }, $assert->getSelectorsInfo());
 
+    $search_type = NULL;
     foreach ($selectors as $code) {
       if (isset($needle[$code])) {
         $search_type = $code;
@@ -639,21 +617,6 @@ class CheckPages {
         break;
       }
     }
-
-    switch ($search_type) {
-      case Assert::SEARCH_STYLE:
-        $haystack = json_decode($response->getHeader('X-Computed-Styles')[0] ?? '{}', TRUE);
-        $haystack = json_encode($haystack);
-        $assert
-          ->setHaystack($haystack)
-          ->setModifer(Assert::MODIFIER_PROPERTY, $needle[Assert::MODIFIER_PROPERTY]);
-        break;
-
-      default:
-        $assert->setHaystack(strval($response->getBody()));
-        break;
-    }
-
     if (!$search_type) {
       $assert->setSearch(Assert::SEARCH_ALL);
     }
