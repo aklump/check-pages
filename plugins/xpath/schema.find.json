@@ -1,0 +1,94 @@
+{
+    "type": "object",
+    "oneOf": [
+        {
+            "required": [
+                "xpath",
+                "count"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "attribute",
+                "count"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "text"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "attribute",
+                "text"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "contains"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "attribute",
+                "contains"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "exact"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "attribute",
+                "exact"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "match"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "attribute",
+                "match"
+            ]
+        }
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "xpath": {
+            "$ref": "#/definitions/xpath_selector"
+        },
+        "contains": {
+            "$ref": "#/definitions/contains"
+        },
+        "exact": {
+            "$ref": "#/definitions/exact"
+        },
+        "match": {
+            "$ref": "#/definitions/match"
+        },
+        "count": {
+            "$ref": "#/definitions/count"
+        },
+        "text": {
+            "$ref": "#/definitions/text"
+        },
+        "attribute": {
+            "$ref": "#/definitions/attribute"
+        }
+    }
+}

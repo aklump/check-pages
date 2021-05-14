@@ -4,3 +4,4 @@ add_directory('/Users/aklump/Code/Packages/php/check_pages/example/tests/plugins
 load_config('config/local');
 run_suite('javascript');
 run_suite('style');
+run_suite('xpath');

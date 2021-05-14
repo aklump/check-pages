@@ -392,6 +392,11 @@ class CheckPages {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function runTest(array $config): array {
+    // Ensure find is an array so we don't have to check below in two places.
+    if (!is_array($config['find'])) {
+      $config['find'] = empty($config['find']) ? [] : [$config['find']];
+    }
+
     $this->pluginsManager->onBeforeDriver($config);
 
     $test_passed = function (bool $result = NULL): bool {
@@ -404,11 +409,6 @@ class CheckPages {
     };
 
     $this->totalTestCount++;
-
-    // Ensure find is an array so we don't have to check below in two places.
-    if (!is_array($config['find'])) {
-      $config['find'] = empty($config['find']) ? [] : [$config['find']];
-    }
 
     if ($config['js'] ?? FALSE) {
       try {
@@ -600,6 +600,10 @@ class CheckPages {
    */
   protected function handleFindAssert($index, array $needle, ResponseInterface $response): bool {
     $assert = new Assert($needle, strval($index));
+    $assert
+      ->setSearch(Assert::SEARCH_ALL)
+      ->setHaystack([strval($response->getBody())]);
+
     $selectors = array_map(function ($help) {
       return $help->code();
     }, $assert->getSelectorsInfo());
@@ -626,15 +630,6 @@ class CheckPages {
     }
 
     $this->pluginsManager->onBeforeAssert($assert, $response);
-
-    // At this point if no search type then we fallback to SEARCH_ALL.
-    if (empty($assert->getSearch()[0])) {
-      $assert->setSearch(Assert::SEARCH_ALL);
-    }
-    if (empty($assert->getHaystack())) {
-      // The fallback will be the body of the response.
-      $assert->setHaystack([strval($response->getBody())]);
-    }
 
     $assert->run();
     $pass = $assert->getResult();

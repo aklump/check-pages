@@ -1,0 +1,6 @@
+-
+    visit: /plugins/xpath.html
+    find:
+        -
+            xpath: '(//*[contains(@class, "block-title")])[3]'
+            text: 'Latest Blog Post'

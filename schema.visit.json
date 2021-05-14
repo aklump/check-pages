@@ -20,13 +20,6 @@
                 "[data-title=\"Begin Here\"]"
             ]
         },
-        "xpath": {
-            "type": "string",
-            "pattern": "^.+$",
-            "examples": [
-                ".layout-region__title[2]"
-            ]
-        },
         "attribute": {
             "type": "string",
             "pattern": "^.+$",
@@ -136,7 +129,7 @@
             }
         },
         "search_without_modifiers": {
-            "title": "SEARCH_DOM|SEARCH_XPATH",
+            "title": "SEARCH_DOM",
             "type": "object",
             "additionalProperties": false,
             "oneOf": [
@@ -169,44 +162,11 @@
                         "dom",
                         "text"
                     ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "exact"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "match"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "count"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "text"
-                    ]
                 }
             ],
             "properties": {
                 "dom": {
                     "$ref": "#/definitions/dom"
-                },
-                "xpath": {
-                    "$ref": "#/definitions/xpath"
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
@@ -264,49 +224,11 @@
                         "attribute",
                         "text"
                     ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "exact"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "match"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "count"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "text"
-                    ]
                 }
             ],
             "properties": {
                 "dom": {
                     "$ref": "#/definitions/dom"
-                },
-                "xpath": {
-                    "$ref": "#/definitions/xpath"
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
@@ -441,6 +363,108 @@
                     "$ref": "#/definitions/count"
                 }
             }
+        },
+        "xpath_selector": {
+            "type": "string",
+            "pattern": "^.+$",
+            "examples": [
+                ".layout-region__title[2]"
+            ]
+        },
+        "xpath": {
+            "title": "Xpath Plugin Assertion",
+            "type": "object",
+            "oneOf": [
+                {
+                    "required": [
+                        "xpath",
+                        "count"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "count"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "text"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "text"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "exact"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "exact"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "match"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "match"
+                    ]
+                }
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "xpath": {
+                    "$ref": "#/definitions/xpath_selector"
+                },
+                "contains": {
+                    "$ref": "#/definitions/contains"
+                },
+                "exact": {
+                    "$ref": "#/definitions/exact"
+                },
+                "match": {
+                    "$ref": "#/definitions/match"
+                },
+                "count": {
+                    "$ref": "#/definitions/count"
+                },
+                "text": {
+                    "$ref": "#/definitions/text"
+                },
+                "attribute": {
+                    "$ref": "#/definitions/attribute"
+                }
+            }
         }
     },
     "type": "array",
@@ -516,6 +540,9 @@
                                 },
                                 {
                                     "$ref": "#/definitions/style"
+                                },
+                                {
+                                    "$ref": "#/definitions/xpath"
                                 }
                             ]
                         }

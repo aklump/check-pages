@@ -22,11 +22,6 @@ final class Assert {
   /**
    * @var string
    */
-  const SEARCH_XPATH = 'xpath';
-
-  /**
-   * @var string
-   */
   const SEARCH_STYLE = 'style';
 
   /**
@@ -193,19 +188,25 @@ final class Assert {
   /**
    * Overwrite the haystack.
    *
-   * @param array $haystack
+   * @param array|Crawler $haystack
    *   The haystack to search.  If the value is a string then simply wrap it as the only element of an indexed array, e.g., `[$string]`.
    *
    * @return $this
    *   Self for chaining.
    */
-  public function setHaystack(array $haystack): self {
+  public function setHaystack($haystack): self {
+    if (!is_array($haystack) && !$haystack instanceof Crawler) {
+      throw new \InvalidArgumentException(sprintf('$haystack must be an array or an instance of %s; not an %s', Crawler::class, gettype($haystack)));
+    }
     $this->haystack = $haystack;
 
     return $this;
   }
 
-  public function getHaystack(): array {
+  /**
+   * @return array|Crawler
+   */
+  public function getHaystack() {
     return $this->haystack;
   }
 
@@ -271,11 +272,6 @@ final class Assert {
       case self::SEARCH_DOM:
         $crawler = new Crawler($this->haystack);
         $haystack = $crawler->filter($this->searchValue);
-        break;
-
-      case self::SEARCH_XPATH:
-        $crawler = new Crawler($this->haystack);
-        $haystack = $crawler->filterXPath($this->searchValue);
         break;
 
       default:
@@ -485,7 +481,9 @@ final class Assert {
         $suffix = 'on the page';
         break;
 
-      case static::SEARCH_XPATH:
+      // TODO This won't work until autoloader is fixed for plugins.
+//      case Xpath::SEARCH_TYPE:
+      case 'xpath':
         $suffix = sprintf('after filtering by XPath "%s"', $this->searchValue);
         break;
 
@@ -579,7 +577,7 @@ final class Assert {
       ],
     ];
     $intersections[self::MODIFIER_ATTRIBUTE] = [
-      'search' => [self::SEARCH_DOM, self::SEARCH_XPATH],
+      'search' => [self::SEARCH_DOM, Xpath::SEARCH_TYPE],
       'assert' => [
         self::ASSERT_SUBSTRING,
         self::ASSERT_EXACT,
@@ -609,8 +607,8 @@ final class Assert {
       //        '.story__title',
       //        '\'#edit-submit[value="Create new account"]\'',
       //      ]),
-      new Help(self::SEARCH_XPATH, "Select from the DOM using XPath selectors.", ['(//*[contains(@class, "block-title")])[3]']),
-//            new Help(Javascript::SEARCH_TYPE, "Select the result of a javascript expression", ['location.hash']),
+      //      new Help(Xpath::SEARCH_TYPE, "Select from the DOM using XPath selectors.", ['(//*[contains(@class, "block-title")])[3]']),
+      //            new Help(Javascript::SEARCH_TYPE, "Select the result of a javascript expression", ['location.hash']),
 
     ];
   }
