@@ -22,7 +22,7 @@ To add new functionality to `find`...
     ],
     "properties": {
         "click": {
-            "$ref": "#/definitions/dom"
+            "$ref": "#/definitions/dom_selector"
         }
     },
     "additionalProperties": false

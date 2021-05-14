@@ -1,45 +1,75 @@
 {
     "type": "object",
-    "additionalProperties": false,
     "anyOf": [
         {
             "required": [
-                "style",
-                "property",
+                "dom",
                 "contains"
             ]
         },
         {
             "required": [
-                "style",
-                "property",
+                "dom",
+                "attribute",
+                "contains"
+            ]
+        },
+        {
+            "required": [
+                "dom",
                 "exact"
             ]
         },
         {
             "required": [
-                "style",
-                "property",
+                "dom",
+                "attribute",
+                "exact"
+            ]
+        },
+        {
+            "required": [
+                "dom",
                 "match"
             ]
         },
         {
             "required": [
-                "style",
-                "property",
+                "dom",
+                "attribute",
+                "match"
+            ]
+        },
+        {
+            "required": [
+                "dom",
                 "count"
             ]
         },
         {
             "required": [
-                "style",
-                "property",
+                "dom",
+                "attribute",
+                "count"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "text"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "attribute",
                 "text"
             ]
         }
     ],
+    "additionalProperties": false,
     "properties": {
-        "style": {
+        "dom": {
             "$ref": "#/definitions/dom_selector"
         },
         "contains": {
@@ -57,8 +87,8 @@
         "text": {
             "$ref": "#/definitions/text"
         },
-        "property": {
-            "$ref": "#/definitions/property"
+        "attribute": {
+            "$ref": "#/definitions/attribute"
         }
     }
 }

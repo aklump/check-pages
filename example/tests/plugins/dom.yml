@@ -1,0 +1,43 @@
+-
+    visit: /plugins/dom.php
+    find:
+        -
+            dom: '#logo'
+            attribute: title
+            exact: 'An SVG image'
+        -
+            dom: p
+            count: '>= 2'
+        -
+            dom: p
+            count: '< 2000'
+        -
+            dom: '#logo svg'
+            count: 1
+        -
+            dom: h1.page-title
+            text: 'About In the Loft Studios'
+        -
+            dom: h1.page-title
+            exact: '<span>About In the Loft Studios</span>'
+        -
+            dom: '#footer'
+            match: '/in the loft studios/i'
+        -
+            dom: '[title="An SVG image"]'
+            count: 1
+        -
+            dom: form
+            count: 0
+        -
+            dom: .block-title
+            text: 'Quick Start'
+        -
+            dom: .block-title
+            text: 'Upcoming Events'
+        -
+            dom: .block-title
+            text: 'Latest Blog Post'
+        -
+            dom: '#footer #copyright'
+            count: 1

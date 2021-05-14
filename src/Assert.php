@@ -17,16 +17,6 @@ final class Assert {
   /**
    * @var string
    */
-  const SEARCH_DOM = 'dom';
-
-  /**
-   * @var string
-   */
-  const SEARCH_STYLE = 'style';
-
-  /**
-   * @var string
-   */
   const MODIFIER_ATTRIBUTE = 'attribute';
 
   /**
@@ -268,15 +258,7 @@ final class Assert {
    * @see \AKlump\CheckPages\Assert::getReason()
    */
   public function run() {
-    switch ($this->searchType) {
-      case self::SEARCH_DOM:
-        $crawler = new Crawler($this->haystack);
-        $haystack = $crawler->filter($this->searchValue);
-        break;
-
-      default:
-        $haystack = $this->haystack;
-    }
+    $haystack = $this->haystack;
 
     // The asserts run against an array, so if $haystack is a Crawler, it must
     // be converted to an array before the asserts are tested.
@@ -473,7 +455,8 @@ final class Assert {
     }
 
     switch ($this->searchType) {
-      case static::SEARCH_STYLE:
+//      case Style::SEARCH_TYPE:
+      case 'style':
         $suffix = sprintf('for the element "%s"', $this->searchValue);
         break;
 
@@ -482,12 +465,14 @@ final class Assert {
         break;
 
       // TODO This won't work until autoloader is fixed for plugins.
-//      case Xpath::SEARCH_TYPE:
+      //      case Xpath::SEARCH_TYPE:
       case 'xpath':
         $suffix = sprintf('after filtering by XPath "%s"', $this->searchValue);
         break;
 
-      case static::SEARCH_DOM:
+      // TODO This won't work until autoloader is fixed for plugins.
+      //      case static::SEARCH_DOM:
+      case 'dom':
         $suffix = sprintf('after selecting with "%s"', $this->searchValue);
         break;
 
@@ -569,7 +554,7 @@ final class Assert {
   public function getIntersectionsByModifier(string $modifier): array {
     $intersections = [];
     $intersections[self::MODIFIER_PROPERTY] = [
-      'search' => [self::SEARCH_STYLE],
+      'search' => [Style::SEARCH_TYPE],
       'assert' => [
         self::ASSERT_SUBSTRING,
         self::ASSERT_EXACT,
@@ -595,13 +580,13 @@ final class Assert {
    */
   public function getSelectorsInfo(): array {
     return [
-      new Help(self::SEARCH_DOM, "Select from the DOM using CSS selectors.", [
-        'p.summary',
-        'main',
-        '.story__title',
-        '\'#edit-submit[value="Create new account"]\'',
-      ]),
-      //      new Help(self::SEARCH_STYLE, "Select computed styles for an element using CSS selectors.", [
+      //      new Help(Dom::SEARCH_TYPE, "Select from the DOM using CSS selectors.", [
+      //        'p.summary',
+      //        'main',
+      //        '.story__title',
+      //        '\'#edit-submit[value="Create new account"]\'',
+      //      ]),
+//            new Help(Style::SEARCH_TYPE, "Select computed styles for an element using CSS selectors.", [
       //        'p.summary',
       //        'main',
       //        '.story__title',

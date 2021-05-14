@@ -5,7 +5,7 @@
     ],
     "properties": {
         "click": {
-            "$ref": "#/definitions/dom"
+            "$ref": "#/definitions/dom_selector"
         }
     },
     "additionalProperties": false

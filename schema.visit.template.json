@@ -11,15 +11,6 @@
             ],
             "pattern": "^/|http"
         },
-        "dom": {
-            "type": "string",
-            "pattern": "^.+$",
-            "examples": [
-                "h1.layout-region__title",
-                "#top",
-                "[data-title=\"Begin Here\"]"
-            ]
-        },
         "attribute": {
             "type": "string",
             "pattern": "^.+$",
@@ -127,122 +118,6 @@
                     "$ref": "#/definitions/match"
                 }
             }
-        },
-        "search_without_modifiers": {
-            "title": "SEARCH_DOM",
-            "type": "object",
-            "additionalProperties": false,
-            "oneOf": [
-                {
-                    "required": [
-                        "dom",
-                        "contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "exact"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "match"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "count"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "text"
-                    ]
-                }
-            ],
-            "properties": {
-                "dom": {
-                    "$ref": "#/definitions/dom"
-                },
-                "contains": {
-                    "$ref": "#/definitions/contains"
-                },
-                "exact": {
-                    "$ref": "#/definitions/exact"
-                },
-                "match": {
-                    "$ref": "#/definitions/match"
-                },
-                "count": {
-                    "$ref": "#/definitions/count"
-                },
-                "text": {
-                    "$ref": "#/definitions/text"
-                }
-            }
-        },
-        "modifier_attribute": {
-            "title": "MODIFIER_ATTRIBUTE",
-            "type": "object",
-            "additionalProperties": false,
-            "oneOf": [
-                {
-                    "required": [
-                        "dom",
-                        "attribute",
-                        "contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "attribute",
-                        "exact"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "attribute",
-                        "match"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "attribute",
-                        "count"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "attribute",
-                        "text"
-                    ]
-                }
-            ],
-            "properties": {
-                "dom": {
-                    "$ref": "#/definitions/dom"
-                },
-                "contains": {
-                    "$ref": "#/definitions/contains"
-                },
-                "exact": {
-                    "$ref": "#/definitions/exact"
-                },
-                "match": {
-                    "$ref": "#/definitions/match"
-                },
-                "attribute": {
-                    "$ref": "#/definitions/attribute"
-                }
-            }
         }
     },
     "type": "array",
@@ -306,12 +181,6 @@
                                 },
                                 {
                                     "$ref": "#/definitions/page_match"
-                                },
-                                {
-                                    "$ref": "#/definitions/search_without_modifiers"
-                                },
-                                {
-                                    "$ref": "#/definitions/modifier_attribute"
                                 }
                             ]
                         }

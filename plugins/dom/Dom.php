@@ -6,11 +6,11 @@ use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
- * Implements the Xpath plugin.
+ * Implements the Dom plugin.
  */
-final class Xpath implements TestPluginInterface {
+final class Dom implements TestPluginInterface {
 
-  const SEARCH_TYPE = 'xpath';
+  const SEARCH_TYPE = 'dom';
 
   /**
    * {@inheritdoc}
@@ -31,7 +31,7 @@ final class Xpath implements TestPluginInterface {
     $search_value = $assert->{self::SEARCH_TYPE};
     $assert->setSearch(self::SEARCH_TYPE, $search_value);
     $crawler = new Crawler($assert->getHaystack());
-    $haystack = $crawler->filterXPath($search_value);
+    $haystack = $crawler->filter($search_value);
     $assert->setHaystack($haystack);
   }
 

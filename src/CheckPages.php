@@ -604,18 +604,8 @@ class CheckPages {
       ->setSearch(Assert::SEARCH_ALL)
       ->setHaystack([strval($response->getBody())]);
 
-    $selectors = array_map(function ($help) {
-      return $help->code();
-    }, $assert->getSelectorsInfo());
-
-    foreach ($selectors as $code) {
-      if (isset($needle[$code])) {
-        $assert->setSearch($code, $needle[$code]);
-        if (!empty($needle[Assert::MODIFIER_ATTRIBUTE])) {
-          $assert->setModifer(Assert::MODIFIER_ATTRIBUTE, $needle[Assert::MODIFIER_ATTRIBUTE]);
-        }
-        break;
-      }
+    if (!empty($needle[Assert::MODIFIER_ATTRIBUTE])) {
+      $assert->setModifer(Assert::MODIFIER_ATTRIBUTE, $needle[Assert::MODIFIER_ATTRIBUTE]);
     }
 
     // Setup the assert.
