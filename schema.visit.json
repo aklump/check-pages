@@ -322,19 +322,6 @@
                 }
             }
         },
-        "click": {
-            "title": "Click Plugin Assertion",
-            "type": "object",
-            "required": [
-                "click"
-            ],
-            "properties": {
-                "click": {
-                    "$ref": "#/definitions/dom"
-                }
-            },
-            "additionalProperties": false
-        },
         "js_eval": {
             "type": "string",
             "pattern": "^.+$",
@@ -345,7 +332,12 @@
         "javascript": {
             "title": "Javascript Plugin Assertion",
             "type": "object",
-            "oneOf": [
+            "anyOf": [
+                {
+                    "required": [
+                        "javascript"
+                    ]
+                },
                 {
                     "required": [
                         "javascript",
@@ -389,7 +381,7 @@
             "title": "Style Plugin Assertion",
             "type": "object",
             "additionalProperties": false,
-            "oneOf": [
+            "anyOf": [
                 {
                     "required": [
                         "style",
@@ -517,7 +509,7 @@
                                     "$ref": "#/definitions/search_without_modifiers"
                                 },
                                 {
-                                    "$ref": "#/definitions/click"
+                                    "$ref": "#/definitions/modifier_attribute"
                                 },
                                 {
                                     "$ref": "#/definitions/javascript"

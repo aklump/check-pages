@@ -387,6 +387,9 @@
                                 },
                                 {
                                     "$ref": "#/definitions/search_without_modifiers"
+                                },
+                                {
+                                    "$ref": "#/definitions/modifier_attribute"
                                 }
                             ]
                         }

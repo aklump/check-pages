@@ -4,38 +4,10 @@
       .visually-hidden {
           display: none;
       }
-
-      #logo svg {
-          width: 200px;
-      }
   </style>
-  <script type="application/javascript">
-    function ready(fn) {
-      if (document.readyState != 'loading') {
-        fn()
-      } else {
-        document.addEventListener('DOMContentLoaded', fn)
-      }
-    }
-
-    ready(function() {
-      document.getElementById('toggler').onclick = function() {
-        const isVisible = document.getElementsByClassName('visually-hidden').length ? false : true
-        const set = document.querySelectorAll('.hidden-by-class')
-        set.forEach((item) => {
-          if (isVisible) {
-            item.classList.add('visually-hidden')
-          } else {
-            item.classList.remove('visually-hidden')
-          }
-        })
-      }
-    })
-  </script>
 </head>
 <body>
-
-<a href="#" id="toggler">Toggle visibility</a>
+<p class="visible" style="display: inline-block">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 
 <p class="hidden-by-style" style="display:none">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
 

@@ -9,6 +9,8 @@ use Psr\Http\Message\ResponseInterface;
  */
 final class Javascript implements TestPluginInterface {
 
+  const SEARCH_TYPE = 'javascript';
+
   /**
    * Captures the test config to share across methods.
    *
@@ -24,7 +26,7 @@ final class Javascript implements TestPluginInterface {
       return;
     }
     foreach ($config['find'] as $assertion) {
-      if (is_array($assertion) && array_key_exists('javascript', $assertion)) {
+      if (is_array($assertion) && array_key_exists(self::SEARCH_TYPE, $assertion)) {
         $config['js'] = TRUE;
         $this->assertions[] = $assertion;
       }
@@ -39,8 +41,8 @@ final class Javascript implements TestPluginInterface {
       return;
     }
     foreach ($this->assertions as $assertion) {
-      if (!empty($assertion[Assert::SEARCH_JAVASCRIPT])) {
-        $driver->addJavascriptEval($assertion[Assert::SEARCH_JAVASCRIPT]);
+      if (!empty($assertion[self::SEARCH_TYPE])) {
+        $driver->addJavascriptEval($assertion[self::SEARCH_TYPE]);
       }
     }
   }
@@ -49,12 +51,18 @@ final class Javascript implements TestPluginInterface {
    * {@inheritdoc}
    */
   public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
-    list($search_type) = $assert->getSearch();
-    if ($search_type === Assert::SEARCH_JAVASCRIPT) {
-      $haystack = json_decode($response->getHeader('X-Javascript-Evals')[0] ?? '{}', TRUE);
-      $haystack = json_encode($haystack);
-      $assert->setHaystack($haystack);
-    }
+    $search_value = $assert->{self::SEARCH_TYPE};
+    $assert->setSearch(self::SEARCH_TYPE, $search_value);
+    $haystack = json_decode($response->getHeader('X-Javascript-Evals')[0] ?? '{}', TRUE);
+    $haystack = array_reduce($haystack, function ($result, $item) use ($search_value) {
+      if ($search_value === $item['eval']) {
+        $result .= $item['result'];
+      }
+
+      return $result;
+    });
+
+    $assert->setHaystack([$haystack]);
   }
 
 }

@@ -597,28 +597,18 @@ class CheckPages {
    */
   protected function handleFindAssert($index, $needle, ResponseInterface $response): bool {
     $assert = new Assert($needle, strval($index));
-
-    // Set the haystack from the response.  Later, plugins may alter the
-    // haystack as they see fit.  This is the starting point however.
-    $assert->setHaystack([strval($response->getBody())]);
-
     $selectors = array_map(function ($help) {
       return $help->code();
     }, $assert->getSelectorsInfo());
 
-    $search_type = NULL;
     foreach ($selectors as $code) {
       if (isset($needle[$code])) {
-        $search_type = $code;
         $assert->setSearch($code, $needle[$code]);
         if (!empty($needle[Assert::MODIFIER_ATTRIBUTE])) {
           $assert->setModifer(Assert::MODIFIER_ATTRIBUTE, $needle[Assert::MODIFIER_ATTRIBUTE]);
         }
         break;
       }
-    }
-    if (!$search_type) {
-      $assert->setSearch(Assert::SEARCH_ALL);
     }
 
     // Setup the assert.
@@ -638,6 +628,16 @@ class CheckPages {
     }
 
     $this->pluginsManager->onBeforeAssert($assert, $response);
+
+    // At this point if no search type then we fallback to SEARCH_ALL.
+    if (empty($assert->getSearch()[0])) {
+      $assert->setSearch(Assert::SEARCH_ALL);
+    }
+    if (empty($assert->getHaystack())) {
+      // The fallback will be the body of the response.
+      $assert->setHaystack([strval($response->getBody())]);
+    }
+
     $assert->run();
     $pass = $assert->getResult();
     if (!$pass) {

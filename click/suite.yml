@@ -6,9 +6,9 @@
 #      text: ''
     -
       click: '#events__button'
-#    -
-#      dom: '#events__message'
-#      text: 'Button clicked 1 times'
+    -
+      dom: '#events__message'
+      text: 'Button clicked 1 times'
     #    -
     #      dom: '#events__button'
     #      trigger: click

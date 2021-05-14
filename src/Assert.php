@@ -210,6 +210,10 @@ final class Assert {
     return $this;
   }
 
+  public function getHaystack(): array {
+    return $this->haystack;
+  }
+
   /**
    * Set the type of search to perform.
    *
@@ -265,19 +269,6 @@ final class Assert {
    */
   public function run() {
     switch ($this->searchType) {
-      case self::SEARCH_JAVASCRIPT:
-        $haystack = json_decode($this->haystack, TRUE);
-        $haystack = [
-          array_reduce($haystack, function ($result, $item) {
-            if ($this->searchValue === $item['eval']) {
-              $result .= $item['result'];
-            }
-
-            return $result;
-          }),
-        ];
-        break;
-
       case self::SEARCH_DOM:
         $crawler = new Crawler($this->haystack);
         $haystack = $crawler->filter($this->searchValue);
@@ -620,7 +611,7 @@ final class Assert {
       //        '\'#edit-submit[value="Create new account"]\'',
       //      ]),
       new Help(self::SEARCH_XPATH, "Select from the DOM using XPath selectors.", ['(//*[contains(@class, "block-title")])[3]']),
-      new Help(self::SEARCH_JAVASCRIPT, "Select the result of a javascript expression", ['location.hash']),
+//      new Help(self::SEARCH_JAVASCRIPT, "Select the result of a javascript expression", ['location.hash']),
 
     ];
   }

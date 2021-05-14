@@ -1,7 +1,11 @@
 {
-    "title": "SEARCH_JAVASCRIPT",
     "type": "object",
-    "oneOf": [
+    "anyOf": [
+        {
+            "required": [
+                "javascript"
+            ]
+        },
         {
             "required": [
                 "javascript",

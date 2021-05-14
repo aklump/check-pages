@@ -14,23 +14,33 @@ final class Click implements TestPluginInterface {
    *
    * @var array
    */
-  private $config;
+  private $assertions;
 
   /**
    * {@inheritdoc}
    */
   public function onBeforeDriver(array &$config) {
-    $config['js'] = TRUE;
-    $this->config = $config;
+    if (!is_array($config) || empty($config['find'])) {
+      return;
+    }
+    foreach ($config['find'] as $assertion) {
+      if (is_array($assertion) && array_key_exists('click', $assertion)) {
+        $config['js'] = TRUE;
+        $this->assertions[] = $assertion;
+      }
+    }
   }
 
   /**
    * {@inheritdoc}
    */
   public function onBeforeRequest(&$driver) {
-    foreach ($this->config['find'] as $item) {
-      if (isset($item['click'])) {
-        $eval = "document.querySelector('{$item['click']}').click()";
+    if (empty($this->assertions)) {
+      return;
+    }
+    foreach ($this->assertions as $assertion) {
+      if (isset($assertion['click'])) {
+        $eval = "document.querySelector('{$assertion['click']}').click()";
         $driver->addJavascriptEval($eval);
       }
     }
@@ -40,9 +50,7 @@ final class Click implements TestPluginInterface {
    * {@inheritdoc}
    */
   public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
-    $haystack = json_decode($response->getHeader('X-Javascript-Evals')[0] ?? '{}', TRUE);
-    $haystack = json_encode($haystack);
-    $assert->setHaystack($haystack);
+
   }
 
 }

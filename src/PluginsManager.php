@@ -6,6 +6,9 @@ use AKlump\LoftLib\Code\Strings;
 use JsonSchema\Validator;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * Handles integration of plugins with the main app.
+ */
 final class PluginsManager implements TestPluginInterface {
 
   /**
@@ -23,7 +26,17 @@ final class PluginsManager implements TestPluginInterface {
    *
    * @var array
    */
-  private $handlers = [];
+  private $testPlugins = [];
+
+  /**
+   * Keyed by assertion id for a given test, each value is an array of plugins.
+   *
+   * This maps the plugins to the given assertions, whereas $activeTestPlugins
+   * maps the plugins to the test.  The distinction is important.
+   *
+   * @var array
+   */
+  private $assertionPlugins = [];
 
   /**
    * PluginsManager constructor.
@@ -154,7 +167,8 @@ final class PluginsManager implements TestPluginInterface {
    */
   public function onBeforeDriver(array &$config) {
     $all_plugins = $this->getAllPlugins();
-    $this->handlers = [];
+    $this->assertionPlugins = [];
+    $this->testPlugins = [];
 
     // We need to index each find and figure out which plugin(s) should handle
     // it, if any.
@@ -170,16 +184,15 @@ final class PluginsManager implements TestPluginInterface {
           // to handle an assert, if it's schema matches.
           $instance = $this->getPluginInstance($plugin['id']);
           if ($instance instanceof TestPluginInterface) {
-            $this->handlers[$index][] = $plugin + ['instance' => $instance];
+            $this->assertionPlugins[$index][$plugin['id']] = $plugin + ['instance' => $instance];
+            $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
           }
         }
       }
     }
 
-    foreach ($this->handlers as $plugin_collection) {
-      foreach ($plugin_collection as $plugin) {
-        $plugin['instance']->{__FUNCTION__}($config);
-      }
+    foreach ($this->testPlugins as $plugin) {
+      $plugin['instance']->{__FUNCTION__}($config);
     }
   }
 
@@ -187,10 +200,8 @@ final class PluginsManager implements TestPluginInterface {
    * {@inheritdoc}
    */
   public function onBeforeRequest(&$driver) {
-    foreach ($this->handlers as $plugin_collection) {
-      foreach ($plugin_collection as $plugin) {
-        $plugin['instance']->{__FUNCTION__}($driver);
-      }
+    foreach ($this->testPlugins as $plugin) {
+      $plugin['instance']->{__FUNCTION__}($driver);
     }
   }
 
@@ -198,7 +209,7 @@ final class PluginsManager implements TestPluginInterface {
    * {@inheritdoc}
    */
   public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
-    $plugin_collection = $this->handlers[$assert->getId()] ?? [];
+    $plugin_collection = $this->assertionPlugins[$assert->getId()] ?? [];
     foreach ($plugin_collection as $plugin) {
       $plugin['instance']->{__FUNCTION__}($assert, $response);
     }
