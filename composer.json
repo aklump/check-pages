@@ -27,7 +27,7 @@
         "behat\/mink": "^1.8",
         "jakubkulhan\/chrome-devtools-protocol": "^1.0"
     },
-    "version": "0.7.0",
+    "version": "0.7.1",
     "bin": [
         ".\/check_pages"
     ],
