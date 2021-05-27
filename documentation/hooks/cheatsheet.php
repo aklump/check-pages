@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 
 function selectors_to_markdown() {
-  $assert = new Assert('');
+  $assert = new Assert([], '');
   $info = $assert->getSelectorsInfo();
   $markdown = [];
   foreach ($info as $item) {
@@ -38,28 +38,30 @@ EOD;
 }
 
 function supports_attribute(\AKlump\CheckPages\HelpInfoInterface $item) {
-  $assert = new Assert('');
+  $assert = new Assert([], '');
   $info = $assert->getIntersectionsByModifier('attribute');
 
   return in_array($item->code(), $info['assert']);
 }
 
 function asserts_to_markdown() {
-  $assert = new Assert('');
-  $selector = array_first($assert->getSelectorsInfo());
-  $selector_example = array_first($selector->examples());
-  $info = $assert->getAssertionsInfo();
   $markdown = [];
-  foreach ($info as $item) {
+  $assert = new Assert([], '');
+  $selector = array_first($assert->getSelectorsInfo());
+  if ($selector) {
+    $selector_example = array_first($selector->examples());
 
-    // This one only works per page.
-    if ($item->code() === 'none') {
-      continue;
-    }
+    $info = $assert->getAssertionsInfo();
+    foreach ($info as $item) {
 
-    $markdown[] = '* `' . $item->code() . '`: ' . $item->description();
-    foreach ($item->examples() as $example) {
-      $markdown[] = <<<EOD
+      // This one only works per page.
+      if ($item->code() === 'none') {
+        continue;
+      }
+
+      $markdown[] = '* `' . $item->code() . '`: ' . $item->description();
+      foreach ($item->examples() as $example) {
+        $markdown[] = <<<EOD
 
   ```yaml
   find:
@@ -70,8 +72,8 @@ function asserts_to_markdown() {
     
 EOD;
 
-      if (supports_attribute($item)) {
-        $markdown[] = <<<EOD
+        if (supports_attribute($item)) {
+          $markdown[] = <<<EOD
 
   ```yaml
   find:
@@ -82,6 +84,7 @@ EOD;
   ```
     
 EOD;
+        }
       }
     }
   }
@@ -98,7 +101,7 @@ echo $compiler->addInclude('_selectors.md', $contents)
     ->getBasename() . ' has been created.' || exit(1);
 
 
-$assert = new Assert('');
+$assert = new Assert([], '');
 $selectors = implode('|', array_map(function ($item) {
   return $item->code();
 }, $assert->getSelectorsInfo()));
