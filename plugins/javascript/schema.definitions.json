@@ -1,0 +1,9 @@
+{
+    "js_eval": {
+        "type": "string",
+        "pattern": "^.+$",
+        "examples": [
+            "location.hash"
+        ]
+    }
+}

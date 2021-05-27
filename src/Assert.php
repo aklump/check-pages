@@ -17,21 +17,6 @@ final class Assert {
   /**
    * @var string
    */
-  const SEARCH_DOM = 'dom';
-
-  /**
-   * @var string
-   */
-  const SEARCH_XPATH = 'xpath';
-
-  /**
-   * @var string
-   */
-  const SEARCH_STYLE = 'style';
-
-  /**
-   * @var string
-   */
   const MODIFIER_ATTRIBUTE = 'attribute';
 
   /**
@@ -102,9 +87,61 @@ final class Assert {
   private $modifierValue;
 
   /**
+   * That which is to be searched.
+   *
+   * @var array
+   */
+  private $haystack = [];
+
+  /**
    * @var string
    */
   private $reason = '';
+
+  /**
+   * @var string
+   */
+  private $result = '';
+
+  /**
+   * Store the raw assertion array.
+   *
+   * @var array
+   */
+  private $definition = [];
+
+  /**
+   * @var string
+   */
+  private $id = '';
+
+  /**
+   * Assert constructor.
+   *
+   * @param array $definition
+   *   The raw assert key/value array.
+   * @param string $id
+   *   An arbitrary value to track this assert by outside consumers.
+   */
+  public function __construct(array $definition, string $id) {
+    $this->definition = $definition;
+    $this->id = $id;
+  }
+
+  public function getId(): string {
+    return $this->id;
+  }
+
+  /**
+   * Allow direct access to $this->definition, e.g. $this->style
+   *
+   * @param $key
+   *
+   * @return mixed|null
+   */
+  public function __get($key) {
+    return $this->definition[$key] ?? NULL;
+  }
 
   /**
    * Set the assert modifier.
@@ -128,18 +165,39 @@ final class Assert {
   }
 
   /**
+   * Return the modifier for this assertion.
+   *
+   * @return array
+   *   - 0 The modifier type.
+   *   - 1 The modifier value.
+   */
+  public function getModifer(): array {
+    return [$this->modifierType, $this->modifierValue];
+  }
+
+  /**
    * Overwrite the haystack.
    *
-   * @param string $haystack
-   *   The haystack to search.
+   * @param array|Crawler $haystack
+   *   The haystack to search.  If the value is a string then simply wrap it as the only element of an indexed array, e.g., `[$string]`.
    *
    * @return $this
    *   Self for chaining.
    */
-  public function setHaystack(string $haystack): self {
+  public function setHaystack($haystack): self {
+    if (!is_array($haystack) && !$haystack instanceof Crawler) {
+      throw new \InvalidArgumentException(sprintf('$haystack must be an array or an instance of %s; not an %s', Crawler::class, gettype($haystack)));
+    }
     $this->haystack = $haystack;
 
     return $this;
+  }
+
+  /**
+   * @return array|Crawler
+   */
+  public function getHaystack() {
+    return $this->haystack;
   }
 
   /**
@@ -161,6 +219,17 @@ final class Assert {
   }
 
   /**
+   * Return the search for this assertion.
+   *
+   * @return array
+   *   - 0 The search type.
+   *   - 1 The search value.
+   */
+  public function getSearch(): array {
+    return [$this->searchType, $this->searchValue];
+  }
+
+  /**
    * Set the type of assertion to execute.
    *
    * @param int $type
@@ -171,42 +240,25 @@ final class Assert {
    * @return $this
    *   Self for chaining.
    */
-  public function setAssert(string $type, $expected): self {
+  public function setAssertion(string $type, $expected): self {
     $this->assertType = $type;
     $this->assertValue = $expected;
 
     return $this;
   }
 
+  public function getAssertion(): array {
+    return [$this->assertType, $this->assertValue];
+  }
+
   /**
-   * Run the search and assertion.
+   * Run the test assertion.
    *
-   * @return bool
-   *   True or false.
-   *
+   * @see \AKlump\CheckPages\Assert::getResult()
    * @see \AKlump\CheckPages\Assert::getReason()
    */
-  public function run(): bool {
-    switch ($this->searchType) {
-      case self::SEARCH_STYLE:
-        $haystack = json_decode($this->haystack, TRUE);
-        $haystack = [$haystack[$this->searchValue][$this->modifierValue] ?? ''];
-        break;
-
-      case self::SEARCH_ALL:
-        $haystack = [$this->haystack];
-        break;
-
-      case self::SEARCH_DOM:
-        $crawler = new Crawler($this->haystack);
-        $haystack = $crawler->filter($this->searchValue);
-        break;
-
-      case self::SEARCH_XPATH:
-        $crawler = new Crawler($this->haystack);
-        $haystack = $crawler->filterXPath($this->searchValue);
-        break;
-    }
+  public function run() {
+    $haystack = $this->haystack;
 
     // The asserts run against an array, so if $haystack is a Crawler, it must
     // be converted to an array before the asserts are tested.
@@ -215,11 +267,15 @@ final class Assert {
 
         // If we are expecting a count of 0, then this is a pass.
         if ($this->assertType === self::ASSERT_COUNT && $this->assertValue === 0) {
-          return TRUE;
+          $this->result = TRUE;
+
+          return;
         }
         $this->reason = sprintf('"%s" does not exist in the DOM.', $this->searchValue);
 
-        return FALSE;
+        $this->result = FALSE;
+
+        return;
       }
 
       switch ($this->assertType) {
@@ -318,7 +374,7 @@ final class Assert {
           }
         }
         if (!$pass) {
-          $this->reason = sprintf("Unable to match using \"%s\".", $this->assertValue);
+          $this->reason = sprintf("Unable to match actual value \"%s\" using \"%s\".", $item, $this->assertValue);
         }
         break;
     }
@@ -326,10 +382,12 @@ final class Assert {
     if (is_null($pass)) {
       $this->reason = sprintf('Invalid assertion "%s".', $this->assertType);
 
-      return FALSE;
+      $this->result = FALSE;
+
+      return;
     }
 
-    return $pass;
+    $this->result = $pass;
   }
 
   /**
@@ -343,15 +401,20 @@ final class Assert {
   }
 
   /**
+   * Get the failure result.
+   *
+   * @return string
+   *   The result for failure.
+   */
+  public function getResult(): string {
+    return $this->result;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function __toString() {
     $prefix = '';
-
-    if ($this->searchType === self::SEARCH_STYLE) {
-
-    }
-
     $modifier = '';
     switch ($this->modifierType) {
       case static::MODIFIER_ATTRIBUTE:
@@ -392,7 +455,8 @@ final class Assert {
     }
 
     switch ($this->searchType) {
-      case static::SEARCH_STYLE:
+//      case Style::SEARCH_TYPE:
+      case 'style':
         $suffix = sprintf('for the element "%s"', $this->searchValue);
         break;
 
@@ -400,12 +464,20 @@ final class Assert {
         $suffix = 'on the page';
         break;
 
-      case static::SEARCH_XPATH:
+      // TODO This won't work until autoloader is fixed for plugins.
+      //      case Xpath::SEARCH_TYPE:
+      case 'xpath':
         $suffix = sprintf('after filtering by XPath "%s"', $this->searchValue);
         break;
 
-      case static::SEARCH_DOM:
+      // TODO This won't work until autoloader is fixed for plugins.
+      //      case static::SEARCH_DOM:
+      case 'dom':
         $suffix = sprintf('after selecting with "%s"', $this->searchValue);
+        break;
+
+      case Javascript::SEARCH_TYPE:
+        $suffix = sprintf('after JS evaluation of "%s"', $this->searchValue);
         break;
     }
 
@@ -482,7 +554,7 @@ final class Assert {
   public function getIntersectionsByModifier(string $modifier): array {
     $intersections = [];
     $intersections[self::MODIFIER_PROPERTY] = [
-      'search' => [self::SEARCH_STYLE],
+      'search' => [Style::SEARCH_TYPE],
       'assert' => [
         self::ASSERT_SUBSTRING,
         self::ASSERT_EXACT,
@@ -490,7 +562,7 @@ final class Assert {
       ],
     ];
     $intersections[self::MODIFIER_ATTRIBUTE] = [
-      'search' => [self::SEARCH_DOM, self::SEARCH_XPATH],
+      'search' => [self::SEARCH_DOM, Xpath::SEARCH_TYPE],
       'assert' => [
         self::ASSERT_SUBSTRING,
         self::ASSERT_EXACT,
@@ -508,20 +580,20 @@ final class Assert {
    */
   public function getSelectorsInfo(): array {
     return [
-      new Help(self::SEARCH_DOM, "Select from the DOM using CSS selectors.", [
-        'p.summary',
-        'main',
-        '.story__title',
-        '\'#edit-submit[value="Create new account"]\'',
-      ]),
-      new Help(self::SEARCH_STYLE, "Select computed styles for an element using CSS selectors.", [
-        'p.summary',
-        'main',
-        '.story__title',
-        '\'#edit-submit[value="Create new account"]\'',
-      ]),
-      new Help(self::SEARCH_XPATH, "Select from the DOM using XPath selectors.", ['(//*[contains(@class, "block-title")])[3]']),
-
+      //      new Help(Dom::SEARCH_TYPE, "Select from the DOM using CSS selectors.", [
+      //        'p.summary',
+      //        'main',
+      //        '.story__title',
+      //        '\'#edit-submit[value="Create new account"]\'',
+      //      ]),
+//            new Help(Style::SEARCH_TYPE, "Select computed styles for an element using CSS selectors.", [
+      //        'p.summary',
+      //        'main',
+      //        '.story__title',
+      //        '\'#edit-submit[value="Create new account"]\'',
+      //      ]),
+      //      new Help(Xpath::SEARCH_TYPE, "Select from the DOM using XPath selectors.", ['(//*[contains(@class, "block-title")])[3]']),
+      //            new Help(Javascript::SEARCH_TYPE, "Select the result of a javascript expression", ['location.hash']),
     ];
   }
 
@@ -555,7 +627,7 @@ final class Assert {
       new Help(self::ASSERT_NOT_SUBSTRING, 'Pass if the value is not found in the selection.', ['[token:123]']),
       new Help(self::ASSERT_SUBSTRING, 'Pass if the value is found in the selection. Works with `attribute`.', ['foo']),
       new Help(self::ASSERT_COUNT, 'Pass if equal to the number of items in the selection.', [2]),
-      new Help(self::ASSERT_EXACT, "Pass if the selection's markup matches exactly. Works with `attribute`.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),
+      new Help(self::ASSERT_EXACT, "Pass if the selection's markup matches exactly.  All numeric values, regardless of type are considered an exact match.  Works with `attribute`.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),
       new Help(self::ASSERT_MATCH, 'Applies a REGEX expression against the selection. Works with `attribute`.', ['/copyright\s+20\d{2}$/']),
       new Help(self::ASSERT_TEXT, "Pass if the selection's text value (all markup removed) matches exactly.", ['lorem ipsum dolar sit amet.']),
     ];

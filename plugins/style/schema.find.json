@@ -1,0 +1,64 @@
+{
+    "type": "object",
+    "additionalProperties": false,
+    "anyOf": [
+        {
+            "required": [
+                "style",
+                "property",
+                "contains"
+            ]
+        },
+        {
+            "required": [
+                "style",
+                "property",
+                "exact"
+            ]
+        },
+        {
+            "required": [
+                "style",
+                "property",
+                "match"
+            ]
+        },
+        {
+            "required": [
+                "style",
+                "property",
+                "count"
+            ]
+        },
+        {
+            "required": [
+                "style",
+                "property",
+                "text"
+            ]
+        }
+    ],
+    "properties": {
+        "style": {
+            "$ref": "#/definitions/dom_selector"
+        },
+        "contains": {
+            "$ref": "#/definitions/contains"
+        },
+        "exact": {
+            "$ref": "#/definitions/exact"
+        },
+        "match": {
+            "$ref": "#/definitions/match"
+        },
+        "count": {
+            "$ref": "#/definitions/count"
+        },
+        "text": {
+            "$ref": "#/definitions/text"
+        },
+        "property": {
+            "$ref": "#/definitions/property"
+        }
+    }
+}

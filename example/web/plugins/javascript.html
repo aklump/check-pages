@@ -1,0 +1,21 @@
+<html>
+<head>
+  <script type="text/javascript">
+    function ready(fn) {
+      if (document.readyState != 'loading') {
+        fn()
+      } else {
+        document.addEventListener('DOMContentLoaded', fn)
+      }
+    }
+
+    ready(function() {
+      document.getElementById('title').textContent = 'COVID 19 Pandemic'
+      location.hash = 'foo=bar&alpha=bravo'
+    })
+  </script>
+</head>
+<body>
+<h1 id="title">Loading...</h1>
+</body>
+</html>

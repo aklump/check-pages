@@ -109,9 +109,13 @@ class CheckPages {
   public function __construct(string $root_dir, Bash $bash) {
     $this->rootDir = $root_dir;
     $this->addResolveDirectory($this->rootDir);
-    $this->addResolveDirectory($this->rootDir . '/tests/');
+    $this->addResolveDirectory($this->rootDir . '/tests');
     $this->bash = $bash;
     $this->debugging = !$bash->hasParam('quiet');
+
+    $this->pluginsManager = new PluginsManager($this->rootDir . '/plugins');
+    $schema = json_decode(file_get_contents($this->rootDir . '/schema.visit.json'), TRUE);
+    $this->pluginsManager->setSchema($schema);
   }
 
   /**
@@ -184,7 +188,10 @@ class CheckPages {
    *   Self for chaining.
    */
   public function addResolveDirectory(string $path): self {
-    $this->resolvePaths[] = rtrim($path, '/');
+    $path = rtrim($path, '/');
+    if (!in_array($path, $this->resolvePaths)) {
+      $this->resolvePaths[] = $path;
+    }
 
     return $this;
   }
@@ -385,6 +392,12 @@ class CheckPages {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function runTest(array $config): array {
+    // Ensure find is an array so we don't have to check below in two places.
+    if (!is_array($config['find'])) {
+      $config['find'] = empty($config['find']) ? [] : [$config['find']];
+    }
+
+    $this->pluginsManager->onBeforeDriver($config);
 
     $test_passed = function (bool $result = NULL): bool {
       static $state;
@@ -397,24 +410,12 @@ class CheckPages {
 
     $this->totalTestCount++;
 
-    // Ensure find is an array so we don't have to check below in two places.
-    if (!is_array($config['find'])) {
-      $config['find'] = empty($config['find']) ? [] : [$config['find']];
-    }
-
     if ($config['js'] ?? FALSE) {
       try {
         if (empty($this->config['chrome'])) {
           throw new \InvalidArgumentException(sprintf("Javascript testing is unavailable due to missing path to Chrome binary.  Add \"chrome\" in file %s.", $this->resolve($this->configPath)));
         }
         $driver = new ChromeDriver($this->config['chrome']);
-
-        // Look for assert keys that require we get computed styles.
-        foreach ($config['find'] ?? [] as $item) {
-          if (!empty($item[Assert::SEARCH_STYLE])) {
-            $driver->addStyleRequest($item[Assert::SEARCH_STYLE]);
-          }
-        }
       }
       catch (\Exception $exception) {
         throw new TestFailedException($config, $exception);
@@ -423,6 +424,8 @@ class CheckPages {
     else {
       $driver = new GuzzleDriver();
     }
+    $this->pluginsManager->onBeforeRequest($driver);
+
     $response = $driver
       ->setUrl($this->url($config['url']))
       ->getResponse();
@@ -464,8 +467,11 @@ class CheckPages {
     }
 
     // Look for a piece of text on the page.
-    foreach ($config['find'] as $needle) {
-      $test_passed($this->handleFindAssert($needle, $response));
+    foreach ($config['find'] as $id => $definition) {
+      if (is_scalar($definition)) {
+        $definition = [Assert::ASSERT_SUBSTRING => $definition];
+      }
+      $test_passed($this->handleFindAssert(strval($id), $definition, $response));
     }
 
     if ($test_passed()) {
@@ -490,6 +496,9 @@ class CheckPages {
    *
    * @return string
    *   The resolved full path to a file if it exists.
+   *
+   * @throws \AKlump\CheckPages\UnresolvablePathException
+   *   If the path cannot be resolved.
    */
   public function resolve(string $path, &$resolved_path = NULL) {
     $candidates = [['', $path]];
@@ -504,7 +513,7 @@ class CheckPages {
         return $try;
       }
     }
-    throw new \InvalidArgumentException("Cannot resolve \"$path\".");
+    throw new UnresolvablePathException($path);
   }
 
   /**
@@ -579,68 +588,41 @@ class CheckPages {
   /**
    * Apply a single find action in the text.
    *
-   * @param array|string $needle
-   *   When a string a case-sensitive search will be made in $haystack.  As an
-   *   array it should contain an "expect" key and a key "dom", which is a CSS
-   *   selector.
-   * @param \Psr\Http\Message\ResponseInterface
+   * @param string $id
+   *   An arbitrary value to track this assert by outside consumers.
+   * @param array $definition
+   *   The definition of the assertion, e.g. ['dom' => '#logo', 'count' => 1].
+   * @param \Psr\Http\Message\ResponseInterface $response
    *   The response containing the custom headers and body.
    *
    * @return bool
    *   True if the find was successful.
    */
-  protected function handleFindAssert($needle, ResponseInterface $response): bool {
-    $assert = new Assert();
-    $search_type = NULL;
-    $selectors = array_map(function ($help) {
-      return $help->code();
-    }, $assert->getSelectorsInfo());
-    foreach ($selectors as $code) {
-      if (isset($needle[$code])) {
-        $search_type = $code;
-        $assert->setSearch($code, $needle[$code]);
-        if (!empty($needle[Assert::MODIFIER_ATTRIBUTE])) {
-          $assert->setModifer(Assert::MODIFIER_ATTRIBUTE, $needle[Assert::MODIFIER_ATTRIBUTE]);
-        }
-        break;
-      }
-    }
+  protected function handleFindAssert(string $id, array $definition, ResponseInterface $response): bool {
+    $assert = new Assert($definition, $id);
+    $assert
+      ->setSearch(Assert::SEARCH_ALL)
+      ->setHaystack([strval($response->getBody())]);
 
-    switch ($search_type) {
-      case Assert::SEARCH_STYLE:
-        $haystack = json_decode($response->getHeader('X-Computed-Styles')[0] ?? '{}', TRUE);
-        $haystack = json_encode($haystack);
-        $assert
-          ->setHaystack($haystack)
-          ->setModifer(Assert::MODIFIER_PROPERTY, $needle[Assert::MODIFIER_PROPERTY]);
-        break;
-
-      default:
-        $assert->setHaystack(strval($response->getBody()));
-        break;
-    }
-
-    if (!$search_type) {
-      $assert->setSearch(Assert::SEARCH_ALL);
+    if (!empty($definition[Assert::MODIFIER_ATTRIBUTE])) {
+      $assert->setModifer(Assert::MODIFIER_ATTRIBUTE, $definition[Assert::MODIFIER_ATTRIBUTE]);
     }
 
     // Setup the assert.
-    if (!is_array($needle)) {
-      $assert->setAssert(Assert::ASSERT_SUBSTRING, $needle);
-    }
-    else {
-      $assertions = array_map(function ($help) {
-        return $help->code();
-      }, $assert->getAssertionsInfo());
-      foreach ($assertions as $code) {
-        if (isset($needle[$code])) {
-          $assert->setAssert($code, $needle[$code]);
-          break;
-        }
+    $assertions = array_map(function ($help) {
+      return $help->code();
+    }, $assert->getAssertionsInfo());
+    foreach ($assertions as $code) {
+      if (isset($definition[$code])) {
+        $assert->setAssertion($code, $definition[$code]);
+        break;
       }
     }
 
-    $pass = $assert->run();
+    $this->pluginsManager->onBeforeAssert($assert, $response);
+
+    $assert->run();
+    $pass = $assert->getResult();
     if (!$pass) {
       $this->fail('├── ' . $assert);
       $this->fail('└── ' . $assert->getReason());

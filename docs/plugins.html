@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Plugins</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--plugins">
+<header>
+  <div class="pager"><a href="custom_dirs.html" class="prev custom_dirs">&laquo;How To Use A Custom Directory</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cheatsheet.html" class="next cheatsheet">Quick Reference: Test Writing&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+
+<h1>Plugins</h1>
+
+<section>
+
+<p>To add new functionality to <code>find</code>...</p>
+
+<ol>
+<li>Create a unique folder in <em>plugins</em> with the following structure. In
+this example the new plugin will be called <code>foo</code>.</li>
+</ol>
+
+<pre><code>├── plugins
+│   └── find
+│       └── foo
+│           └── schema.json
+</code></pre>
+
+<ol>
+<li>Write the find portion of the schema file as <em>schema.find.json</em>.</li>
+</ol>
+
+<pre><code class="json">{
+    "type": "object",
+    "required": [
+        "foo"
+    ],
+    "properties": {
+        "foo": {
+            "$ref": "#/definitions/dom_selector"
+        }
+    },
+    "additionalProperties": false
+}
+</code></pre>
+
+<ol>
+<li>Optionally, you may provide definitions in the schema as _
+schema.definitions.json_, e.g.,</li>
+</ol>
+
+<pre><code class="json">{
+    "js_eval": {
+        "type": "string",
+        "pattern": "^.+$",
+        "examples": [
+            "location.hash"
+        ]
+    }
+}
+</code></pre>
+
+<ol>
+<li>Write the <em>suite.yml</em> file which will be run against <em>test_subject.html</em> or _
+test_subject.php_</li>
+<li>Create <em>test_subject.html</em> or <em>test_subject.php</em> as needed to test _
+suite.yml_.</li>
+</ol>
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="custom_dirs.html" class="prev custom_dirs">&laquo;How To Use A Custom Directory</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cheatsheet.html" class="next cheatsheet">Quick Reference: Test Writing&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.7.0 &bull; Last Updated: Thu, 27 May 2021 12:59:25 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
+

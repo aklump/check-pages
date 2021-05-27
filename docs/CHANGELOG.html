@@ -38,7 +38,31 @@ to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 authenticated users.</li>
 </ul>
 
-<h2>[0.6] - 2021-01-16</h2>
+<h2>[0.8.0] - 2021-04-14</h2>
+
+<h3>Added</h3>
+
+<ul>
+<li>The <code>javascript</code> selector for expression evaluation.</li>
+</ul>
+
+<h3>Changed</h3>
+
+<ul>
+<li>It's no longer required to add <code>js: true</code> to a test implementing a <code>style</code>
+selector. It will now be forcefully set (or overridden) to <code>true</code>. This is
+because the <code>style</code> selector only works when javascript is enabled.</li>
+</ul>
+
+<h2>[0.7.0] - 2021-04-08</h2>
+
+<h3>Added</h3>
+
+<ul>
+<li>Added the <code>none</code> assertion to ensure a substring does not appear on the page.</li>
+</ul>
+
+<h2>[0.6.0] - 2021-01-16</h2>
 
 <h3>Added</h3>
 
@@ -139,7 +163,7 @@ the <code>--quiet</code> flag for less verbosity.</li>
 <footer>
   <div class="pager"><a href="index.html" class="prev index">&laquo;Check Pages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="README.html" class="next readme">Check Pages&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.5.2 &bull; Last Updated: Wed, 17 Feb 2021 18:28:37 -0800</p>
+    <p class="legaleeze center">Version: 0.7.0 &bull; Last Updated: Thu, 27 May 2021 12:59:20 -0700</p>
   </div>
 </footer>
 

@@ -1,0 +1,21 @@
+-
+  visit: /test_subject.html
+  js: true
+  find:
+    -
+      style: .visible
+      property: display
+      match: /^(?!none).+$/
+    -
+      style: .visible
+      property: display
+      contains: inline
+    -
+      style: .hidden-by-style
+      property: display
+      exact: none
+    -
+      style: .hidden-by-class
+      property: display
+      exact: none
+

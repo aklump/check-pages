@@ -11,22 +11,6 @@
             ],
             "pattern": "^/|http"
         },
-        "dom": {
-            "type": "string",
-            "pattern": "^.+$",
-            "examples": [
-                "h1.layout-region__title",
-                "#top",
-                "[data-title=\"Begin Here\"]"
-            ]
-        },
-        "xpath": {
-            "type": "string",
-            "pattern": "^.+$",
-            "examples": [
-                ".layout-region__title[2]"
-            ]
-        },
         "attribute": {
             "type": "string",
             "pattern": "^.+$",
@@ -86,14 +70,10 @@
         },
         "match": {
             "type": "string",
-            "pattern": "^\/.+\/",
+            "pattern": "^/.+/",
             "examples": [
                 "/\\d+ items in cart/i"
             ]
-        },
-        "property": {
-            "type": "string",
-            "pattern": "^.+$"
         },
         "string": {
             "title": "Search by string (using contains)",
@@ -139,14 +119,29 @@
                 }
             }
         },
-        "search_without_modifiers": {
-            "title": "SEARCH_DOM|SEARCH_XPATH",
+        "dom_selector": {
+            "type": "string",
+            "pattern": "^.+$",
+            "examples": [
+                "h1.layout-region__title",
+                "#top",
+                "[data-title=\"Begin Here\"]"
+            ]
+        },
+        "dom": {
+            "title": "Dom Plugin Assertion",
             "type": "object",
-            "additionalProperties": false,
-            "oneOf": [
+            "anyOf": [
                 {
                     "required": [
                         "dom",
+                        "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "dom",
+                        "attribute",
                         "contains"
                     ]
                 },
@@ -159,12 +154,33 @@
                 {
                     "required": [
                         "dom",
+                        "attribute",
+                        "exact"
+                    ]
+                },
+                {
+                    "required": [
+                        "dom",
                         "match"
                     ]
                 },
                 {
                     "required": [
                         "dom",
+                        "attribute",
+                        "match"
+                    ]
+                },
+                {
+                    "required": [
+                        "dom",
+                        "count"
+                    ]
+                },
+                {
+                    "required": [
+                        "dom",
+                        "attribute",
                         "count"
                     ]
                 },
@@ -176,41 +192,16 @@
                 },
                 {
                     "required": [
-                        "xpath",
-                        "contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "exact"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "match"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "count"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
+                        "dom",
+                        "attribute",
                         "text"
                     ]
                 }
             ],
+            "additionalProperties": false,
             "properties": {
                 "dom": {
-                    "$ref": "#/definitions/dom"
-                },
-                "xpath": {
-                    "$ref": "#/definitions/xpath"
+                    "$ref": "#/definitions/dom_selector"
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
@@ -226,91 +217,51 @@
                 },
                 "text": {
                     "$ref": "#/definitions/text"
+                },
+                "attribute": {
+                    "$ref": "#/definitions/attribute"
                 }
             }
         },
-        "modifier_attribute": {
-            "title": "MODIFIER_ATTRIBUTE",
+        "js_eval": {
+            "type": "string",
+            "pattern": "^.+$",
+            "examples": [
+                "location.hash"
+            ]
+        },
+        "javascript": {
+            "title": "Javascript Plugin Assertion",
             "type": "object",
-            "additionalProperties": false,
-            "oneOf": [
+            "anyOf": [
                 {
                     "required": [
-                        "dom",
-                        "attribute",
+                        "javascript"
+                    ]
+                },
+                {
+                    "required": [
+                        "javascript",
                         "contains"
                     ]
                 },
                 {
                     "required": [
-                        "dom",
-                        "attribute",
+                        "javascript",
                         "exact"
                     ]
                 },
                 {
                     "required": [
-                        "dom",
-                        "attribute",
+                        "javascript",
                         "match"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "attribute",
-                        "count"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "attribute",
-                        "text"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "exact"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "match"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "count"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "text"
                     ]
                 }
             ],
+            "additionalProperties": false,
             "properties": {
-                "dom": {
-                    "$ref": "#/definitions/dom"
-                },
-                "xpath": {
-                    "$ref": "#/definitions/xpath"
+                "javascript": {
+                    "$ref": "#/definitions/js_eval"
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
@@ -320,17 +271,18 @@
                 },
                 "match": {
                     "$ref": "#/definitions/match"
-                },
-                "attribute": {
-                    "$ref": "#/definitions/attribute"
                 }
             }
         },
-        "modifier_property": {
-            "title": "MODIFIER_PROPERTY",
+        "property": {
+            "type": "string",
+            "pattern": "^.+$"
+        },
+        "style": {
+            "title": "Style Plugin Assertion",
             "type": "object",
             "additionalProperties": false,
-            "oneOf": [
+            "anyOf": [
                 {
                     "required": [
                         "style",
@@ -369,7 +321,7 @@
             ],
             "properties": {
                 "style": {
-                    "$ref": "#/definitions/dom"
+                    "$ref": "#/definitions/dom_selector"
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
@@ -380,8 +332,116 @@
                 "match": {
                     "$ref": "#/definitions/match"
                 },
+                "count": {
+                    "$ref": "#/definitions/count"
+                },
+                "text": {
+                    "$ref": "#/definitions/text"
+                },
                 "property": {
                     "$ref": "#/definitions/property"
+                }
+            }
+        },
+        "xpath_selector": {
+            "type": "string",
+            "pattern": "^.+$",
+            "examples": [
+                ".layout-region__title[2]"
+            ]
+        },
+        "xpath": {
+            "title": "Xpath Plugin Assertion",
+            "type": "object",
+            "anyOf": [
+                {
+                    "required": [
+                        "xpath",
+                        "count"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "count"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "text"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "text"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "exact"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "exact"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "match"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "match"
+                    ]
+                }
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "xpath": {
+                    "$ref": "#/definitions/xpath_selector"
+                },
+                "contains": {
+                    "$ref": "#/definitions/contains"
+                },
+                "exact": {
+                    "$ref": "#/definitions/exact"
+                },
+                "match": {
+                    "$ref": "#/definitions/match"
+                },
+                "count": {
+                    "$ref": "#/definitions/count"
+                },
+                "text": {
+                    "$ref": "#/definitions/text"
+                },
+                "attribute": {
+                    "$ref": "#/definitions/attribute"
                 }
             }
         }
@@ -449,13 +509,16 @@
                                     "$ref": "#/definitions/page_match"
                                 },
                                 {
-                                    "$ref": "#/definitions/search_without_modifiers"
+                                    "$ref": "#/definitions/dom"
                                 },
                                 {
-                                    "$ref": "#/definitions/modifier_attribute"
+                                    "$ref": "#/definitions/javascript"
                                 },
                                 {
-                                    "$ref": "#/definitions/modifier_property"
+                                    "$ref": "#/definitions/style"
+                                },
+                                {
+                                    "$ref": "#/definitions/xpath"
                                 }
                             ]
                         }

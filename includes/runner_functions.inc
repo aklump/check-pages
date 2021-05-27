@@ -25,6 +25,27 @@ function load_config(string $config, bool $allow_override = TRUE) {
 }
 
 /**
+ * Add a resolve directory where additional tests may be found.
+ *
+ * Note, the run_suite('*') pattern does not look in this directory, so you will
+ * have to explicitly call the suite name(s).
+ *
+ * @param string $custom_dir
+ *   The absolute path to an existing directory to use for resolution.
+ */
+function add_directory(string $custom_dir) {
+  global $app;
+  if (!is_dir($custom_dir)) {
+    throw new \InvalidArgumentException("\"$custom_dir\" must be an existing directory.");
+  }
+  $path = realpath($custom_dir);
+  if ($path) {
+    $custom_dir = $path;
+  }
+  $app->addResolveDirectory($custom_dir);
+}
+
+/**
  * Point to a test suite file to run.
  *
  * @param string $path_to_suite

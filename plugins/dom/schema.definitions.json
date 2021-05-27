@@ -1,0 +1,11 @@
+{
+    "dom_selector": {
+        "type": "string",
+        "pattern": "^.+$",
+        "examples": [
+            "h1.layout-region__title",
+            "#top",
+            "[data-title=\"Begin Here\"]"
+        ]
+    }
+}

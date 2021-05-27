@@ -9,6 +9,7 @@ use ChromeDevtoolsProtocol\Model\DOM\GetDocumentRequest;
 use ChromeDevtoolsProtocol\Model\DOM\GetOuterHTMLRequest;
 use ChromeDevtoolsProtocol\Model\DOM\QuerySelectorRequest;
 use ChromeDevtoolsProtocol\Model\Page\NavigateRequest;
+use ChromeDevtoolsProtocol\Model\Runtime\EvaluateRequest;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -25,6 +26,13 @@ final class ChromeDriver extends GuzzleDriver {
    * @var array
    */
   private $styleRequests = [];
+
+  /**
+   * An array keyed by expression whose values will be filled with the result.
+   *
+   * @var array
+   */
+  private $javascriptEvals = [];
 
   /**
    * @var \ChromeDevtoolsProtocol\DevtoolsClient
@@ -69,6 +77,7 @@ final class ChromeDriver extends GuzzleDriver {
 
     // TODO Get headers with Chrome.
     // TODO Get status with Chrome.
+    // TODO This may help: https://github.com/jakubkulhan/chrome-devtools-protocol/blob/master/test/ChromeDevtoolsProtocol/Domain/NetworkDomainTest.php
 
     // Context creates deadline for operations.
     // TODO Make the timeout configurable.
@@ -103,6 +112,19 @@ final class ChromeDriver extends GuzzleDriver {
           // By passing as a custom header, we are able to still utilize the
           // ResponseInterface.
           $headers['X-Computed-Styles'] = json_encode($this->styleRequests);
+        }
+
+        if ($this->javascriptEvals) {
+          foreach ($this->javascriptEvals as &$eval) {
+            $eval['result'] = $this->devtools->runtime()
+              ->evaluate($this->ctx, EvaluateRequest::builder()
+                ->setExpression($eval['eval'])
+                ->build())->result->value;
+          }
+
+          // By passing as a custom header, we are able to still utilize the
+          // ResponseInterface.
+          $headers['X-Javascript-Evals'] = json_encode($this->javascriptEvals);
         }
 
         // TODO Handle a click before getting page.
@@ -189,6 +211,24 @@ final class ChromeDriver extends GuzzleDriver {
    */
   public function addStyleRequest(string $query_selector): ChromeDriver {
     $this->styleRequests[$query_selector] = [];
+
+    return $this;
+  }
+
+  /**
+   * Make a request for a computed styles value to be retrieved.
+   *
+   * @param string $query_selector
+   *   The query selector.
+   *
+   * @return $this
+   *   Self for chaining.
+   */
+  public function addJavascriptEval(string $expression): ChromeDriver {
+    $this->javascriptEvals[] = [
+      'eval' => $expression,
+      'result' => NULL,
+    ];
 
     return $this;
   }
