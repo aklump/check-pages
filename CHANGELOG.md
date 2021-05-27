@@ -13,13 +13,25 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add `login` and `logout` in _includes/drupal_ to be able to run suites as
   authenticated users.
 
+## [0.8.0] - 2021-04-14
+
+### Added
+
+- The `javascript` selector for expression evaluation.
+
+### Changed
+
+- It's no longer required to add `js: true` to a test implementing a `style`
+  selector. It will now be forcefully set (or overridden) to `true`. This is
+  because the `style` selector only works when javascript is enabled.
+
 ## [0.7.0] - 2021-04-08
 
 ### Added
 
 - Added the `none` assertion to ensure a substring does not appear on the page.
 
-## [0.6] - 2021-01-16
+## [0.6.0] - 2021-01-16
 
 ### Added
 

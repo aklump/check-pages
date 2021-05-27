@@ -9,7 +9,7 @@
 
 <body class="page--readme">
 <header>
-  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cheatsheet.html" class="next cheatsheet">Quick Reference: Test Writing&raquo;</a></div></header>
+  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="developers.html" class="next developers">Developers&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -59,6 +59,10 @@
 <p>For more code examples explore the <em>/examples</em> directory.</p>
 
 <p><strong>Visit <a href="https://aklump.github.io/check_pages">https://aklump.github.io/check_pages</a> for full documentation.</strong></p>
+
+<h2>Clarity of Purpose and Limitation</h2>
+
+<p>The mission of this tool is to provide testing for URLS and webpages in the most simple and concise syntax possible.  For testing scenarios that require element interaction, such as clicks, hovers, scrolling, etc, there are amazing projects out there such as <a href="https://www.cypress.io/">Cypress</a>.  This project will never try to compete with that crowd, and shall always restrict it's testing of the DOM to assertions against a single snapshot of the loaded URL.</p>
 
 <h2>Terms Used</h2>
 
@@ -157,20 +161,42 @@
 
 <h2>Javascript Testing Setup</h2>
 
-<p>To support JS testing, you must indicate where your Chrome binary is located in your runner configuration file, like so:</p>
+<p>To support JS testing, you must indicate where your Chrome binary is located in
+your runner configuration file, like so:</p>
 
 <pre><code class="yaml">chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 </code></pre>
 
 <h2>Enable Javascript per Test</h2>
 
-<p>Unless you enable it, javascript is not run during testing.  If you need to assert that an element exists, which was created from Javascript (or otherwise need javascript to run on the page), you will need to indicate the following in your test, namely <code>js: true</code>.</p>
+<p>Unless you enable it, or in the case the selector type (i.e., <code>style</code>
+, <code>javascript</code>) requires it, javascript is not run during testing. If you need
+to assert that an element exists, which was created from Javascript (or
+otherwise need javascript to run on the page), you will need to indicate the
+following in your test, namely <code>js: true</code>.</p>
 
-<pre><code class="yaml">- visit: /foo
+<pre><code class="yaml">-
+  visit: /foo
   js: true
   find:
-    - dom: .js-created-page-title
+    -
+      dom: .js-created-page-title
       text: Javascript added me to the DOM!
+</code></pre>
+
+<h2>Asserting Javascript Evaluations</h2>
+
+<p>Let's say you want to assert the value of the URL fragment. You can do that with
+the <code>javascript</code> selector. The value of <code>javascript</code> should be the expression to
+evaluate, once the page loads. Notice that you may omit the <code>js: true</code> as it
+will be set automatically.</p>
+
+<pre><code class="yaml">-
+  visit: /foo
+  find:
+    -
+      javascript: location.hash
+      exact: "#top"
 </code></pre>
 
 <h2>Javascript Testing Related Links</h2>
@@ -240,9 +266,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cheatsheet.html" class="next cheatsheet">Quick Reference: Test Writing&raquo;</a></div>  
+  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="developers.html" class="next developers">Developers&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.7.0 &bull; Last Updated: Thu, 08 Apr 2021 17:50:41 -0700</p>
+    <p class="legaleeze center">Version: 0.7.0 &bull; Last Updated: Thu, 27 May 2021 12:59:23 -0700</p>
   </div>
 </footer>
 

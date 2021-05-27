@@ -29,12 +29,12 @@
 
 <ol>
 <li>Create a unique folder in <em>plugins</em> with the following structure. In
-this example the new plugin will be called <code>click</code>.</li>
+this example the new plugin will be called <code>foo</code>.</li>
 </ol>
 
 <pre><code>├── plugins
 │   └── find
-│       └── click
+│       └── foo
 │           └── schema.json
 </code></pre>
 
@@ -45,11 +45,11 @@ this example the new plugin will be called <code>click</code>.</li>
 <pre><code class="json">{
     "type": "object",
     "required": [
-        "click"
+        "foo"
     ],
     "properties": {
-        "click": {
-            "$ref": "#/definitions/dom"
+        "foo": {
+            "$ref": "#/definitions/dom_selector"
         }
     },
     "additionalProperties": false
@@ -87,7 +87,7 @@ suite.yml_.</li>
 <footer>
   <div class="pager"><a href="custom_dirs.html" class="prev custom_dirs">&laquo;How To Use A Custom Directory</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cheatsheet.html" class="next cheatsheet">Quick Reference: Test Writing&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.7.0 &bull; Last Updated: Thu, 13 May 2021 16:03:07 -0700</p>
+    <p class="legaleeze center">Version: 0.7.0 &bull; Last Updated: Thu, 27 May 2021 12:59:25 -0700</p>
   </div>
 </footer>
 
