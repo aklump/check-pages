@@ -108,7 +108,7 @@ final class Assert {
    *
    * @var array
    */
-  private $data = [];
+  private $definition = [];
 
   /**
    * @var string
@@ -118,13 +118,13 @@ final class Assert {
   /**
    * Assert constructor.
    *
-   * @param array $data
+   * @param array $definition
    *   The raw assert key/value array.
    * @param string $id
    *   An arbitrary value to track this assert by outside consumers.
    */
-  public function __construct(array $data, string $id) {
-    $this->data = $data;
+  public function __construct(array $definition, string $id) {
+    $this->definition = $definition;
     $this->id = $id;
   }
 
@@ -133,14 +133,14 @@ final class Assert {
   }
 
   /**
-   * Allow direct access to $this->data, e.g. $this->style
+   * Allow direct access to $this->definition, e.g. $this->style
    *
    * @param $key
    *
    * @return mixed|null
    */
   public function __get($key) {
-    return $this->data[$key] ?? NULL;
+    return $this->definition[$key] ?? NULL;
   }
 
   /**
@@ -594,7 +594,6 @@ final class Assert {
       //      ]),
       //      new Help(Xpath::SEARCH_TYPE, "Select from the DOM using XPath selectors.", ['(//*[contains(@class, "block-title")])[3]']),
       //            new Help(Javascript::SEARCH_TYPE, "Select the result of a javascript expression", ['location.hash']),
-
     ];
   }
 

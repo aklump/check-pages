@@ -467,11 +467,11 @@ class CheckPages {
     }
 
     // Look for a piece of text on the page.
-    foreach ($config['find'] as $index => $needle) {
-      if (is_scalar($needle)) {
-        $needle = [Assert::ASSERT_SUBSTRING => $needle];
+    foreach ($config['find'] as $id => $definition) {
+      if (is_scalar($definition)) {
+        $definition = [Assert::ASSERT_SUBSTRING => $definition];
       }
-      $test_passed($this->handleFindAssert($index, $needle, $response));
+      $test_passed($this->handleFindAssert(strval($id), $definition, $response));
     }
 
     if ($test_passed()) {
@@ -588,24 +588,24 @@ class CheckPages {
   /**
    * Apply a single find action in the text.
    *
-   * @param array|string $needle
-   *   When a string a case-sensitive search will be made in $haystack.  As an
-   *   array it should contain an "expect" key and a key "dom", which is a CSS
-   *   selector.
-   * @param \Psr\Http\Message\ResponseInterface
+   * @param string $id
+   *   An arbitrary value to track this assert by outside consumers.
+   * @param array $definition
+   *   The definition of the assertion, e.g. ['dom' => '#logo', 'count' => 1].
+   * @param \Psr\Http\Message\ResponseInterface $response
    *   The response containing the custom headers and body.
    *
    * @return bool
    *   True if the find was successful.
    */
-  protected function handleFindAssert($index, array $needle, ResponseInterface $response): bool {
-    $assert = new Assert($needle, strval($index));
+  protected function handleFindAssert(string $id, array $definition, ResponseInterface $response): bool {
+    $assert = new Assert($definition, $id);
     $assert
       ->setSearch(Assert::SEARCH_ALL)
       ->setHaystack([strval($response->getBody())]);
 
-    if (!empty($needle[Assert::MODIFIER_ATTRIBUTE])) {
-      $assert->setModifer(Assert::MODIFIER_ATTRIBUTE, $needle[Assert::MODIFIER_ATTRIBUTE]);
+    if (!empty($definition[Assert::MODIFIER_ATTRIBUTE])) {
+      $assert->setModifer(Assert::MODIFIER_ATTRIBUTE, $definition[Assert::MODIFIER_ATTRIBUTE]);
     }
 
     // Setup the assert.
@@ -613,8 +613,8 @@ class CheckPages {
       return $help->code();
     }, $assert->getAssertionsInfo());
     foreach ($assertions as $code) {
-      if (isset($needle[$code])) {
-        $assert->setAssertion($code, $needle[$code]);
+      if (isset($definition[$code])) {
+        $assert->setAssertion($code, $definition[$code]);
         break;
       }
     }
