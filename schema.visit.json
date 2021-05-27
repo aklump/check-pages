@@ -461,7 +461,7 @@
                 ]
             }
         ],
-        "additionalProperties": true,
+        "additionalProperties": false,
         "properties": {
             "visit": {
                 "$ref": "#/definitions/url"
@@ -483,6 +483,9 @@
                 "default": 200
             },
             "location": {
+                "$ref": "#/definitions/url"
+            },
+            "redirect": {
                 "$ref": "#/definitions/url"
             },
             "find": {

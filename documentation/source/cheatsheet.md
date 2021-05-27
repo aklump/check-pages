@@ -1,6 +1,7 @@
 ---
 id: cheatsheet
 ---
+
 # Quick Reference: Test Writing
 
 {% include('_cheatsheet.md') %}
@@ -10,45 +11,60 @@ id: cheatsheet
 The most simple test involves checking that a page loads.
 
 ```yaml
-- visit: /foo
+-
+  visit: /foo
 ```
 
 ## Check with Javascript Enabled
 
-By default the test will not run with Javascript.  Use `js: true` to run the test with Javascript enabled.  [Learn more.](@javascript)
+By default the test will not run with Javascript. Use `js: true` to run the test
+with Javascript enabled.  [Learn more.](@javascript)
 
 ## Check Status Code
 
-By saying that the "page loads", we mean that it returns a status code of 200. The following is exactly the same in function as the previous example.  You can check for any code by changing the value of `expect`.
+By saying that the "page loads", we mean that it returns a status code of 200.
+The following is exactly the same in function as the previous example. You can
+check for any code by changing the value of `expect`.
 
 ```yaml
-- visit: /foo
+-
+  visit: /foo
   expect: 200
 ```
 
 ## Check Redirect
 
-For pages that redirect you can check for both the status code and the final location:
+For pages that redirect you can check for both the status code and the final
+location.  (`redirect` is a synonym for `location`.)
 
 ```yaml
 -
   visit: /moved.php
   expect: 301
   location: /location.html
+
+-
+  visit: /moved.php
+  expect: 301
+  redirect: /location.html
 ```
 
 ## Check Content
 
-Once loaded you can also look for things on the page with `find`.  The most simple `find` assertion looks for a substring of text anywhere on the page.  The following two examples are identical assertions.
+Once loaded you can also look for things on the page with `find`. The most
+simple `find` assertion looks for a substring of text anywhere on the page. The
+following two examples are identical assertions.
 
 ```yaml
-- visit: /foo
+-
+  visit: /foo
   find:
     - Upcoming Events Calendar
 ```
 
 ```yaml
-- visit: /foo
+-
+  visit: /foo
   find:
     -
       contains: Upcoming Events Calendar
@@ -57,13 +73,15 @@ Once loaded you can also look for things on the page with `find`.  The most simp
 Ensure something does NOT appear on the page like this:
 
 ```yaml
-- visit: /foo
+-
+  visit: /foo
   find:
     -
       none: "[token:123]"
 ```
 
 ### Selectors
+
 **Selectors reduce the entire page content to one or more sections.**
 
 {% include('_selectors.md') %}
@@ -72,6 +90,7 @@ Ensure something does NOT appear on the page like this:
 
 **Assertions provide different ways to test the page or selected section(s).**
 
-In the case where there are multiple sections, such as multiple DOM elements, then the assertion is applied against all selections and only one must pass.
+In the case where there are multiple sections, such as multiple DOM elements,
+then the assertion is applied against all selections and only one must pass.
 
 {% include('_assertions.md') %}

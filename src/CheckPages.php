@@ -374,7 +374,7 @@ class CheckPages {
     $color_map = [
       'error' => 'red',
       'success' => 'green',
-      'debug' => 'light gray',
+      'debug' => 'dark gray',
     ];
     $messages = array_map(function ($item) use ($color_map) {
       return Color::wrap($color_map[$item['level']], $item['data']);
@@ -458,11 +458,15 @@ class CheckPages {
     }
 
     // Test the location if asked.
-    if ($http_location && $config['location']) {
-      $location_test = $http_location === $this->url($config['location']);
+    $expected_location = $config['location'] ?? '';
+    if (empty($expected_location)) {
+      $expected_location = $config['redirect'] ?? '';
+    }
+    if ($http_location && $expected_location) {
+      $location_test = $http_location === $this->url($expected_location);
       $test_passed($location_test);
       if (!$location_test) {
-        $this->fail(sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $this->url($config['location'])));
+        $this->fail(sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $this->url($expected_location)));
       }
     }
 
