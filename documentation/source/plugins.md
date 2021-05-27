@@ -3,12 +3,12 @@
 To add new functionality to `find`...
 
 1. Create a unique folder in _plugins_ with the following structure. In
-   this example the new plugin will be called `click`.
+   this example the new plugin will be called `foo`.
 
 ```
 ├── plugins
 │   └── find
-│       └── click
+│       └── foo
 │           └── schema.json
 ```
 
@@ -18,10 +18,10 @@ To add new functionality to `find`...
 {
     "type": "object",
     "required": [
-        "click"
+        "foo"
     ],
     "properties": {
-        "click": {
+        "foo": {
             "$ref": "#/definitions/dom_selector"
         }
     },

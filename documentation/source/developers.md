@@ -10,12 +10,12 @@ directory, which contains the source code.
 .
 ├── tests
 │     ├── plugins
-│     │     ├── click.yml
+│     │     ├── foo.yml
 │     │     └── javascript.yml
 │     ├── runner_plugins.php
 └── web
     └── plugins
-        ├── click.html
+        ├── foo.html
         └── javascript.html
 
 ```

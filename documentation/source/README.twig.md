@@ -31,6 +31,10 @@ For more code examples explore the _/examples_ directory.
 
 **Visit <https://aklump.github.io/check_pages> for full documentation.**
 
+## Clarity of Purpose and Limitation
+
+The mission of this tool is to provide testing for URLS and webpages in the most simple and concise syntax possible.  For testing scenarios that require element interaction, such as clicks, hovers, scrolling, etc, there are amazing projects out there such as [Cypress](https://www.cypress.io/).  This project will never try to compete with that crowd, and shall always restrict it's testing of the DOM to assertions against a single snapshot of the loaded URL.
+
 ## Terms Used
 
 * _Test Runner_ - A very simple PHP file that defines the configuration and what test suites to run, and in what order.  @see _includes/runner.php_.
