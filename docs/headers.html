@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Response Header Assertions</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--headers">
+<header>
+  <div class="pager"><a href="cheatsheet.html" class="prev cheatsheet">&laquo;Quick Reference: Test Writing</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="javascript.html" class="next javascript">Testing with Javascript&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+
+<h1>Response Header Assertions</h1>
+
+<section>
+
+<p>You can assert against response headers like this:</p>
+
+<pre><code class="yaml">-
+  visit: /foo
+  find:
+    -
+      header: content-type
+      contains: text/html 
+</code></pre>
+
+<ul>
+<li><code>header</code> is case-insensitive.</li>
+<li>If you're trying to match a header <strong>value</strong> with case-insensitivity, you should use the <code>match</code> key, with the <code>i</code> flag like so:
+```yaml
+
+<ul>
+<li>header: content-type
+match: /text\/html/i
+```</li>
+</ul></li>
+</ul>
+
+<p>See more examples in <em>example/tests/plugins/header.yml</em></p>
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="cheatsheet.html" class="prev cheatsheet">&laquo;Quick Reference: Test Writing</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="javascript.html" class="next javascript">Testing with Javascript&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.9.0 &bull; Last Updated: Fri, 28 May 2021 12:46:30 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
+
