@@ -179,7 +179,7 @@
         },
         "dom_selector": {
             "type": "string",
-            "pattern": "^.+$",
+            "pattern": ".+",
             "examples": [
                 "h1.layout-region__title",
                 "#top",
@@ -336,7 +336,7 @@
         },
         "js_eval": {
             "type": "string",
-            "pattern": "^.+$",
+            "pattern": ".+",
             "examples": [
                 "location.hash"
             ]
@@ -456,7 +456,7 @@
         },
         "xpath_selector": {
             "type": "string",
-            "pattern": "^.+$",
+            "pattern": ".+",
             "examples": [
                 ".layout-region__title[2]"
             ]

@@ -463,7 +463,7 @@ final class Assert {
     }
 
     switch ($this->searchType) {
-//      case Style::SEARCH_TYPE:
+      //      case Style::SEARCH_TYPE:
       case 'style':
         $suffix = sprintf('for the element "%s"', $this->searchValue);
         break;
@@ -484,7 +484,9 @@ final class Assert {
         $suffix = sprintf('after selecting with "%s"', $this->searchValue);
         break;
 
-      case Javascript::SEARCH_TYPE:
+      case 'javascript':
+      // TODO This won't work until autoloader is fixed for plugins.
+        //      case Javascript::SEARCH_TYPE:
         $suffix = sprintf('after JS evaluation of "%s"', $this->searchValue);
         break;
     }
@@ -601,7 +603,7 @@ final class Assert {
       //        '.story__title',
       //        '\'#edit-submit[value="Create new account"]\'',
       //      ]),
-//            new Help(Style::SEARCH_TYPE, "Select computed styles for an element using CSS selectors.", [
+      //            new Help(Style::SEARCH_TYPE, "Select computed styles for an element using CSS selectors.", [
       //        'p.summary',
       //        'main',
       //        '.story__title',

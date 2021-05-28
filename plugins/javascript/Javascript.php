@@ -73,4 +73,11 @@ final class Javascript implements TestPluginInterface {
     $assert->setHaystack([$haystack]);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function onAssertToString(string $stringified, Assert $assert): string {
+    return $stringified;
+  }
+
 }

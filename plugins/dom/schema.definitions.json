@@ -1,7 +1,7 @@
 {
     "dom_selector": {
         "type": "string",
-        "pattern": "^.+$",
+        "pattern": ".+",
         "examples": [
             "h1.layout-region__title",
             "#top",

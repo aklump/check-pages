@@ -62,4 +62,11 @@ class Style implements TestPluginInterface {
     $assert->setHaystack([$haystack[$search_value][$modifier_value] ?? NULL]);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function onAssertToString(string $stringified, Assert $assert): string {
+    return $stringified;
+  }
+
 }

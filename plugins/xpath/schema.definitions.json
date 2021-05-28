@@ -1,7 +1,7 @@
 {
     "xpath_selector": {
         "type": "string",
-        "pattern": "^.+$",
+        "pattern": ".+",
         "examples": [
             ".layout-region__title[2]"
         ]
