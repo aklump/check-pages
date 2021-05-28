@@ -13,6 +13,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add `login` and `logout` in _includes/drupal_ to be able to run suites as
   authenticated users.
 
+## [0.9.0] - 2021-05-28
+### Added
+- The header assertion plugin
+  
 ## [0.8.0] - 2021-04-14
 
 ### Added
