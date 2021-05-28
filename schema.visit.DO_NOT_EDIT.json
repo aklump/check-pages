@@ -515,14 +515,16 @@
                         "$ref": "#/definitions/url"
                     },
                     "js": {
-                        "type": "boolean",
-                        "description": "Set this to true if you need javascript to run on the page."
+                        "$ref": "#/definitions/js"
+                    },
+                    "expect": {
+                        "$ref": "#/definitions/expect"
                     },
                     "location": {
                         "$ref": "#/definitions/url"
                     },
-                    "expect": {
-                        "$ref": "#/definitions/expect"
+                    "redirect": {
+                        "$ref": "#/definitions/url"
                     },
                     "find": {
                         "$ref": "#/definitions/find"
@@ -535,57 +537,23 @@
                 ],
                 "additionalProperties": false,
                 "properties": {
-                    "visit": {
+                    "url": {
                         "$ref": "#/definitions/url"
                     },
                     "js": {
-                        "$ref": "#/definitions/"
-                    },
-                    "redirect": {
-                        "$ref": "#/definitions/url"
+                        "$ref": "#/definitions/js"
                     },
                     "expect": {
                         "$ref": "#/definitions/expect"
                     },
+                    "location": {
+                        "$ref": "#/definitions/url"
+                    },
+                    "redirect": {
+                        "$ref": "#/definitions/url"
+                    },
                     "find": {
-                        "oneOf": [
-                            {
-                                "type": "string",
-                                "match": ".+"
-                            },
-                            {
-                                "type": "array",
-                                "default": [],
-                                "items": {
-                                    "oneOf": [
-                                        {
-                                            "$ref": "#/definitions/string"
-                                        },
-                                        {
-                                            "$ref": "#/definitions/page_contains"
-                                        },
-                                        {
-                                            "$ref": "#/definitions/page_not_contains"
-                                        },
-                                        {
-                                            "$ref": "#/definitions/page_match"
-                                        },
-                                        {
-                                            "$ref": "#/definitions/dom"
-                                        },
-                                        {
-                                            "$ref": "#/definitions/javascript"
-                                        },
-                                        {
-                                            "$ref": "#/definitions/style"
-                                        },
-                                        {
-                                            "$ref": "#/definitions/xpath"
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
+                        "$ref": "#/definitions/find"
                     }
                 }
             }
