@@ -37,18 +37,6 @@
                             },
                             {
                                 "$ref": "#/definitions/page_match"
-                            },
-                            {
-                                "$ref": "#/definitions/dom"
-                            },
-                            {
-                                "$ref": "#/definitions/javascript"
-                            },
-                            {
-                                "$ref": "#/definitions/style"
-                            },
-                            {
-                                "$ref": "#/definitions/xpath"
                             }
                         ]
                     }
@@ -176,7 +164,7 @@
     "type": "array",
     "items": {
         "type": "object",
-        "oneOf": [
+        "anyOf": [
             {
                 "required": [
                     "visit"

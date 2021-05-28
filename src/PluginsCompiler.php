@@ -183,7 +183,7 @@ final class PluginsCompiler {
       'title' => Strings::title("$id Plugin Assertion"),
     ];
     $this->schema['definitions'][$id] += $this->loadJson($schema_find_path);
-    $this->schema['items']['properties']['find']['oneOf'][1]['items']['oneOf'][] = [
+    $this->schema['definitions']['find']['oneOf'][1]['items']['oneOf'][] = [
       '$ref' => "#/definitions/{$id}",
     ];
     $this->saveJson($this->generatedSchemaPath, $this->schema);

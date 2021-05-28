@@ -504,7 +504,7 @@
     "type": "array",
     "items": {
         "type": "object",
-        "oneOf": [
+        "anyOf": [
             {
                 "required": [
                     "visit"
@@ -597,30 +597,6 @@
                     }
                 }
             }
-        ],
-        "properties": {
-            "find": {
-                "oneOf": {
-                    "1": {
-                        "items": {
-                            "oneOf": [
-                                {
-                                    "$ref": "#/definitions/dom"
-                                },
-                                {
-                                    "$ref": "#/definitions/javascript"
-                                },
-                                {
-                                    "$ref": "#/definitions/style"
-                                },
-                                {
-                                    "$ref": "#/definitions/xpath"
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        }
+        ]
     }
 }
