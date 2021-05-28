@@ -511,17 +511,37 @@
                 ],
                 "additionalProperties": false,
                 "properties": {
-                    "visit": {
-                        "$ref": "#/definitions/url"
-                    },
                     "js": {
                         "$ref": "#/definitions/js"
+                    },
+                    "visit": {
+                        "$ref": "#/definitions/url"
                     },
                     "expect": {
                         "$ref": "#/definitions/expect"
                     },
                     "location": {
                         "$ref": "#/definitions/url"
+                    },
+                    "find": {
+                        "$ref": "#/definitions/find"
+                    }
+                }
+            },
+            {
+                "required": [
+                    "visit"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "js": {
+                        "$ref": "#/definitions/js"
+                    },
+                    "visit": {
+                        "$ref": "#/definitions/url"
+                    },
+                    "expect": {
+                        "$ref": "#/definitions/expect"
                     },
                     "redirect": {
                         "$ref": "#/definitions/url"
@@ -537,17 +557,37 @@
                 ],
                 "additionalProperties": false,
                 "properties": {
-                    "url": {
-                        "$ref": "#/definitions/url"
-                    },
                     "js": {
                         "$ref": "#/definitions/js"
+                    },
+                    "url": {
+                        "$ref": "#/definitions/url"
                     },
                     "expect": {
                         "$ref": "#/definitions/expect"
                     },
                     "location": {
                         "$ref": "#/definitions/url"
+                    },
+                    "find": {
+                        "$ref": "#/definitions/find"
+                    }
+                }
+            },
+            {
+                "required": [
+                    "url"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "js": {
+                        "$ref": "#/definitions/js"
+                    },
+                    "url": {
+                        "$ref": "#/definitions/url"
+                    },
+                    "expect": {
+                        "$ref": "#/definitions/expect"
                     },
                     "redirect": {
                         "$ref": "#/definitions/url"
