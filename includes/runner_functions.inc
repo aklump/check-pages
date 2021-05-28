@@ -62,11 +62,15 @@ function run_suite(string $path_to_suite, array $suite_config = []): void {
     $suites = array_filter(glob($app->getPathToSuites() . '/' . $path_to_suite), function ($path) {
       return preg_match('/\.yml$/', $path);
     });
+
+    $suites = $app->filterSuites($suites);
   }
   else {
     $suites = [$path_to_suite];
   }
+
   foreach ($suites as $suite) {
+    $suite = pathinfo($suite, PATHINFO_FILENAME);
     $app->runSuite($suite, $suite_config);
   }
 }

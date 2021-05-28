@@ -160,6 +160,25 @@ class CheckPages {
   }
 
   /**
+   * Reduce an array of suites by the applied filter(s), if any.
+   *
+   * @param array $suites
+   *   An array of suite names.
+   *
+   * @return array
+   *   Only those that match applied filters.
+   */
+  public function filterSuites(array $suites): array {
+    if (!$this->filter) {
+      return $suites;
+    }
+
+    return array_values(array_filter($suites, function ($suite) {
+      return pathinfo($suite, PATHINFO_FILENAME) === $this->filter;
+    }));
+  }
+
+  /**
    * Add a custom command.
    *
    * @param string $name
@@ -256,7 +275,7 @@ class CheckPages {
    * @throws \AKlump\CheckPages\TestFailedException If the runner stopped
    *   before it was finished due to a failure.
    */
-  public function run(string $path) {
+  public function executeRunner(string $path) {
     try {
       $runner = $this->getRunner();
       $filter_message = '';

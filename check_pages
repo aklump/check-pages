@@ -34,7 +34,7 @@ while ($autoloader = array_shift($autoloaders)) {
 try {
   require ROOT . '/includes/bootstrap.inc';
   $app->setSuiteFilter($cli->getParam('filter', ''));
-  $app->run($test_runner);
+  $app->executeRunner($test_runner);
 }
 
   // Finish with an error response.
