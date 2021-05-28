@@ -209,10 +209,23 @@ final class PluginsManager implements TestPluginInterface {
    * {@inheritdoc}
    */
   public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
+    $assert->setToStringOverride([$this, 'onAssertToString']);
     $plugin_collection = $this->assertionPlugins[$assert->getId()] ?? [];
     foreach ($plugin_collection as $plugin) {
       $plugin['instance']->{__FUNCTION__}($assert, $response);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onAssertToString(string $stringified, Assert $assert): string {
+    $plugin_collection = $this->assertionPlugins[$assert->getId()] ?? [];
+    foreach ($plugin_collection as $plugin) {
+      $stringified = $plugin['instance']->{__FUNCTION__}($stringified, $assert);
+    }
+
+    return $stringified;
   }
 
 }

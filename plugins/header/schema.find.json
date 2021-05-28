@@ -1,0 +1,47 @@
+{
+    "type": "object",
+    "oneOf": [
+        {
+            "required": [
+                "header",
+                "contains"
+            ]
+        },
+        {
+            "required": [
+                "header",
+                "exact"
+            ]
+        },
+        {
+            "required": [
+                "header",
+                "match"
+            ]
+        },
+        {
+            "required": [
+                "header",
+                "count"
+            ]
+        }
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "header": {
+            "$ref": "#/definitions/header_selector"
+        },
+        "contains": {
+            "$ref": "#/definitions/contains"
+        },
+        "exact": {
+            "$ref": "#/definitions/exact"
+        },
+        "match": {
+            "$ref": "#/definitions/match"
+        },
+        "count": {
+            "$ref": "#/definitions/count"
+        }
+    }
+}

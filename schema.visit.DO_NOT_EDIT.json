@@ -44,6 +44,9 @@
                                 "$ref": "#/definitions/dom"
                             },
                             {
+                                "$ref": "#/definitions/header"
+                            },
+                            {
                                 "$ref": "#/definitions/javascript"
                             },
                             {
@@ -275,6 +278,59 @@
                 },
                 "attribute": {
                     "$ref": "#/definitions/attribute"
+                }
+            }
+        },
+        "header_selector": {
+            "type": "string",
+            "pattern": ".+",
+            "examples": "value"
+        },
+        "header": {
+            "title": "Header Plugin Assertion",
+            "type": "object",
+            "oneOf": [
+                {
+                    "required": [
+                        "header",
+                        "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "header",
+                        "exact"
+                    ]
+                },
+                {
+                    "required": [
+                        "header",
+                        "match"
+                    ]
+                },
+                {
+                    "required": [
+                        "header",
+                        "count"
+                    ]
+                }
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "header": {
+                    "$ref": "#/definitions/header_selector"
+                },
+                "contains": {
+                    "$ref": "#/definitions/contains"
+                },
+                "exact": {
+                    "$ref": "#/definitions/exact"
+                },
+                "match": {
+                    "$ref": "#/definitions/match"
+                },
+                "count": {
+                    "$ref": "#/definitions/count"
                 }
             }
         },

@@ -1,0 +1,7 @@
+{
+    "header_selector": {
+        "type": "string",
+        "pattern": ".+",
+        "examples": "value"
+    }
+}

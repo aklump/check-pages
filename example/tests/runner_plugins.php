@@ -3,6 +3,7 @@
 add_directory(__DIR__ . '/plugins');
 load_config('config/local');
 run_suite('dom');
+run_suite('header');
 run_suite('javascript');
 run_suite('style');
 run_suite('xpath');

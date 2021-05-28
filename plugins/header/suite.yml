@@ -1,0 +1,18 @@
+-
+  visit: /test_subject.php
+  find:
+    -
+      header: foo
+      contains: pha
+    -
+      header: foo
+      exact: alpha
+    -
+      header: bar
+      exact: BRAVO
+    -
+      header: bar
+      match: /^bravo$/i
+    -
+      header: baz
+      count: 0

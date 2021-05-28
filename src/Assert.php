@@ -65,6 +65,13 @@ final class Assert {
   private $searchValue;
 
   /**
+   * Plugins may provide a callback for casting this to a string.
+   *
+   * @var callable
+   */
+  private $toStringOverride;
+
+  /**
    * @var string
    */
   private $assertType;
@@ -415,6 +422,7 @@ final class Assert {
    */
   public function __toString() {
     $prefix = '';
+    $suffix = '';
     $modifier = '';
     switch ($this->modifierType) {
       case static::MODIFIER_ATTRIBUTE:
@@ -481,7 +489,14 @@ final class Assert {
         break;
     }
 
-    return implode(' ', [$prefix, $suffix]) . '.';
+    $string = implode(' ', [$prefix, $suffix]) . '.';
+
+    // Allow others to modify the string output.
+    if (is_callable($this->toStringOverride)) {
+      $string = call_user_func($this->toStringOverride, $string, $this);
+    }
+
+    return $string;
   }
 
   /**
@@ -654,6 +669,21 @@ final class Assert {
 
       // Replace ASCII 160 with 32.
       || $callback(str_replace(' ', ' ', $item));
+  }
+
+  /**
+   * Register a callback to use for altering the stringification of this.
+   *
+   * @param callable $callback
+   *   A callback with signature (string, Assert): string.
+   *
+   * @return $this
+   *   Self for chaining.
+   */
+  public function setToStringOverride(callable $callback): Assert {
+    $this->toStringOverride = $callback;
+
+    return $this;
   }
 
 }
