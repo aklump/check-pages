@@ -12,6 +12,13 @@ use Symfony\Component\Yaml\Yaml;
 
 class CheckPages {
 
+  /**
+   * The filename without extension or path.
+   *
+   * @var string
+   */
+  const SCHEMA_VISIT = 'schema.visit.DO_NOT_EDIT';
+
   protected $totalTestCount = 0;
 
   protected $failedTestCount = 0;
@@ -114,7 +121,7 @@ class CheckPages {
     $this->debugging = !$bash->hasParam('quiet');
 
     $this->pluginsManager = new PluginsManager($this->rootDir . '/plugins');
-    $schema = json_decode(file_get_contents($this->rootDir . '/schema.visit.json'), TRUE);
+    $schema = json_decode(file_get_contents($this->rootDir . '/' . static::SCHEMA_VISIT . '.json'), TRUE);
     $this->pluginsManager->setSchema($schema);
   }
 
@@ -313,7 +320,7 @@ class CheckPages {
       $this->filterApplied = TRUE;
     }
 
-    $data = $this->validateAndLoadYaml($path_to_suite, 'schema.visit.json');
+    $data = $this->validateAndLoadYaml($path_to_suite, static::SCHEMA_VISIT . '.json');
     $this->normalizeSuiteData($data);
 
     $this->longestUrl = array_reduce($data, function ($carry, $item) {

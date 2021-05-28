@@ -11,6 +11,59 @@
             ],
             "pattern": "^/|http"
         },
+        "js": {
+            "type": "boolean",
+            "description": "Set this to true if you need javascript to run on the page."
+        },
+        "find": {
+            "oneOf": [
+                {
+                    "type": "string",
+                    "match": ".+"
+                },
+                {
+                    "type": "array",
+                    "default": [],
+                    "items": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/definitions/string"
+                            },
+                            {
+                                "$ref": "#/definitions/page_contains"
+                            },
+                            {
+                                "$ref": "#/definitions/page_not_contains"
+                            },
+                            {
+                                "$ref": "#/definitions/page_match"
+                            },
+                            {
+                                "$ref": "#/definitions/dom"
+                            },
+                            {
+                                "$ref": "#/definitions/javascript"
+                            },
+                            {
+                                "$ref": "#/definitions/style"
+                            },
+                            {
+                                "$ref": "#/definitions/xpath"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "expect": {
+            "type": "integer",
+            "examples": [
+                200,
+                403,
+                404
+            ],
+            "default": 200
+        },
         "attribute": {
             "type": "string",
             "pattern": "^.+$",
@@ -118,332 +171,6 @@
                     "$ref": "#/definitions/match"
                 }
             }
-        },
-        "dom_selector": {
-            "type": "string",
-            "pattern": "^.+$",
-            "examples": [
-                "h1.layout-region__title",
-                "#top",
-                "[data-title=\"Begin Here\"]"
-            ]
-        },
-        "dom": {
-            "title": "Dom Plugin Assertion",
-            "type": "object",
-            "anyOf": [
-                {
-                    "required": [
-                        "dom",
-                        "contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "attribute",
-                        "contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "exact"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "attribute",
-                        "exact"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "match"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "attribute",
-                        "match"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "count"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "attribute",
-                        "count"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "text"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "attribute",
-                        "text"
-                    ]
-                }
-            ],
-            "additionalProperties": false,
-            "properties": {
-                "dom": {
-                    "$ref": "#/definitions/dom_selector"
-                },
-                "contains": {
-                    "$ref": "#/definitions/contains"
-                },
-                "exact": {
-                    "$ref": "#/definitions/exact"
-                },
-                "match": {
-                    "$ref": "#/definitions/match"
-                },
-                "count": {
-                    "$ref": "#/definitions/count"
-                },
-                "text": {
-                    "$ref": "#/definitions/text"
-                },
-                "attribute": {
-                    "$ref": "#/definitions/attribute"
-                }
-            }
-        },
-        "js_eval": {
-            "type": "string",
-            "pattern": "^.+$",
-            "examples": [
-                "location.hash"
-            ]
-        },
-        "javascript": {
-            "title": "Javascript Plugin Assertion",
-            "type": "object",
-            "anyOf": [
-                {
-                    "required": [
-                        "javascript"
-                    ]
-                },
-                {
-                    "required": [
-                        "javascript",
-                        "contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "javascript",
-                        "exact"
-                    ]
-                },
-                {
-                    "required": [
-                        "javascript",
-                        "match"
-                    ]
-                }
-            ],
-            "additionalProperties": false,
-            "properties": {
-                "javascript": {
-                    "$ref": "#/definitions/js_eval"
-                },
-                "contains": {
-                    "$ref": "#/definitions/contains"
-                },
-                "exact": {
-                    "$ref": "#/definitions/exact"
-                },
-                "match": {
-                    "$ref": "#/definitions/match"
-                }
-            }
-        },
-        "property": {
-            "type": "string",
-            "pattern": "^.+$"
-        },
-        "style": {
-            "title": "Style Plugin Assertion",
-            "type": "object",
-            "additionalProperties": false,
-            "anyOf": [
-                {
-                    "required": [
-                        "style",
-                        "property",
-                        "contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "style",
-                        "property",
-                        "exact"
-                    ]
-                },
-                {
-                    "required": [
-                        "style",
-                        "property",
-                        "match"
-                    ]
-                },
-                {
-                    "required": [
-                        "style",
-                        "property",
-                        "count"
-                    ]
-                },
-                {
-                    "required": [
-                        "style",
-                        "property",
-                        "text"
-                    ]
-                }
-            ],
-            "properties": {
-                "style": {
-                    "$ref": "#/definitions/dom_selector"
-                },
-                "contains": {
-                    "$ref": "#/definitions/contains"
-                },
-                "exact": {
-                    "$ref": "#/definitions/exact"
-                },
-                "match": {
-                    "$ref": "#/definitions/match"
-                },
-                "count": {
-                    "$ref": "#/definitions/count"
-                },
-                "text": {
-                    "$ref": "#/definitions/text"
-                },
-                "property": {
-                    "$ref": "#/definitions/property"
-                }
-            }
-        },
-        "xpath_selector": {
-            "type": "string",
-            "pattern": "^.+$",
-            "examples": [
-                ".layout-region__title[2]"
-            ]
-        },
-        "xpath": {
-            "title": "Xpath Plugin Assertion",
-            "type": "object",
-            "anyOf": [
-                {
-                    "required": [
-                        "xpath",
-                        "count"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "count"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "text"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "text"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "exact"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "exact"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "match"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "match"
-                    ]
-                }
-            ],
-            "additionalProperties": false,
-            "properties": {
-                "xpath": {
-                    "$ref": "#/definitions/xpath_selector"
-                },
-                "contains": {
-                    "$ref": "#/definitions/contains"
-                },
-                "exact": {
-                    "$ref": "#/definitions/exact"
-                },
-                "match": {
-                    "$ref": "#/definitions/match"
-                },
-                "count": {
-                    "$ref": "#/definitions/count"
-                },
-                "text": {
-                    "$ref": "#/definitions/text"
-                },
-                "attribute": {
-                    "$ref": "#/definitions/attribute"
-                }
-            }
         }
     },
     "type": "array",
@@ -453,81 +180,55 @@
             {
                 "required": [
                     "visit"
-                ]
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "visit": {
+                        "$ref": "#/definitions/url"
+                    },
+                    "js": {
+                        "$ref": "#/definitions/js"
+                    },
+                    "expect": {
+                        "$ref": "#/definitions/expect"
+                    },
+                    "location": {
+                        "$ref": "#/definitions/url"
+                    },
+                    "redirect": {
+                        "$ref": "#/definitions/url"
+                    },
+                    "find": {
+                        "$ref": "#/definitions/find"
+                    }
+                }
             },
             {
                 "required": [
                     "url"
-                ]
-            }
-        ],
-        "additionalProperties": false,
-        "properties": {
-            "visit": {
-                "$ref": "#/definitions/url"
-            },
-            "url": {
-                "$ref": "#/definitions/url"
-            },
-            "js": {
-                "type": "boolean",
-                "description": "Set this to true if you need javascript to run on the page."
-            },
-            "expect": {
-                "type": "integer",
-                "examples": [
-                    200,
-                    403,
-                    404
                 ],
-                "default": 200
-            },
-            "location": {
-                "$ref": "#/definitions/url"
-            },
-            "redirect": {
-                "$ref": "#/definitions/url"
-            },
-            "find": {
-                "oneOf": [
-                    {
-                        "type": "string",
-                        "match": ".+"
+                "additionalProperties": false,
+                "properties": {
+                    "url": {
+                        "$ref": "#/definitions/url"
                     },
-                    {
-                        "type": "array",
-                        "default": [],
-                        "items": {
-                            "oneOf": [
-                                {
-                                    "$ref": "#/definitions/string"
-                                },
-                                {
-                                    "$ref": "#/definitions/page_contains"
-                                },
-                                {
-                                    "$ref": "#/definitions/page_not_contains"
-                                },
-                                {
-                                    "$ref": "#/definitions/page_match"
-                                },
-                                {
-                                    "$ref": "#/definitions/dom"
-                                },
-                                {
-                                    "$ref": "#/definitions/javascript"
-                                },
-                                {
-                                    "$ref": "#/definitions/style"
-                                },
-                                {
-                                    "$ref": "#/definitions/xpath"
-                                }
-                            ]
-                        }
+                    "js": {
+                        "$ref": "#/definitions/js"
+                    },
+                    "expect": {
+                        "$ref": "#/definitions/expect"
+                    },
+                    "location": {
+                        "$ref": "#/definitions/url"
+                    },
+                    "redirect": {
+                        "$ref": "#/definitions/url"
+                    },
+                    "find": {
+                        "$ref": "#/definitions/find"
                     }
-                ]
+                }
             }
-        }
+        ]
     }
 }
