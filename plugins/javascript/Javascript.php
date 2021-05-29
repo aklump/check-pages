@@ -67,7 +67,7 @@ final class Javascript implements TestPluginInterface {
     // we'll make the check the haystack so it will always pass.
     list($assertion_type) = $assert->getAssertion();
     if (is_null($assertion_type)) {
-      $assert->setAssertion(Assert::ASSERT_EXACT, $haystack);
+      $assert->setAssertion(Assert::ASSERT_EQUALS, $haystack);
     }
 
     $assert->setHaystack([$haystack]);

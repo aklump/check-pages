@@ -12,7 +12,13 @@
     find:
         -
             javascript: location.hash
-            match: '/^#foo=bar&alpha=bravo$/'
+            matches: '/^#foo=bar&alpha=bravo$/'
+        -
+            javascript: location.hash
+            is: '#foo=bar&alpha=bravo'
+        -
+            javascript: location.hash
+            'is not': '#foo=bar&alpha=bravo&charlie=delta'
         -
             javascript: location.query
-            exact: ''
+            is: ''

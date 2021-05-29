@@ -32,7 +32,12 @@ final class Assert {
   /**
    * @var string
    */
-  const ASSERT_EXACT = 'exact';
+  const ASSERT_EQUALS = 'is';
+
+  /**
+   * @var string
+   */
+  const ASSERT_NOT_EQUALS = 'is not';
 
   /**
    * @var string
@@ -42,17 +47,22 @@ final class Assert {
   /**
    * @var string
    */
-  const ASSERT_MATCH = 'match';
+  const ASSERT_MATCHES = 'matches';
 
   /**
    * @var string
    */
-  const ASSERT_SUBSTRING = 'contains';
+  const ASSERT_NOT_MATCHES = 'not matches';
 
   /**
    * @var string
    */
-  const ASSERT_NOT_SUBSTRING = 'none';
+  const ASSERT_CONTAINS = 'contains';
+
+  /**
+   * @var string
+   */
+  const ASSERT_NOT_CONTAINS = 'not contains';
 
   /**
    * @var string
@@ -292,10 +302,12 @@ final class Assert {
           });
           break;
 
-        case self::ASSERT_SUBSTRING:
-        case self::ASSERT_NOT_SUBSTRING:
-        case self::ASSERT_MATCH:
-        case self::ASSERT_EXACT:
+        case self::ASSERT_CONTAINS:
+        case self::ASSERT_NOT_CONTAINS:
+        case self::ASSERT_MATCHES:
+        case self::ASSERT_NOT_MATCHES:
+        case self::ASSERT_EQUALS:
+        case self::ASSERT_NOT_EQUALS:
           $haystack = $haystack->each(function ($node) {
             if ($this->modifierType === self::MODIFIER_ATTRIBUTE) {
               $value = $node->attr($this->modifierValue);
@@ -313,7 +325,7 @@ final class Assert {
     $pass = NULL;
     switch ($this->assertType) {
 
-      case self::ASSERT_NOT_SUBSTRING:
+      case self::ASSERT_NOT_CONTAINS:
         foreach ($haystack as $item) {
           $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
             return strpos($item_variation, $this->assertValue) === FALSE;
@@ -325,7 +337,7 @@ final class Assert {
         }
         break;
 
-      case self::ASSERT_SUBSTRING:
+      case self::ASSERT_CONTAINS:
         foreach ($haystack as $item) {
           $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
             return strpos($item_variation, $this->assertValue) !== FALSE;
@@ -358,7 +370,7 @@ final class Assert {
         }
         break;
 
-      case self::ASSERT_EXACT:
+      case self::ASSERT_EQUALS:
         foreach ($haystack as $item) {
           $pass = $item == $this->assertValue;
           if ($pass) {
@@ -371,7 +383,21 @@ final class Assert {
         }
         break;
 
-      case self::ASSERT_MATCH:
+      case self::ASSERT_NOT_EQUALS:
+        $pass = empty($haystack);
+        foreach ($haystack as $item) {
+          $pass = $item != $this->assertValue;
+          if ($pass) {
+            break;
+          }
+        }
+        if (!$pass) {
+          $haystack = '"' . implode('",, "', $haystack) . '"';
+          $this->reason = sprintf("The actual value\n\n>>> %s\n\n should not match exactly to\n\n>>> \"%s\"", $haystack, $this->assertValue);
+        }
+        break;
+
+      case self::ASSERT_MATCHES:
         foreach ($haystack as $item) {
           $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
             return preg_match($this->assertValue, $item_variation);
@@ -382,6 +408,21 @@ final class Assert {
         }
         if (!$pass) {
           $this->reason = sprintf("Unable to match actual value \"%s\" using \"%s\".", $item, $this->assertValue);
+        }
+        break;
+
+      case self::ASSERT_NOT_MATCHES:
+        $pass = empty($haystack);
+        foreach ($haystack as $item) {
+          $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            return !preg_match($this->assertValue, $item_variation);
+          });
+          if ($pass) {
+            break;
+          }
+        }
+        if (!$pass) {
+          $this->reason = sprintf("Value \"%s\" should not match RegEx \"%s\".", $item, $this->assertValue);
         }
         break;
     }
@@ -435,24 +476,29 @@ final class Assert {
     }
 
     switch ($this->assertType) {
-      case static::ASSERT_MATCH:
+      case static::ASSERT_MATCHES:
         $prefix = sprintf('Match %sagainst RegExp "%s"', $modifier, $this->assertValue);
+        break;
+
+      case static::ASSERT_NOT_MATCHES:
+        $prefix = sprintf('Do not match %s against RegExp "%s"', $modifier, $this->assertValue);
         break;
 
       case static::ASSERT_TEXT:
         $prefix = sprintf('Convert %sto plaintext and compare to "%s"', $modifier, $this->assertValue);
         break;
 
-      case static::ASSERT_EXACT:
+      case static::ASSERT_EQUALS:
+      case static::ASSERT_NOT_EQUALS:
         $modifier = $modifier ? "of $modifier" : '';
-        $prefix = sprintf('Compare exact value %sto "%s"', $modifier, $this->assertValue);
+        $prefix = sprintf('Compare value %sto "%s"', $modifier, $this->assertValue);
         break;
 
-      case static::ASSERT_NOT_SUBSTRING:
+      case static::ASSERT_NOT_CONTAINS:
         $prefix = sprintf('"%s" was not found', $this->assertValue);
         break;
 
-      case static::ASSERT_SUBSTRING:
+      case static::ASSERT_CONTAINS:
         $modifier = $modifier ? ' in ' . trim($modifier) : '';
         $prefix = sprintf('Find "%s"%s', $this->assertValue, $modifier);
         break;
@@ -485,7 +531,7 @@ final class Assert {
         break;
 
       case 'javascript':
-      // TODO This won't work until autoloader is fixed for plugins.
+        // TODO This won't work until autoloader is fixed for plugins.
         //      case Javascript::SEARCH_TYPE:
         $suffix = sprintf('after JS evaluation of "%s"', $this->searchValue);
         break;
@@ -573,17 +619,21 @@ final class Assert {
     $intersections[self::MODIFIER_PROPERTY] = [
       'search' => [Style::SEARCH_TYPE],
       'assert' => [
-        self::ASSERT_SUBSTRING,
-        self::ASSERT_EXACT,
-        self::ASSERT_MATCH,
+        self::ASSERT_CONTAINS,
+        self::ASSERT_EQUALS,
+        self::ASSERT_NOT_EQUALS,
+        self::ASSERT_MATCHES,
+        self::ASSERT_NOT_MATCHES,
       ],
     ];
     $intersections[self::MODIFIER_ATTRIBUTE] = [
       'search' => [self::SEARCH_DOM, Xpath::SEARCH_TYPE],
       'assert' => [
-        self::ASSERT_SUBSTRING,
-        self::ASSERT_EXACT,
-        self::ASSERT_MATCH,
+        self::ASSERT_CONTAINS,
+        self::ASSERT_EQUALS,
+        self::ASSERT_NOT_EQUALS,
+        self::ASSERT_MATCHES,
+        self::ASSERT_NOT_MATCHES,
       ],
     ];
 
@@ -641,11 +691,13 @@ final class Assert {
    */
   public function getAssertionsInfo(): array {
     return [
-      new Help(self::ASSERT_NOT_SUBSTRING, 'Pass if the value is not found in the selection.', ['[token:123]']),
-      new Help(self::ASSERT_SUBSTRING, 'Pass if the value is found in the selection. Works with `attribute`.', ['foo']),
+      new Help(self::ASSERT_NOT_CONTAINS, 'Pass if the value is not found in the selection.', ['[token:123]']),
+      new Help(self::ASSERT_CONTAINS, 'Pass if the value is found in the selection. Works with `attribute`.', ['foo']),
       new Help(self::ASSERT_COUNT, 'Pass if equal to the number of items in the selection.', [2]),
-      new Help(self::ASSERT_EXACT, "Pass if the selection's markup matches exactly.  All numeric values, regardless of type are considered an exact match.  Works with `attribute`.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),
-      new Help(self::ASSERT_MATCH, 'Applies a REGEX expression against the selection. Works with `attribute`.', ['/copyright\s+20\d{2}$/']),
+      new Help(self::ASSERT_EQUALS, "Pass if the selection's markup is equal.  All numeric values, regardless of type are considered equal.  Works with `attribute`.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),
+      new Help(self::ASSERT_NOT_EQUALS, "Pass if the selection's markup is not equal to the search value exactly.  All numeric values, regardless of type are considered an exact match.  Works with `attribute`.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),
+      new Help(self::ASSERT_MATCHES, 'Applies a REGEX expression against the selection. Works with `attribute`.', ['/copyright\s+20\d{2}$/']),
+      new Help(self::ASSERT_NOT_MATCHES, 'Do not match REGEX expression against the selection. Works with `attribute`.', ['/copyright\s+20\d{2}$/']),
       new Help(self::ASSERT_TEXT, "Pass if the selection's text value (all markup removed) matches exactly.", ['lorem ipsum dolar sit amet.']),
     ];
   }

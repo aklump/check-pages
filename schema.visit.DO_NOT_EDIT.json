@@ -21,7 +21,7 @@
             "oneOf": [
                 {
                     "type": "string",
-                    "match": ".+"
+                    "matches": ".+"
                 },
                 {
                     "type": "array",
@@ -98,7 +98,7 @@
                 }
             ]
         },
-        "none": {
+        "not contains": {
             "type": "string",
             "examples": [
                 "[audio:card:123]"
@@ -116,7 +116,7 @@
                 "My Front Page"
             ]
         },
-        "exact": {
+        "equals": {
             "type": [
                 "string",
                 "integer"
@@ -126,7 +126,7 @@
                 1
             ]
         },
-        "match": {
+        "matches": {
             "type": "string",
             "pattern": "^/.+/",
             "examples": [
@@ -155,12 +155,12 @@
             "title": "ASSERT_NOT_CONTAINS",
             "type": "object",
             "required": [
-                "none"
+                "not contains"
             ],
             "additionalProperties": false,
             "properties": {
-                "none": {
-                    "$ref": "#/definitions/none"
+                "not contains": {
+                    "$ref": "#/definitions/contains"
                 }
             }
         },
@@ -168,12 +168,12 @@
             "title": "ASSERT_CONTAINS",
             "type": "object",
             "required": [
-                "match"
+                "matches"
             ],
             "additionalProperties": false,
             "properties": {
-                "match": {
-                    "$ref": "#/definitions/match"
+                "matches": {
+                    "$ref": "#/definitions/matches"
                 }
             }
         },
@@ -206,27 +206,40 @@
                 {
                     "required": [
                         "dom",
-                        "exact"
+                        "is"
+                    ]
+                },
+                {
+                    "required": [
+                        "dom",
+                        "is not"
                     ]
                 },
                 {
                     "required": [
                         "dom",
                         "attribute",
-                        "exact"
-                    ]
-                },
-                {
-                    "required": [
-                        "dom",
-                        "match"
+                        "is"
                     ]
                 },
                 {
                     "required": [
                         "dom",
                         "attribute",
-                        "match"
+                        "is not"
+                    ]
+                },
+                {
+                    "required": [
+                        "dom",
+                        "matches"
+                    ]
+                },
+                {
+                    "required": [
+                        "dom",
+                        "attribute",
+                        "matches"
                     ]
                 },
                 {
@@ -264,11 +277,14 @@
                 "contains": {
                     "$ref": "#/definitions/contains"
                 },
-                "exact": {
-                    "$ref": "#/definitions/exact"
+                "is": {
+                    "$ref": "#/definitions/equals"
                 },
-                "match": {
-                    "$ref": "#/definitions/match"
+                "is not": {
+                    "$ref": "#/definitions/equals"
+                },
+                "matches": {
+                    "$ref": "#/definitions/matches"
                 },
                 "count": {
                     "$ref": "#/definitions/count"
@@ -299,13 +315,25 @@
                 {
                     "required": [
                         "header",
-                        "exact"
+                        "is"
                     ]
                 },
                 {
                     "required": [
                         "header",
-                        "match"
+                        "is not"
+                    ]
+                },
+                {
+                    "required": [
+                        "header",
+                        "matches"
+                    ]
+                },
+                {
+                    "required": [
+                        "header",
+                        "not matches"
                     ]
                 },
                 {
@@ -323,11 +351,17 @@
                 "contains": {
                     "$ref": "#/definitions/contains"
                 },
-                "exact": {
-                    "$ref": "#/definitions/exact"
+                "is": {
+                    "$ref": "#/definitions/equals"
                 },
-                "match": {
-                    "$ref": "#/definitions/match"
+                "is not": {
+                    "$ref": "#/definitions/equals"
+                },
+                "matches": {
+                    "$ref": "#/definitions/matches"
+                },
+                "not matches": {
+                    "$ref": "#/definitions/matches"
                 },
                 "count": {
                     "$ref": "#/definitions/count"
@@ -359,13 +393,19 @@
                 {
                     "required": [
                         "javascript",
-                        "exact"
+                        "is"
                     ]
                 },
                 {
                     "required": [
                         "javascript",
-                        "match"
+                        "is not"
+                    ]
+                },
+                {
+                    "required": [
+                        "javascript",
+                        "matches"
                     ]
                 }
             ],
@@ -377,11 +417,14 @@
                 "contains": {
                     "$ref": "#/definitions/contains"
                 },
-                "exact": {
-                    "$ref": "#/definitions/exact"
+                "is": {
+                    "$ref": "#/definitions/equals"
                 },
-                "match": {
-                    "$ref": "#/definitions/match"
+                "is not": {
+                    "$ref": "#/definitions/equals"
+                },
+                "matches": {
+                    "$ref": "#/definitions/matches"
                 }
             }
         },
@@ -405,14 +448,21 @@
                     "required": [
                         "style",
                         "property",
-                        "exact"
+                        "is"
                     ]
                 },
                 {
                     "required": [
                         "style",
                         "property",
-                        "match"
+                        "is not"
+                    ]
+                },
+                {
+                    "required": [
+                        "style",
+                        "property",
+                        "matches"
                     ]
                 },
                 {
@@ -437,11 +487,14 @@
                 "contains": {
                     "$ref": "#/definitions/contains"
                 },
-                "exact": {
-                    "$ref": "#/definitions/exact"
+                "is": {
+                    "$ref": "#/definitions/equals"
                 },
-                "match": {
-                    "$ref": "#/definitions/match"
+                "is not": {
+                    "$ref": "#/definitions/equals"
+                },
+                "matches": {
+                    "$ref": "#/definitions/matches"
                 },
                 "count": {
                     "$ref": "#/definitions/count"
@@ -507,27 +560,40 @@
                 {
                     "required": [
                         "xpath",
-                        "exact"
+                        "is"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "is not"
                     ]
                 },
                 {
                     "required": [
                         "xpath",
                         "attribute",
-                        "exact"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "match"
+                        "is"
                     ]
                 },
                 {
                     "required": [
                         "xpath",
                         "attribute",
-                        "match"
+                        "is not"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "matches"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "matches"
                     ]
                 }
             ],
@@ -539,11 +605,14 @@
                 "contains": {
                     "$ref": "#/definitions/contains"
                 },
-                "exact": {
-                    "$ref": "#/definitions/exact"
+                "is": {
+                    "$ref": "#/definitions/equals"
                 },
-                "match": {
-                    "$ref": "#/definitions/match"
+                "is not": {
+                    "$ref": "#/definitions/equals"
+                },
+                "matches": {
+                    "$ref": "#/definitions/matches"
                 },
                 "count": {
                     "$ref": "#/definitions/count"

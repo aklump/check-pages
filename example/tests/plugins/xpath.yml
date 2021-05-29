@@ -4,3 +4,15 @@
         -
             xpath: '(//*[contains(@class, "block-title")])[3]'
             text: 'Latest Blog Post'
+        -
+            xpath: '(//*[contains(@class, "block-title")])[3]'
+            is: 'Latest Blog Post'
+        -
+            xpath: '(//*[contains(@class, "block-title")])[3]'
+            'is not': 'Blog Post'
+        -
+            xpath: '(//*[contains(@class, "block-title")])[3]'
+            contains: 'Blog Post'
+        -
+            xpath: '(//*[contains(@class, "block-title")])[3]'
+            matches: '/blog post/i'

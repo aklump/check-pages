@@ -10,13 +10,25 @@
         {
             "required": [
                 "header",
-                "exact"
+                "is"
             ]
         },
         {
             "required": [
                 "header",
-                "match"
+                "is not"
+            ]
+        },
+        {
+            "required": [
+                "header",
+                "matches"
+            ]
+        },
+        {
+            "required": [
+                "header",
+                "not matches"
             ]
         },
         {
@@ -34,11 +46,17 @@
         "contains": {
             "$ref": "#/definitions/contains"
         },
-        "exact": {
-            "$ref": "#/definitions/exact"
+        "is": {
+            "$ref": "#/definitions/equals"
         },
-        "match": {
-            "$ref": "#/definitions/match"
+        "is not": {
+            "$ref": "#/definitions/equals"
+        },
+        "matches": {
+            "$ref": "#/definitions/matches"
+        },
+        "not matches": {
+            "$ref": "#/definitions/matches"
         },
         "count": {
             "$ref": "#/definitions/count"

@@ -3,16 +3,25 @@
     find:
         -
             header: foo
+            'is not': pha
+        -
+            header: foo
             contains: pha
         -
             header: foo
-            exact: alpha
+            is: alpha
         -
             header: bar
-            exact: BRAVO
+            is: BRAVO
         -
             header: bar
-            match: /^bravo$/i
+            matches: /^bravo$/i
+        -
+            header: bar
+            'not matches': /^charlie$/i
+        -
+            header: zulu
+            'not matches': /^charlie$/i
         -
             header: baz
             count: 0

@@ -5,7 +5,7 @@
         -
             style: .visible
             property: display
-            match: '/^(?!none).+$/'
+            matches: '/^(?!none).+$/'
         -
             style: .visible
             property: display
@@ -13,8 +13,12 @@
         -
             style: .hidden-by-style
             property: display
-            exact: none
+            is: none
+        -
+            style: .hidden-by-style
+            property: display
+            'is not': hidden
         -
             style: .hidden-by-class
             property: display
-            exact: none
+            is: none

@@ -35,20 +35,6 @@ final class Header implements TestPluginInterface {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeRequest(&$driver) {
-    if (empty($this->assertions)) {
-      return;
-    }
-    foreach ($this->assertions as $assertion) {
-      if (!empty($assertion[self::SEARCH_TYPE])) {
-        // TODO Do something to the driver?
-      }
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
     $search_value = $assert->{self::SEARCH_TYPE};
     $assert->setSearch(self::SEARCH_TYPE, $search_value);
@@ -62,20 +48,29 @@ final class Header implements TestPluginInterface {
     list(, $header) = $assert->getSearch();
     list($type, $value) = $assert->getAssertion();
     switch ($type) {
-      case Assert::ASSERT_MATCH:
-        return sprintf('Assert response header "%s" matches RegEx "%s".', $header, $value);
+      case Assert::ASSERT_MATCHES:
+        return sprintf('Assert response header "%s" matches "%s".', $header, $value);
 
-      case Assert::ASSERT_EXACT:
-        return sprintf('Assert response header "%s" has the exact value "%s".', $header, $value);
+      case Assert::ASSERT_NOT_MATCHES:
+        return sprintf('Assert response header "%s" does not match "%s".', $header, $value);
+
+      case Assert::ASSERT_EQUALS:
+        return sprintf('Assert response header "%s" is "%s".', $header, $value);
+
+      case Assert::ASSERT_NOT_EQUALS:
+        return sprintf('Assert response header "%s" is not "%s".', $header, $value);
 
       case Assert::ASSERT_COUNT:
         return sprintf('Assert the number of "%s" response headers is %s.', $header, $value);
 
-      case Assert::ASSERT_SUBSTRING:
+      case Assert::ASSERT_CONTAINS:
         return sprintf('Assert response header "%s" %s "%s".', $header, $type, $value);
     }
 
     return $stringified;
+  }
+
+  public function onBeforeRequest(&$driver) {
   }
 
 }

@@ -1,9 +1,22 @@
-- visit: /test_subject.html
+-
+  visit: /test_subject.html
   find:
     # XPath can also be used to locate things, so if you want to be sure that
     # the third .block-title is a given value, you should use xpath.
     -
       xpath: '(//*[contains(@class, "block-title")])[3]'
       text: Latest Blog Post
+    -
+      xpath: '(//*[contains(@class, "block-title")])[3]'
+      is: Latest Blog Post
+    -
+      xpath: '(//*[contains(@class, "block-title")])[3]'
+      is not: Blog Post
+    -
+      xpath: '(//*[contains(@class, "block-title")])[3]'
+      contains: Blog Post
+    -
+      xpath: '(//*[contains(@class, "block-title")])[3]'
+      matches: /blog post/i
 
 

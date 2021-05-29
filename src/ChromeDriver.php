@@ -225,7 +225,10 @@ final class ChromeDriver extends GuzzleDriver {
    *   Self for chaining.
    */
   public function addJavascriptEval(string $expression): ChromeDriver {
-    $this->javascriptEvals[] = [
+
+    // It's very important to use the key so as not to duplicate the
+    // evaluations, duplicated evaluations lead to funny results.
+    $this->javascriptEvals[$expression] = [
       'eval' => $expression,
       'result' => NULL,
     ];

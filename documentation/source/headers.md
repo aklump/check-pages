@@ -15,7 +15,7 @@ You can assert against response headers like this:
 * If you're trying to match a header **value** with case-insensitivity, you should use the `match` key, with the `i` flag like so:
     ```yaml
     - header: content-type
-      match: /text\/html/i
+      matches: /text\/html/i
     ```
 
 See more examples in _example/tests/plugins/header.yml_

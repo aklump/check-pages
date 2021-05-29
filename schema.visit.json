@@ -19,7 +19,7 @@
             "oneOf": [
                 {
                     "type": "string",
-                    "match": ".+"
+                    "matches": ".+"
                 },
                 {
                     "type": "array",
@@ -81,7 +81,7 @@
                 }
             ]
         },
-        "none": {
+        "not contains": {
             "type": "string",
             "examples": [
                 "[audio:card:123]"
@@ -99,7 +99,7 @@
                 "My Front Page"
             ]
         },
-        "exact": {
+        "equals": {
             "type": [
                 "string",
                 "integer"
@@ -109,7 +109,7 @@
                 1
             ]
         },
-        "match": {
+        "matches": {
             "type": "string",
             "pattern": "^/.+/",
             "examples": [
@@ -138,12 +138,12 @@
             "title": "ASSERT_NOT_CONTAINS",
             "type": "object",
             "required": [
-                "none"
+                "not contains"
             ],
             "additionalProperties": false,
             "properties": {
-                "none": {
-                    "$ref": "#/definitions/none"
+                "not contains": {
+                    "$ref": "#/definitions/contains"
                 }
             }
         },
@@ -151,12 +151,12 @@
             "title": "ASSERT_CONTAINS",
             "type": "object",
             "required": [
-                "match"
+                "matches"
             ],
             "additionalProperties": false,
             "properties": {
-                "match": {
-                    "$ref": "#/definitions/match"
+                "matches": {
+                    "$ref": "#/definitions/matches"
                 }
             }
         }

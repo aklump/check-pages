@@ -499,7 +499,7 @@ class CheckPages {
     // Look for a piece of text on the page.
     foreach ($config['find'] as $id => $definition) {
       if (is_scalar($definition)) {
-        $definition = [Assert::ASSERT_SUBSTRING => $definition];
+        $definition = [Assert::ASSERT_CONTAINS => $definition];
       }
       $test_passed($this->handleFindAssert(strval($id), $definition, $response));
     }

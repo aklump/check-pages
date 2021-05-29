@@ -9,7 +9,7 @@
   # find, or RegEx matching.
   find:
     -
-      none: "[audio:insert-'"
+      not contains: "[audio:insert-'"
 
 
     # Locate the following text, at least once, anywhere in the page content.
@@ -21,7 +21,7 @@
     # QUOTES WILL CAUSE PROBLEMS. YOU ALSO MUST ESCAPE CHARACTERS AS
     # APPROPRIATE.
     -
-      match: '/Copyright &copy; 2000\-\d{4} In the Loft Studios, PO Box 29294, Bellingham, WA/'
+      matches: '/Copyright &copy; 2000\-\d{4} In the Loft Studios, PO Box 29294, Bellingham, WA/'
 
 
 # This example shows how to check for a redirect value and final location.

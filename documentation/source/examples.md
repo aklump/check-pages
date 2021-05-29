@@ -13,11 +13,11 @@ find:
   -
     style: .modal
     property: display
-    match: /^(?!none).+$/
+    matches: /^(?!none).+$/
   -
     style: .modal
     property: opacity
-    exact: 1
+    is: 1
 ```
 
 ## Assert the URL Hash Matches RegEx Pattern
@@ -26,5 +26,5 @@ find:
 find:
     -
       javascript: location.hash
-      match: /^#foo=bar&alpha=bravo$/
+      matches: /^#foo=bar&alpha=bravo$/
 ```

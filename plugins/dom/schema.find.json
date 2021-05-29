@@ -17,27 +17,40 @@
         {
             "required": [
                 "dom",
-                "exact"
+                "is"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "is not"
             ]
         },
         {
             "required": [
                 "dom",
                 "attribute",
-                "exact"
-            ]
-        },
-        {
-            "required": [
-                "dom",
-                "match"
+                "is"
             ]
         },
         {
             "required": [
                 "dom",
                 "attribute",
-                "match"
+                "is not"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "matches"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "attribute",
+                "matches"
             ]
         },
         {
@@ -75,11 +88,14 @@
         "contains": {
             "$ref": "#/definitions/contains"
         },
-        "exact": {
-            "$ref": "#/definitions/exact"
+        "is": {
+            "$ref": "#/definitions/equals"
         },
-        "match": {
-            "$ref": "#/definitions/match"
+        "is not": {
+            "$ref": "#/definitions/equals"
+        },
+        "matches": {
+            "$ref": "#/definitions/matches"
         },
         "count": {
             "$ref": "#/definitions/count"

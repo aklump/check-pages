@@ -4,7 +4,7 @@
     -
       dom: '#logo'
       attribute: title
-      exact: An SVG image
+      is: An SVG image
     -
       dom: p
       count: ">= 2"
@@ -16,7 +16,7 @@
       dom: '#logo svg'
       count: 1
 
-    # Notice the use or `text` vs. `exact` for accessing the contents of a DOM
+    # Notice the use or `text` vs. `is` for accessing the contents of a DOM
     # find as either plaintext or markup respectively.
     -
       dom: h1.page-title
@@ -24,12 +24,16 @@
 
     -
       dom: h1.page-title
-      exact: '<span>About In the Loft Studios</span>'
+      is: '<span>About In the Loft Studios</span>'
+
+    -
+      dom: h1.page-title
+      is not: '<div>About In the Loft Studios</div>'
 
     # Case-insensitive RegEx match against the markup of #footer.
     -
       dom: '#footer'
-      match: '/in the loft studios/i'
+      matches: '/in the loft studios/i'
 
     # Showing how to check the hero alt tag two different ways.
     -

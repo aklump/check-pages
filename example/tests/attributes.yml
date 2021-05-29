@@ -8,12 +8,12 @@
     -
       dom: .page-title
       attribute: data-timestamp
-      match: /^\d{10}$/
+      matches: /^\d{10}$/
 
     -
       dom: '#logo'
       attribute: title
-      exact: An SVG image
+      is: An SVG image
 
     -
       dom: '#logo'

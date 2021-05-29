@@ -43,27 +43,40 @@
         {
             "required": [
                 "xpath",
-                "exact"
+                "is"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "is not"
             ]
         },
         {
             "required": [
                 "xpath",
                 "attribute",
-                "exact"
-            ]
-        },
-        {
-            "required": [
-                "xpath",
-                "match"
+                "is"
             ]
         },
         {
             "required": [
                 "xpath",
                 "attribute",
-                "match"
+                "is not"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "matches"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "attribute",
+                "matches"
             ]
         }
     ],
@@ -75,11 +88,14 @@
         "contains": {
             "$ref": "#/definitions/contains"
         },
-        "exact": {
-            "$ref": "#/definitions/exact"
+        "is": {
+            "$ref": "#/definitions/equals"
         },
-        "match": {
-            "$ref": "#/definitions/match"
+        "is not": {
+            "$ref": "#/definitions/equals"
+        },
+        "matches": {
+            "$ref": "#/definitions/matches"
         },
         "count": {
             "$ref": "#/definitions/count"

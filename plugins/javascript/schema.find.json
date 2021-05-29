@@ -15,13 +15,19 @@
         {
             "required": [
                 "javascript",
-                "exact"
+                "is"
             ]
         },
         {
             "required": [
                 "javascript",
-                "match"
+                "is not"
+            ]
+        },
+        {
+            "required": [
+                "javascript",
+                "matches"
             ]
         }
     ],
@@ -33,11 +39,14 @@
         "contains": {
             "$ref": "#/definitions/contains"
         },
-        "exact": {
-            "$ref": "#/definitions/exact"
+        "is": {
+            "$ref": "#/definitions/equals"
         },
-        "match": {
-            "$ref": "#/definitions/match"
+        "is not": {
+            "$ref": "#/definitions/equals"
+        },
+        "matches": {
+            "$ref": "#/definitions/matches"
         }
     }
 }

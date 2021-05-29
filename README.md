@@ -158,7 +158,7 @@ will be set automatically.
   find:
     -
       javascript: location.hash
-      exact: "#top"
+      is: "#top"
 ```
 
 ## Javascript Testing Related Links
