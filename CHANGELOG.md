@@ -13,10 +13,35 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Add `login` and `logout` in _includes/drupal_ to be able to run suites as
   authenticated users.
 
-## [0.9.0] - 2021-05-28
+## [0.10.0] - 2021-05-28
+
 ### Added
+
+- `is not`
+- `not matches`
+
+### Changed
+
+- `exact` is now `is`; change all usages.
+- `match` is now `matches`; change all usages.
+- `none` is now `not contains`; change all usages.
+
+### Removed
+
+- `exact`
+- `match`
+- `none`
+
+### Fixed
+
+- JS error when the eval is used more than once per test.
+
+## [0.9.0] - 2021-05-28
+
+### Added
+
 - The header assertion plugin
-  
+
 ## [0.8.0] - 2021-04-14
 
 ### Added
