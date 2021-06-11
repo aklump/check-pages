@@ -36,7 +36,7 @@ To add new functionality to `find`...
 {
     "js_eval": {
         "type": "string",
-        "pattern": "^.+$",
+        "pattern": ".+",
         "examples": [
             "location.hash"
         ]

@@ -54,7 +54,7 @@
         },
         "attribute": {
             "type": "string",
-            "pattern": "^.+$",
+            "pattern": ".+",
             "examples": [
                 "value",
                 "data-foo",
@@ -119,7 +119,7 @@
         "string": {
             "title": "Search by string (using contains)",
             "type": "string",
-            "pattern": "^.+$"
+            "pattern": ".+"
         },
         "page_contains": {
             "title": "ASSERT_CONTAINS",

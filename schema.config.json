@@ -54,7 +54,7 @@
                         "examples": [
                             "uber"
                         ],
-                        "pattern": "^.+$"
+                        "pattern": ".+"
                     },
                     "pass": {
                         "title": "Password",
@@ -63,7 +63,7 @@
                         "examples": [
                             "foo"
                         ],
-                        "pattern": "^.+$"
+                        "pattern": ".+"
                     }
                 }
             }
