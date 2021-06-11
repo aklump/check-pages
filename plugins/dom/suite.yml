@@ -5,6 +5,10 @@
       dom: '#logo'
       attribute: title
       is: An SVG image
+    - # Find an anchor tag with an href ending in something.
+      dom: a
+      attribute: href
+      matches: /\/bar?/
     -
       dom: p
       count: ">= 2"
