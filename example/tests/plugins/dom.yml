@@ -6,6 +6,10 @@
             attribute: title
             is: 'An SVG image'
         -
+            dom: a
+            attribute: href
+            matches: '/\/bar?/'
+        -
             dom: p
             count: '>= 2'
         -

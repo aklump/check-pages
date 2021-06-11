@@ -18,6 +18,10 @@
 <h1 class="page-title" data-timestamp="<?php echo time() ?>">
   <span>About In the Loft Studios</span></h1>
 
+<a href="http://www.foo.com/alpha">Go to Foo Alpha</a>
+<a href="http://www.foo.com/charlie">Go to Foo Charlie</a>
+<a href="http://www.foo.com/bar">Go to Foo Bar</a>
+
 <h2 class="block-title">Quick Start</h2>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </p>
 
