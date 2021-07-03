@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+#
+# Create a test directory w/scaffold in the current directory.
+#
+source="${BASH_SOURCE[0]}"
+source="${BASH_SOURCE[0]}"
+if [[ ! "$source" ]]; then
+  source="${(%):-%N}"
+fi
+while [ -h "$source" ]; do # resolve $source until the file is no longer a symlink
+  dir="$( cd -P "$( dirname "$source" )" && pwd )"
+  source="$(readlink "$source")"
+  [[ $source != /* ]] && source="$dir/$source" # if $source was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+APP_ROOT="$( cd -P "$( dirname "$source" )" && pwd )"
+
+need_input=true
+while [[ "$need_input" == true ]]; do
+  echo
+  echo "Name of tests directory to create? (blank, to skip)"
+  read -e -p "$PWD/" tests_dir
+  [[ ! "$tests_dir" ]] && echo "Skipped." && exit 0
+  if [[ ! -d "$tests_dir" ]]; then
+    need_input=false
+  else
+    echo -e "$(tput setaf 1)$tests_dir already exists; try again.$(tput sgr0)"
+  fi
+done
+
+! mkdir -p "$tests_dir" && echo "Could not create $tests_dir" && exit 1
+rsync -aq "$APP_ROOT/init_scaffold/" "$PWD/$tests_dir"
+echo -e "$(tput setaf 2)Test directory \"$tests_dir\" creating with test scaffolding.$(tput sgr0)"

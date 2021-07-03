@@ -29,11 +29,12 @@
     },
     "version": "0.10.2",
     "bin": [
-        ".\/check_pages"
+        ".\/check_pages",
+        ".\/check_pages_init"
     ],
     "scripts": {
-        "post-create-project-cmd": [
-            "cp -R example\/tests tests"
+        "post-package-install": [
+            ".\/check_pages_init"
         ]
     },
     "require-dev": {

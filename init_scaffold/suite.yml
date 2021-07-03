@@ -1,0 +1,4 @@
+- visit: /index.html
+  find:
+    - dom: h1
+      count: 1
