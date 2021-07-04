@@ -7,11 +7,11 @@
 
 load_config('config/local');
 
-add_test_option('foo', function($a, $b){
-  return;
-});
+with_extras('drupal7', [
+  'users_json' => __DIR__ . '/config/users.json',
+]);
 
-run_suite('options');
+run_suite('login');
 run_suite('attributes');
 run_suite('suite');
 run_suite('suite_dev_only');

@@ -36,4 +36,15 @@ interface RequestDriverInterface {
    */
   public function getRedirectCode(): int;
 
+  /**
+   * Add a header to be sent with the request.
+   *
+   * @param string $key
+   * @param string $value
+   *
+   * @return \AKlump\CheckPages\RequestDriverInterface
+   *   Self for chaining.
+   */
+  public function addHeader(string $key, string $value): RequestDriverInterface;
+
 }

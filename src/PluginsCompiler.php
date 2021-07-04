@@ -131,9 +131,8 @@ final class PluginsCompiler {
       return pathinfo($path, PATHINFO_FILENAME) === 'test_subject';
     }));
     if (empty($subject)) {
-      throw new \RuntimeException(sprintf('Missing filename "test_subject.*" for plugin %s.', $id));
+      return;
     }
-
     $extension = pathinfo($subject, PATHINFO_EXTENSION);
     $suite_relative_path_final = "plugins/$id.$extension";
     copy("$path_to_plugin/$subject", $this->examplesPath . "/web/${suite_relative_path_final}");
@@ -179,14 +178,16 @@ final class PluginsCompiler {
 
     // The plugin must provide the find schema.
     $schema_find_path = $path_to_plugin . '/schema.find.json';
-    $this->schema['definitions'][$id] = [
-      'title' => Strings::title("$id Plugin Assertion"),
-    ];
-    $this->schema['definitions'][$id] += $this->loadJson($schema_find_path);
-    $this->schema['definitions']['find']['oneOf'][1]['items']['oneOf'][] = [
-      '$ref' => "#/definitions/{$id}",
-    ];
-    $this->saveJson($this->generatedSchemaPath, $this->schema);
+    if (file_exists($schema_find_path)) {
+      $this->schema['definitions'][$id] = [
+        'title' => Strings::title("$id Plugin Assertion"),
+      ];
+      $this->schema['definitions'][$id] += $this->loadJson($schema_find_path);
+      $this->schema['definitions']['find']['oneOf'][1]['items']['oneOf'][] = [
+        '$ref' => "#/definitions/{$id}",
+      ];
+      $this->saveJson($this->generatedSchemaPath, $this->schema);
+    }
 
     // Update the schema in the plugins manager.
     $this->pluginsManager->setSchema($this->loadJson($this->generatedSchemaPath));
@@ -194,7 +195,7 @@ final class PluginsCompiler {
 
   private function loadJson(string $filepath): array {
     $data = json_decode(file_get_contents($filepath), TRUE);
-    if (!$data) {
+    if (is_null($data)) {
       throw new \RuntimeException(sprintf('Invalid JSON in %s', $filepath));
     }
 

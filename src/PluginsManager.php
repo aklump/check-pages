@@ -44,7 +44,8 @@ final class PluginsManager implements TestPluginInterface {
    * @param string $path_to_plugins
    *   Path to the directory containing all plugins.
    */
-  public function __construct(string $path_to_plugins) {
+  public function __construct(CheckPages $runner_instance, string $path_to_plugins) {
+    $this->checkPages = $runner_instance;
     $this->testPluginsDir = rtrim($path_to_plugins, '/');
   }
 
@@ -136,7 +137,7 @@ final class PluginsManager implements TestPluginInterface {
       if ($plugin['id'] === $plugin_id) {
         require_once $plugin['autoload'];
 
-        return new $plugin['classname']();
+        return new $plugin['classname']($this->checkPages);
       }
     }
     throw new \RuntimeException(sprintf('Could not instantiate plugin %s', $plugin_id['id']));
@@ -170,24 +171,26 @@ final class PluginsManager implements TestPluginInterface {
     $this->assertionPlugins = [];
     $this->testPlugins = [];
 
-    // We need to index each find and figure out which plugin(s) should handle
-    // it, if any.
-    foreach ($config['find'] as $index => $needle) {
-      $data = json_decode(json_encode($needle));
-      foreach ($all_plugins as $plugin) {
-        $plugin_schema = $this->getPluginSchema($plugin['id']);
-        $validator = new Validator();
-        $validator->validate($data, $plugin_schema);
-        if ($validator->isValid()) {
+    foreach ($all_plugins as $plugin) {
+      $instance = $this->getPluginInstance($plugin['id']);
+      $applies = $instance->applies($config);
+      if (!is_bool($applies)) {
+        // We need to index each find and figure out which plugin(s) should handle
+        // it, if any.
+        foreach ($config['find'] as $index => $needle) {
+          $validator = new Validator();
+          $data = json_decode(json_encode($needle));
+          $plugin_schema = $this->getPluginSchema($plugin['id']);
+          $validator->validate($data, $plugin_schema);
           // This means that this plugin's schema matches $needle, therefore this
           // plugin should handle the assert.  We will allow more than one plugin
           // to handle an assert, if it's schema matches.
-          $instance = $this->getPluginInstance($plugin['id']);
-          if ($instance instanceof TestPluginInterface) {
-            $this->assertionPlugins[$index][$plugin['id']] = $plugin + ['instance' => $instance];
-            $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
-          }
+          $applies = $validator->isValid() && $instance instanceof TestPluginInterface;
         }
+      }
+      if ($applies) {
+        $this->assertionPlugins[$index][$plugin['id']] = $plugin + ['instance' => $instance];
+        $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
       }
     }
 
@@ -226,6 +229,12 @@ final class PluginsManager implements TestPluginInterface {
     }
 
     return $stringified;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function applies(array &$config) {
   }
 
 }

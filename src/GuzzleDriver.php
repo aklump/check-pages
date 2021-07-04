@@ -22,6 +22,8 @@ class GuzzleDriver implements RequestDriverInterface {
    */
   protected $response;
 
+  protected $headers;
+
   /**
    * {@inheritdoc}
    */
@@ -31,12 +33,14 @@ class GuzzleDriver implements RequestDriverInterface {
     return $this;
   }
 
+
   /**
    * {@inheritdoc}
    */
   public function getResponse(): ResponseInterface {
     $client = new Client([
-
+      'headers' => $this->headers,
+      'verify' => false,
       // @link http://docs.guzzlephp.org/en/stable/faq.html#how-can-i-track-redirected-requests
       RequestOptions::ALLOW_REDIRECTS => [
         'max' => 10,        // allow at most 10 redirects.
@@ -69,4 +73,12 @@ class GuzzleDriver implements RequestDriverInterface {
     return (int) ($this->response->getHeader('X-Guzzle-Redirect-Status-History')[0] ?? 0);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function addHeader(string $key, string $value): RequestDriverInterface {
+    $this->headers[$key] = $value;
+
+    return $this;
+  }
 }

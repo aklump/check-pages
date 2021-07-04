@@ -45,10 +45,10 @@ function add_directory(string $custom_dir) {
   $app->addResolveDirectory($custom_dir);
 }
 
-function add_test_option(string $name, callable $callback) {
+function add_test_option(string $name, array $callbacks) {
   global $app;
 
-  $app->addTestOption($name, $callback);
+  $app->addTestOption($name, $callbacks);
 }
 
 /**
@@ -94,4 +94,9 @@ function add_command(string $name, callable $callback): void {
   global $app;
 
   $app->addCommand($name, $callback);
+}
+
+function with_extras(string $filename, array $config) {
+  ${$filename} = $config;
+  require_once "$filename.inc";
 }

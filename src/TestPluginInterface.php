@@ -13,6 +13,16 @@ use Psr\Http\Message\ResponseInterface;
  */
 interface TestPluginInterface {
 
+  /**
+   * @param array $config
+   *
+   * @return true|false|void
+   *   Return nothing and the application of this plugin will be calculated
+   *   based on matching the schema.  Otherwise you may override by returning
+   *   true or false.
+   */
+  public function applies(array &$config);
+
   public function onBeforeDriver(array &$config);
 
   public function onBeforeRequest(&$driver);

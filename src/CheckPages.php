@@ -2,12 +2,10 @@
 
 namespace AKlump\CheckPages;
 
-use AKlump\LoftLib\Bash\Bash;
 use AKlump\LoftLib\Bash\Color;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use Psr\Http\Message\ResponseInterface;
-use ReflectionFunction;
 use Symfony\Component\Yaml\Yaml;
 
 class CheckPages {
@@ -113,16 +111,34 @@ class CheckPages {
    * @param \AKlump\LoftLib\Bash\Bash $bash
    *   An instance of \AKlump\LoftLib\Bash\Bash.
    */
-  public function __construct(string $root_dir, Bash $bash) {
+  public function __construct(string $root_dir) {
     $this->rootDir = $root_dir;
     $this->addResolveDirectory($this->rootDir);
     $this->addResolveDirectory($this->rootDir . '/tests');
-    $this->bash = $bash;
-    $this->debugging = !$bash->hasParam('quiet');
-
-    $this->pluginsManager = new PluginsManager($this->rootDir . '/plugins');
+    $this->pluginsManager = new PluginsManager($this, $this->rootDir . '/plugins');
     $schema = json_decode(file_get_contents($this->rootDir . '/' . static::SCHEMA_VISIT . '.json'), TRUE);
     $this->pluginsManager->setSchema($schema);
+  }
+
+  /**
+   * Set the runner information.
+   *
+   * @param string $basename
+   *   The basename of the runner.
+   * @param array $options
+   *   The runner options.
+   *
+   * @return $this
+   *   Self for chaining.
+   */
+  public function setRunner(string $basename, array $options): CheckPages {
+    $this->runner = [
+      'name' => $basename,
+      'options' => $options,
+    ];
+    $this->debugging = !in_array('quiet', $options);
+
+    return $this;
   }
 
   /**
@@ -178,6 +194,10 @@ class CheckPages {
     }));
   }
 
+  public function getTestOptions(): array {
+    return $this->options;
+  }
+
   /**
    * Add a custom command.
    *
@@ -189,19 +209,22 @@ class CheckPages {
    * @return \AKlump\CheckPages\CheckPages
    *   Self for chaining.
    */
-  public function addTestOption(string $name, callable $callback): self {
-    $cb = new ReflectionFunction($callback);
-    $arguments = array_map(function ($param) {
-      return [
-        (string) $param->getType(),
-        $param->getName(),
+  public function addTestOption(string $name, array $callbacks): self {
+    $this->options[$name] = ['name' => $name, 'hooks' => []];
+    foreach ($callbacks as $hook => $callback) {
+      $cb = new \ReflectionFunction($callback);
+      $arguments = array_map(function ($param) {
+        return [
+          (string) $param->getType(),
+          $param->getName(),
+        ];
+      }, $cb->getParameters());
+      $this->options[$name]['hooks'][$hook] = [
+        'name' => $hook,
+        'arguments' => $arguments,
+        'callback' => $callback,
       ];
-    }, $cb->getParameters());
-    $this->options[$name] = [
-      'name' => $name,
-      'arguments' => $arguments,
-      'callback' => $callback,
-    ];
+    }
 
     return $this;
   }
@@ -256,7 +279,7 @@ class CheckPages {
    */
   public function getRunner(): string {
     try {
-      return $this->resolve((string) $this->bash->getArg(1));
+      return $this->resolve((string) $this->runner['name']);
     }
     catch (\Exception $exception) {
       return '';
@@ -467,7 +490,7 @@ class CheckPages {
 
     $test_passed($http_response_code == $config['expect']);
 
-    if ($this->bash->hasParam('show-source')) {
+    if (in_array('show-source', $this->runner['options'])) {
       if ($test_passed()) {
         $this->debug((string) $response->getBody());
       }

@@ -1,0 +1,15 @@
+-
+  user: [ admin ]
+  visit: /admin
+  find:
+    -
+      dom: .page-title
+      is: Administration
+
+-
+  user: [ admin ]
+  visit: /user
+  find:
+    -
+      dom: .page-title
+      matches: /Admin/i

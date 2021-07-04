@@ -38,7 +38,8 @@ if ($cli->hasFlag('v')) {
   exit(0);
 }
 
-$app = new CheckPages(ROOT, $cli);
+$app = new CheckPages(ROOT);
+$app->setRunner($cli->getArg(1), $cli->getParams());
 $runner_dir = dirname(rtrim(getcwd(), '/') . '/' . $cli->getArg(1));
 $app->addResolveDirectory($runner_dir)->setPathToSuites($runner_dir);
 

@@ -14,7 +14,7 @@ define('ROOT', $argv[7]);
 require_once ROOT . '/vendor/autoload.php';
 
 $compiler = new PluginsCompiler(
-  new PluginsManager(ROOT . '/plugins'),
+  new PluginsManager(new CheckPages(ROOT), ROOT . '/plugins'),
   ROOT . '/schema.visit.json',
   ROOT . '/' . CheckPages::SCHEMA_VISIT . '.json',
   ROOT . '/example'

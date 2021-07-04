@@ -80,4 +80,10 @@ final class Javascript implements TestPluginInterface {
     return $stringified;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function applies(array &$config) {
+  }
+
 }

@@ -70,7 +70,16 @@ final class Header implements TestPluginInterface {
     return $stringified;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function onBeforeRequest(&$driver) {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function applies(array &$config) {
   }
 
 }
