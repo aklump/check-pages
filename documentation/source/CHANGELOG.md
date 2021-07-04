@@ -4,35 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-- Add `login` and `logout` in _includes/drupal_ to be able to run suites as authenticated users.
-
 ## [0.11.0] - 2021-07-03
 
 ### Added
 
 - Create tests directory prompt on package install.
-
-### Changed
-
-- lorem
-
-### Deprecated
-
-- lorem
+- Authentication for Drupal 7 and Drupal 8 via `with_extras()` function.
+- `add_test_option()` function for custom functionality.
 
 ### Removed
 
 - `composer create-project` is no longer supported as it was too confusing and unnecessary to have two installation means.
-
-### Fixed
-
-- lorem
-
-### Security
-
-- lorem
 
 ## [0.10.0] - 2021-05-28
 

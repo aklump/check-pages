@@ -186,12 +186,15 @@ final class PluginsManager implements TestPluginInterface {
           // plugin should handle the assert.  We will allow more than one plugin
           // to handle an assert, if it's schema matches.
           $applies = $validator->isValid() && $instance instanceof TestPluginInterface;
+          if ($applies) {
+            $this->assertionPlugins[$index][$plugin['id']] = $plugin + ['instance' => $instance];
+          }
         }
       }
       if ($applies) {
-        $this->assertionPlugins[$index][$plugin['id']] = $plugin + ['instance' => $instance];
         $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
       }
+
     }
 
     foreach ($this->testPlugins as $plugin) {

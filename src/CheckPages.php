@@ -23,6 +23,8 @@ class CheckPages {
 
   protected $failedSuiteCount = 0;
 
+  protected $storage;
+
   /**
    * Holds a true state only when the filter is set and after a suite matching
    * the filter is used.  If a filter is set and all suites are run and this is
@@ -490,7 +492,7 @@ class CheckPages {
 
     $test_passed($http_response_code == $config['expect']);
 
-    if (in_array('show-source', $this->runner['options'])) {
+    if (array_key_exists('show-source', $this->runner['options'])) {
       if ($test_passed()) {
         $this->debug((string) $response->getBody());
       }
@@ -581,7 +583,7 @@ class CheckPages {
    * @return string
    *   The absolute URL.
    */
-  protected function url(string $possible_relative_url): string {
+  public function url(string $possible_relative_url): string {
     if (substr($possible_relative_url, 0, 1) !== '/') {
       return $possible_relative_url;
     }
@@ -732,6 +734,21 @@ class CheckPages {
       }, array_keys($test_data));
       $test_data = array_combine($keys, $test_data);
     }
+  }
+
+  /**
+   * Get a runner storage instance.
+   *
+   * This should be used to share data across test suites, as it will persiste
+   * for the life of a given runner instance.
+   *
+   * @return \AKlump\CheckPages\StorageInterface
+   *   A persistent storage across all test suites for a given runner instance.
+   */
+  public function getStorage(): \AKlump\CheckPages\StorageInterface {
+    $this->storage = $this->storage ?? new Storage();
+
+    return $this->storage;
   }
 
 }

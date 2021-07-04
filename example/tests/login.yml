@@ -1,5 +1,6 @@
 -
   user: [ admin ]
+#  js: true
   visit: /admin
   find:
     -
@@ -9,6 +10,7 @@
 -
   user: [ admin ]
   visit: /user
+#  js: true
   find:
     -
       dom: .page-title

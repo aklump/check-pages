@@ -4,3 +4,8 @@
 node_modules/
 documentation/core
 documentation/README.md
+/example/tests/config/og.yml
+/example/tests/config/users.json
+/example/tests/config/users.yml
+/plugins/options/test.http
+/example/tests/config/gop.yml

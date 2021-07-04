@@ -88,7 +88,14 @@ final class Options implements TestPluginInterface {
     foreach ($this->options as $option) {
       if (in_array($hook, array_keys($option['hooks']))) {
         $args = array_merge(($this->pluginData['config'][$option['name']] ?? []), $hook_args, [$this->pluginData]);
-        call_user_func_array($option['hooks'][$hook]['callback'], $args);
+        try {
+          call_user_func_array($option['hooks'][$hook]['callback'], $args);
+        }
+        catch (\Exception $exception) {
+          $class = get_class($exception);
+          $message = sprintf('Option "%s" failed: %s', $option['name'], $exception->getMessage());
+          throw new $class($message, $exception->getCode(), $exception);
+        }
       }
     }
   }

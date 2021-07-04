@@ -8,7 +8,7 @@
 load_config('config/local');
 
 with_extras('drupal7', [
-  'users_json' => __DIR__ . '/config/users.json',
+  'users' => 'config/users.yml',
 ]);
 
 run_suite('login');

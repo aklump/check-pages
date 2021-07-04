@@ -8,6 +8,9 @@ use ChromeDevtoolsProtocol\Model\CSS\GetComputedStyleForNodeRequest;
 use ChromeDevtoolsProtocol\Model\DOM\GetDocumentRequest;
 use ChromeDevtoolsProtocol\Model\DOM\GetOuterHTMLRequest;
 use ChromeDevtoolsProtocol\Model\DOM\QuerySelectorRequest;
+use ChromeDevtoolsProtocol\Model\Network\EnableRequest;
+use ChromeDevtoolsProtocol\Model\Network\Headers;
+use ChromeDevtoolsProtocol\Model\Network\SetExtraHTTPHeadersRequest;
 use ChromeDevtoolsProtocol\Model\Page\NavigateRequest;
 use ChromeDevtoolsProtocol\Model\Runtime\EvaluateRequest;
 use Psr\Http\Message\ResponseInterface;
@@ -98,6 +101,16 @@ final class ChromeDriver extends GuzzleDriver {
         $this->devtools->dom()->enable($this->ctx);
         $this->devtools->page()->enable($this->ctx);
         $this->devtools->css()->enable($this->ctx);
+        $this->devtools->network()->enable($this->ctx, EnableRequest::make());
+
+        $headers = $this->getHeaders();
+        if ($headers) {
+          $this->devtools->network()
+            ->setExtraHTTPHeaders($this->ctx, SetExtraHTTPHeadersRequest::builder()
+              ->setHeaders(Headers::fromJson($headers))
+              ->build());
+        }
+
         $this->devtools->page()->navigate($this->ctx, NavigateRequest::builder()
           ->setUrl($this->url)
           ->build());

@@ -37,7 +37,7 @@ interface RequestDriverInterface {
   public function getRedirectCode(): int;
 
   /**
-   * Add a header to be sent with the request.
+   * Set an HTTP header to be sent with the request.
    *
    * @param string $key
    * @param string $value
@@ -45,6 +45,14 @@ interface RequestDriverInterface {
    * @return \AKlump\CheckPages\RequestDriverInterface
    *   Self for chaining.
    */
-  public function addHeader(string $key, string $value): RequestDriverInterface;
+  public function setHeader(string $key, string $value): RequestDriverInterface;
+
+  /**
+   * Get the request headers.
+   *
+   * @return array
+   *   The headers to be sent with the request.
+   */
+  public function getHeaders(): array;
 
 }

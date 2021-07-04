@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Support for Drupal 7 websites.
+ * Support for Drupal 8 websites.
  *
  * Installation:
  *
@@ -14,7 +14,7 @@
  *
  * 2. Add the following to all runner files, where the path is to your JSON.
  *
- *     with_extras('drupal7', [
+ *     with_extras('drupal8', [
  *       'users' => 'config/users.json',
  *       'url' => '/user/login',
  *       'form' => '[data-drupal-selector="user-login-form"]',
@@ -27,30 +27,30 @@
  *       visit: /some/path
  */
 
-use AKlump\CheckPages\Options\AuthenticateDrupal7;
+use AKlump\CheckPages\Options\AuthenticateDrupal8;
 use AKlump\LoftLib\Bash\Color;
 
 add_test_option('user', [
-  'onBeforeRequest' => function ($username, $driver, $context) use ($drupal7) {
-    $sessions = $context['runner']->getStorage()->get('drupal7.sessions');
+  'onBeforeRequest' => function ($username, $driver, $context) use ($drupal8) {
+    $sessions = $context['runner']->getStorage()->get('drupal8.sessions');
     if (empty($sessions[$username])) {
-      if (!array_key_exists('users', $drupal7)) {
+      if (!array_key_exists('users', $drupal8)) {
         throw new \InvalidArgumentException('You must provide a filepath to the users list as "users".');
       }
 
       echo Color::wrap('green', sprintf('└── Logging in as %s... ', $username));
 
       // Load our non-version username/password index.
-      $path_to_users_list = $context['runner']->resolve($drupal7['users']);
-      $login_url = $drupal7['url'] ?? '/user/login';
+      $path_to_users_list = $context['runner']->resolve($drupal8['users']);
+      $login_url = $drupal8['url'] ?? '/user/login';
       $absolute_login_url = $context['runner']->url($login_url);
-      $auth = new AuthenticateDrupal7($path_to_users_list, $absolute_login_url);
+      $auth = new AuthenticateDrupal8($path_to_users_list, $absolute_login_url);
       $auth->login($username, $auth->getUser($username)['pass']);
 
       echo Color::wrap('green', "success!\n\n");
 
       $sessions[$username] = $auth->getSessionCookie();
-      $context['runner']->getStorage()->set('drupal7.sessions', $sessions);
+      $context['runner']->getStorage()->set('drupal8.sessions', $sessions);
     }
     $driver->setHeader('Cookie', $sessions[$username]);
   },
