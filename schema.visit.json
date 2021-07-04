@@ -169,7 +169,7 @@
                 "required": [
                     "visit"
                 ],
-                "additionalProperties": false,
+                "additionalProperties": true,
                 "properties": {
                     "js": {
                         "$ref": "#/definitions/js"
@@ -192,7 +192,7 @@
                 "required": [
                     "visit"
                 ],
-                "additionalProperties": false,
+                "additionalProperties": true,
                 "properties": {
                     "js": {
                         "$ref": "#/definitions/js"
@@ -215,7 +215,7 @@
                 "required": [
                     "url"
                 ],
-                "additionalProperties": false,
+                "additionalProperties": true,
                 "properties": {
                     "js": {
                         "$ref": "#/definitions/js"
@@ -238,7 +238,7 @@
                 "required": [
                     "url"
                 ],
-                "additionalProperties": false,
+                "additionalProperties": true,
                 "properties": {
                     "js": {
                         "$ref": "#/definitions/js"

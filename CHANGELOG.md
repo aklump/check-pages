@@ -4,14 +4,37 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres
-to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-- Add `login` and `logout` in _includes/drupal_ to be able to run suites as
-  authenticated users.
+- Add `login` and `logout` in _includes/drupal_ to be able to run suites as authenticated users.
+
+## [0.11.0] - 2021-07-03
+
+### Added
+
+- Create tests directory prompt on package install.
+
+### Changed
+
+- lorem
+
+### Deprecated
+
+- lorem
+
+### Removed
+
+- `composer create-project` is no longer supported as it was too confusing and unnecessary to have two installation means.
+
+### Fixed
+
+- lorem
+
+### Security
+
+- lorem
 
 ## [0.10.0] - 2021-05-28
 
@@ -51,8 +74,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - It's no longer required to add `js: true` to a test implementing a `style`
-  selector. It will now be forcefully set (or overridden) to `true`. This is
-  because the `style` selector only works when javascript is enabled.
+  selector. It will now be forcefully set (or overridden) to `true`. This is because the `style` selector only works when javascript is enabled.
 
 ## [0.7.0] - 2021-04-08
 
@@ -66,9 +88,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Added new selector 'attribute'.
 - Added ability to do style asserts.
-- Added globbing to run_suite(), e.g. `run_suite('*')` to run all suites. Normal
-  glob patterns work as well, which are relative to the --dir directory, or
-  defaults to the directory containing _runner.php_.
+- Added globbing to run_suite(), e.g. `run_suite('*')` to run all suites. Normal glob patterns work as well, which are relative to the --dir directory, or defaults to the directory containing _runner.php_.
 
 ### Changed
 
@@ -95,11 +115,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- The way the CSS selector works has changed fundamentally and may break your
-  tests. Refer to the following test YAML. Prior to 0.4 that would only choose
-  the first `.card__title` on the page and assert it's text matched the
-  expected. Starting in 0.4, all `.card__titles` found on the page will be
-  matched and the assert will pass if any of them have matching text.
+- The way the CSS selector works has changed fundamentally and may break your tests. Refer to the following test YAML. Prior to 0.4 that would only choose the first `.card__title` on the page and assert it's text matched the expected. Starting in 0.4, all `.card__titles` found on the page will be matched and the assert will pass if any of them have matching text.
 
     ```yaml
     -
@@ -110,8 +126,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
           text: The Top of the Mountain
     ```
 
-- If you need the earlier functionality you should use the `xpath` selector as
-  shown here to indicate just the first element with that class.
+- If you need the earlier functionality you should use the `xpath` selector as shown here to indicate just the first element with that class.
 
    ```yaml
    -
@@ -130,8 +145,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- The default output is now how it was when adding the `--debug` flag, use
-  the `--quiet` flag for less verbosity.
+- The default output is now how it was when adding the `--debug` flag, use the `--quiet` flag for less verbosity.
 - Visual layout to make reading results easier and more clear.
 
 ### Removed

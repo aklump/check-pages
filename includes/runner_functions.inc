@@ -45,6 +45,12 @@ function add_directory(string $custom_dir) {
   $app->addResolveDirectory($custom_dir);
 }
 
+function add_test_option(string $name, callable $callback) {
+  global $app;
+
+  $app->addTestOption($name, $callback);
+}
+
 /**
  * Point to a test suite file to run.
  *

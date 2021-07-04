@@ -102,7 +102,7 @@ class CheckPages {
   /**
    * @var array
    */
-  protected $commands = [];
+  protected $options = [];
 
   /**
    * App constructor.
@@ -189,7 +189,7 @@ class CheckPages {
    * @return \AKlump\CheckPages\CheckPages
    *   Self for chaining.
    */
-  public function addCommand(string $name, callable $callback): self {
+  public function addTestOption(string $name, callable $callback): self {
     $cb = new ReflectionFunction($callback);
     $arguments = array_map(function ($param) {
       return [
@@ -197,7 +197,7 @@ class CheckPages {
         $param->getName(),
       ];
     }, $cb->getParameters());
-    $this->commands[$name] = [
+    $this->options[$name] = [
       'name' => $name,
       'arguments' => $arguments,
       'callback' => $callback,
@@ -703,9 +703,11 @@ class CheckPages {
    *   The YAML data from a test suite.
    */
   protected function normalizeSuiteData(array &$data) {
-    foreach ($data as &$datum) {
-      $datum['url'] = $datum['visit'] ?? $datum['url'];
-      unset($datum['visit']);
+    foreach ($data as &$test_data) {
+      $keys = array_map(function ($key) {
+        return $key === 'visit' ? 'url' : $key;
+      }, array_keys($test_data));
+      $test_data = array_combine($keys, $test_data);
     }
   }
 

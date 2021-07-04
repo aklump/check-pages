@@ -36,15 +36,12 @@
 </code></pre>
 
 <ul>
-<li><code>header</code> is case-insensitive.</li>
-<li>If you're trying to match a header <strong>value</strong> with case-insensitivity, you should use the <code>match</code> key, with the <code>i</code> flag like so:
-```yaml
+<li><code>header</code> is NOT case-sensitive.</li>
+<li><p>But <code>contains</code> is, so... if you're trying to match a header <strong>value</strong> with case-insensitivity, you should use the <code>match</code> key, with the <code>i</code> flag like this:</p>
 
-<ul>
-<li>header: content-type
-matches: /text\/html/i
-```</li>
-</ul></li>
+<pre><code class="yaml">- header: content-type
+  matches: /text\/html/i
+</code></pre></li>
 </ul>
 
 <p>See more examples in <em>example/tests/plugins/header.yml</em></p>
@@ -57,7 +54,7 @@ matches: /text\/html/i
 <footer>
   <div class="pager"><a href="cheatsheet.html" class="prev cheatsheet">&laquo;Quick Reference: Test Writing</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="javascript.html" class="next javascript">Testing with Javascript&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.10.2 &bull; Last Updated: Sun, 27 Jun 2021 15:36:24 -0700</p>
+    <p class="legaleeze center">Version: 0.10.2 &bull; Last Updated: Sat, 03 Jul 2021 18:05:54 -0700</p>
   </div>
 </footer>
 

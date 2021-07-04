@@ -11,8 +11,9 @@ You can assert against response headers like this:
       contains: text/html 
 ```
 
-* `header` is case-insensitive.
-* If you're trying to match a header **value** with case-insensitivity, you should use the `match` key, with the `i` flag like so:
+* `header` is NOT case-sensitive.
+* But `contains` is, so... if you're trying to match a header **value** with case-insensitivity, you should use the `match` key, with the `i` flag like this:
+  
     ```yaml
     - header: content-type
       matches: /text\/html/i

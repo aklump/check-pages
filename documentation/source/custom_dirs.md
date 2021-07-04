@@ -1,4 +1,6 @@
-# How To Use A Custom Directory
+# How To Use A Custom Directory For Suite Files
+
+You may locate suite files in directories other than the main one, by registering those directories with the `add_directory()` function. After that `run_suite()` will also look for suite names in the added directory(ies).
 
 ```php
 <?php

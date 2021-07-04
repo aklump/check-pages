@@ -31,7 +31,7 @@
 
 <h2>Summary</h2>
 
-<p>This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain.  You write your tests using YAML and they can look as simple as this:</p>
+<p>This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain. You write your tests using YAML and they can look as simple as this:</p>
 
 <pre><code># Check the homepage to make sure it returns 200.
 - visit: /
@@ -53,7 +53,7 @@
 
 <pre><code>- visit: /
   find:
-    - never: '[site:name]'
+    - not contains: '[site:name]'
 </code></pre>
 
 <p>For more code examples explore the <em>/examples</em> directory.</p>
@@ -62,15 +62,15 @@
 
 <h2>Clarity of Purpose and Limitation</h2>
 
-<p>The mission of this tool is to provide testing for URLS and webpages in the most simple and concise syntax possible.  For testing scenarios that require element interaction, such as clicks, hovers, scrolling, etc, there are amazing projects out there such as <a href="https://www.cypress.io/">Cypress</a>.  This project will never try to compete with that crowd, and shall always restrict it's testing of the DOM to assertions against a single snapshot of the loaded URL.</p>
+<p>The mission of this tool is to provide testing for URLS and webpages in the most simple and concise syntax possible. For testing scenarios that require element interaction, such as clicks, hovers, scrolling, etc, there are amazing projects out there such as <a href="https://www.cypress.io/">Cypress</a>. This project will never try to compete with that crowd, and shall always restrict it's testing of the DOM to assertions against a single snapshot of the loaded URL.</p>
 
 <h2>Terms Used</h2>
 
 <ul>
-<li><em>Test Runner</em> - A very simple PHP file that defines the configuration and what test suites to run, and in what order.  @see <em>includes/runner.php</em>.</li>
+<li><em>Test Runner</em> - A very simple PHP file that defines the configuration and what test suites to run, and in what order. @see <em>includes/runner.php</em>.</li>
 <li><em>Test Suite</em> - A YAML file that includes one or more checks against URLs. @see <em>includes/suite.yml</em>.</li>
 <li><em>Test</em> - A single URL check within a suite.</li>
-<li><em>Assertion</em> - A single find action against the response body of a test, or a validation that the HTTP response code matches an expected value.</li>
+<li><em>Assertion</em> - A single check action against the HTTP response of a test, i.e., headers, body, status code, javascript, etc.</li>
 </ul>
 
 <h2>Requirements</h2>
@@ -78,19 +78,23 @@
 <ul>
 <li>You must install with Composer.</li>
 <li>Tests suites are written in YAML.</li>
-<li>Little to no experience with PHP is necessary.  Copy and paste will suffice.</li>
+<li>Little to no experience with PHP is necessary. Copy and paste will suffice.</li>
 </ul>
 
 <h2>Install</h2>
 
-<p>The following creates a stand-alone project in a folder named <em>check-pages</em>.  <em>See also Install In Another Composer Project</em>.</p>
-
-<pre><code>$ composer create-project aklump/check-pages
+<pre><code class="bash">$ composer require aklump/check-pages --dev
 </code></pre>
 
-<h2>Quick Start</h2>
+<ul>
+<li>In most cases the <code>--dev</code> is appropriate, but use your own discretion.</li>
+<li>You will be asked if you want to create a directory for your tests when you install. This will copy over a basic scaffolding to build from.</li>
+<li>More detailed examples are located in the <em>example</em> directory.</li>
+</ul>
 
-<p>Run the example tests with the following commands.  Then open up the files in the <em>example/tests</em> directory and study them to see how they work.<sup>1</sup></p>
+<h2>Example Tests Demo</h2>
+
+<p>If you are new to this project and would like to see a demonstration, it would be a good idea to start with the examples. Run the example tests with the following commands. Then open up the files in the <em>example/tests</em> directory and study them to see how they work.<sup>1</sup></p>
 
 <ol>
 <li><p>Open a new shell window which will run the PHP server for our example test pages.</p>
@@ -108,41 +112,32 @@
 <pre><code>$ ./check_pages failing_tests_runner.php
 </code></pre>
 
-<p><sup>1</sup> If you see no <em>tests</em> directory then create one and copy the contents of <em>examples</em> into <em>tests</em>.  The example <em>tests</em> directory will only be created if you use <code>create-project</code> as the installation method.</p>
+<p><sup>1</sup> If you see no <em>tests</em> directory then create one and copy the contents of <em>examples</em> into <em>tests</em>. The example <em>tests</em> directory will only be created if you use <code>create-project</code> as the installation method.</p>
 
 <h3>Writing Your First Test Suite</h3>
 
-<p>When you are ready you should delete the contents of the <em>tests</em> folder and write your own tests there.  Don't worry, the original example files are located in the <em>examples</em> directory.  (If you have used the alternate installation method you will need to write your tests in another folder of your choosing not located in this project.  But for these examples, we'll assume a <code>create-project</code> installation.)</p>
-
-<p>You will need a bare minimum file structure resembling:</p>
-
-<pre><code>.
-└── tests
-    └── config.yml
-    ├── suite.yml
-    └── runner.php
-</code></pre>
+<p>If you created a test directory on install then you're ready to build on that.  If you did not you can do that now by running the script in <em>vendor/bin/check_pages_init</em></p>
 
 <h3>Multiple Configuration Files</h3>
 
-<p>The project is designed to be able to run the same tests using different configurations.  You can create multiple configuration files so that you are able to run the same test on live and then on dev, which have different base URLs.</p>
+<p>The project is designed to be able to run the same tests using different configurations. You can create multiple configuration files so that you are able to run the same test on live and then on dev, which have different base URLs.</p>
 
 <pre><code>.
 └── tests
-    ├── config.dev.yml
-    ├── config.live.yml
+    ├── config/dev.yml
+    ├── config/live.yml
     ├── suite.yml
     └── runner.php
 </code></pre>
 
 <p>In <em>runner.php</em> use the following line to specify the default config file:</p>
 
-<pre><code>load_config('config.dev');
+<pre><code>load_config('config/dev');
 </code></pre>
 
 <p>When you're ready to run this using the live config add the config filename to the CLI command, e.g.,</p>
 
-<pre><code>$ ./check_pages runner.php --config=config.live
+<pre><code>$ ./check_pages runner.php --config=config/live
 </code></pre>
 
 <h3>Test functions</h3>
@@ -151,7 +146,7 @@
 
 <h2>Is JS Supported?</h2>
 
-<p>Yes, not by default, but you are able to indicate that given tests requires Javascript be run.  Read on...</p>
+<p>Yes, not by default, but you are able to indicate that given tests requires Javascript be run. Read on...</p>
 
 <h2>Javascript Testing Requirements</h2>
 
@@ -213,14 +208,14 @@ will be set automatically.</p>
 
 <h2>Quiet Mode</h2>
 
-<p>To make the output much simpler, use the <code>--quite</code> flag.  This will hide the assertions and reduce the output to simply pass/fail.</p>
+<p>To make the output much simpler, use the <code>--quite</code> flag. This will hide the assertions and reduce the output to simply pass/fail.</p>
 
 <pre><code>./check_pages failing_tests_runner.php --quiet
 </code></pre>
 
 <h2>Filter</h2>
 
-<p>Use the <code>--filter</code> parameter combined with a suite name to limit the runner to a single suite.  This is faster than editing your runner file.</p>
+<p>Use the <code>--filter</code> parameter combined with a suite name to limit the runner to a single suite. This is faster than editing your runner file.</p>
 
 <pre><code>./check_pages runner.php --filter=page_header
 </code></pre>
@@ -229,14 +224,7 @@ will be set automatically.</p>
 
 <p>Try using the <code>--show-source</code> to see the response source code as well.</p>
 
-<pre><code>./check_pages failing_tests_runner.php --show-source  
-</code></pre>
-
-<h2>Install In Another Composer Project</h2>
-
-<p>If you want to share dependencies with another project, like Drupal 8 for example, then use the alternative installation method.  The <code>--dev</code> flag is shown here, but use your own discretion.  Run the following from your Drupal app root directory.</p>
-
-<pre><code>$ composer require aklump/check-pages --dev
+<pre><code>./check_pages failing_tests_runner.php --show-source
 </code></pre>
 
 <h3>Usage</h3>
@@ -268,7 +256,7 @@ will be set automatically.</p>
 <footer>
   <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="developers.html" class="next developers">Developers&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.10.2 &bull; Last Updated: Sun, 27 Jun 2021 15:36:22 -0700</p>
+    <p class="legaleeze center">Version: 0.10.2 &bull; Last Updated: Sat, 03 Jul 2021 18:05:52 -0700</p>
   </div>
 </footer>
 

@@ -27,15 +27,50 @@
 
 <p>All notable changes to this project will be documented in this file.</p>
 
-<p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>,
-and this project adheres
-to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>, and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 
 <h2>[Unreleased]</h2>
 
 <ul>
-<li>Add <code>login</code> and <code>logout</code> in <em>includes/drupal</em> to be able to run suites as
-authenticated users.</li>
+<li>Add <code>login</code> and <code>logout</code> in <em>includes/drupal</em> to be able to run suites as authenticated users.</li>
+</ul>
+
+<h2>[0.11.0] - 2021-07-03</h2>
+
+<h3>Added</h3>
+
+<ul>
+<li>Create tests directory prompt on package install.</li>
+</ul>
+
+<h3>Changed</h3>
+
+<ul>
+<li>lorem</li>
+</ul>
+
+<h3>Deprecated</h3>
+
+<ul>
+<li>lorem</li>
+</ul>
+
+<h3>Removed</h3>
+
+<ul>
+<li><code>composer create-project</code> is no longer supported as it was too confusing and unnecessary to have two installation means.</li>
+</ul>
+
+<h3>Fixed</h3>
+
+<ul>
+<li>lorem</li>
+</ul>
+
+<h3>Security</h3>
+
+<ul>
+<li>lorem</li>
 </ul>
 
 <h2>[0.10.0] - 2021-05-28</h2>
@@ -89,8 +124,7 @@ authenticated users.</li>
 
 <ul>
 <li>It's no longer required to add <code>js: true</code> to a test implementing a <code>style</code>
-selector. It will now be forcefully set (or overridden) to <code>true</code>. This is
-because the <code>style</code> selector only works when javascript is enabled.</li>
+selector. It will now be forcefully set (or overridden) to <code>true</code>. This is because the <code>style</code> selector only works when javascript is enabled.</li>
 </ul>
 
 <h2>[0.7.0] - 2021-04-08</h2>
@@ -108,9 +142,7 @@ because the <code>style</code> selector only works when javascript is enabled.</
 <ul>
 <li>Added new selector 'attribute'.</li>
 <li>Added ability to do style asserts.</li>
-<li>Added globbing to run_suite(), e.g. <code>run_suite('*')</code> to run all suites. Normal
-glob patterns work as well, which are relative to the --dir directory, or
-defaults to the directory containing <em>runner.php</em>.</li>
+<li>Added globbing to run_suite(), e.g. <code>run_suite('*')</code> to run all suites. Normal glob patterns work as well, which are relative to the --dir directory, or defaults to the directory containing <em>runner.php</em>.</li>
 </ul>
 
 <h3>Changed</h3>
@@ -147,11 +179,7 @@ defaults to the directory containing <em>runner.php</em>.</li>
 <h3>Changed</h3>
 
 <ul>
-<li><p>The way the CSS selector works has changed fundamentally and may break your
-tests. Refer to the following test YAML. Prior to 0.4 that would only choose
-the first <code>.card__title</code> on the page and assert it's text matched the
-expected. Starting in 0.4, all <code>.card__titles</code> found on the page will be
-matched and the assert will pass if any of them have matching text.</p>
+<li><p>The way the CSS selector works has changed fundamentally and may break your tests. Refer to the following test YAML. Prior to 0.4 that would only choose the first <code>.card__title</code> on the page and assert it's text matched the expected. Starting in 0.4, all <code>.card__titles</code> found on the page will be matched and the assert will pass if any of them have matching text.</p>
 
 <pre><code class="yaml">-
   visit: /foo/bar
@@ -160,8 +188,7 @@ matched and the assert will pass if any of them have matching text.</p>
       dom: .card__title
       text: The Top of the Mountain
 </code></pre></li>
-<li><p>If you need the earlier functionality you should use the <code>xpath</code> selector as
-shown here to indicate just the first element with that class.</p>
+<li><p>If you need the earlier functionality you should use the <code>xpath</code> selector as shown here to indicate just the first element with that class.</p>
 
 <pre><code class="yaml">-
  visit: /foo/bar
@@ -183,8 +210,7 @@ shown here to indicate just the first element with that class.</p>
 <h3>Changed</h3>
 
 <ul>
-<li>The default output is now how it was when adding the <code>--debug</code> flag, use
-the <code>--quiet</code> flag for less verbosity.</li>
+<li>The default output is now how it was when adding the <code>--debug</code> flag, use the <code>--quiet</code> flag for less verbosity.</li>
 <li>Visual layout to make reading results easier and more clear.</li>
 </ul>
 
@@ -202,7 +228,7 @@ the <code>--quiet</code> flag for less verbosity.</li>
 <footer>
   <div class="pager"><a href="index.html" class="prev index">&laquo;Check Pages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="README.html" class="next readme">Check Pages&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.10.2 &bull; Last Updated: Sun, 27 Jun 2021 15:36:22 -0700</p>
+    <p class="legaleeze center">Version: 0.10.2 &bull; Last Updated: Sat, 03 Jul 2021 18:05:51 -0700</p>
   </div>
 </footer>
 
