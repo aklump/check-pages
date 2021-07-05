@@ -38,7 +38,7 @@ add_test_option('user', [
         throw new \InvalidArgumentException('You must provide a filepath to the users list as "users".');
       }
 
-      echo Color::wrap('green', sprintf('└── Logging in as %s... ', $username));
+      echo Color::wrap('green', sprintf('👤 Creating session for %s... ', $username));
 
       // Load our non-version username/password index.
       $path_to_users_list = $context['runner']->resolve($drupal7['users']);
@@ -47,7 +47,7 @@ add_test_option('user', [
       $auth = new AuthenticateDrupal7($path_to_users_list, $absolute_login_url);
       $auth->login($username, $auth->getUser($username)['pass']);
 
-      echo Color::wrap('green', "success!\n\n");
+      echo Color::wrap('green', "logged in!\n\n");
 
       $sessions[$username] = $auth->getSessionCookie();
       $context['runner']->getStorage()->set('drupal7.sessions', $sessions);
