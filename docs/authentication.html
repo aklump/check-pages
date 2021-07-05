@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Authentication</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--authentication">
+<header>
+  <div class="pager"><a href="index.html" class="prev index">&laquo;Check Pages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="CHANGELOG.html" class="next changelog">Changelog&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+
+<h1>Authentication</h1>
+
+<section>
+
+<p>If you want to check pages as an authenticated user of a website, then you have to provide a login option to your test suites.</p>
+
+<h2>Drupal 8</h2>
+
+<ol>
+<li><p>Create a YAML or JSON file containing user login credentials. Do not commit this to source control. You can place this whereever, but in this example it will be located in the config directory as <em>config/users.yml</em>. You may list as many users as you want. Each record must have the keys <code>name</code> and <code>pass</code>.</p>
+
+<pre><code class="yaml">-
+ name: admin
+ pass: 123pass
+-
+ name: member
+ pass: secret5
+</code></pre></li>
+<li><p>Add the following to your test runner file. Notice we include the path to the user data file. It must be a resolvable path.</p>
+
+<pre><code class="php">with_extras('drupal8', [
+  'users' =&gt; 'config/users.yml',
+]); 
+</code></pre></li>
+<li><p>In your test suite add the line <code>user</code> key to each test with the value of the username to be logged in as when visiting the URL.</p>
+
+<pre><code class="yaml">-
+  user: admin
+  visit: /admin
+-
+  user: member
+  visit: /admin
+  expect: 403
+</code></pre></li>
+</ol>
+
+<h2>Drupal 7</h2>
+
+<ol>
+<li><p>Follow instructions for Drupal 8, but change the first argument to <code>with_extras()</code> to <code>drupal7</code>, e.g.,</p>
+
+<pre><code class="php">with_extras('drupal7', [
+  'users' =&gt; 'config/users.yml',
+]); 
+</code></pre></li>
+</ol>
+
+<h2>Custom Authentication</h2>
+
+<p>You can build your own authentication using the <code>add_test_option()</code> function. Refer to <em>drupal8.inc</em> as a starting point.</p>
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="index.html" class="prev index">&laquo;Check Pages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="CHANGELOG.html" class="next changelog">Changelog&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.11.0 &bull; Last Updated: Mon, 05 Jul 2021 00:24:51 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
+
