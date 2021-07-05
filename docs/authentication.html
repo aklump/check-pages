@@ -45,6 +45,13 @@
   'users' =&gt; 'config/users.yml',
 ]); 
 </code></pre></li>
+<li><p>If the login form is located at a non-standard URL, you may indicate that URL, which renders the login form, as shown here.</p>
+
+<pre><code class="php">with_extras('drupal8', [
+  'users' =&gt; 'config/users.yml',
+  'login_url' =&gt; '/login',
+]); 
+</code></pre></li>
 <li><p>In your test suite add the line <code>user</code> key to each test with the value of the username to be logged in as when visiting the URL.</p>
 
 <pre><code class="yaml">-
@@ -80,7 +87,7 @@
 <footer>
   <div class="pager"><a href="index.html" class="prev index">&laquo;Check Pages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="CHANGELOG.html" class="next changelog">Changelog&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.11.0 &bull; Last Updated: Mon, 05 Jul 2021 00:24:51 -0700</p>
+    <p class="legaleeze center">Version: 0.11.1 &bull; Last Updated: Mon, 05 Jul 2021 09:20:04 -0700</p>
   </div>
 </footer>
 
