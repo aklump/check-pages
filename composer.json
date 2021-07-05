@@ -26,9 +26,9 @@
         "dmore\/chrome-mink-driver": "^2.7",
         "behat\/mink": "^1.8",
         "jakubkulhan\/chrome-devtools-protocol": "^1.0",
-        "adamnicholson/bag": "@dev"
+        "adamnicholson\/bag": "@dev"
     },
-    "version": "0.10.2",
+    "version": "0.11.0",
     "bin": [
         ".\/check_pages",
         ".\/check_pages_init"
