@@ -99,7 +99,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
 
     // Log in and get a session.
     $jar = new CookieJar();
-    $authenticator
+    $response = $authenticator
       ->getClient()
       ->request('POST', $this->loginUrl, [
         'cookies' => $jar,
@@ -111,6 +111,17 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
           'form_build_id' => $form_build_id,
         ],
       ]);
+
+    // Look for the login form again in the page response, if it's still here,
+    // that means login failed.  We could also look in the headers for
+    // "Set-Cookie" to see if it changed from the request above, if this doesn't
+    // prove to work over time.  A changed session cookie indicates a new
+    // session was created, but not necessarily that the login succeeded.
+    $crawler = new Crawler(strval($response->getBody()));
+    if ($crawler->filter($this->formSelector)->count() > 0) {
+      throw new \RuntimeException(sprintf('Login failed for username "%s".', $username));
+    }
+
     $session_cookie = array_first(array_filter($jar->toArray(), function ($item) {
       return strpos($item['Name'], 'SESS') !== FALSE;
     }));
