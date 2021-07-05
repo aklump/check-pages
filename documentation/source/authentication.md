@@ -23,6 +23,15 @@ If you want to check pages as an authenticated user of a website, then you have 
     ]); 
     ```
 
+1. If the login form is located at a non-standard URL, you may indicate that URL, which renders the login form, as shown here.
+
+    ```php
+    with_extras('drupal8', [
+      'users' => 'config/users.yml',
+      'login_url' => '/login',
+    ]); 
+    ```
+
 1. In your test suite add the line `user` key to each test with the value of the username to be logged in as when visiting the URL.
 
     ```yaml

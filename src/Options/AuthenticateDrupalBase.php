@@ -25,7 +25,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
   /**
    * AuthenticateDrupalBase constructor.
    *
-   * @param string $path_to_users_file
+   * @param string $path_to_users_login_data
    *   The resolved path to the JSON or YAML file for the users.
    * @param string $absolute_login_url
    *   The absolute URL to the login form.
@@ -35,8 +35,8 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
    *   A CSS selector to find the login form on in the DOM of the
    *   $absolute_login_url.
    */
-  public function __construct(string $path_to_users_file, string $absolute_login_url, string $form_id, string $form_selector) {
-    $this->usersFile = $path_to_users_file;
+  public function __construct(string $path_to_users_login_data, string $absolute_login_url, string $form_selector, string $form_id) {
+    $this->usersFile = $path_to_users_login_data;
     $this->loginUrl = $absolute_login_url;
     $this->formId = $form_id;
     $this->formSelector = $form_selector;

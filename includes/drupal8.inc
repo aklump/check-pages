@@ -16,8 +16,7 @@
  *
  *     with_extras('drupal8', [
  *       'users' => 'config/users.json',
- *       'url' => '/user/login',
- *       'form' => '[data-drupal-selector="user-login-form"]',
+ *       'login_url' => '/user/login',
  *     ]);
  *
  * 3. Include the `user` option in a test and the request will be authenticated.
@@ -32,7 +31,8 @@ use AKlump\LoftLib\Bash\Color;
 
 add_test_option('user', [
   'onBeforeRequest' => function ($username, $driver, $context) use ($drupal8) {
-    $sessions = $context['runner']->getStorage()->get('drupal8.sessions');
+    $runner = $context['runner'];
+    $sessions = $runner->getStorage()->get('drupal8.sessions');
     if (empty($sessions[$username])) {
       if (!array_key_exists('users', $drupal8)) {
         throw new \InvalidArgumentException('You must provide a filepath to the users list as "users".');
@@ -41,16 +41,16 @@ add_test_option('user', [
       echo Color::wrap('green', sprintf('👤 Creating session for %s... ', $username));
 
       // Load our non-version username/password index.
-      $path_to_users_list = $context['runner']->resolve($drupal8['users']);
-      $login_url = $drupal8['url'] ?? '/user/login';
-      $absolute_login_url = $context['runner']->url($login_url);
+      $path_to_users_list = $runner->resolve($drupal8['users']);
+      $login_url = $drupal8['login_url'] ?? '/user/login';
+      $absolute_login_url = $runner->url($login_url);
       $auth = new AuthenticateDrupal8($path_to_users_list, $absolute_login_url);
       $auth->login($username, $auth->getUser($username)['pass']);
 
       echo Color::wrap('green', "logged in!\n\n");
 
       $sessions[$username] = $auth->getSessionCookie();
-      $context['runner']->getStorage()->set('drupal8.sessions', $sessions);
+      $runner->getStorage()->set('drupal8.sessions', $sessions);
     }
     $driver->setHeader('Cookie', $sessions[$username]);
   },
