@@ -5,6 +5,5 @@ load_config('config/local');
 run_suite('dom');
 run_suite('header');
 run_suite('javascript');
-run_suite('options');
 run_suite('style');
 run_suite('xpath');

@@ -71,8 +71,8 @@ final class PluginsCompiler {
    */
   public function compile() {
     $plugins = $this->pluginsManager->getAllPlugins();
-    foreach ($plugins as $plugin) {
-      $this->compilePlugin($plugin['id'], $plugin['path']);
+    foreach ($plugins as &$plugin) {
+      $this->compilePlugin($plugin);
     }
     $this->createTestRunnerPhpFile($plugins);
   }
@@ -86,7 +86,9 @@ final class PluginsCompiler {
     ];
 
     foreach ($plugins as $plugin) {
-      $runner_code[] = "run_suite('{$plugin['id']}');";
+      if ($plugin['has_tests']) {
+        $runner_code[] = "run_suite('{$plugin['id']}');";
+      }
     }
     $runner_file_path = $this->examplesPath . '/tests/runner_plugins.php';
     $result = file_put_contents($runner_file_path, implode(PHP_EOL, $runner_code));
@@ -103,9 +105,9 @@ final class PluginsCompiler {
    * @param string $path_to_plugin
    *   The filepath to the plugin definition directory.
    */
-  private function compilePlugin(string $id, string $path_to_plugin) {
-    $this->compilePluginSchema($id, $path_to_plugin);
-    $this->handleTests($id, $path_to_plugin);
+  private function compilePlugin(array &$plugin) {
+    $this->compilePluginSchema($plugin['id'], $plugin['path']);
+    $plugin['has_tests'] = $this->handleTests($plugin['id'], $plugin['path']);
   }
 
   private function ensureDir($filepath) {
@@ -131,7 +133,7 @@ final class PluginsCompiler {
       return pathinfo($path, PATHINFO_FILENAME) === 'test_subject';
     }));
     if (empty($subject)) {
-      return;
+      return FALSE;
     }
     $extension = pathinfo($subject, PATHINFO_EXTENSION);
     $suite_relative_path_final = "plugins/$id.$extension";
@@ -150,6 +152,8 @@ final class PluginsCompiler {
       return $test;
     }, $plugin_suite);
     file_put_contents($this->examplesPath . "/tests/plugins/{$id}.yml", Yaml::dump($plugin_suite, 6));
+
+    return TRUE;
   }
 
   /**

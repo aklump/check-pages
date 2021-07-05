@@ -87,7 +87,11 @@ final class Options implements TestPluginInterface {
   private function handleCallbackByHook(string $hook, array $hook_args) {
     foreach ($this->options as $option) {
       if (in_array($hook, array_keys($option['hooks']))) {
-        $args = array_merge(($this->pluginData['config'][$option['name']] ?? []), $hook_args, [$this->pluginData]);
+        $config = $this->pluginData['config'][$option['name']] ?? [];
+        if (!is_array($config)) {
+          $config = [$config];
+        }
+        $args = array_merge($config, $hook_args, [$this->pluginData]);
         try {
           call_user_func_array($option['hooks'][$hook]['callback'], $args);
         }
