@@ -38,6 +38,8 @@ add_test_option('user', [
         throw new \InvalidArgumentException('You must provide a filepath to the users list as "users".');
       }
 
+      echo "🔐";
+
       // Load our non-version username/password index.
       $path_to_users_list = $runner->resolve($drupal8['users']);
       $login_url = $drupal8['login_url'] ?? '/user/login';

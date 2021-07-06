@@ -774,7 +774,17 @@ class CheckPages {
    *   A persistent storage across all test suites for a given runner instance.
    */
   public function getStorage(): \AKlump\CheckPages\StorageInterface {
-    $this->storage = $this->storage ?? new Storage();
+    if ($this->storage) {
+      return $this->storage;
+    }
+
+    $storage_name = NULL;
+    $path_to_storage = __DIR__ . '/../files/storage/';
+    if (is_dir($path_to_storage)) {
+      $storage_name = pathinfo($this->runner['name'], PATHINFO_FILENAME);
+      $storage_name = rtrim($path_to_storage, '/') . "/$storage_name";
+    }
+    $this->storage = new Storage($storage_name);
 
     return $this->storage;
   }
