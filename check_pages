@@ -15,6 +15,8 @@ global $app;
 global $cli;
 global $test_runner;
 
+$start_time = microtime(TRUE);
+
 // Find and load the autoloader
 $autoloaders = [
   ROOT . '/vendor/autoload.php',
@@ -48,7 +50,16 @@ catch (\Exception $exception) {
   exit(1);
 }
 
+// Calculate the elapsed time.
+$elapsed = microtime(TRUE) - $start_time;
+if ($elapsed < 60) {
+  $elapsed = round($elapsed, 1) . ' seconds';
+}
+else {
+  $elapsed = round($elapsed / 60, 1) . ' minutes';
+}
+
 // Finish with a happy response.
 echo PHP_EOL;
-echo Color::wrap('white on green', 'Testing completed successfully.') . PHP_EOL . PHP_EOL;
+echo Color::wrap('white on green', "Testing completed successfully in $elapsed.") . PHP_EOL . PHP_EOL;
 exit(0);
