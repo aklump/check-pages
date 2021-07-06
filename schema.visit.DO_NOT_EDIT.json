@@ -17,6 +17,13 @@
             "type": "boolean",
             "description": "Set this to true if you need javascript to run on the page."
         },
+        "why": {
+            "type": "string",
+            "examples": [
+                "Assert the page title is present on the page."
+            ],
+            "pattern": ".+"
+        },
         "find": {
             "oneOf": [
                 {
@@ -146,6 +153,9 @@
             ],
             "additionalProperties": false,
             "properties": {
+                "why": {
+                    "$ref": "#/definitions/why"
+                },
                 "contains": {
                     "$ref": "#/definitions/contains"
                 }
@@ -159,6 +169,9 @@
             ],
             "additionalProperties": false,
             "properties": {
+                "why": {
+                    "$ref": "#/definitions/why"
+                },
                 "not contains": {
                     "$ref": "#/definitions/contains"
                 }
@@ -172,6 +185,9 @@
             ],
             "additionalProperties": false,
             "properties": {
+                "why": {
+                    "$ref": "#/definitions/why"
+                },
                 "matches": {
                     "$ref": "#/definitions/matches"
                 }
@@ -294,6 +310,9 @@
                 },
                 "attribute": {
                     "$ref": "#/definitions/attribute"
+                },
+                "why": {
+                    "$ref": "#/definitions/why"
                 }
             }
         },
@@ -365,6 +384,9 @@
                 },
                 "count": {
                     "$ref": "#/definitions/count"
+                },
+                "why": {
+                    "$ref": "#/definitions/why"
                 }
             }
         },
@@ -425,6 +447,9 @@
                 },
                 "matches": {
                     "$ref": "#/definitions/matches"
+                },
+                "why": {
+                    "$ref": "#/definitions/why"
                 }
             }
         },
@@ -504,6 +529,9 @@
                 },
                 "property": {
                     "$ref": "#/definitions/property"
+                },
+                "why": {
+                    "$ref": "#/definitions/why"
                 }
             }
         },
@@ -622,6 +650,9 @@
                 },
                 "attribute": {
                     "$ref": "#/definitions/attribute"
+                },
+                "why": {
+                    "$ref": "#/definitions/why"
                 }
             }
         }
@@ -636,6 +667,9 @@
                 ],
                 "additionalProperties": true,
                 "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
                     "js": {
                         "$ref": "#/definitions/js"
                     },
@@ -659,6 +693,9 @@
                 ],
                 "additionalProperties": true,
                 "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
                     "js": {
                         "$ref": "#/definitions/js"
                     },
@@ -682,6 +719,9 @@
                 ],
                 "additionalProperties": true,
                 "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
                     "js": {
                         "$ref": "#/definitions/js"
                     },
@@ -705,6 +745,9 @@
                 ],
                 "additionalProperties": true,
                 "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
                     "js": {
                         "$ref": "#/definitions/js"
                     },

@@ -21,6 +21,7 @@
     # QUOTES WILL CAUSE PROBLEMS. YOU ALSO MUST ESCAPE CHARACTERS AS
     # APPROPRIATE.
     -
+      why: Assert the copyright line is present on the page.
       matches: '/Copyright &copy; 2000\-\d{4} In the Loft Studios, PO Box 29294, Bellingham, WA/'
 
 
@@ -30,8 +31,8 @@
   expect: 301
   location: /location.html
 
-# This example tests our redirect when running javascript.  It's contrived.
 -
+  why: Ensure redirects work when javascript is enabled.
   url: /moved.php
   js: true
   expect: 301

@@ -186,7 +186,17 @@ final class PluginsCompiler {
       $this->schema['definitions'][$id] = [
         'title' => Strings::title("$id Plugin Assertion"),
       ];
-      $this->schema['definitions'][$id] += $this->loadJson($schema_find_path);
+      $schema_find = $this->loadJson($schema_find_path);
+
+      // This property should be present for all plugins, however a plugin can
+      // set this to false if it wants to block it.
+      if (empty($schema_find['properties']['why']) || FALSE !== $schema_find['properties']['why']) {
+        $schema_find['properties']['why'] = [
+          '$ref' => '#/definitions/why',
+        ];
+      }
+
+      $this->schema['definitions'][$id] += $schema_find;
       $this->schema['definitions']['find']['oneOf'][1]['items']['oneOf'][] = [
         '$ref' => "#/definitions/{$id}",
       ];

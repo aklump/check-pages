@@ -391,9 +391,13 @@ class CheckPages {
         'expect' => 200,
         'find' => '',
       ];
+
+      if (!empty($config['why'])) {
+        echo '🔎 ' . Color::wrap('blue', $config['why']) . PHP_EOL;
+      }
+
       $result = $this->runTest($config);
       $color = $result['pass'] ? 'green' : 'white on red';
-      $prefix = $result['pass'] ? '👍' : '👎';
       $prefix = $result['pass'] ? '👍' : '🚫';
       $url = $this->debugging ? $this->url($config['url']) : $config['url'];
       echo $prefix . ' ' . Color::wrap($color, $url) . PHP_EOL;
@@ -424,6 +428,7 @@ class CheckPages {
   protected function echoMessages() {
     $color_map = [
       'error' => 'red',
+      'info' => 'blue',
       'success' => 'green',
       'debug' => 'dark gray',
     ];
@@ -679,11 +684,21 @@ class CheckPages {
     $assert->run();
     $pass = $assert->getResult();
     if (!$pass) {
-      $this->fail('├── ' . $assert);
+      if (!empty($definition['why'])) {
+        $this->fail("├── {$definition['why']} $assert");
+      }
+      else {
+        $this->fail("├── $assert");
+      }
       $this->fail('└── ' . $assert->getReason());
     }
     else {
-      $this->pass('├── ' . $assert);
+      if (!empty($definition['why'])) {
+        $this->pass("├── {$definition['why']}");
+      }
+      else {
+        $this->pass("├── $assert");
+      }
     }
 
     return $pass;
@@ -697,6 +712,16 @@ class CheckPages {
    */
   protected function debug(string $message) {
     $this->debug[] = ['data' => $message, 'level' => 'debug'];
+  }
+
+  /**
+   * Add an info message.
+   *
+   * @param string $message
+   *   The debug message.
+   */
+  protected function info(string $message) {
+    $this->debug[] = ['data' => $message, 'level' => 'info'];
   }
 
   /**
