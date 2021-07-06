@@ -396,11 +396,15 @@ class CheckPages {
         echo '🔎 ' . Color::wrap('blue', $config['why']) . PHP_EOL;
       }
 
-      $result = $this->runTest($config);
-      $color = $result['pass'] ? 'green' : 'white on red';
-      $prefix = $result['pass'] ? '👍' : '🚫';
+      // Print the URL before we run the test so it appears before the user has to wait.
       $url = $this->debugging ? $this->url($config['url']) : $config['url'];
-      echo $prefix . ' ' . Color::wrap($color, $url) . PHP_EOL;
+      echo Color::wrap('blue', "$url ");
+
+      $result = $this->runTest($config);
+
+      // This icon will afix itself to the URL after the test.
+      $icon = $result['pass'] ? '👍' : '🚫';
+      echo "$icon" . PHP_EOL;
 
       if ($this->debugging && $this->debug) {
         $this->echoMessages();
@@ -732,7 +736,6 @@ class CheckPages {
   protected function fail(string $reason) {
     $this->debug[] = ['data' => $reason, 'level' => 'error'];
   }
-
 
   /**
    * Add a failure reason.

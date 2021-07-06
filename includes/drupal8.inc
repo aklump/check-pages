@@ -38,8 +38,6 @@ add_test_option('user', [
         throw new \InvalidArgumentException('You must provide a filepath to the users list as "users".');
       }
 
-      echo Color::wrap('green', sprintf('👤 Creating session for %s... ', $username));
-
       // Load our non-version username/password index.
       $path_to_users_list = $runner->resolve($drupal8['users']);
       $login_url = $drupal8['login_url'] ?? '/user/login';
@@ -47,11 +45,11 @@ add_test_option('user', [
       $auth = new AuthenticateDrupal8($path_to_users_list, $absolute_login_url);
       $auth->login($username, $auth->getUser($username)['pass']);
 
-      echo Color::wrap('green', "logged in!\n\n");
-
       $sessions[$username] = $auth->getSessionCookie();
       $runner->getStorage()->set('drupal8.sessions', $sessions);
     }
+
+    echo Color::wrap('green', sprintf('(👤 %s) ', $username));
     $driver->setHeader('Cookie', $sessions[$username]);
   },
 ]);
