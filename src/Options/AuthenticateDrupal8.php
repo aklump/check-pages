@@ -20,7 +20,7 @@ final class AuthenticateDrupal8 extends AuthenticateDrupalBase {
   public function __construct(
     string $path_to_users_login_data,
     string $absolute_login_url,
-    string $form_selector = 'form[data-drupal-selector="user-login-form"]',
+    string $form_selector = 'form.user-login-form',
     string $form_id = 'user_login_form'
   ) {
     parent::__construct($path_to_users_login_data, $absolute_login_url, $form_selector, $form_id);
