@@ -51,7 +51,7 @@ add_test_option('user', [
       $runner->getStorage()->set('drupal7.sessions', $sessions);
     }
 
-    echo Color::wrap('green', sprintf('(👤 %s) ', $username));
+    echo Color::wrap('green', sprintf('(👤%s) ', $username));
     $driver->setHeader('Cookie', $sessions[$username]);
   },
 ]);
