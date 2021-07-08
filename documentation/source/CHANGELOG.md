@@ -4,12 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2021-07-07
+
+### Added
+
+- Output file urls.txt
+- Output file failures.txt
+
 ## [0.12.0] - 2021-07-06
 
 ### Added
 
 - `why` key for message overrides.
-- Disk storage of sessions storage across runners.  See docs for more info.
+- Disk storage of sessions storage across runners. See docs for more info.
 
 ## [0.11.0] - 2021-07-03
 

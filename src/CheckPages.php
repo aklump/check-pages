@@ -105,6 +105,11 @@ class CheckPages {
   protected $options = [];
 
   /**
+   * @var array
+   */
+  protected $writeToFileResources;
+
+  /**
    * App constructor.
    *
    * @param string $root_dir
@@ -405,6 +410,19 @@ class CheckPages {
       // This icon will afix itself to the URL after the test.
       $icon = $result['pass'] ? '👍' : '🚫';
       echo "$icon" . PHP_EOL;
+
+      // Create the failure output files.
+      if (!$result['pass']) {
+        $this->writeToFile('urls', [$url]);
+        $failure_log = [$url];
+        foreach ($this->debug as $item) {
+          if ('error' === $item['level']) {
+            $failure_log[] = $item['data'];
+          }
+        }
+        $failure_log[] = PHP_EOL;
+        $this->writeToFile('failures', $failure_log);
+      }
 
       if ($this->debugging && $this->debug) {
         $this->echoMessages();
@@ -787,6 +805,56 @@ class CheckPages {
     $this->storage = new Storage($storage_name);
 
     return $this->storage;
+  }
+
+  /**
+   * Send data to a file in the files directory if it exists.
+   *
+   * @param string $name
+   *   A root value to use when generating filenames.
+   * @param array $content
+   *   The content to write to the file.
+   *
+   * @return $this
+   */
+  public function writeToFile(string $name, array $content): self {
+    $path_to_files = __DIR__ . '/../files';
+    if (!file_exists($path_to_files)) {
+      return $this;
+    }
+    $path_to_files .= '/' . pathinfo($this->runner['name'], PATHINFO_FILENAME);
+    if (empty($this->writeToFileResources[$name])) {
+
+      if (!is_dir($path_to_files)) {
+        mkdir($path_to_files, 0775, TRUE);
+      }
+
+      $path = [];
+      $path[] = pathinfo($name, PATHINFO_FILENAME);
+      $path = implode('-', $path) . '.txt';
+      $handle = fopen($path_to_files . '/' . $path, 'a+');
+      $this->writeToFileResources[$name] = [$handle, $name, $path];
+    }
+    list($handle) = $this->writeToFileResources[$name];
+
+    // Trim empty EOL.
+    while ($content && '' == trim(array_last($content))) {
+      array_pop($content);
+    }
+    fwrite($handle, implode(PHP_EOL, $content) . PHP_EOL);
+
+    return $this;
+  }
+
+  /**
+   * Close out file resources if any.
+   */
+  public function __destruct() {
+    foreach ($this->writeToFileResources as $info) {
+      list($handle, $name) = $info;
+      $this->writeToFile($name, ['', '', date('r'), str_repeat('-', 80), '']);
+      fclose($handle);
+    }
   }
 
 }
