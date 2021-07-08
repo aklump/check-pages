@@ -28,7 +28,7 @@
         "jakubkulhan\/chrome-devtools-protocol": "^1.0",
         "adamnicholson\/bag": "@dev"
     },
-    "version": "0.12.0",
+    "version": "0.13.0",
     "bin": [
         ".\/check_pages",
         ".\/check_pages_init"
