@@ -189,6 +189,7 @@ final class PluginsManager implements TestPluginInterface {
           $applies = $validator->isValid() && $instance instanceof TestPluginInterface;
           if ($applies) {
             $this->assertionPlugins[$index][$plugin['id']] = $plugin + ['instance' => $instance];
+            break;
           }
         }
       }
