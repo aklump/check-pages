@@ -13,6 +13,13 @@
             "required": [
                 "style",
                 "property",
+                "not contains"
+            ]
+        },
+        {
+            "required": [
+                "style",
+                "property",
                 "is"
             ]
         },
@@ -51,6 +58,9 @@
         },
         "contains": {
             "$ref": "#/definitions/contains"
+        },
+        "not contains": {
+            "$ref": "#/definitions/not contains"
         },
         "is": {
             "$ref": "#/definitions/equals"

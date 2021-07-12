@@ -215,8 +215,21 @@
                 {
                     "required": [
                         "dom",
+                        "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "dom",
                         "attribute",
                         "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "dom",
+                        "attribute",
+                        "not contains"
                     ]
                 },
                 {
@@ -293,6 +306,9 @@
                 "contains": {
                     "$ref": "#/definitions/contains"
                 },
+                "not contains": {
+                    "$ref": "#/definitions/not contains"
+                },
                 "is": {
                     "$ref": "#/definitions/equals"
                 },
@@ -334,6 +350,12 @@
                 {
                     "required": [
                         "header",
+                        "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "header",
                         "is"
                     ]
                 },
@@ -369,6 +391,9 @@
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
+                },
+                "not contains": {
+                    "$ref": "#/definitions/not contains"
                 },
                 "is": {
                     "$ref": "#/definitions/equals"
@@ -415,6 +440,12 @@
                 {
                     "required": [
                         "javascript",
+                        "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "javascript",
                         "is"
                     ]
                 },
@@ -438,6 +469,9 @@
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
+                },
+                "not contains": {
+                    "$ref": "#/definitions/not contains"
                 },
                 "is": {
                     "$ref": "#/definitions/equals"
@@ -467,6 +501,13 @@
                         "style",
                         "property",
                         "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "style",
+                        "property",
+                        "not contains"
                     ]
                 },
                 {
@@ -511,6 +552,9 @@
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
+                },
+                "not contains": {
+                    "$ref": "#/definitions/not contains"
                 },
                 "is": {
                     "$ref": "#/definitions/equals"
@@ -588,6 +632,19 @@
                 {
                     "required": [
                         "xpath",
+                        "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
                         "is"
                     ]
                 },
@@ -632,6 +689,9 @@
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
+                },
+                "not contains": {
+                    "$ref": "#/definitions/not contains"
                 },
                 "is": {
                     "$ref": "#/definitions/equals"

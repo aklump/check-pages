@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Parts\Runner;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -33,7 +34,7 @@ final class Options implements TestPluginInterface {
    * @param \AKlump\CheckPages\CheckPages $instance
    *   The current instance.
    */
-  public function __construct(CheckPages $instance) {
+  public function __construct(Runner $instance) {
     $this->pluginData = ['runner' => $instance];
     $this->options = $instance->getTestOptions();
   }

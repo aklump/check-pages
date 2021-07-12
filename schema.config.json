@@ -27,6 +27,10 @@
         "js": {
             "type": "boolean"
         },
+        "files": {
+            "type": "string",
+            "description": "A resolvable path to a writeable directory for file output.  The directory must exist and must be writeable."
+        },
         "chrome": {
             "type": "string"
         },

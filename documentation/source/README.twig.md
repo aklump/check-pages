@@ -6,14 +6,21 @@
 
 ## Summary
 
-This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain. You write your tests using YAML and they can look as simple as this:
+This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain. You write your tests using YAML and they can be as simple as checking for a 200 HTTP response on the homepage.
 
-    # Check the homepage to make sure it returns 200.
-    - visit: /
-    
-    # Make sure the `/admin` path returns 403 forbidden when not logged in.
-    - visit: /admin
-      expect: 403
+```yaml
+-
+  visit: /
+```
+
+Or ensuring the admin section is protected.
+
+```
+-
+  visit: /admin
+  why: Make sure the `/admin` path returns 403 forbidden when not logged in.
+  expect: 403
+```
 
 In a third test we can assert there is one logo image on the homepage, like so:
 
@@ -79,7 +86,7 @@ Some failing tests are also available to explore:
 
 ### Writing Your First Test Suite
 
-If you created a test directory on install then you're ready to build on that.  If you did not you can do that now by running the script in _vendor/bin/check_pages_init_
+If you created a test directory on install then you're ready to build on that. If you did not you can do that now by running the script in _vendor/bin/check_pages_init_
 
 ### Multiple Configuration Files
 

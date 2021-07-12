@@ -2,14 +2,14 @@
 
 <html>
 <head>
-  <title>Developers</title>
+  <title>File Output</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
 </head>
 
-<body class="page--developers">
+<body class="page--file_output">
 <header>
-  <div class="pager"><a href="README.html" class="prev README">&laquo;Check Pages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="examples.html" class="next examples">Examples&raquo;</a></div></header>
+  <div class="pager"><a href="examples.html" class="prev examples">&laquo;Examples</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="storage.html" class="next storage">File Storage&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -21,28 +21,23 @@
   </section>
 
 
-<h1>Developers</h1>
+<h1>File Output</h1>
 
 <section>
 
-<h2>Plugins &amp; Testing</h2>
+<p>If you create the files directory, certain files will be written there when you run your suites.</p>
 
-<p>Do not edit the following, as they are created in the build step and will be
-overwritten. To affect these files you need to look to <em>plugins/</em>
-directory, which contains the source code.</p>
+<ul>
+<li>Each suite will create a directory by it's filename.</li>
+<li>In that directory the following files will be created:
 
-<pre><code>.
-├── tests
-│     ├── plugins
-│     │     ├── foo.yml
-│     │     └── javascript.yml
-│     ├── runner_plugins.php
-└── web
-    └── plugins
-        ├── foo.html
-        └── javascript.html
+<ul>
+<li><em>urls.txt</em> a list of urls that failed testing.</li>
+<li><em>failures.txt</em> verbose output of the failures only.</li>
+</ul></li>
+</ul>
 
-</code></pre>
+<p>Try using <code>tail -f files/SUITE/urls.txt</code> during development.</p>
 </section>
 
 <div class="search__results">
@@ -50,7 +45,7 @@ directory, which contains the source code.</p>
 </div>
 
 <footer>
-  <div class="pager"><a href="README.html" class="prev README">&laquo;Check Pages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="examples.html" class="next examples">Examples&raquo;</a></div>  
+  <div class="pager"><a href="examples.html" class="prev examples">&laquo;Examples</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="storage.html" class="next storage">File Storage&raquo;</a></div>  
   <div id="footer-legaleeze">
     <p class="legaleeze center">Version: 0.13.0 &bull; Last Updated: Mon, 12 Jul 2021 15:19:14 -0700</p>
   </div>

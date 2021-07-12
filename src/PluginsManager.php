@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Code\Strings;
 use JsonSchema\Validator;
 use Psr\Http\Message\ResponseInterface;
@@ -44,8 +45,8 @@ final class PluginsManager implements TestPluginInterface {
    * @param string $path_to_plugins
    *   Path to the directory containing all plugins.
    */
-  public function __construct(CheckPages $runner_instance, string $path_to_plugins) {
-    $this->checkPages = $runner_instance;
+  public function __construct(Runner $runner_instance, string $path_to_plugins) {
+    $this->runner = $runner_instance;
     $this->testPluginsDir = rtrim($path_to_plugins, '/');
   }
 
@@ -137,7 +138,7 @@ final class PluginsManager implements TestPluginInterface {
       if ($plugin['id'] === $plugin_id) {
         require_once $plugin['autoload'];
 
-        return new $plugin['classname']($this->checkPages);
+        return new $plugin['classname']($this->runner);
       }
     }
     throw new \RuntimeException(sprintf('Could not instantiate plugin %s', $plugin_id['id']));
@@ -174,29 +175,28 @@ final class PluginsManager implements TestPluginInterface {
     foreach ($all_plugins as $plugin) {
       $instance = $this->getPluginInstance($plugin['id']);
       $applies = $instance->applies($config);
-      if (!is_bool($applies)) {
-        // We need to index each find and figure out which plugin(s) should handle
-        // it, if any.
-        foreach ($config['find'] as $index => $needle) {
+      if ($applies) {
+        $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
+      }
+      elseif (!is_bool($applies)) {
+        // We need to index each "find" element (assertion) and figure out which
+        // plugin(s) should handle the assertion, if any.
+        foreach ($config['find'] as $index => $assert_config) {
           $validator = new Validator();
-          $data = json_decode(json_encode($needle));
+          $data = json_decode(json_encode($assert_config));
           $plugin_schema = $this->getPluginSchema($plugin['id']);
           $validator->validate($data, $plugin_schema);
-          // This means that this plugin's schema matches $needle, therefore this
+          // This means that this plugin's schema matches $assert_config, therefore this
           // plugin should handle the assert.  We will allow more than one plugin
           // to handle an assert, if it's schema matches.
           $applies = $validator->isValid() && $instance instanceof TestPluginInterface;
           if ($applies) {
             $this->assertionPlugins[$index][$plugin['id']] = $plugin + ['instance' => $instance];
+            $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
           }
         }
       }
-      if ($applies) {
-        $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
-      }
-
     }
-
     foreach ($this->testPlugins as $plugin) {
       $plugin['instance']->{__FUNCTION__}($config);
     }

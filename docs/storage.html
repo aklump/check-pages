@@ -9,7 +9,7 @@
 
 <body class="page--storage">
 <header>
-  <div class="pager"><a href="examples.html" class="prev examples">&laquo;Examples</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="custom_dirs.html" class="next custom_dirs">How To Use A Custom Directory For Suite Files&raquo;</a></div></header>
+  <div class="pager"><a href="file_output.html" class="prev file_output">&laquo;File Output</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="custom_dirs.html" class="next custom_dirs">How To Use A Custom Directory For Suite Files&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -25,9 +25,9 @@
 
 <section>
 
-<p>Authentication can slow down your tests. To mitigate this you can create a writeable folder at <em>files/storage</em> and the session cookies will be written to disk the first time they are obtained from the test subject. After that, authentication will skip the login step and pull the session data from <em>files/storage</em>. Protect the contents of that directory because it contains credentials.</p>
+<p>Authentication can slow down your tests. To mitigate this you can create a writeable folder at <em>{config.files}/storage</em> and the session cookies will be written to disk the first time they are obtained from the test subject. After that, authentication will skip the login step and pull the session data from <em>files/storage</em>. Protect the contents of that directory because it contains credentials.</p>
 
-<p>If you do not want this feature, then make sure that <em>files/storage</em> does not exist.</p>
+<p>If you do not want this feature, then make sure that there is no directory called <em>storage</em> in the the directory you've defined as your writeable files in the runner config.</p>
 </section>
 
 <div class="search__results">
@@ -35,9 +35,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="examples.html" class="prev examples">&laquo;Examples</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="custom_dirs.html" class="next custom_dirs">How To Use A Custom Directory For Suite Files&raquo;</a></div>  
+  <div class="pager"><a href="file_output.html" class="prev file_output">&laquo;File Output</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="custom_dirs.html" class="next custom_dirs">How To Use A Custom Directory For Suite Files&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.12.0 &bull; Last Updated: Tue, 06 Jul 2021 16:34:19 -0700</p>
+    <p class="legaleeze center">Version: 0.13.0 &bull; Last Updated: Mon, 12 Jul 2021 15:19:16 -0700</p>
   </div>
 </footer>
 

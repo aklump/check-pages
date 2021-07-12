@@ -6,6 +6,7 @@
  */
 
 use AKlump\CheckPages\CheckPages;
+use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Bash\Bash;
 use AKlump\LoftLib\Bash\Color;
 use AKlump\LoftLib\Storage\FilePath;
@@ -38,7 +39,7 @@ if ($cli->hasFlag('v')) {
   exit(0);
 }
 
-$app = new CheckPages(ROOT);
+$app = new Runner(ROOT);
 $app->setRunner($cli->getArg(1, ''), $cli->getParams());
 $runner_dir = dirname(rtrim(getcwd(), '/') . '/' . $cli->getArg(1));
 $app->addResolveDirectory($runner_dir)->setPathToSuites($runner_dir);
