@@ -1,14 +1,23 @@
 <?php
 
-namespace AKlump\CheckPages;
+namespace AKlump\CheckPages\Parts;
 
+use AKlump\CheckPages\Assert;
+use AKlump\CheckPages\ChromeDriver;
+use AKlump\CheckPages\GuzzleDriver;
+use AKlump\CheckPages\Output\FailedTestMarkdown;
+use AKlump\CheckPages\PluginsManager;
+use AKlump\CheckPages\Storage;
+use AKlump\CheckPages\SuiteFailedException;
+use AKlump\CheckPages\TestFailedException;
+use AKlump\CheckPages\UnresolvablePathException;
 use AKlump\LoftLib\Bash\Color;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Yaml\Yaml;
 
-class CheckPages {
+class Runner {
 
   /**
    * The filename without extension or path.
@@ -123,7 +132,11 @@ class CheckPages {
     $this->addResolveDirectory($this->rootDir);
     $this->addResolveDirectory($this->rootDir . '/tests');
     $this->pluginsManager = new PluginsManager($this, $this->rootDir . '/plugins');
-    $schema = json_decode(file_get_contents($this->rootDir . '/' . static::SCHEMA_VISIT . '.json'), TRUE);
+    $schema = [];
+    $schema_path = $this->rootDir . '/' . static::SCHEMA_VISIT . '.json';
+    if (file_exists($schema_path)) {
+      $schema = json_decode(file_get_contents($schema_path), TRUE);
+    }
     $this->pluginsManager->setSchema($schema);
   }
 
@@ -138,7 +151,7 @@ class CheckPages {
    * @return $this
    *   Self for chaining.
    */
-  public function setRunner(string $basename, array $options): CheckPages {
+  public function setRunner(string $basename, array $options): Runner {
     $this->runner = [
       'name' => $basename,
       'options' => $options,
@@ -159,7 +172,7 @@ class CheckPages {
    *
    * @see load_config()
    */
-  public function setConfig(string $path): CheckPages {
+  public function setConfig(string $path): Runner {
     $this->configPath = $path;
 
     return $this;
@@ -176,7 +189,7 @@ class CheckPages {
    * @return
    *   Self for chaining.
    */
-  public function setSuiteFilter(string $filter): CheckPages {
+  public function setSuiteFilter(string $filter): Runner {
     $this->filter = $filter;
 
     return $this;
@@ -350,6 +363,8 @@ class CheckPages {
     $path_to_suite = $this->resolve($path_to_suite, $suite_id);
     $suite_id = pathinfo(substr($path_to_suite, strlen($suite_id) + 1), PATHINFO_FILENAME);
 
+    $suite = new Suite($suite_id, $this->config, $this);
+
     $this->config['suites_to_ignore'] = array_map(function ($suite_to_ignore) {
       return $this->resolve($suite_to_ignore);
     }, $this->config['suites_to_ignore'] ?? []);
@@ -369,10 +384,10 @@ class CheckPages {
       $this->filterApplied = TRUE;
     }
 
-    $data = $this->validateAndLoadYaml($path_to_suite, static::SCHEMA_VISIT . '.json');
-    $this->normalizeSuiteData($data);
+    $tests = $this->validateAndLoadYaml($path_to_suite, static::SCHEMA_VISIT . '.json');
+    $this->normalizeSuiteData($tests);
 
-    $this->longestUrl = array_reduce($data, function ($carry, $item) {
+    $this->longestUrl = array_reduce($tests, function ($carry, $item) {
       return max($carry, strlen($item['url'] ?? $item));
     }, $this->longestUrl);
     $results = [];
@@ -391,7 +406,7 @@ class CheckPages {
 
     $this->debug = [];
     $failed_tests = 0;
-    foreach ($data as $config) {
+    foreach (array_values($tests) as $test_index => $config) {
       $config += [
         'expect' => 200,
         'find' => '',
@@ -405,7 +420,8 @@ class CheckPages {
       $url = $this->debugging ? $this->url($config['url']) : $config['url'];
       echo Color::wrap('blue', "$url ");
 
-      $result = $this->runTest($config);
+      $test = new Test(strval($test_index), $config, $suite);
+      $result = $this->runTest($test);
 
       // This icon will afix itself to the URL after the test.
       $icon = $result['pass'] ? '👍' : '🚫';
@@ -469,7 +485,8 @@ class CheckPages {
    * @return array
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  protected function runTest(array $config): array {
+  protected function runTest(Test $test): array {
+    $config = $test->getConfig();
     // Ensure find is an array so we don't have to check below in two places.
     if (!is_array($config['find'])) {
       $config['find'] = empty($config['find']) ? [] : [$config['find']];
@@ -532,7 +549,7 @@ class CheckPages {
       $this->pass('├── HTTP ' . $http_response_code);
     }
     else {
-      $this->fail(sprintf("├── Expected HTTP %d, got %d", $config['expect'], $http_response_code));
+      $this->failReason(sprintf("├── Expected HTTP %d, got %d", $config['expect'], $http_response_code));
     }
 
     // Test the location if asked.
@@ -544,7 +561,7 @@ class CheckPages {
       $location_test = $http_location === $this->url($expected_location);
       $test_passed($location_test);
       if (!$location_test) {
-        $this->fail(sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $this->url($expected_location)));
+        $this->failReason(sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $this->url($expected_location)));
       }
     }
 
@@ -562,6 +579,8 @@ class CheckPages {
     else {
       $this->fail('└── Test failed.');
     }
+
+    $test->setResults($this->debug);
 
     return [
       'pass' => $test_passed(),
@@ -591,7 +610,7 @@ class CheckPages {
     }
     while (($try = array_shift($candidates))) {
       list($resolved_path, $try) = $try;
-      if (is_file($try)) {
+      if (file_exists($try)) {
         return $try;
       }
     }
@@ -707,12 +726,12 @@ class CheckPages {
     $pass = $assert->getResult();
     if (!$pass) {
       if (!empty($definition['why'])) {
-        $this->fail("├── {$definition['why']} $assert");
+        $this->failReason("├── {$definition['why']} $assert");
       }
       else {
         $this->fail("├── $assert");
       }
-      $this->fail('└── ' . $assert->getReason());
+      $this->failReason('└── ' . $assert->getReason());
     }
     else {
       if (!empty($definition['why'])) {
@@ -749,20 +768,33 @@ class CheckPages {
   /**
    * Add a failure reason.
    *
-   * @param string $reason
+   * @param string $message
    */
-  protected function fail(string $reason) {
-    $this->debug[] = ['data' => $reason, 'level' => 'error'];
+  protected function fail(string $message) {
+    $this->debug[] = ['data' => $message, 'level' => 'error'];
   }
 
   /**
    * Add a failure reason.
    *
-   * @param string $reason
+   * @param string $message
+   */
+  protected function failReason(string $message) {
+    $this->debug[] = [
+      'data' => $message,
+      'level' => 'error',
+      'tags' => ['todo'],
+    ];
+  }
+
+  /**
+   * Add a failure reason.
+   *
+   * @param string $message
    *   The message.
    */
-  protected function pass(string $reason) {
-    $this->debug[] = ['data' => $reason, 'level' => 'success'];
+  protected function pass(string $message) {
+    $this->debug[] = ['data' => $message, 'level' => 'success'];
   }
 
   /**
@@ -797,7 +829,7 @@ class CheckPages {
     }
 
     $storage_name = NULL;
-    $path_to_storage = __DIR__ . '/../files/storage/';
+    $path_to_storage = $this->getPathToFilesDirectory() . '/storage/';
     if (is_dir($path_to_storage)) {
       $storage_name = pathinfo($this->runner['name'], PATHINFO_FILENAME);
       $storage_name = rtrim($path_to_storage, '/') . "/$storage_name";

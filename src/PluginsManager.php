@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Code\Strings;
 use JsonSchema\Validator;
 use Psr\Http\Message\ResponseInterface;
@@ -44,8 +45,8 @@ final class PluginsManager implements TestPluginInterface {
    * @param string $path_to_plugins
    *   Path to the directory containing all plugins.
    */
-  public function __construct(CheckPages $runner_instance, string $path_to_plugins) {
-    $this->checkPages = $runner_instance;
+  public function __construct(Runner $runner_instance, string $path_to_plugins) {
+    $this->runner = $runner_instance;
     $this->testPluginsDir = rtrim($path_to_plugins, '/');
   }
 
@@ -137,7 +138,7 @@ final class PluginsManager implements TestPluginInterface {
       if ($plugin['id'] === $plugin_id) {
         require_once $plugin['autoload'];
 
-        return new $plugin['classname']($this->checkPages);
+        return new $plugin['classname']($this->runner);
       }
     }
     throw new \RuntimeException(sprintf('Could not instantiate plugin %s', $plugin_id['id']));
@@ -194,7 +195,6 @@ final class PluginsManager implements TestPluginInterface {
       if ($applies) {
         $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
       }
-
     }
 
     foreach ($this->testPlugins as $plugin) {
