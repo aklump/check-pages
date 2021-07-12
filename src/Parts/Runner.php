@@ -119,6 +119,13 @@ class Runner {
   protected $writeToFileResources;
 
   /**
+   * Cache of discovered filepath.
+   *
+   * @var string
+   */
+  private $pathToFiles;
+
+  /**
    * App constructor.
    *
    * @param string $root_dir
@@ -438,6 +445,8 @@ class Runner {
         }
         $failure_log[] = PHP_EOL;
         $this->writeToFile('failures', $failure_log);
+
+        FailedTestMarkdown::output("{$suite_id}{$test_index}", $test);
       }
 
       if ($this->debugging && $this->debug) {
@@ -840,6 +849,30 @@ class Runner {
   }
 
   /**
+   * Return the path to the files, if it exists.
+   *
+   * @return string
+   *   The path to the files directory or empty string.
+   */
+  private function getPathToFilesDirectory(): string {
+    if (NULL === $this->pathToFiles) {
+      if (empty($this->config['files'])) {
+        $this->pathToFiles = '';
+      }
+      else {
+        try {
+          $this->pathToFiles = $this->resolve($this->config['files']);
+        }
+        catch (\Exception $exception) {
+          $this->pathToFiles = '';
+        }
+      }
+    }
+
+    return $this->pathToFiles;
+  }
+
+  /**
    * Send data to a file in the files directory if it exists.
    *
    * @param string $name
@@ -849,9 +882,9 @@ class Runner {
    *
    * @return $this
    */
-  public function writeToFile(string $name, array $content): self {
-    $path_to_files = __DIR__ . '/../files';
-    if (!file_exists($path_to_files)) {
+  public function writeToFile(string $name, array $content, string $mode = 'a+'): self {
+    $path_to_files = $this->getPathToFilesDirectory();
+    if (!$path_to_files) {
       return $this;
     }
     $path_to_files .= '/' . pathinfo($this->runner['name'], PATHINFO_FILENAME);
@@ -863,16 +896,13 @@ class Runner {
 
       $path = [];
       $path[] = pathinfo($name, PATHINFO_FILENAME);
-      $path = implode('-', $path) . '.txt';
-      $handle = fopen($path_to_files . '/' . $path, 'a+');
+      $extension = pathinfo($name, PATHINFO_EXTENSION) ?? '';
+      $extension = $extension ?: 'txt';
+      $path = implode('-', $path) . ".$extension";
+      $handle = fopen($path_to_files . '/' . $path, $mode);
       $this->writeToFileResources[$name] = [$handle, $name, $path];
     }
     list($handle) = $this->writeToFileResources[$name];
-
-    // Trim empty EOL.
-    while ($content && '' == trim(array_last($content))) {
-      array_pop($content);
-    }
     fwrite($handle, implode(PHP_EOL, $content) . PHP_EOL);
 
     return $this;
@@ -882,7 +912,8 @@ class Runner {
    * Close out file resources if any.
    */
   public function __destruct() {
-    foreach ($this->writeToFileResources as $info) {
+    $resources = $this->writeToFileResources ?? [];
+    foreach ($resources as $info) {
       list($handle, $name) = $info;
       $this->writeToFile($name, ['', '', date('r'), str_repeat('-', 80), '']);
       fclose($handle);

@@ -17,6 +17,10 @@
             "type": "boolean",
             "description": "Set this to true if you need javascript to run on the page."
         },
+        "files": {
+            "type": "string",
+            "description": "A resolvable path to a writeable directory for file output.  The directory must exist and must be writeable."
+        },
         "why": {
             "type": "string",
             "examples": [
@@ -215,8 +219,21 @@
                 {
                     "required": [
                         "dom",
+                        "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "dom",
                         "attribute",
                         "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "dom",
+                        "attribute",
+                        "not contains"
                     ]
                 },
                 {
@@ -293,6 +310,9 @@
                 "contains": {
                     "$ref": "#/definitions/contains"
                 },
+                "not contains": {
+                    "$ref": "#/definitions/not contains"
+                },
                 "is": {
                     "$ref": "#/definitions/equals"
                 },
@@ -334,6 +354,12 @@
                 {
                     "required": [
                         "header",
+                        "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "header",
                         "is"
                     ]
                 },
@@ -369,6 +395,9 @@
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
+                },
+                "not contains": {
+                    "$ref": "#/definitions/not contains"
                 },
                 "is": {
                     "$ref": "#/definitions/equals"
@@ -415,6 +444,12 @@
                 {
                     "required": [
                         "javascript",
+                        "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "javascript",
                         "is"
                     ]
                 },
@@ -438,6 +473,9 @@
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
+                },
+                "not contains": {
+                    "$ref": "#/definitions/not contains"
                 },
                 "is": {
                     "$ref": "#/definitions/equals"
@@ -467,6 +505,13 @@
                         "style",
                         "property",
                         "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "style",
+                        "property",
+                        "not contains"
                     ]
                 },
                 {
@@ -511,6 +556,9 @@
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
+                },
+                "not contains": {
+                    "$ref": "#/definitions/not contains"
                 },
                 "is": {
                     "$ref": "#/definitions/equals"
@@ -588,6 +636,19 @@
                 {
                     "required": [
                         "xpath",
+                        "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
                         "is"
                     ]
                 },
@@ -633,6 +694,9 @@
                 "contains": {
                     "$ref": "#/definitions/contains"
                 },
+                "not contains": {
+                    "$ref": "#/definitions/not contains"
+                },
                 "is": {
                     "$ref": "#/definitions/equals"
                 },
@@ -670,6 +734,9 @@
                     "why": {
                         "$ref": "#/definitions/why"
                     },
+                    "files": {
+                        "$ref": "#/definitions/files"
+                    },
                     "js": {
                         "$ref": "#/definitions/js"
                     },
@@ -695,6 +762,9 @@
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
+                    },
+                    "files": {
+                        "$ref": "#/definitions/files"
                     },
                     "js": {
                         "$ref": "#/definitions/js"
@@ -722,6 +792,9 @@
                     "why": {
                         "$ref": "#/definitions/why"
                     },
+                    "files": {
+                        "$ref": "#/definitions/files"
+                    },
                     "js": {
                         "$ref": "#/definitions/js"
                     },
@@ -747,6 +820,9 @@
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
+                    },
+                    "files": {
+                        "$ref": "#/definitions/files"
                     },
                     "js": {
                         "$ref": "#/definitions/js"
