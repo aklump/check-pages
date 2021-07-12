@@ -427,10 +427,14 @@ class Runner {
       $url = $this->debugging ? $this->url($config['url']) : $config['url'];
       echo Color::wrap('blue', "$url ");
 
+      if ($config['js'] ?? FALSE) {
+        echo "☕ ";
+      }
+
       $test = new Test(strval($test_index), $config, $suite);
       $result = $this->runTest($test);
 
-      // This icon will afix itself to the URL after the test.
+      // This icon will affix itself to the URL after the test.
       $icon = $result['pass'] ? '👍' : '🚫';
       echo "$icon" . PHP_EOL;
 

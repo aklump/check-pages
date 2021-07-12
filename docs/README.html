@@ -31,13 +31,17 @@
 
 <h2>Summary</h2>
 
-<p>This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain. You write your tests using YAML and they can look as simple as this:</p>
+<p>This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain. You write your tests using YAML and they can be as simple as checking for a 200 HTTP response on the homepage.</p>
 
-<pre><code># Check the homepage to make sure it returns 200.
-- visit: /
+<pre><code class="yaml">-
+  visit: /
+</code></pre>
 
-# Make sure the `/admin` path returns 403 forbidden when not logged in.
-- visit: /admin
+<p>Or ensuring the admin section is protected.</p>
+
+<pre><code>-
+  visit: /admin
+  why: Make sure the `/admin` path returns 403 forbidden when not logged in.
   expect: 403
 </code></pre>
 
@@ -116,7 +120,7 @@
 
 <h3>Writing Your First Test Suite</h3>
 
-<p>If you created a test directory on install then you're ready to build on that.  If you did not you can do that now by running the script in <em>vendor/bin/check_pages_init</em></p>
+<p>If you created a test directory on install then you're ready to build on that. If you did not you can do that now by running the script in <em>vendor/bin/check_pages_init</em></p>
 
 <h3>Multiple Configuration Files</h3>
 
@@ -256,7 +260,7 @@ will be set automatically.</p>
 <footer>
   <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="developers.html" class="next developers">Developers&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.13.0 &bull; Last Updated: Thu, 08 Jul 2021 12:56:21 -0700</p>
+    <p class="legaleeze center">Version: 0.13.0 &bull; Last Updated: Mon, 12 Jul 2021 15:19:12 -0700</p>
   </div>
 </footer>
 

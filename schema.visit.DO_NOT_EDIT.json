@@ -17,10 +17,6 @@
             "type": "boolean",
             "description": "Set this to true if you need javascript to run on the page."
         },
-        "files": {
-            "type": "string",
-            "description": "A resolvable path to a writeable directory for file output.  The directory must exist and must be writeable."
-        },
         "why": {
             "type": "string",
             "examples": [
@@ -734,9 +730,6 @@
                     "why": {
                         "$ref": "#/definitions/why"
                     },
-                    "files": {
-                        "$ref": "#/definitions/files"
-                    },
                     "js": {
                         "$ref": "#/definitions/js"
                     },
@@ -762,9 +755,6 @@
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
-                    },
-                    "files": {
-                        "$ref": "#/definitions/files"
                     },
                     "js": {
                         "$ref": "#/definitions/js"
@@ -792,9 +782,6 @@
                     "why": {
                         "$ref": "#/definitions/why"
                     },
-                    "files": {
-                        "$ref": "#/definitions/files"
-                    },
                     "js": {
                         "$ref": "#/definitions/js"
                     },
@@ -820,9 +807,6 @@
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
-                    },
-                    "files": {
-                        "$ref": "#/definitions/files"
                     },
                     "js": {
                         "$ref": "#/definitions/js"
