@@ -15,6 +15,12 @@
         {
             "required": [
                 "javascript",
+                "not contains"
+            ]
+        },
+        {
+            "required": [
+                "javascript",
                 "is"
             ]
         },
@@ -38,6 +44,9 @@
         },
         "contains": {
             "$ref": "#/definitions/contains"
+        },
+        "not contains": {
+            "$ref": "#/definitions/not contains"
         },
         "is": {
             "$ref": "#/definitions/equals"

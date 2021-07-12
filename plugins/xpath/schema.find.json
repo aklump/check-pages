@@ -43,6 +43,19 @@
         {
             "required": [
                 "xpath",
+                "not contains"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "attribute",
+                "not contains"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
                 "is"
             ]
         },
@@ -87,6 +100,9 @@
         },
         "contains": {
             "$ref": "#/definitions/contains"
+        },
+        "not contains": {
+            "$ref": "#/definitions/not contains"
         },
         "is": {
             "$ref": "#/definitions/equals"
