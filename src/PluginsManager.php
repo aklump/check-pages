@@ -178,23 +178,22 @@ final class PluginsManager implements TestPluginInterface {
       if (!is_bool($applies)) {
         // We need to index each find and figure out which plugin(s) should handle
         // it, if any.
-        foreach ($config['find'] as $index => $needle) {
+        foreach ($config['find'] as $index => $assert_config) {
           $validator = new Validator();
-          $data = json_decode(json_encode($needle));
+          $data = json_decode(json_encode($assert_config));
           $plugin_schema = $this->getPluginSchema($plugin['id']);
           $validator->validate($data, $plugin_schema);
-          // This means that this plugin's schema matches $needle, therefore this
+          // This means that this plugin's schema matches $assert_config, therefore this
           // plugin should handle the assert.  We will allow more than one plugin
           // to handle an assert, if it's schema matches.
           $applies = $validator->isValid() && $instance instanceof TestPluginInterface;
           if ($applies) {
             $this->assertionPlugins[$index][$plugin['id']] = $plugin + ['instance' => $instance];
-            break;
+            if (!isset($this->testPlugins[$plugin['id']])) {
+              $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
+            }
           }
         }
-      }
-      if ($applies) {
-        $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
       }
     }
 
