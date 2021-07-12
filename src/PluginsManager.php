@@ -175,9 +175,12 @@ final class PluginsManager implements TestPluginInterface {
     foreach ($all_plugins as $plugin) {
       $instance = $this->getPluginInstance($plugin['id']);
       $applies = $instance->applies($config);
-      if (!is_bool($applies)) {
-        // We need to index each find and figure out which plugin(s) should handle
-        // it, if any.
+      if ($applies) {
+        $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
+      }
+      elseif (!is_bool($applies)) {
+        // We need to index each "find" element (assertion) and figure out which
+        // plugin(s) should handle the assertion, if any.
         foreach ($config['find'] as $index => $assert_config) {
           $validator = new Validator();
           $data = json_decode(json_encode($assert_config));
@@ -189,14 +192,11 @@ final class PluginsManager implements TestPluginInterface {
           $applies = $validator->isValid() && $instance instanceof TestPluginInterface;
           if ($applies) {
             $this->assertionPlugins[$index][$plugin['id']] = $plugin + ['instance' => $instance];
-            if (!isset($this->testPlugins[$plugin['id']])) {
-              $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
-            }
+            $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
           }
         }
       }
     }
-
     foreach ($this->testPlugins as $plugin) {
       $plugin['instance']->{__FUNCTION__}($config);
     }
