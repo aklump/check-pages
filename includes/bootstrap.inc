@@ -46,16 +46,27 @@ if ($cli->hasFlag('v')) {
 }
 
 $app = new Runner(ROOT);
-$app->setRunner($cli->getArg(1, ''), $cli->getParams());
-$runner_dir = dirname(rtrim(getcwd(), '/') . '/' . $cli->getArg(1));
-$app->addResolveDirectory($runner_dir)->setPathToSuites($runner_dir);
+$path_to_runner = $cli->getArg(1, '');
+$app->setRunner(basename($path_to_runner), $cli->getParams());
+
+// Add the directory of the runner as a resolvable directory and path to suites.
+if ($path_to_runner) {
+  $realpath_to_runner = realpath($path_to_runner);
+  if (!$realpath_to_runner) {
+    throw new \InvalidArgumentException("The runner file: \"$path_to_runner\" does not exist.");
+  }
+  $runner_dir = dirname($realpath_to_runner);
+  $app->addResolveDirectory($runner_dir)->setPathToSuites($runner_dir);
+}
 
 if (($dir = $cli->getParam('dir'))) {
+  $dir = realpath($dir);
   if (!is_dir($dir)) {
     throw new \InvalidArgumentException("\"$dir\" must be an existing directory.");
   }
-  $app->addResolveDirectory($dir);
-  $app->setPathToSuites($dir);
+
+  // This path to suites needs to overwrite that from runner directory above.
+  $app->addResolveDirectory($dir)->setPathToSuites($dir);
 }
 
 $test_runner = $app->getRunner();
