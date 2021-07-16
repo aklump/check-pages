@@ -63,8 +63,12 @@ $ composer require aklump/check-pages --dev
 ```
 
 * In most cases the `--dev` is appropriate, but use your own discretion.
-* You will be asked if you want to create a directory for your tests when you install. This will copy over a basic scaffolding to build from.
+* You will be asked if you want to create a directory for your tests when you install. This will copy over a basic scaffolding to build from.<sup>1</sup>
 * More detailed examples are located in the _example_ directory.
+
+### <sup>1</sup>Creating Test Directories At Any Time
+
+Use _./create_test_directory_ outside of installation to copy scaffolding.
 
 ## Example Tests Demo
 
