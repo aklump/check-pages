@@ -64,6 +64,27 @@
 </code></pre></li>
 </ol>
 
+<h2>Advanced Configuration</h2>
+
+<p>You may move the <code>with_extras</code> configuration into your configuration files when necessary. Do something like the following.</p>
+
+<pre><code class="php">with_extras('drupal8', [
+  'users' =&gt; config_get('extras.users'),
+]); 
+</code></pre>
+
+<p><em>config/live.yml</em></p>
+
+<pre><code class="yaml">extras:
+  users: config/users--live.yml
+</code></pre>
+
+<p><em>config/dev.yml</em></p>
+
+<pre><code class="yaml">extras:
+  users: config/users--dev.yml
+</code></pre>
+
 <h2>Drupal 7</h2>
 
 <ol>
@@ -87,7 +108,7 @@
 <footer>
   <div class="pager"><a href="index.html" class="prev index">&laquo;Check Pages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="CHANGELOG.html" class="next changelog">Changelog&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.14.0 &bull; Last Updated: Fri, 16 Jul 2021 11:28:49 -0700</p>
+    <p class="legaleeze center">Version: 0.15.0 &bull; Last Updated: Fri, 16 Jul 2021 13:06:55 -0700</p>
   </div>
 </footer>
 
