@@ -5,6 +5,8 @@
  * These are functions available for writing tests.
  */
 
+use Dflydev\DotAccessData\Data;
+
 /**
  * Load the configuration file to use for the test.
  *
@@ -42,6 +44,24 @@ function load_config(string $config, bool $allow_override = TRUE) {
   }
 
   $app->setConfig($config);
+}
+
+/**
+ * Get a config value from the active config.
+ *
+ * @param $config_path
+ *   A dot-separated path for a config key.
+ */
+function config_get($config_path) {
+  global $app;
+  try {
+    $data = new Data($app->getConfig());
+
+    return $data->get($config_path);
+  }
+  catch (\Exception $exception) {
+    throw new RuntimeException(sprintf("%s\nCheck your configuration file: %s", $exception->getMessage(), $app->getPathToConfig()), $exception->getCode(), $exception);
+  }
 }
 
 /**

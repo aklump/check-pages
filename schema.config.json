@@ -41,36 +41,9 @@
                 "type": "string"
             }
         },
-        "users": {
-            "title": "Users",
-            "type": "array",
-            "items": {
-                "type": "object",
-                "required": [
-                    "name",
-                    "pass"
-                ],
-                "properties": {
-                    "name": {
-                        "title": "Username",
-                        "type": "string",
-                        "default": "",
-                        "examples": [
-                            "uber"
-                        ],
-                        "pattern": ".+"
-                    },
-                    "pass": {
-                        "title": "Password",
-                        "type": "string",
-                        "default": "",
-                        "examples": [
-                            "foo"
-                        ],
-                        "pattern": ".+"
-                    }
-                }
-            }
+        "extras": {
+            "type": "object",
+            "description": "Used for arbitrary configuration as determined by end user.  Use config_get() to access."
         }
     }
 }

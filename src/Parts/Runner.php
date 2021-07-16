@@ -355,6 +355,26 @@ class Runner {
   }
 
   /**
+   * Return the active configuration values.
+   *
+   * @return array
+   *   The configuration array.
+   */
+  public function getConfig(): array {
+    return Yaml::parseFile($this->getPathToConfig());
+  }
+
+  /**
+   * Get path to active configuration file.
+   *
+   * @return string
+   *   The absolute path to the active configuration.
+   */
+  public function getPathToConfig():string {
+    return $this->resolve($this->configPath);
+  }
+
+  /**
    * Visit an URLs definition found in $path.
    *
    * @param string $path
@@ -366,7 +386,7 @@ class Runner {
    *
    */
   public function runSuite(string $path_to_suite, array $suite_config = []) {
-    $this->config = $suite_config + Yaml::parseFile($this->resolve($this->configPath));
+    $this->config = $suite_config + $this->getConfig();
     $this->validateConfig($this->config);
 
     $suite_id = '';

@@ -44,6 +44,30 @@ If you want to check pages as an authenticated user of a website, then you have 
       expect: 403
    ```
 
+## Advanced Configuration
+
+You may move the `with_extras` configuration into your configuration files when necessary. Do something like the following.
+
+```php
+with_extras('drupal8', [
+  'users' => config_get('extras.users'),
+]); 
+```
+
+_config/live.yml_
+
+```yaml
+extras:
+  users: config/users--live.yml
+```
+
+_config/dev.yml_
+
+```yaml
+extras:
+  users: config/users--dev.yml
+```
+
 ## Drupal 7
 
 1. Follow instructions for Drupal 8, but change the first argument to `with_extras()` to `drupal7`, e.g.,
