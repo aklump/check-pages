@@ -27,9 +27,9 @@
         "behat\/mink": "^1.8",
         "jakubkulhan\/chrome-devtools-protocol": "^1.0",
         "adamnicholson\/bag": "@dev",
-        "dflydev/dot-access-data": "^3.0"
+        "dflydev\/dot-access-data": "^3.0"
     },
-    "version": "0.14.0",
+    "version": "0.15.0",
     "bin": [
         ".\/check_pages",
         ".\/create_test_directory"
