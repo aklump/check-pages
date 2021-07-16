@@ -11,6 +11,12 @@ use AKlump\LoftLib\Bash\Bash;
 use AKlump\LoftLib\Bash\Color;
 use AKlump\LoftLib\Storage\FilePath;
 
+
+if (!class_exists("AKlump\CheckPages\Parts\Runner")) {
+  $root = realpath(__DIR__ . '/../');
+  throw new \RuntimeException(sprintf('Testing unavailable due to missing dependencies; do this then try again: "cd %s && composer install"', $root));
+}
+
 $cli = new Bash($argv);
 
 // Validate flags.
