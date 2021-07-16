@@ -159,6 +159,9 @@ class Runner {
    *   Self for chaining.
    */
   public function setRunner(string $basename, array $options): Runner {
+    if (strstr($basename, '/') !== FALSE) {
+      throw new \InvalidArgumentException(sprintf('::setRunner() only takes a basename, not a full path; change "%s" to "%s"', $basename, basename($basename)));
+    }
     $this->runner = [
       'name' => $basename,
       'options' => $options,

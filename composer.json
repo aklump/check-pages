@@ -31,11 +31,11 @@
     "version": "0.13.0",
     "bin": [
         ".\/check_pages",
-        ".\/check_pages_init"
+        ".\/create_test_directory"
     ],
     "scripts": {
-        "post-package-install": [
-            ".\/check_pages_init"
+        "post-install-cmd": [
+            ".\/create_test_directory"
         ]
     },
     "require-dev": {
