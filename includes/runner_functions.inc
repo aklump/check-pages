@@ -18,6 +18,26 @@ function load_config(string $config, bool $allow_override = TRUE) {
   global $app, $cli;
 
   if ($allow_override && ($override = $cli->getParam('config'))) {
+
+    // As a convenience, we will allow --config to omit the standard "config/"
+    // path and try to use it if the passed value cannot resolve.  The reason is
+    // that it's bothersome to have to type "--config=config/foo", and I wanted
+    // to allow "--config=foo" instead.  That's the reason for the next few
+    // lines.  July 16, 2021 at 11:23:12 AM PDT, aklump.
+    try {
+      $app->resolve($override);
+    }
+    catch (\Exception $exception) {
+      $override = 'config/' . $override;
+    }
+    try {
+      $app->resolve($override);
+    }
+    catch (\Exception $exception) {
+      // If the presumption failed, then we just rollback.
+      $override = $cli->getParam('config');
+    }
+
     $config = $override;
   }
 
