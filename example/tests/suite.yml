@@ -32,6 +32,12 @@
   location: /location.html
 
 -
+  why: Demonstrate a redirect using absolute URLs.
+  url: https://google.com
+  expect: 301
+  location: https://www.google.com/
+
+-
   why: Ensure redirects work when javascript is enabled.
   url: /moved.php
   js: true
