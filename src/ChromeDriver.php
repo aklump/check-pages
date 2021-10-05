@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages;
 
 use ChromeDevtoolsProtocol\Context;
+use ChromeDevtoolsProtocol\Exception\ErrorException;
 use ChromeDevtoolsProtocol\Instance\Launcher;
 use ChromeDevtoolsProtocol\Model\CSS\GetComputedStyleForNodeRequest;
 use ChromeDevtoolsProtocol\Model\DOM\GetDocumentRequest;
@@ -193,18 +194,21 @@ final class ChromeDriver extends GuzzleDriver {
     $document = $this->devtools->dom()
       ->getDocument($this->ctx, GetDocumentRequest::make());
 
-    $node = $this->devtools->dom()
-      ->querySelector($this->ctx, QuerySelectorRequest::fromJson((object) [
-        'nodeId' => $document->root->nodeId,
-        'selector' => $selector,
-      ]));
-
-    $computed_style = $this->devtools->css()
-      ->getComputedStyleForNode($this->ctx, GetComputedStyleForNodeRequest::fromJson((object) [
-        'nodeId' => $node->nodeId,
-      ]));
-    $computed_style = json_decode(json_encode($computed_style), TRUE)['computedStyle'] ?? [];
-
+    try {
+      $node = $this->devtools->dom()
+        ->querySelector($this->ctx, QuerySelectorRequest::fromJson((object) [
+          'nodeId' => $document->root->nodeId,
+          'selector' => $selector,
+        ]));
+      $computed_style = $this->devtools->css()
+        ->getComputedStyleForNode($this->ctx, GetComputedStyleForNodeRequest::fromJson((object) [
+          'nodeId' => $node->nodeId,
+        ]));
+      $computed_style = json_decode(json_encode($computed_style), TRUE)['computedStyle'] ?? [];
+    }
+    catch (ErrorException $exception) {
+      $computed_style = [];
+    }
     $style = [];
     foreach ($computed_style as $datum) {
       $style[$datum['name']] = $datum['value'];
