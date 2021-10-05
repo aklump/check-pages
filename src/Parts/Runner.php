@@ -370,7 +370,7 @@ class Runner {
    * @return string
    *   The absolute path to the active configuration.
    */
-  public function getPathToConfig():string {
+  public function getPathToConfig(): string {
     return $this->resolve($this->configPath);
   }
 
@@ -395,9 +395,18 @@ class Runner {
 
     $suite = new Suite($suite_id, $this->config, $this);
 
-    $this->config['suites_to_ignore'] = array_map(function ($suite_to_ignore) {
-      return $this->resolve($suite_to_ignore);
-    }, $this->config['suites_to_ignore'] ?? []);
+    $this->config['suites_to_ignore'] = array_filter(array_map(function ($suite_to_ignore) {
+      try {
+        return $this->resolve($suite_to_ignore);
+      }
+      catch (UnresolvablePathException $exception) {
+
+        // If we're asked to ignore a suite that can't be resolved, then that is
+        // not an exception in this case, we can easily ignore it because we
+        // can't find it.  Return NULL, which will be filtered out.
+        return NULL;
+      }
+    }, $this->config['suites_to_ignore'] ?? []));
 
     if (in_array($path_to_suite, $this->config['suites_to_ignore'])) {
       if ($this->preflight) {
