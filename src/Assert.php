@@ -365,8 +365,8 @@ final class Assert {
           }
         }
         if (!$pass) {
-          $haystack = '"' . implode('",, "', $haystack) . '"';
-          $this->reason = sprintf("The actual value\n\n>>> %s\n\n is not the expected\n\n>>> \"%s\"", $haystack, $this->assertValue);
+          $haystack = implode('",, "', $haystack);
+          $this->reason = sprintf("The actual value\n│\n│   \"%s\"\n│\n│   is not the expected\n│\n│   \"%s\"\n│", $haystack, $this->assertValue);
         }
         break;
 
@@ -378,8 +378,8 @@ final class Assert {
           }
         }
         if (!$pass) {
-          $haystack = '"' . implode('",, "', $haystack) . '"';
-          $this->reason = sprintf("The actual value\n\n>>> %s\n\n is not the expected\n\n>>> \"%s\"", $haystack, $this->assertValue);
+          $haystack = implode('",, "', $haystack);
+          $this->reason = sprintf("The actual value\n│\n│   \"%s\"\n│\n│   is not the expected\n│\n│   \"%s\"\n│", $haystack, $this->assertValue);
         }
         break;
 
@@ -392,8 +392,8 @@ final class Assert {
           }
         }
         if (!$pass) {
-          $haystack = '"' . implode('",, "', $haystack) . '"';
-          $this->reason = sprintf("The actual value\n\n>>> %s\n\n should not match exactly to\n\n>>> \"%s\"", $haystack, $this->assertValue);
+          $haystack = implode('",, "', $haystack);
+          $this->reason = sprintf("The actual value\n│\n│   \"%s\"\n│\n│   should not match exactly to\n│\n│   \"%s\"\n│", $haystack, $this->assertValue);
         }
         break;
 

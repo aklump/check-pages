@@ -776,7 +776,7 @@ class Runner {
       else {
         $this->fail("├── $assert");
       }
-      $this->failReason('└── ' . $assert->getReason());
+      $this->failReason('│   └── ' . $assert->getReason());
     }
     else {
       if (!empty($definition['why'])) {
