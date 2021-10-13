@@ -5,6 +5,9 @@ namespace AKlump\CheckPages;
 use GuzzleHttp\Psr7\MessageTrait;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * Generic response to use to handle odd situations, like 500 responses etc.
+ */
 class Response implements ResponseInterface {
 
   use MessageTrait;
@@ -19,7 +22,12 @@ class Response implements ResponseInterface {
    */
   protected $statusCode;
 
-  public function __construct(string $body, int $status_code, array $headers) {
+  /**
+   * @param string $body
+   * @param int $status_code
+   * @param array $headers
+   */
+  public function __construct(string $body, int $status_code, array $headers = []) {
     $this->body = $body;
     $this->statusCode = $status_code;
     $this->setHeaders($headers);

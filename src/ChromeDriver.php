@@ -164,7 +164,7 @@ final class ChromeDriver extends GuzzleDriver {
     return new Response(
       $page_contents,
       $response->getStatusCode(),
-      $headers,
+      $headers
     );
   }
 

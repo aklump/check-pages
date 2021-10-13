@@ -12,6 +12,7 @@ use AKlump\CheckPages\SuiteFailedException;
 use AKlump\CheckPages\TestFailedException;
 use AKlump\CheckPages\UnresolvablePathException;
 use AKlump\LoftLib\Bash\Color;
+use GuzzleHttp\Exception\ServerException;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use Psr\Http\Message\ResponseInterface;
@@ -566,9 +567,14 @@ class Runner {
     }
     $this->pluginsManager->onBeforeRequest($driver);
 
-    $response = $driver
-      ->setUrl($this->url($config['url']))
-      ->getResponse();
+    try {
+      $response = $driver
+        ->setUrl($this->url($config['url']))
+        ->getResponse();
+    }
+    catch (ServerException $exception) {
+      $response = $exception->getResponse();
+    }
 
     $http_location = NULL;
     if ($config['expect'] >= 300 && $config['expect'] <= 399) {
@@ -576,7 +582,7 @@ class Runner {
       $http_response_code = $driver->getRedirectCode();
     }
     else {
-      $http_response_code = $response->getStatusCode();
+      $http_response_code = $response->getStatusCode();;
     }
 
     $test_passed($http_response_code == $config['expect']);
