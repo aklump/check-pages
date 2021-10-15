@@ -35,7 +35,7 @@ while ($autoloader = array_shift($autoloaders)) {
 
 try {
   require ROOT . '/includes/bootstrap.inc';
-  $filters = explode(' ', $cli->getParam('filter', ''));
+  $filters = array_filter(explode(' ', $cli->getParam('filter', '')));
   foreach ($filters as $filter) {
     $app->addSuiteFilter($filter);
   }

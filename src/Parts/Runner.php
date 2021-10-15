@@ -437,6 +437,13 @@ class Runner {
       }
     }, $this->config['suites_to_ignore'] ?? []));
 
+    if ($this->filters) {
+      $filters = array_map([$this, 'resolve'], $this->filters);
+      if (!in_array($path_to_suite, $filters)) {
+        return;
+      }
+    }
+
     if (in_array($path_to_suite, $this->config['suites_to_ignore'])) {
       if ($this->preflight) {
         echo PHP_EOL . Color::wrap('blue', '😴 ' . strtoupper(sprintf('Ignoring "%s" suite...', $suite_id))) . PHP_EOL;
@@ -446,10 +453,6 @@ class Runner {
     }
 
     if ($this->filters) {
-      $filters = array_map([$this, 'resolve'], $this->filters);
-      if (!in_array($path_to_suite, $filters)) {
-        return;
-      }
       $this->filterApplied = TRUE;
     }
 
