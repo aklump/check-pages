@@ -17,6 +17,13 @@ if (!class_exists("AKlump\CheckPages\Parts\Runner")) {
   throw new \RuntimeException(sprintf('Testing unavailable due to missing dependencies; do this then try again: "cd %s && composer install"', $root));
 }
 
+// This is a hack because Bash doesn't allow commas in param values.
+$argv = array_map(function ($line) {
+  return preg_replace_callback('/\-\-filter=(.+)/', function ($matches) {
+    return '--filter=' . str_replace(',', ' ', $matches[1]);
+  }, $line);
+}, $argv);
+
 $cli = new Bash($argv);
 
 // Validate flags.
@@ -32,6 +39,8 @@ if (($diff = array_diff_key($cli->getParams(), array_flip([
   'config',
   'quiet',
   'show-source',
+
+  // A single suite filename or CSV string of them.
   'filter',
 ])))) {
   throw new \InvalidArgumentException("Unknown parameter: " . key($diff));

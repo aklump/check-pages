@@ -45,6 +45,8 @@ class Runner {
    */
   protected $filterApplied = FALSE;
 
+  protected $filters = [];
+
   /**
    * @var int
    */
@@ -199,9 +201,30 @@ class Runner {
    *
    * @return
    *   Self for chaining.
+   *
+   * @deprecated Use addSuiteFilter instead.
    */
   public function setSuiteFilter(string $filter): Runner {
-    $this->filter = $filter;
+    $this->filters = [$filter];
+
+    return $this;
+  }
+
+  /**
+   * Add a suite name to filter against.
+   *
+   * You may call this more than once to have more than one suite.
+   *
+   * @param string $filter
+   *   The suite name.
+   *
+   * @return $this
+   */
+  public function addSuiteFilter(string $filter): Runner {
+    if (strstr($filter, ',')) {
+      throw new \InvalidArgumentException(sprintf('$filter may not contain a comma; the value %s is invalid.', $filter));
+    }
+    $this->filters[] = $filter;
 
     return $this;
   }
@@ -216,13 +239,15 @@ class Runner {
    *   Only those that match applied filters.
    */
   public function filterSuites(array $suites): array {
-    if (!$this->filter) {
+    if (!$this->filters) {
       return $suites;
     }
 
-    return array_values(array_filter($suites, function ($suite) {
-      return pathinfo($suite, PATHINFO_FILENAME) === $this->filter;
-    }));
+    $suites = array_map(function ($suite) {
+      return pathinfo($suite, PATHINFO_FILENAME);
+    }, $suites);
+
+    return array_values(array_intersect($suites, $this->filters));
   }
 
   public function getTestOptions(): array {
@@ -333,8 +358,8 @@ class Runner {
     try {
       $runner = $this->getRunner();
       $filter_message = '';
-      if ($this->filter) {
-        $filter_message = sprintf(' (using suite filter "%s")', $this->filter);
+      if ($this->filters) {
+        $filter_message = sprintf(' (using suite filter(s) "%s")', implode(', ', $this->filters));
       }
       echo Color::wrap('blue', sprintf('Testing started with "%s"%s', basename($runner), $filter_message)) . PHP_EOL;
       $this->preflight = TRUE;
@@ -342,8 +367,11 @@ class Runner {
       $this->preflight = FALSE;
       require $runner;
 
-      if ($this->filter && !$this->filterApplied) {
-        throw new \RuntimeException(sprintf("The filter was not applied; have you added `run_suite('%s');` to %s?", $this->filter, $runner));
+      if ($this->filters && !$this->filterApplied) {
+        $code = array_map(function ($filter) {
+          return sprintf("`run_suite('%s');`", $filter);
+        }, $this->filters);
+        throw new \RuntimeException(sprintf("The filter(s) were not applied; have you added %s to %s?", implode(', ', $code), $runner));
       }
     }
     catch (StopRunnerException $exception) {
@@ -417,8 +445,9 @@ class Runner {
       return;
     }
 
-    if ($this->filter) {
-      if ($this->resolve($this->filter) !== $path_to_suite) {
+    if ($this->filters) {
+      $filters = array_map([$this, 'resolve'], $this->filters);
+      if (!in_array($path_to_suite, $filters)) {
         return;
       }
       $this->filterApplied = TRUE;
