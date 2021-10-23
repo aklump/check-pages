@@ -1,0 +1,19 @@
+{
+    "type": "object",
+    "properties": {
+        "schema": {
+            "$ref": "#/definitions/json_schema_selector"
+        },
+        "matches": {
+            "type": "boolean",
+            "default": true
+        },
+        "path": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "schema"
+    ],
+    "additionalProperties": false
+}

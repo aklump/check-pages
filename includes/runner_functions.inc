@@ -5,7 +5,7 @@
  * These are functions available for writing tests.
  */
 
-use Dflydev\DotAccessData\Data;
+use MidwestE\ObjectPath;
 
 /**
  * Load the configuration file to use for the test.
@@ -55,9 +55,9 @@ function load_config(string $config, bool $allow_override = TRUE) {
 function config_get($config_path) {
   global $app;
   try {
-    $data = new Data($app->getConfig());
+    $o = new ObjectPath($app->getConfig());
 
-    return $data->get($config_path);
+    return $o->get($config_path);
   }
   catch (\Exception $exception) {
     throw new RuntimeException(sprintf("%s\nCheck your configuration file: %s", $exception->getMessage(), $app->getPathToConfig()), $exception->getCode(), $exception);

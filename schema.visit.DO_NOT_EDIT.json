@@ -57,6 +57,9 @@
                                 "$ref": "#/definitions/javascript"
                             },
                             {
+                                "$ref": "#/definitions/json_schema"
+                            },
+                            {
                                 "$ref": "#/definitions/style"
                             },
                             {
@@ -486,6 +489,37 @@
                     "$ref": "#/definitions/why"
                 }
             }
+        },
+        "json_schema_selector": {
+            "type": "string",
+            "pattern": ".+\\.json$",
+            "examples": [
+                "schemas/object.json",
+                "foo.json"
+            ]
+        },
+        "json_schema": {
+            "title": "Json Schema Plugin Assertion",
+            "type": "object",
+            "properties": {
+                "schema": {
+                    "$ref": "#/definitions/json_schema_selector"
+                },
+                "matches": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "path": {
+                    "type": "string"
+                },
+                "why": {
+                    "$ref": "#/definitions/why"
+                }
+            },
+            "required": [
+                "schema"
+            ],
+            "additionalProperties": false
         },
         "property": {
             "type": "string",

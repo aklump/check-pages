@@ -63,6 +63,7 @@ CHANGELOG = '../CHANGELOG.md'
 # Defines pre/post hooks, shell or php scripts to call, space separated.  These must be placed in a directory called 'hooks' one level above source.
 #
 #pre_hooks = "cheatsheet.php"
+pre_hooks = "plugins.php"
 #post_hooks = "post_compile.sh post_compile.php"
 
 #

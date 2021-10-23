@@ -66,6 +66,13 @@ final class Assert {
 
   /**
    * @var string
+   *
+   * Indicates the assert will use a callback defined as the assert value.
+   */
+  const ASSERT_CALLABLE = 'callable';
+
+  /**
+   * @var string
    */
   private $searchType;
 
@@ -324,6 +331,21 @@ final class Assert {
 
     $pass = NULL;
     switch ($this->assertType) {
+
+      case self::ASSERT_CALLABLE:
+        $callback = $this->assertValue;
+        try {
+          $pass = $callback($this);
+          if (TRUE !== $pass) {
+            trigger_error(sprintf('The assert type "%s" must return TRUE or throw an exception if the assertion failed.', $this->assertType));
+            $pass = FALSE;
+          }
+        }
+        catch (\Exception $exception) {
+          $pass = FALSE;
+          $this->reason = $exception->getMessage();
+        }
+        break;
 
       case self::ASSERT_NOT_CONTAINS:
         foreach ($haystack as $item) {

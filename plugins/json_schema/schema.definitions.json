@@ -1,0 +1,10 @@
+{
+    "json_schema_selector": {
+        "type": "string",
+        "pattern": ".+\\.json$",
+        "examples": [
+            "schemas/object.json",
+            "foo.json"
+        ]
+    }
+}

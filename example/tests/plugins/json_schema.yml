@@ -1,0 +1,26 @@
+-
+    visit: /plugins/json_schema.json
+    find:
+        -
+            schema: plugins/json_schema/is_object.json
+        -
+            schema: plugins/json_schema/is_array.json
+            matches: false
+-
+    visit: /plugins/json_schema.json
+    find:
+        -
+            path: lorem.ipsum
+            schema: plugins/json_schema/is_array.json
+-
+    visit: /plugins/json_schema.json
+    find:
+        -
+            schema: plugins/json_schema/is_object.json
+            matches: true
+        -
+            schema: plugins/json_schema/is_foo.json
+            matches: true
+        -
+            schema: plugins/json_schema/is_array.json
+            matches: false

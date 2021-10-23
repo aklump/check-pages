@@ -27,7 +27,7 @@
         "behat\/mink": "^1.8",
         "jakubkulhan\/chrome-devtools-protocol": "^1.0",
         "adamnicholson\/bag": "@dev",
-        "dflydev\/dot-access-data": "^3.0"
+        "midweste/objectpath": "^1.0"
     },
     "version": "0.15.0",
     "bin": [
