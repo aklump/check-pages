@@ -18,11 +18,13 @@ class Storage extends Bag implements StorageInterface {
    */
   public function __construct($path_to_disk_storage) {
     $attributes = [];
-    $this->diskStorage = dirname($path_to_disk_storage) . '/' . pathinfo($path_to_disk_storage, PATHINFO_FILENAME) . '.json';
-    if (file_exists($this->diskStorage)) {
-      $attributes = json_decode(file_get_contents($this->diskStorage), TRUE);
-      if (!is_array($attributes)) {
-        $attributes = [];
+    if (!empty($path_to_disk_storage)) {
+      $this->diskStorage = dirname($path_to_disk_storage) . '/' . pathinfo($path_to_disk_storage, PATHINFO_FILENAME) . '.json';
+      if (file_exists($this->diskStorage)) {
+        $attributes = json_decode(file_get_contents($this->diskStorage), TRUE);
+        if (!is_array($attributes)) {
+          $attributes = [];
+        }
       }
     }
     parent::__construct($attributes);
@@ -32,7 +34,7 @@ class Storage extends Bag implements StorageInterface {
    * Store contents to disk if storage location is known.
    */
   public function __destruct() {
-    if ($this->all() && is_dir(dirname($this->diskStorage))) {
+    if (!empty($this->diskStorage) && $this->all() && is_dir(dirname($this->diskStorage))) {
       $data = json_encode($this);
       if (FALSE !== $data) {
         file_put_contents($this->diskStorage, $data);
