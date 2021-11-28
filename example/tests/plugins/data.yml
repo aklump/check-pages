@@ -1,0 +1,100 @@
+-
+    why: 'Assert we can store the ID of a REST response resource to use later'
+    visit: '/plugins/data.php?op=rest'
+    find:
+        -
+            path: 0.id
+            is: 144
+            set: resourceId
+        -
+            path: 0.title
+            set: resourceTitle
+-
+    why: 'Assert we can delete the resource by ID stored in previous test.'
+    visit: '/plugins/data.php?op=rest&id=${resourceId}'
+    request:
+        method: delete
+    expect: 204
+-
+    visit: '/plugins/data.php?op=items'
+    request:
+        headers:
+            accept: text/yaml
+    find:
+        -
+            path: items
+            count: 5
+        -
+            path: items
+            count: '>1'
+        -
+            path: items
+            contains: apple
+        -
+            path: items
+            'not contains': fish
+        -
+            path: items.1
+            is: banana
+-
+    visit: /plugins/data.php
+    request:
+        method: get
+        headers:
+            accept: application/json
+    find:
+        -
+            why: 'Assert accept header is applied by matching JSON.'
+            contains: '{"bar":"baz"}'
+        -
+            path: foo
+            count: 1
+        -
+            path: foo.bar
+            is: baz
+        -
+            path: foo.bar
+            'is not': yaz
+        -
+            path: foo.bar
+            contains: az
+        -
+            path: foo.bar
+            'not contains': alpha
+        -
+            path: foo.bar
+            matches: /^baz$/
+        -
+            path: foo.bar
+            'not matches': /\d+/
+-
+    visit: /plugins/data.php
+    request:
+        method: get
+        headers:
+            accept: application/json
+    find:
+        - '{"bar":"baz"}'
+        -
+            path: foo.bar
+            is: baz
+-
+    visit: /plugins/data.php
+    request:
+        headers:
+            accept: application/xml
+    find:
+        - '<?xml version="1.0" encoding="UTF-8" ?>'
+        -
+            path: foo.bar
+            is: baz
+-
+    visit: /plugins/data.php
+    request:
+        headers:
+            accept: text/yaml
+    find:
+        - 'bar: baz'
+        -
+            path: foo.bar
+            is: baz

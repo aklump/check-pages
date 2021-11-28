@@ -7,6 +7,7 @@ use AKlump\CheckPages\ChromeDriver;
 use AKlump\CheckPages\GuzzleDriver;
 use AKlump\CheckPages\Output\FailedTestMarkdown;
 use AKlump\CheckPages\PluginsManager;
+use AKlump\CheckPages\SerializationTrait;
 use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\SuiteFailedException;
 use AKlump\CheckPages\TestFailedException;
@@ -19,6 +20,8 @@ use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Yaml\Yaml;
 
 class Runner {
+
+  use SerializationTrait;
 
   /**
    * The filename without extension or path.
@@ -254,6 +257,10 @@ class Runner {
     return $this->options;
   }
 
+  public function getSuite() {
+    return $this->suite ?? NULL;
+  }
+
   /**
    * Add a custom command.
    *
@@ -423,6 +430,7 @@ class Runner {
     $suite_id = pathinfo(substr($path_to_suite, strlen($suite_id) + 1), PATHINFO_FILENAME);
 
     $suite = new Suite($suite_id, $this->config, $this);
+    $this->suite = $suite;
 
     $this->config['suites_to_ignore'] = array_filter(array_map(function ($suite_to_ignore) {
       try {
@@ -480,25 +488,43 @@ class Runner {
 
     $this->debug = [];
     $failed_tests = 0;
+
     foreach (array_values($tests) as $test_index => $config) {
+      if (isset($config['set'])) {
+        $suite->variables()->setItem($config['set'], $config['is']);
+        continue;
+      }
       $config += [
         'expect' => 200,
         'find' => '',
       ];
+      $test = new Test(strval($test_index), $config, $suite);
+      $suite->addTest($test);
+    }
+
+    $has_multiple_methods = count($suite->getHttpMethods()) > 1;
+    foreach ($suite->getTests() as $test_index => $test) {
+      $config = $test->getConfig();
+
+      if (count($suite->variables())) {
+        $config = $suite->variables()->interpolate($config);
+      }
 
       if (!empty($config['why'])) {
         echo '🔎 ' . Color::wrap('blue', $config['why']) . PHP_EOL;
       }
 
+      $method = $has_multiple_methods ? $test->getHttpMethod() : '';
+
       // Print the URL before we run the test so it appears before the user has to wait.
       $url = $this->debugging ? $this->url($config['url']) : $config['url'];
-      echo Color::wrap('blue', "$url ");
+      echo Color::wrap('blue', ltrim("$method $url ", ' '));
 
       if ($config['js'] ?? FALSE) {
         echo "☕ ";
       }
+      $test->setConfig($config);
 
-      $test = new Test(strval($test_index), $config, $suite);
       $result = $this->runTest($test);
 
       // This icon will affix itself to the URL after the test.
@@ -622,11 +648,20 @@ class Runner {
     $test_passed($http_response_code == $config['expect']);
 
     if (array_key_exists('show-source', $this->runner['options'])) {
+      $show_source = (string) $response->getBody();
+
+      // Try to make it more readable if we can.
+      $content_type = $this->getContentType($response);
+      if (strstr($content_type, 'json')) {
+        $show_source = $this->deserialize($show_source, $content_type);
+        $show_source = json_encode($show_source, JSON_PRETTY_PRINT);
+      }
+
       if ($test_passed()) {
-        $this->debug((string) $response->getBody());
+        $this->debug($show_source);
       }
       else {
-        $this->fail((string) $response->getBody());
+        $this->fail($show_source);
       }
     }
 

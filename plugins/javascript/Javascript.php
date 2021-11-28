@@ -7,7 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Implements the javascript plugin.
  */
-final class Javascript implements TestPluginInterface {
+final class Javascript extends Plugin {
 
   const SEARCH_TYPE = 'javascript';
 
@@ -71,19 +71,6 @@ final class Javascript implements TestPluginInterface {
     }
 
     $assert->setHaystack([$haystack]);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onAssertToString(string $stringified, Assert $assert): string {
-    return $stringified;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function applies(array &$config) {
   }
 
 }

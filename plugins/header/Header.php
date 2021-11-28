@@ -7,7 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Implements the Header plugin.
  */
-final class Header implements TestPluginInterface {
+final class Header extends Plugin {
 
   const SEARCH_TYPE = 'header';
 
@@ -68,18 +68,6 @@ final class Header implements TestPluginInterface {
     }
 
     return $stringified;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onBeforeRequest(&$driver) {
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function applies(array &$config) {
   }
 
 }

@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Implements the Options plugin.
  */
-final class Options implements TestPluginInterface {
+final class Options extends Plugin {
 
   const SEARCH_TYPE = 'options';
 
@@ -19,13 +19,6 @@ final class Options implements TestPluginInterface {
    */
   private $options = [];
 
-  /**
-   * Holds the test configuration.
-   *
-   * @var array
-   */
-  private $config;
-
   private $pluginData = [];
 
   /**
@@ -34,9 +27,10 @@ final class Options implements TestPluginInterface {
    * @param \AKlump\CheckPages\CheckPages $instance
    *   The current instance.
    */
-  public function __construct(Runner $instance) {
-    $this->pluginData = ['runner' => $instance];
-    $this->options = $instance->getTestOptions();
+  public function __construct(Runner $runner) {
+    $this->pluginData = ['runner' => $runner];
+    $this->options = $runner->getTestOptions();
+    parent::__construct($runner);
   }
 
   /**
@@ -73,10 +67,6 @@ final class Options implements TestPluginInterface {
     $search_value = $assert->{self::SEARCH_TYPE};
     $assert->setSearch(self::SEARCH_TYPE, $search_value);
     $this->handleCallbackByHook(__FUNCTION__, func_get_args());
-  }
-
-  public function onAssertToString(string $stringified, Assert $assert): string {
-    return $stringified;
   }
 
   /**

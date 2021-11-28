@@ -7,7 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Implements the style plugin.
  */
-class Style implements TestPluginInterface {
+class Style extends Plugin {
 
   const SEARCH_TYPE = 'style';
 
@@ -60,19 +60,6 @@ class Style implements TestPluginInterface {
       ->setModifer(self::MODIFIER_TYPE, $modifier_value);
     $haystack = json_decode($response->getHeader('X-Computed-Styles')[0] ?? '{}', TRUE);
     $assert->setHaystack([$haystack[$search_value][$modifier_value] ?? NULL]);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onAssertToString(string $stringified, Assert $assert): string {
-    return $stringified;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function applies(array &$config) {
   }
 
 }

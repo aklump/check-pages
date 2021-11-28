@@ -1,53 +1,62 @@
 {
     "type": "object",
-    "oneOf": [
+    "anyOf": [
         {
             "required": [
-                "header",
+                "path",
+                "set"
+            ]
+        },
+        {
+            "required": [
+                "path",
                 "contains"
             ]
         },
         {
             "required": [
-                "header",
+                "path",
                 "not contains"
             ]
         },
         {
             "required": [
-                "header",
+                "path",
                 "is"
             ]
         },
         {
             "required": [
-                "header",
+                "path",
                 "is not"
             ]
         },
         {
             "required": [
-                "header",
+                "path",
                 "matches"
             ]
         },
         {
             "required": [
-                "header",
+                "path",
                 "not matches"
             ]
         },
         {
             "required": [
-                "header",
+                "path",
                 "count"
             ]
         }
     ],
     "additionalProperties": false,
     "properties": {
-        "header": {
-            "$ref": "#/definitions/header_selector"
+        "set": {
+            "$ref": "#/definitions/set"
+        },
+        "path": {
+            "$ref": "#/definitions/path_selector"
         },
         "contains": {
             "$ref": "#/definitions/contains"

@@ -2,6 +2,10 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Visit Schema",
     "definitions": {
+        "set": {
+            "description": "The name of the variable to set.",
+            "type": "string"
+        },
         "url": {
             "type": "string",
             "examples": [
@@ -78,6 +82,14 @@
                 },
                 {
                     "type": "string",
+                    "pattern": "^\\d+$",
+                    "examples": [
+                        "10",
+                        "5"
+                    ]
+                },
+                {
+                    "type": "string",
                     "pattern": "^(>|>=|<|<=)\\s*\\d+$",
                     "examples": [
                         ">= 10",
@@ -88,7 +100,7 @@
                 }
             ]
         },
-        "not contains": {
+        "not_contains": {
             "type": "string",
             "examples": [
                 "[audio:card:123]"
@@ -104,6 +116,12 @@
             "type": "string",
             "examples": [
                 "My Front Page"
+            ]
+        },
+        "user": {
+            "type": "string",
+            "examples": [
+                "testbot"
             ]
         },
         "equals": {
@@ -183,12 +201,33 @@
         "anyOf": [
             {
                 "required": [
+                    "set",
+                    "is"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "set": {
+                        "$ref": "#/definitions/set"
+                    },
+                    "is": {
+                        "type": [
+                            "string",
+                            "number"
+                        ]
+                    }
+                }
+            },
+            {
+                "required": [
                     "visit"
                 ],
                 "additionalProperties": false,
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
+                    },
+                    "user": {
+                        "$ref": "#/definitions/user"
                     },
                     "js": {
                         "$ref": "#/definitions/js"
@@ -215,6 +254,9 @@
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
+                    },
+                    "user": {
+                        "$ref": "#/definitions/user"
                     },
                     "js": {
                         "$ref": "#/definitions/js"
@@ -242,6 +284,9 @@
                     "why": {
                         "$ref": "#/definitions/why"
                     },
+                    "user": {
+                        "$ref": "#/definitions/user"
+                    },
                     "js": {
                         "$ref": "#/definitions/js"
                     },
@@ -267,6 +312,9 @@
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
+                    },
+                    "user": {
+                        "$ref": "#/definitions/user"
                     },
                     "js": {
                         "$ref": "#/definitions/js"
@@ -295,11 +343,17 @@
                     "why": {
                         "$ref": "#/definitions/why"
                     },
+                    "user": {
+                        "$ref": "#/definitions/user"
+                    },
                     "url": {
                         "$ref": "#/definitions/url"
                     },
                     "request": {
                         "$ref": "#/definitions/request"
+                    },
+                    "expect": {
+                        "$ref": "#/definitions/expect"
                     },
                     "find": {
                         "$ref": "#/definitions/find"
@@ -316,11 +370,17 @@
                     "why": {
                         "$ref": "#/definitions/why"
                     },
+                    "user": {
+                        "$ref": "#/definitions/user"
+                    },
                     "visit": {
                         "$ref": "#/definitions/url"
                     },
                     "request": {
                         "$ref": "#/definitions/request"
+                    },
+                    "expect": {
+                        "$ref": "#/definitions/expect"
                     },
                     "find": {
                         "$ref": "#/definitions/find"

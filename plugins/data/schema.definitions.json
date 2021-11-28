@@ -1,9 +1,11 @@
 {
-    "header_selector": {
+    "path_selector": {
         "type": "string",
         "pattern": ".+",
         "examples": [
-            "value"
+            "foo",
+            "foo.bar",
+            "foo.bar.0"
         ]
     }
 }

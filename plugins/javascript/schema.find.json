@@ -46,7 +46,7 @@
             "$ref": "#/definitions/contains"
         },
         "not contains": {
-            "$ref": "#/definitions/not contains"
+            "$ref": "#/definitions/not_contains"
         },
         "is": {
             "$ref": "#/definitions/equals"

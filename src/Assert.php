@@ -282,6 +282,10 @@ final class Assert {
    * @see \AKlump\CheckPages\Assert::getReason()
    */
   public function run() {
+    if (is_bool($this->result)) {
+      return;
+    }
+
     $haystack = $this->haystack;
 
     // The asserts run against an array, so if $haystack is a Crawler, it must
@@ -481,6 +485,24 @@ final class Assert {
   }
 
   /**
+   * If this is set the assert run() will be bypassed.
+   *
+   * @param bool $result
+   *   Override the assertion with a set value.
+   * @param string $reason
+   *   Optional.  Give the reason for overriding the assert.
+   *
+   * @return \AKlump\CheckPages\Assert
+   *   Self for chaining.
+   */
+  public function setResult(bool $result, string $reason = ''): self {
+    $this->result = $result;
+    $this->reason = $reason ?: sprintf('The result was set using %s', __METHOD__);
+
+    return $this;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function __toString() {
@@ -582,7 +604,7 @@ final class Assert {
    */
   private function assertCount($expected, int $actual): bool {
     if (is_numeric($expected)) {
-      $pass = $actual === $expected;
+      $pass = $actual === intval($expected);
       if (!$pass) {
         $this->reason = sprintf('Actual count %d is not equal to the expected count of %d.', $actual, $expected);
       }

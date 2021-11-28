@@ -8,21 +8,9 @@ use Symfony\Component\DomCrawler\Crawler;
 /**
  * Implements the Xpath plugin.
  */
-final class Xpath implements TestPluginInterface {
+final class Xpath extends Plugin {
 
   const SEARCH_TYPE = 'xpath';
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onBeforeDriver(array &$config) {
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onBeforeRequest(&$driver) {
-  }
 
   /**
    * {@inheritdoc}
@@ -33,19 +21,6 @@ final class Xpath implements TestPluginInterface {
     $crawler = new Crawler($assert->getHaystack());
     $haystack = $crawler->filterXPath($search_value);
     $assert->setHaystack($haystack);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onAssertToString(string $stringified, Assert $assert): string {
-    return $stringified;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function applies(array &$config) {
   }
 
 }

@@ -10,7 +10,9 @@ use AKlump\CheckPages\Parts\Runner;
 /**
  * Implements the Json Schema plugin.
  */
-final class JsonSchema implements TestPluginInterface {
+final class JsonSchema extends Plugin {
+
+  use SerializationTrait;
 
   const SEARCH_TYPE = 'schema';
 
@@ -20,28 +22,6 @@ final class JsonSchema implements TestPluginInterface {
    * @var array
    */
   private $jsonSchemas;
-
-  /**
-   * @var \AKlump\CheckPages\Parts\Runner
-   */
-  private $runner;
-
-  /**
-   * Plugin constructor.
-   *
-   * @param \AKlump\CheckPages\Parts\Runner $runner
-   *   The test runner instance.
-   */
-  public function __construct(Runner $runner) {
-    $this->runner = $runner;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function applies(array &$config) {
-
-  }
 
   /**
    * {@inheritdoc}
@@ -63,46 +43,21 @@ final class JsonSchema implements TestPluginInterface {
     if (!is_array($config) || empty($config['find'])) {
       return;
     }
-    foreach ($config['find'] as $assertion) {
+    foreach ($config['find'] as $assert_id => $assertion) {
 
       // Resolve paths and load all our JSON schemas.
       if (is_array($assertion) && array_key_exists(self::SEARCH_TYPE, $assertion)) {
         $path_to_schema = $this->runner->resolve($assertion['schema']);
-        $this->jsonSchemas[] = file_get_contents($path_to_schema);
+        $this->jsonSchemas[$assert_id] = file_get_contents($path_to_schema);
       }
     }
   }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onBeforeRequest(&$driver) {
-  }
-
-  /**
-   * @param string $serial
-   * @param string $content_type
-   *
-   * @return mixed|void
-   *
-   * @throws \InvalidArgumentException
-   *   If the content type is unsupported.
-   *
-   * @todo Support other content types.
-   */
-  private function deserialize(string $serial, string $content_type) {
-    switch ($content_type) {
-      case 'application/json':
-        return json_decode($serial);
-    }
-    throw new \InvalidArgumentException('Cannot deserialize content of type "%s".', $content_type);
-  }
-
+  
   /**
    * {@inheritdoc}
    */
   public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
-    $content_type = $response->getHeader('content-type')[0] ?? 'application/json';
+    $content_type = $this->getContentType($response);
     $haystack = array_map(function ($item) use ($assert, $content_type) {
       $item = $this->deserialize($item, $content_type);
       $path = $assert->path ?? NULL;
@@ -114,10 +69,14 @@ final class JsonSchema implements TestPluginInterface {
       return $item;
     }, $assert->getHaystack());
     $assert->setHaystack($haystack);
+    $assert->setSearch(self::SEARCH_TYPE);
 
     $assert->setAssertion(Assert::ASSERT_CALLABLE, function ($assert) use ($response) {
       $assert_id = $assert->getId();
       $expected = $assert->matches ?? TRUE;
+      if (empty($this->jsonSchemas[$assert_id])) {
+        throw new \RuntimeException(sprintf('Missing schema for assert %d', $assert_id));
+      }
       $schema = json_decode($this->jsonSchemas[$assert_id]);
       foreach ($assert->getHaystack() as $data) {
         $validator = new Validator();

@@ -9,7 +9,7 @@ class Test {
   public function __construct(string $id, array $config, Suite $suite) {
     $this->suite = $suite;
     $this->id = $id;
-    $this->config = $config;
+    $this->setConfig($config);
   }
 
   /**
@@ -25,6 +25,12 @@ class Test {
    */
   public function setResults(array $results): self {
     $this->results = $results;
+
+    return $this;
+  }
+
+  public function setConfig(array $config): self {
+    $this->config = $config;
 
     return $this;
   }
@@ -54,6 +60,16 @@ class Test {
 
   public function getSuite(): Suite {
     return $this->suite;
+  }
+
+  /**
+   * Get the HTTP method for this test.
+   *
+   * @return string
+   *   The HTTP method used by the test, e.g. GET, PUT, POST, etc.
+   */
+  public function getHttpMethod(): string {
+    return strtoupper($this->config['request']['method'] ?? 'get');
   }
 
 }

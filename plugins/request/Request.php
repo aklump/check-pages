@@ -7,7 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * Implements the Request plugin.
  */
-final class Request implements TestPluginInterface {
+final class Request extends Plugin {
 
   /**
    * Captures the test config to share across methods.
@@ -26,13 +26,6 @@ final class Request implements TestPluginInterface {
    */
   public function applies(array &$config) {
     return array_key_exists('request', $config);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onAssertToString(string $stringified, Assert $assert): string {
-    return $stringified;
   }
 
   /**
@@ -66,7 +59,4 @@ final class Request implements TestPluginInterface {
       ->setMethod($this->request['method']);
   }
 
-  public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
-    // TODO: Implement onBeforeAssert() method.
-  }
 }
