@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Testing Your APIs</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--plugin_json_schema">
+<header>
+  <div class="pager"><a href="javascript.html" class="prev javascript">&laquo;Testing with Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="why.html" class="next why">Using `why` For Better Clarity&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+
+<h1>Testing Your APIs</h1>
+
+<section>
+
+<p>You can test APIs using <a href="https://json-schema.org/">JSON Schema</a>, here's the basic idea...</p>
+
+<ol>
+<li><p>Create a JSON file with the JSON schema and save it somewhere, e.g. <em>schemas/object.json</em>.</p>
+
+<pre><code class="json">{
+    "type": "object"
+}
+</code></pre></li>
+<li><p>Then write a test to use that schema:</p>
+
+<pre><code class="yaml">-
+  visit: /api/2/thing/99
+  find:
+    -
+      schema: schemas/object.json
+    -
+      schema: schemas/array.json
+      matches: false
+</code></pre></li>
+<li><code>matches</code> may also be <code>false</code>; it may be omitted and defaults to <code>true</code>.</li>
+<li>Notice the usage of a second schema to use as a NOT match, in this case <em>schemas/array.json</em>.</li>
+<li>The <code>content-type</code> header will be used to decode the response body.</li>
+</ol>
+
+<h2>Testing Only a Portion of the Response</h2>
+
+<p>You may also apply a schema on just part of the reponse data using the <code>path</code> modifier.</p>
+
+<ol>
+<li><p>Given the following response:</p>
+
+<pre><code class="json">{
+  "lorem": {
+       "ipsum": [
+           {
+               "dolar": true
+           }
+       ]
+   }
+}
+</code></pre></li>
+<li><p>You can apply a schema to the array at <code>ipsum</code>.  Provide the schema subject using dot notation as <code>path</code>, in this case <code>lorem.ipsum</code>.</p>
+
+<pre><code class="yaml">-
+ visit: /api/2/thing/99
+ find:
+   -
+     schema: schemas/array.json
+     path: lorem.ipsum
+</code></pre></li>
+</ol>
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="javascript.html" class="prev javascript">&laquo;Testing with Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="why.html" class="next why">Using `why` For Better Clarity&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.0 &bull; Last Updated: Fri, 22 Oct 2021 21:16:01 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
+

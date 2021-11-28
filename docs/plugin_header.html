@@ -2,14 +2,14 @@
 
 <html>
 <head>
-  <title></title>
+  <title>Testing Response Headers</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
 </head>
 
-<body class="">
+<body class="page--plugin_header">
 <header>
-  <div class="pager"><a href="javascript:void(0)" class="prev ">&laquo;</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="javascript:void(0)" class="next ">&raquo;</a></div></header>
+  <div class="pager"><a href="headers.html" class="prev headers">&laquo;Response Header Assertions</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="javascript.html" class="next javascript">Testing with Javascript&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -21,9 +21,17 @@
   </section>
 
 
-<h1></h1>
+<h1>Testing Response Headers</h1>
 
 <section>
+
+<pre><code class="yaml">-
+  visit: /index.html
+  find:
+    -
+      header: content-type
+      contains: text/html
+</code></pre>
 </section>
 
 <div class="search__results">
@@ -31,9 +39,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="javascript:void(0)" class="prev ">&laquo;</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="javascript:void(0)" class="next ">&raquo;</a></div>  
+  <div class="pager"><a href="headers.html" class="prev headers">&laquo;Response Header Assertions</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="javascript.html" class="next javascript">Testing with Javascript&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.0 &bull; Last Updated: Fri, 22 Oct 2021 21:16:03 -0700</p>
+    <p class="legaleeze center">Version: 0.15.0 &bull; Last Updated: Fri, 22 Oct 2021 21:16:00 -0700</p>
   </div>
 </footer>
 

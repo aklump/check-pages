@@ -28,56 +28,75 @@
 <p>To add new functionality to <code>find</code>...</p>
 
 <ol>
-<li>Create a unique folder in <em>plugins</em> with the following structure. In
-this example the new plugin will be called <code>foo</code>.</li>
-</ol>
+<li><p>Create a unique folder in <em>plugins</em> with the following structure. In this example the new plugin will be called <code>foo_bar</code>.</p>
 
-<pre><code>├── plugins
-│   └── find
-│       └── foo
-│           └── schema.json
-</code></pre>
-
-<ol>
-<li>Write the find portion of the schema file as <em>schema.find.json</em>.</li>
-</ol>
-
-<pre><code class="json">{
-    "type": "object",
-    "required": [
-        "foo"
-    ],
-    "properties": {
-        "foo": {
-            "$ref": "#/definitions/dom_selector"
-        }
-    },
-    "additionalProperties": false
-}
-</code></pre>
-
-<ol>
-<li>Optionally, you may provide definitions in the schema as _
-schema.definitions.json_, e.g.,</li>
-</ol>
+<pre><code>plugins
+└── foo_bar
+   ├── FooBar.php
+   ├── README.md
+   ├── schema.definitions.json
+   ├── schema.find.json
+   ├── suite.yml
+   └── test_subject.html
+</code></pre></li>
+<li><p>Write the find portion of the schema file as <em>schema.find.json</em>.</p>
 
 <pre><code class="json">{
-    "js_eval": {
-        "type": "string",
-        "pattern": ".+",
-        "examples": [
-            "location.hash"
-        ]
-    }
+   "type": "object",
+   "required": [
+       "foo"
+   ],
+   "properties": {
+       "foo": {
+           "$ref": "#/definitions/dom_selector"
+       }
+   },
+   "additionalProperties": false
 }
-</code></pre>
+</code></pre></li>
+<li><p>Optionally, you may provide definitions in the schema as _
+schema.definitions.json_, e.g.,</p>
 
-<ol>
-<li>Write the <em>suite.yml</em> file which will be run against <em>test_subject.html</em> or _
-test_subject.php_</li>
+<pre><code class="json">{
+   "js_eval": {
+       "type": "string",
+       "pattern": ".+",
+       "examples": [
+           "location.hash"
+       ]
+   }
+}
+</code></pre></li>
+<li><p>Write the <em>suite.yml</em> file which will be run against <em>test_subject.html, test_subject.php, test_subject.json</em>, etc</p></li>
 <li>Create <em>test_subject.html</em> or <em>test_subject.php</em> as needed to test _
 suite.yml_.</li>
+<li><em>README.md</em> is optional, but will be added to the Check Pages documentation when it's compiled and should be used to give examples of how the plugin should be implemented.</li>
 </ol>
+
+<h2>Advanced</h2>
+
+<p>The <em>json_schema</em> plugin is a good example of a plugin that totally handles the assertion on it's own. You may want to study that if you need to do something fancy.</p>
+
+<p>You can see the basic strategy here:</p>
+
+<ol>
+<li>You may only return <code>TRUE</code>, indicating the assertion passed.</li>
+<li>If it failed you must throw an exception, the message of which will be printed in the test results as to the reason for the failure.</li>
+</ol>
+
+<pre><code class="php">public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
+  $assert-&gt;setAssertion(Assert::ASSERT_CALLABLE, function ($assert) {
+
+    // ... do your fancy assertion
+
+    if ($it_failed) {
+      throw new \RuntimeException(sprintf('The reason for the failure'));
+    }
+
+    return TRUE;
+  });
+}
+</code></pre>
 </section>
 
 <div class="search__results">
@@ -87,7 +106,7 @@ suite.yml_.</li>
 <footer>
   <div class="pager"><a href="custom_dirs.html" class="prev custom_dirs">&laquo;How To Use A Custom Directory For Suite Files</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cheatsheet.html" class="next cheatsheet">Quick Reference: Test Writing&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.0 &bull; Last Updated: Fri, 16 Jul 2021 13:07:04 -0700</p>
+    <p class="legaleeze center">Version: 0.15.0 &bull; Last Updated: Fri, 22 Oct 2021 21:16:02 -0700</p>
   </div>
 </footer>
 
