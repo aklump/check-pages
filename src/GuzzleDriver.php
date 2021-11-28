@@ -2,45 +2,11 @@
 
 namespace AKlump\CheckPages;
 
-use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
-use Psr\Http\Message\ResponseInterface;
 
-/**
- * Non-Javascript response driver.
- */
-class GuzzleDriver implements RequestDriverInterface {
-
-  /**
-   * @var string
-   */
-  protected $url;
-
-  /**
-   * @var \Psr\Http\Message\ResponseInterface
-   */
-  protected $response;
-
-  protected $headers;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setUrl(string $url): RequestDriverInterface {
-    $this->url = $url;
-
-    return $this;
-  }
-
-  public function getUrl(): string {
-    return $this->url;
-  }
-
-  public function getClient(array $options = []) {
-    // TODO Expose verify in config somehow.
-    return new Client($options + ['verify' => FALSE]);
-  }
+class GuzzleDriver extends RequestDriver {
 
   /**
    * {@inheritdoc}
@@ -57,7 +23,7 @@ class GuzzleDriver implements RequestDriverInterface {
       ],
     ]);
     try {
-      $this->response = $client->get($this->url);
+      $this->response = $client->request($this->method, $this->url, ['body' => $this->body]);
     }
     catch (ClientException $exception) {
       $this->response = $exception->getResponse();
@@ -65,6 +31,7 @@ class GuzzleDriver implements RequestDriverInterface {
 
     return $this->response;
   }
+
 
   /**
    * {@inheritdoc}
@@ -79,21 +46,4 @@ class GuzzleDriver implements RequestDriverInterface {
   public function getRedirectCode(): int {
     return (int) ($this->response->getHeader('X-Guzzle-Redirect-Status-History')[0] ?? 0);
   }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setHeader(string $key, string $value): RequestDriverInterface {
-    $this->headers[$key] = $value;
-
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getHeaders(): array {
-    return $this->headers ?? [];
-  }
-
 }

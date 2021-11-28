@@ -185,7 +185,7 @@
                 "required": [
                     "visit"
                 ],
-                "additionalProperties": true,
+                "additionalProperties": false,
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
@@ -211,7 +211,7 @@
                 "required": [
                     "visit"
                 ],
-                "additionalProperties": true,
+                "additionalProperties": false,
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
@@ -237,7 +237,7 @@
                 "required": [
                     "url"
                 ],
-                "additionalProperties": true,
+                "additionalProperties": false,
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
@@ -263,7 +263,7 @@
                 "required": [
                     "url"
                 ],
-                "additionalProperties": true,
+                "additionalProperties": false,
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
@@ -279,6 +279,48 @@
                     },
                     "redirect": {
                         "$ref": "#/definitions/url"
+                    },
+                    "find": {
+                        "$ref": "#/definitions/find"
+                    }
+                }
+            },
+            {
+                "required": [
+                    "url",
+                    "request"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
+                    "url": {
+                        "$ref": "#/definitions/url"
+                    },
+                    "request": {
+                        "$ref": "#/definitions/request"
+                    },
+                    "find": {
+                        "$ref": "#/definitions/find"
+                    }
+                }
+            },
+            {
+                "required": [
+                    "visit",
+                    "request"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
+                    "visit": {
+                        "$ref": "#/definitions/url"
+                    },
+                    "request": {
+                        "$ref": "#/definitions/request"
                     },
                     "find": {
                         "$ref": "#/definitions/find"

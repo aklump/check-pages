@@ -1,0 +1,37 @@
+{
+    "request": {
+        "type": "object",
+        "properties": {
+            "method": {
+                "type": "string",
+                "enum": [
+                    "delete",
+                    "get",
+                    "head",
+                    "options",
+                    "patch",
+                    "post",
+                    "put",
+                    "trace",
+                    "DELETE",
+                    "GET",
+                    "HEAD",
+                    "OPTIONS",
+                    "PATCH",
+                    "POST",
+                    "PUT",
+                    "TRACE"
+                ]
+            },
+            "headers": {
+                "type": "object",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "body": {
+                "type": "string"
+            }
+        }
+    }
+}

@@ -6,5 +6,6 @@ run_suite('dom');
 run_suite('header');
 run_suite('javascript');
 run_suite('json_schema');
+run_suite('request');
 run_suite('style');
 run_suite('xpath');

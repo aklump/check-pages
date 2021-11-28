@@ -11,6 +11,7 @@ use ChromeDevtoolsProtocol\Model\DOM\GetOuterHTMLRequest;
 use ChromeDevtoolsProtocol\Model\DOM\QuerySelectorRequest;
 use ChromeDevtoolsProtocol\Model\Network\EnableRequest;
 use ChromeDevtoolsProtocol\Model\Network\Headers;
+use ChromeDevtoolsProtocol\Model\Network\ResponseReceivedEvent;
 use ChromeDevtoolsProtocol\Model\Network\SetExtraHTTPHeadersRequest;
 use ChromeDevtoolsProtocol\Model\Page\NavigateRequest;
 use ChromeDevtoolsProtocol\Model\Runtime\EvaluateRequest;
@@ -21,8 +22,9 @@ use Psr\Http\Message\ResponseInterface;
  *
  * @link https://chromedevtools.github.io/devtools-protocol/1-2/
  * @link https://stackoverflow.com/questions/55441105/running-google-chrome-headless-with-php-exec-doesn-t-return-output-till-iis-rest
+ * @link https://github.com/jakubkulhan/chrome-devtools-protocol/blob/master/test/ChromeDevtoolsProtocol/Domain/NetworkDomainTest.php
  */
-final class ChromeDriver extends GuzzleDriver {
+final class ChromeDriver extends RequestDriver {
 
   /**
    * An array of optional query selectors to fill with computed CSS style info.
@@ -73,16 +75,6 @@ final class ChromeDriver extends GuzzleDriver {
    */
   public function getResponse(): ResponseInterface {
 
-    // We use Guzzle to get the headers and the status code.  Maybe we can do
-    // that with Chrome too, but I didn't quickly see a way and  need to move on
-    // right now.
-    $response = parent::getResponse();
-    $headers = $response->getHeaders();
-
-    // TODO Get headers with Chrome.
-    // TODO Get status with Chrome.
-    // TODO This may help: https://github.com/jakubkulhan/chrome-devtools-protocol/blob/master/test/ChromeDevtoolsProtocol/Domain/NetworkDomainTest.php
-
     // Context creates deadline for operations.
     // TODO Make the timeout configurable.
     $this->ctx = Context::withTimeout(Context::background(), 30 /* seconds */);
@@ -104,11 +96,19 @@ final class ChromeDriver extends GuzzleDriver {
         $this->devtools->css()->enable($this->ctx);
         $this->devtools->network()->enable($this->ctx, EnableRequest::make());
 
-        $headers = $this->getHeaders();
-        if ($headers) {
+
+        /** @var \ChromeDevtoolsProtocol\Model\Network\Response $response */
+        $this->response = NULL;
+        $this->devtools->network()
+          ->addResponseReceivedListener(function (ResponseReceivedEvent $ev) {
+            $this->response = $ev->response;
+          });
+
+        $request_headers = $this->getHeaders();
+        if ($request_headers) {
           $this->devtools->network()
             ->setExtraHTTPHeaders($this->ctx, SetExtraHTTPHeadersRequest::builder()
-              ->setHeaders(Headers::fromJson($headers))
+              ->setHeaders(Headers::fromJson($request_headers))
               ->build());
         }
 
@@ -118,6 +118,8 @@ final class ChromeDriver extends GuzzleDriver {
         $this->devtools->page()->awaitLoadEventFired($this->ctx);
         $page_contents = $this->getPage();
 
+        $response_headers = $this->response->headers->all();
+
         if ($this->styleRequests) {
           foreach ($this->styleRequests as $selector => &$request) {
             $request = $this->getStyle($selector);
@@ -125,7 +127,7 @@ final class ChromeDriver extends GuzzleDriver {
 
           // By passing as a custom header, we are able to still utilize the
           // ResponseInterface.
-          $headers['X-Computed-Styles'] = json_encode($this->styleRequests);
+          $response_headers['X-Computed-Styles'] = json_encode($this->styleRequests);
         }
 
         if ($this->javascriptEvals) {
@@ -138,11 +140,8 @@ final class ChromeDriver extends GuzzleDriver {
 
           // By passing as a custom header, we are able to still utilize the
           // ResponseInterface.
-          $headers['X-Javascript-Evals'] = json_encode($this->javascriptEvals);
+          $response_headers['X-Javascript-Evals'] = json_encode($this->javascriptEvals);
         }
-
-        // TODO Handle a click before getting page.
-
       }
       catch (\Exception $e) {
         $class = get_class($e);
@@ -163,25 +162,31 @@ final class ChromeDriver extends GuzzleDriver {
 
     return new Response(
       $page_contents,
-      $response->getStatusCode(),
-      $headers
+      $this->response->status,
+      $response_headers
     );
   }
 
   /**
-   * Return the entire page HTML.
-   *
-   * @return string
-   *   HTML for the page.
+   * {@inheritdoc}
    */
-  private function getPage(): string {
-    $document = $this->devtools->dom()
-      ->getDocument($this->ctx, GetDocumentRequest::make());
-    $page_contents = $this->devtools->dom()
-      ->getOuterHTML($this->ctx, GetOuterHTMLRequest::fromJson((object) ['nodeId' => $document->root->nodeId]));
-    $page_contents = json_encode($page_contents);
+  public function getLocation(): string {
+    return $this->response->url;
+  }
 
-    return json_decode($page_contents)->outerHTML;
+  public function getRedirectCode(): int {
+
+    // TODO Get redirect code from $this->response; is it possible?
+    // Not sure how to get the redirect code with the ChromeDriver, but we do
+    // know it with the GuzzleDriver.  Maybe this can be figured out some day.
+    $redirect_driver = new GuzzleDriver();
+    $redirect_driver
+      ->setMethod($this->method)
+      ->setUrl($this->url)
+      ->setBody($this->body)
+      ->getResponse();
+
+    return $redirect_driver->getRedirectCode();
   }
 
   /**
@@ -253,4 +258,19 @@ final class ChromeDriver extends GuzzleDriver {
     return $this;
   }
 
+  /**
+   * Return the entire page HTML.
+   *
+   * @return string
+   *   HTML for the page.
+   */
+  private function getPage(): string {
+    $document = $this->devtools->dom()
+      ->getDocument($this->ctx, GetDocumentRequest::make());
+    $page_contents = $this->devtools->dom()
+      ->getOuterHTML($this->ctx, GetOuterHTMLRequest::fromJson((object) ['nodeId' => $document->root->nodeId]));
+    $page_contents = json_encode($page_contents);
+
+    return json_decode($page_contents)->outerHTML;
+  }
 }

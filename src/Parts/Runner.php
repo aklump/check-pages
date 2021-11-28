@@ -460,7 +460,9 @@ class Runner {
     $this->normalizeSuiteData($tests);
 
     $this->longestUrl = array_reduce($tests, function ($carry, $item) {
-      return max($carry, strlen($item['url'] ?? $item));
+      $url = is_string($item) ? $item : ($item['url'] ?? '');
+
+      return max($carry, strlen($url));
     }, $this->longestUrl);
     $results = [];
 
@@ -614,7 +616,7 @@ class Runner {
       $http_response_code = $driver->getRedirectCode();
     }
     else {
-      $http_response_code = $response->getStatusCode();;
+      $http_response_code = $response->getStatusCode();
     }
 
     $test_passed($http_response_code == $config['expect']);

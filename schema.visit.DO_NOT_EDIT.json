@@ -521,6 +521,41 @@
             ],
             "additionalProperties": false
         },
+        "request": {
+            "type": "object",
+            "properties": {
+                "method": {
+                    "type": "string",
+                    "enum": [
+                        "delete",
+                        "get",
+                        "head",
+                        "options",
+                        "patch",
+                        "post",
+                        "put",
+                        "trace",
+                        "DELETE",
+                        "GET",
+                        "HEAD",
+                        "OPTIONS",
+                        "PATCH",
+                        "POST",
+                        "PUT",
+                        "TRACE"
+                    ]
+                },
+                "headers": {
+                    "type": "object",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "body": {
+                    "type": "string"
+                }
+            }
+        },
         "property": {
             "type": "string",
             "pattern": ".+"
@@ -759,7 +794,7 @@
                 "required": [
                     "visit"
                 ],
-                "additionalProperties": true,
+                "additionalProperties": false,
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
@@ -785,7 +820,7 @@
                 "required": [
                     "visit"
                 ],
-                "additionalProperties": true,
+                "additionalProperties": false,
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
@@ -811,7 +846,7 @@
                 "required": [
                     "url"
                 ],
-                "additionalProperties": true,
+                "additionalProperties": false,
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
@@ -837,7 +872,7 @@
                 "required": [
                     "url"
                 ],
-                "additionalProperties": true,
+                "additionalProperties": false,
                 "properties": {
                     "why": {
                         "$ref": "#/definitions/why"
@@ -853,6 +888,48 @@
                     },
                     "redirect": {
                         "$ref": "#/definitions/url"
+                    },
+                    "find": {
+                        "$ref": "#/definitions/find"
+                    }
+                }
+            },
+            {
+                "required": [
+                    "url",
+                    "request"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
+                    "url": {
+                        "$ref": "#/definitions/url"
+                    },
+                    "request": {
+                        "$ref": "#/definitions/request"
+                    },
+                    "find": {
+                        "$ref": "#/definitions/find"
+                    }
+                }
+            },
+            {
+                "required": [
+                    "visit",
+                    "request"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
+                    "visit": {
+                        "$ref": "#/definitions/url"
+                    },
+                    "request": {
+                        "$ref": "#/definitions/request"
                     },
                     "find": {
                         "$ref": "#/definitions/find"
