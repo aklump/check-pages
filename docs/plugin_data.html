@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>The Path Plugin is for Testing Structured Content</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--plugin_data">
+<header>
+  <div class="pager"><a href="plugin_json_schema.html" class="prev plugin_json_schema">&laquo;Testing Your APIs</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="why.html" class="next why">Using `why` For Better Clarity&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+
+<h1>The Path Plugin is for Testing Structured Content</h1>
+
+<section>
+
+<pre><code class="json">{
+    "foo": {
+        "bar": "baz"
+    }
+}
+</code></pre>
+
+<pre><code class="yaml">- visit: /api/thing.json
+  find:
+    - path: foo.bar
+      is: baz
+</code></pre>
+
+<h2>In Depth</h2>
+
+<p>The plugin is able to access the values from JSON, XML and YAML responses. It uses the <code>Content-type</code> header to deserialize the request body. Given any of the following...</p>
+
+<pre><code class="text">Content-type: application/json
+
+{"foo":{"bar":"baz"}}
+</code></pre>
+
+<pre><code class="text">Content-type: application/xml
+
+&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;foo&gt;
+  &lt;bar&gt;baz&lt;/bar&gt;
+&lt;/foo&gt;
+</code></pre>
+
+<pre><code class="text">Content-type: application/x-yaml
+
+foo:
+  bar: baz
+</code></pre>
+
+<p>... the following test could be used.</p>
+
+<pre><code class="yaml">- visit: /api/thing
+  find:
+    - path: foo
+      count: 1
+    - path: foo.bar
+      is: baz
+    - path: foo.bar
+      is not: yaz
+    - path: foo.bar
+      contains: az
+    - path: foo.bar
+      not contains: alpha
+    - path: foo.bar
+      matches: /^baz$/
+    - path: foo.bar
+      not matches: /\d+/
+</code></pre>
+
+<h2>Request Headers</h2>
+
+<p><code>request</code> can be used to send headers, as in this case where we pass <code>accept</code>. Notice how we ensure the response is encoded as JSON by the first assertion.</p>
+
+<pre><code class="yaml">- visit: /api/thing
+  request:
+  headers:
+    accept: application/json
+  find:
+    - why: Assert accept header used by the server to serialize the request.
+      contains: '{"bar":"baz"}'
+    - path: foo.bar
+      is: baz
+</code></pre>
+
+<h2>Array Values</h2>
+
+<p>You can use <code>contains</code> and <code>count</code> against arrays.</p>
+
+<p>Given this response:</p>
+
+<pre><code class="text">Content-type: text/yml
+
+items:
+  - apple
+  - banana
+  - chocolate
+title: Foods
+</code></pre>
+
+<p>... this test can be used.</p>
+
+<pre><code class="yaml">- visit: /api/thing
+  request:
+    headers:
+      accept: text/yaml
+  find:
+    - path: items
+      count: 3
+    - path: items
+      count: "&gt;1"
+    - path: items
+      contains: chocolate
+    - path: items
+      not contains: lettuce
+    - path: items.1
+      is: banana
+</code></pre>
+
+<p>To select the root node use an empty string for <code>path</code>...</p>
+
+<pre><code class="yaml">- visit: /api/thing
+  request:
+    headers:
+      accept: text/yaml
+  find:
+    - path: ""
+      count: 2
+</code></pre>
+
+<h2>Capturing Values</h2>
+
+<p>It can be handy to store the value for use in a subsequent test.</p>
+
+<pre><code class="yaml">- visit: /api/thing.json
+  find:
+    - path: foo.bar
+      is: baz
+      set: fooBar
+
+- visit: /api/thing.xml
+  find:
+    - why: Assert both JSON and XML ship the same value.
+      path: foo.bar
+      is: ${fooBar}
+</code></pre>
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="plugin_json_schema.html" class="prev plugin_json_schema">&laquo;Testing Your APIs</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="why.html" class="next why">Using `why` For Better Clarity&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.0 &bull; Last Updated: Sun, 28 Nov 2021 20:07:18 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
+

@@ -218,7 +218,9 @@
             }
         },
         "path_selector": {
-            "type": "string",
+            "type": [
+                "string"
+            ],
             "examples": [
                 "",
                 "foo",

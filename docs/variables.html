@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Sharing Values Between Tests</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--variables">
+<header>
+  <div class="pager"><a href="headers.html" class="prev headers">&laquo;Response Header Assertions</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="plugin_header.html" class="next plugin_header">Testing Response Headers&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+
+<h1>Sharing Values Between Tests</h1>
+
+<section>
+
+<p>You create variables like this:</p>
+
+<pre><code class="yaml">- set: title
+  is: 'Lorem Ipsum'
+</code></pre>
+
+<p>Which can be used like this:</p>
+
+<pre><code class="yaml">- set: title
+  is: 'Lorem Ipsum'
+- visit: /foo.html
+  find:
+    - dom: h1
+      is: ${title}
+</code></pre>
+
+<p><strong>Note: Interpolation will only occur if the variable is set.</strong> That means that in the following example, the second assert will assert against the literal value <code>${other}</code>.</p>
+
+<pre><code class="yaml">- set: title
+  is: 'Lorem Ipsum'
+- visit: /foo.html
+  find:
+    - dom: h1
+      is: ${title}
+    - dom: h2
+      is: ${other}
+</code></pre>
+
+<h2>Using Response Values</h2>
+
+<p>In this example we'll <code>GET</code> a resource ID and store it using <code>set</code>, then <code>DELETE</code> it in a subsequent test using interpolation.</p>
+
+<pre><code class="yaml">- visit: /api/2/foo
+  find:
+    - node: collection.items.data.0.id
+      set: fooId
+
+- url: /api/2/foo/${fooId}
+  request:
+    method: delete
+  expect: 204
+</code></pre>
+
+<h2>Scope</h2>
+
+<p>Variables used this way are scoped to the suite. They can be shared across tests and assertions, but not across suites.</p>
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="headers.html" class="prev headers">&laquo;Response Header Assertions</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="plugin_header.html" class="next plugin_header">Testing Response Headers&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.0 &bull; Last Updated: Sun, 28 Nov 2021 20:07:23 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
+
