@@ -27,11 +27,11 @@
         "behat\/mink": "^1.8",
         "jakubkulhan\/chrome-devtools-protocol": "^1.0",
         "adamnicholson\/bag": "@dev",
-        "midweste/objectpath": "^1.0",
-        "laminas/laminas-xml2json": "^3.2",
+        "midweste\/objectpath": "^1.0",
+        "laminas\/laminas-xml2json": "^3.2",
         "ext-json": "*"
     },
-    "version": "0.15.0",
+    "version": "0.15.1",
     "bin": [
         ".\/check_pages",
         ".\/create_test_directory"
