@@ -26,6 +26,10 @@ final class Data extends Plugin {
       return $this->message;
     }
 
+    if (empty($assert->path)) {
+      return sprintf('%s of the root node. %s', rtrim($stringified, ' .'), $assert->path, $this->message);
+    }
+
     return sprintf('%s in the node at "%s". %s', rtrim($stringified, ' .'), $assert->path, $this->message);
   }
 
@@ -34,16 +38,17 @@ final class Data extends Plugin {
    */
   public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
     $assert->setSearch(self::SEARCH_TYPE);
-    $item = $this->deserialize(
+    $value = $this->deserialize(
       $response->getBody(),
       $this->getContentType($response)
     );
-    $path = $assert->path ?? NULL;
-    if (is_null($path)) {
-      throw new \UnexpectedValueException('$assert does not contain a "path" value.');
+
+    // "" means the root node.
+    $path = $assert->path ?? "";
+    if ($path) {
+      $o = new ObjectPath($value);
+      $value = $o->get($path);
     }
-    $o = new ObjectPath($item);
-    $value = $o->get($path);
     $assert->setHaystack($this->normalize($value));
 
     if ($assert->set) {

@@ -26,6 +26,14 @@ abstract class RequestDriver implements RequestDriverInterface {
   protected $headers;
 
   /**
+   * {@inheritdoc}
+   */
+  public function allowInvalidCertificate(): bool {
+    // TODO Move this to config?
+    return TRUE;
+  }
+
+  /**
    * @param string $method
    *
    * @return
@@ -63,8 +71,7 @@ abstract class RequestDriver implements RequestDriverInterface {
   }
 
   public function getClient(array $options = []) {
-    // TODO Expose verify in config somehow.
-    return new Client($options + ['verify' => FALSE]);
+    return new Client($options + ['verify' => !$this->allowInvalidCertificate()]);
   }
 
   /**

@@ -1,8 +1,10 @@
 {
     "path_selector": {
-        "type": "string",
-        "pattern": ".+",
+        "type": [
+            "string"
+        ],
         "examples": [
+            "",
             "foo",
             "foo.bar",
             "foo.bar.0"

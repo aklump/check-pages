@@ -219,8 +219,8 @@
         },
         "path_selector": {
             "type": "string",
-            "pattern": ".+",
             "examples": [
+                "",
                 "foo",
                 "foo.bar",
                 "foo.bar.0"

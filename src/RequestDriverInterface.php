@@ -55,4 +55,12 @@ interface RequestDriverInterface {
    */
   public function getHeaders(): array;
 
+  /**
+   * Get the invalid certificate policy.
+   *
+   * @return bool
+   *    True if the driver should ignore SSL certificate errors.
+   */
+  public function allowInvalidCertificate(): bool;
+
 }

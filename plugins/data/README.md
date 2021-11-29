@@ -91,6 +91,7 @@ items:
   - apple
   - banana
   - chocolate
+title: Foods
 ```
 
 ... this test can be used.
@@ -113,6 +114,17 @@ items:
       is: banana
 ```
 
+To select the root node use an empty string for `path`...
+
+```yaml
+- visit: /api/thing
+  request:
+    headers:
+      accept: text/yaml
+  find:
+    - path: ""
+      count: 2
+```
 ## Capturing Values
 
 It can be handy to store the value for use in a subsequent test.

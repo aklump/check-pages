@@ -15,6 +15,10 @@ use ChromeDevtoolsProtocol\Model\Network\ResponseReceivedEvent;
 use ChromeDevtoolsProtocol\Model\Network\SetExtraHTTPHeadersRequest;
 use ChromeDevtoolsProtocol\Model\Page\NavigateRequest;
 use ChromeDevtoolsProtocol\Model\Runtime\EvaluateRequest;
+use ChromeDevtoolsProtocol\Model\Security\CertificateErrorActionEnum;
+use ChromeDevtoolsProtocol\Model\Security\CertificateErrorEvent;
+use ChromeDevtoolsProtocol\Model\Security\HandleCertificateErrorRequest;
+use ChromeDevtoolsProtocol\Model\Security\SetOverrideCertificateErrorsRequest;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -91,11 +95,11 @@ final class ChromeDriver extends RequestDriver {
       // Open the devtools tab in the browser.
       $this->devtools = $tab->devtools();
       try {
+        $this->handleCertificatePolicy();
         $this->devtools->dom()->enable($this->ctx);
         $this->devtools->page()->enable($this->ctx);
         $this->devtools->css()->enable($this->ctx);
         $this->devtools->network()->enable($this->ctx, EnableRequest::make());
-
 
         /** @var \ChromeDevtoolsProtocol\Model\Network\Response $response */
         $this->response = NULL;
@@ -118,6 +122,9 @@ final class ChromeDriver extends RequestDriver {
         $this->devtools->page()->awaitLoadEventFired($this->ctx);
         $page_contents = $this->getPage();
 
+        if (!$this->response) {
+          throw new \RuntimeException('No response.');
+        }
         $response_headers = $this->response->headers->all();
 
         if ($this->styleRequests) {
@@ -272,5 +279,31 @@ final class ChromeDriver extends RequestDriver {
     $page_contents = json_encode($page_contents);
 
     return json_decode($page_contents)->outerHTML;
+  }
+
+  /**
+   * @link https://github.com/jakubkulhan/chrome-devtools-protocol/blob/master/test/ChromeDevtoolsProtocol/DevtoolsClientTest.php
+   */
+  private function handleCertificatePolicy() {
+    if (!$this->allowInvalidCertificate()) {
+      return;
+    }
+    $this->devtools->security()->enable($this->ctx);
+    $this->devtools->security()->setOverrideCertificateErrors(
+      $this->ctx,
+      SetOverrideCertificateErrorsRequest::builder()
+        ->setOverride(TRUE)
+        ->build()
+    );
+    $this->devtools->security()
+      ->addCertificateErrorListener(function (CertificateErrorEvent $ev) {
+        $this->devtools->security()->handleCertificateError(
+          $this->ctx,
+          HandleCertificateErrorRequest::builder()
+            ->setEventId($ev->eventId)
+            ->setAction(CertificateErrorActionEnum::CONTINUE)
+            ->build()
+        );
+      });
   }
 }
