@@ -768,14 +768,17 @@ class Runner {
   protected function validateAndLoadYaml(string $path, string $schema_basename): array {
     $data = Yaml::parseFile($this->resolve($path), Yaml::PARSE_OBJECT_FOR_MAP);
     $validator = new Validator();
-    try {
-      $validator->validate($data, (object) ['$ref' => 'file://' . $this->rootDir . '/' . $schema_basename], Constraint::CHECK_MODE_EXCEPTIONS);
-    }
-    catch (\Exception $exception) {
-
-      // Add in the file context.
-      $class = get_class($exception);
-      throw new $class(sprintf('%s using %s : %s', $path, $schema_basename, $exception->getMessage()), $exception->getCode(), $exception);
+    $path_to_schema = $this->rootDir . '/' . $schema_basename;
+    $validator->validate($data, (object) ['$ref' => 'file://' . $path_to_schema]);
+    if (!$validator->isValid()) {
+      $message = [
+        sprintf('Syntax error in suite: "%s" using "%s"', basename($path), $schema_basename),
+        NULL,
+      ];
+      foreach ($validator->getErrors() as $error) {
+        $message[] = sprintf("[%s] %s", $error['property'], $error['message']);
+      }
+      throw new \RuntimeException(implode(PHP_EOL, $message));
     }
 
     // Convert to arrays, we only needed objects for the validation.

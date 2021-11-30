@@ -44,7 +44,7 @@ try {
 
   // Finish with an error response.
 catch (\Exception $exception) {
-  // Shift the first line so only that is read, in case we want to dump a
+  // Shift the first line so only that is red, in case we want to dump a
   // pretty-print JSON variable.
   $lines = explode(PHP_EOL, $exception->getMessage());
   echo PHP_EOL;
