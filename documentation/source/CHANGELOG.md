@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [0.16.0] - TBD
 
+### Changed
+
+- If `expect` is not explicitly provided, any value from `200` to `299` will pass the test. Previously the response code would have to be exactly `200` to pass.
+
 ### Added
 
 - `--filter` now accepts multiple suites as CSV, e.g. `--filter=foo,bar` as well as single suites.

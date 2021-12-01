@@ -495,7 +495,7 @@ class Runner {
         continue;
       }
       $config += [
-        'expect' => 200,
+        'expect' => NULL,
         'find' => '',
       ];
       $test = new Test(strval($test_index), $config, $suite);
@@ -637,15 +637,20 @@ class Runner {
     }
 
     $http_location = NULL;
-    if ($config['expect'] >= 300 && $config['expect'] <= 399) {
-      $http_location = $driver->getLocation();
-      $http_response_code = $driver->getRedirectCode();
+
+    // If not specified, then any 2XX will pass.
+    $http_response_code = $response->getStatusCode();
+    if (empty($config['expect'])) {
+      $test_passed($http_response_code >= 200 && $http_response_code <= 299);
     }
     else {
-      $http_response_code = $response->getStatusCode();
-    }
+      if ($config['expect'] >= 300 && $config['expect'] <= 399) {
+        $http_location = $driver->getLocation();
+        $http_response_code = $driver->getRedirectCode();
+      }
 
-    $test_passed($http_response_code == $config['expect']);
+      $test_passed($http_response_code == $config['expect']);
+    }
 
     if (array_key_exists('show-source', $this->runner['options'])) {
       $show_source = (string) $response->getBody();
