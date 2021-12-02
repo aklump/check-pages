@@ -674,7 +674,7 @@ class Runner {
       $this->pass('├── HTTP ' . $http_response_code);
     }
     else {
-      $this->failReason(sprintf("├── Expected HTTP %d, got %d", $config['expect'], $http_response_code));
+      $this->failReason(sprintf("├── Expected HTTP %s, got %d", $config['expect'] ?? '2xx', $http_response_code));
     }
 
     // Test the location if asked.
