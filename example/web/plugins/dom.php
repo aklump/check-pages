@@ -1,3 +1,6 @@
+<?php
+$datetime = time();
+?>
 <html>
 <head>
   <style type="text/css">
@@ -15,8 +18,9 @@
   </svg>
 </a>
 
-<h1 class="page-title" data-timestamp="<?php echo time() ?>">
+<h1 class="page-title" data-timestamp="<?php echo $datetime ?>">
   <span>About In the Loft Studios</span></h1>
+<h2 class="page-subtitle">Current Time is: <?php echo $datetime ?></h2>
 
 <a href="http://www.foo.com/alpha">Go to Foo Alpha</a>
 <a href="http://www.foo.com/charlie">Go to Foo Charlie</a>

@@ -690,12 +690,15 @@ class Runner {
       }
     }
 
-    // Look for a piece of text on the page.
-    foreach ($config['find'] as $id => $definition) {
+    $assertions = $config['find'];
+    $id = 0;
+    while ($definition = array_shift($assertions)) {
       if (is_scalar($definition)) {
         $definition = [Assert::ASSERT_CONTAINS => $definition];
       }
       $test_passed($this->handleFindAssert(strval($id), $definition, $response));
+      $assertions = $this->getSuite()->variables()->interpolate($assertions);
+      ++$id;
     }
 
     if ($test_passed()) {

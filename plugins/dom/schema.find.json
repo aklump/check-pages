@@ -95,6 +95,9 @@
     ],
     "additionalProperties": false,
     "properties": {
+        "set": {
+            "$ref": "#/definitions/set"
+        },
         "dom": {
             "$ref": "#/definitions/dom_selector"
         },

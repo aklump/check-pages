@@ -20,8 +20,8 @@
       dom: '#logo svg'
       count: 1
 
-    # Notice the use or `text` vs. `is` for accessing the contents of a DOM
-    # find as either plaintext or markup respectively.
+    # Notice the use or `text` vs. `is` for accessing the contents of a DOM find
+    # as either plaintext or markup respectively.
     -
       dom: h1.page-title
       text: About In the Loft Studios
@@ -64,3 +64,13 @@
     -
       dom: '#footer #copyright'
       count: 1
+    -
+      why: Capture the timestamp to use in the next assertion.
+      dom: .page-title
+      attribute: data-timestamp
+      matches: /.+/
+      set: currentTime
+    -
+      why: Assert the timestamp in the data attribute matches the subtitle; because the value is dynamic and always changing, the only way to assert against it is to use the set property.
+      dom: h2.page-subtitle
+      matches: /${currentTime}$/

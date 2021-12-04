@@ -48,3 +48,13 @@
         -
             dom: '#footer #copyright'
             count: 1
+        -
+            why: 'Capture the timestamp to use in the next assertion.'
+            dom: .page-title
+            attribute: data-timestamp
+            matches: /.+/
+            set: currentTime
+        -
+            why: 'Assert the timestamp in the data attribute matches the subtitle; because the value is dynamic and always changing, the only way to assert against it is to use the set property.'
+            dom: h2.page-subtitle
+            matches: '/${currentTime}$/'

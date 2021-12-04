@@ -71,6 +71,8 @@ final class Assert {
    */
   const ASSERT_CALLABLE = 'callable';
 
+  protected $needle;
+
   /**
    * @var string
    */
@@ -354,6 +356,8 @@ final class Assert {
       case self::ASSERT_NOT_CONTAINS:
         foreach ($haystack as $item) {
           $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            $this->setNeedle($item_variation);
+
             return strpos($item_variation, $this->assertValue) === FALSE;
           });
           if (!$pass) {
@@ -366,6 +370,8 @@ final class Assert {
       case self::ASSERT_CONTAINS:
         foreach ($haystack as $item) {
           $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            $this->setNeedle($item_variation);
+
             return strpos($item_variation, $this->assertValue) !== FALSE;
           });
           if ($pass) {
@@ -384,6 +390,8 @@ final class Assert {
       case self::ASSERT_TEXT:
         foreach ($haystack as $item) {
           $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            $this->setNeedle($item_variation);
+
             return $item_variation == $this->assertValue;
           });
           if ($pass) {
@@ -398,6 +406,7 @@ final class Assert {
 
       case self::ASSERT_EQUALS:
         foreach ($haystack as $item) {
+          $this->setNeedle($item);
           $pass = $item == $this->assertValue;
           if ($pass) {
             break;
@@ -412,6 +421,7 @@ final class Assert {
       case self::ASSERT_NOT_EQUALS:
         $pass = empty($haystack);
         foreach ($haystack as $item) {
+          $this->setNeedle($item);
           $pass = $item != $this->assertValue;
           if ($pass) {
             break;
@@ -426,6 +436,8 @@ final class Assert {
       case self::ASSERT_MATCHES:
         foreach ($haystack as $item) {
           $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            $this->setNeedle($item_variation);
+
             return preg_match($this->assertValue, $item_variation);
           });
           if ($pass) {
@@ -441,6 +453,8 @@ final class Assert {
         $pass = empty($haystack);
         foreach ($haystack as $item) {
           $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            $this->setNeedle($item_variation);
+
             return !preg_match($this->assertValue, $item_variation);
           });
           if ($pass) {
@@ -462,6 +476,22 @@ final class Assert {
     }
 
     $this->result = $pass;
+  }
+
+
+  protected function setNeedle($value): self {
+    $this->needle = $value;
+
+    return $this;
+  }
+
+  /**
+   * Return the needle in the haystack used to determine the result.
+   *
+   * @return mixed
+   */
+  public function getNeedle() {
+    return $this->needle;
   }
 
   /**
