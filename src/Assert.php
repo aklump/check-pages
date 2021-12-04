@@ -479,7 +479,16 @@ final class Assert {
   }
 
 
-  protected function setNeedle($value): self {
+  /**
+   * Set the needle value.
+   *
+   * @param $value
+   *   The value of the needle
+   *
+   * @return $this
+   *   Self for chaining.
+   */
+  public function setNeedle($value): self {
     $this->needle = $value;
 
     return $this;
@@ -611,7 +620,7 @@ final class Assert {
         break;
     }
 
-    $string = implode(' ', [$prefix, $suffix]) . '.';
+    $string = ltrim(implode(' ', array_filter([$prefix, $suffix])) . '.', '.');
 
     // Allow others to modify the string output.
     if (is_callable($this->toStringOverride)) {

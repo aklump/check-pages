@@ -855,22 +855,30 @@ class Runner {
 
     $assert->run();
     $pass = $assert->getResult();
+
+    if ($assert->set) {
+      $needle = $assert->getNeedle();
+      if (is_scalar($needle)) {
+        $this->pass(sprintf('├── ${%s} set as "%s".', $assert->set, $needle));
+      }
+      else {
+        $this->pass(sprintf('├── ${%s} set.', $assert->set));
+      }
+      $this->getSuite()->variables()->setItem($assert->set, $needle);
+    }
+
+    $why = strval($assert);
     if (!$pass) {
       if (!empty($definition['why'])) {
-        $this->failReason("├── {$definition['why']} $assert");
+        $why = "{$definition['why']} $why";
       }
-      else {
-        $this->fail("├── $assert");
-      }
-      $this->failReason('│   └── ' . $assert->getReason());
+      $why && $this->fail("├── $why");
+      $reason = $assert->getReason();
+      $reason && $this->failReason("│   └── $reason");
     }
     else {
-      if (!empty($definition['why'])) {
-        $this->pass("├── {$definition['why']}");
-      }
-      else {
-        $this->pass("├── $assert");
-      }
+      $why = $definition['why'] ?? $why;
+      $why && $this->pass("├── $why");
     }
 
     return $pass;
@@ -919,7 +927,7 @@ class Runner {
   }
 
   /**
-   * Add a failure reason.
+   * Add a pass reason.
    *
    * @param string $message
    *   The message.

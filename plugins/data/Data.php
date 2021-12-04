@@ -14,23 +14,21 @@ final class Data extends Plugin {
 
   const SEARCH_TYPE = 'path';
 
-  private $message;
-
-  private $messageIsComplete;
-
   /**
    * {@inheritdoc}
    */
   public function onAssertToString(string $stringified, Assert $assert): string {
-    if ($this->messageIsComplete) {
-      return $this->message;
+    if (!empty($stringified)) {
+      $stringified = rtrim($stringified, '.');
+      if (empty($assert->path)) {
+        $stringified = sprintf('%s at the root node.', $stringified, $assert->path);
+      }
+      else {
+        $stringified = sprintf('%s in the node at "%s".', $stringified, $assert->path);
+      }
     }
 
-    if (empty($assert->path)) {
-      return sprintf('%s of the root node. %s', rtrim($stringified, ' .'), $assert->path, $this->message);
-    }
-
-    return sprintf('%s in the node at "%s". %s', rtrim($stringified, ' .'), $assert->path, $this->message);
+    return $stringified;
   }
 
   /**
@@ -50,23 +48,11 @@ final class Data extends Plugin {
       $value = $o->get($path);
     }
     $assert->setHaystack($this->normalize($value));
-
     if ($assert->set) {
-      $this->message = sprintf('Value set as "%s".', $assert->set);
-      $this->messageIsComplete = FALSE;
-
-      $this->runner->getSuite()->variables()->setItem($assert->set, $value);
       [$type] = $assert->getAssertion();
-
-      $is_only_setter = empty($type);
-      if ($is_only_setter) {
+      if (empty($type)) {
+        $assert->setNeedle($value);
         $assert->setResult(TRUE);
-        $suffix = '';
-        if (is_scalar($value)) {
-          $suffix = sprintf(' with value %s', $value);
-        }
-        $this->message = sprintf('"%s" set as "%s"%s.', $path, $assert->set, $suffix);
-        $this->messageIsComplete = TRUE;
       }
     }
   }
