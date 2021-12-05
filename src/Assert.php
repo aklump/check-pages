@@ -300,8 +300,9 @@ final class Assert {
     if ($haystack instanceof Crawler) {
       if (!$haystack->getNode(0)) {
 
-        // If we are expecting a count of 0, then this is a pass.
-        if ($this->assertType === self::ASSERT_COUNT && $this->assertValue === 0) {
+        // If we are expecting a count of 0, then the fact that the node does
+        // not exist is in fact, a pass.
+        if ($this->assertType === self::ASSERT_COUNT && empty($this->assertValue)) {
           $this->result = TRUE;
 
           return;
@@ -660,7 +661,6 @@ final class Assert {
     else {
       preg_match('/([><=]+)\s*(\d+)/', $expected, $matches);
       list(, $comparator, $expected) = $matches;
-      $expected = $matches[2];
       switch ($comparator) {
         case '>':
           $pass = $actual > $expected;
