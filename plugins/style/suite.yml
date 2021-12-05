@@ -6,6 +6,7 @@
       style: .visible
       property: display
       matches: /^(?!none).+$/
+      set: display
     -
       style: .visible
       property: display

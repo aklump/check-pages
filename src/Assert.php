@@ -27,6 +27,11 @@ final class Assert {
   /**
    * @var string
    */
+  const ASSERT_SETTER = 'set';
+
+  /**
+   * @var string
+   */
   const ASSERT_COUNT = 'count';
 
   /**
@@ -337,6 +342,10 @@ final class Assert {
 
     $pass = NULL;
     switch ($this->assertType) {
+
+      case self::ASSERT_SETTER:
+        $pass = TRUE;
+        break;
 
       case self::ASSERT_CALLABLE:
         $callback = $this->assertValue;

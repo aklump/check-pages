@@ -840,7 +840,13 @@ class Runner {
       $assert->setModifer(Assert::MODIFIER_ATTRIBUTE, $definition[Assert::MODIFIER_ATTRIBUTE]);
     }
 
-    // Setup the assert.
+    if ($assert->set) {
+      // This may be overridden below if there is more going on than just `set`,
+      // and that's totally fine and the way it should be.  However if only
+      // setting, we need to know that later own in the flow.
+      $assert->setAssertion(Assert::ASSERT_SETTER, NULL);
+    }
+
     $assertions = array_map(function ($help) {
       return $help->code();
     }, $assert->getAssertionsInfo());
@@ -857,7 +863,7 @@ class Runner {
     $pass = $assert->getResult();
 
     if ($assert->set) {
-      $needle = $assert->getNeedle();
+      $needle = $assert->getNeedle() ?? $assert->getHaystack()[0] ?? NULL;
       if (is_scalar($needle)) {
         $this->pass(sprintf('├── ${%s} set as "%s".', $assert->set, $needle));
       }
