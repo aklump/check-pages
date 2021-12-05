@@ -4,6 +4,7 @@ add_directory(__DIR__ . '/plugins');
 load_config('config/local');
 run_suite('data');
 run_suite('dom');
+run_suite('evaluate');
 run_suite('header');
 run_suite('javascript');
 run_suite('json_schema');

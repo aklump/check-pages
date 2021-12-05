@@ -58,6 +58,9 @@
                                 "$ref": "#/definitions/dom"
                             },
                             {
+                                "$ref": "#/definitions/evaluate"
+                            },
+                            {
                                 "$ref": "#/definitions/header"
                             },
                             {
@@ -457,6 +460,33 @@
                 }
             }
         },
+        "eval_selector": {
+            "type": "string",
+            "pattern": ".+",
+            "examples": [
+                "${height} > ${width}"
+            ]
+        },
+        "evaluate": {
+            "title": "Evaluate Plugin Assertion",
+            "type": "object",
+            "oneOf": [
+                {
+                    "required": [
+                        "eval"
+                    ]
+                }
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "eval": {
+                    "$ref": "#/definitions/eval_selector"
+                },
+                "why": {
+                    "$ref": "#/definitions/why"
+                }
+            }
+        },
         "header_selector": {
             "type": "string",
             "pattern": ".+",
@@ -693,6 +723,13 @@
                     "required": [
                         "style",
                         "property",
+                        "set"
+                    ]
+                },
+                {
+                    "required": [
+                        "style",
+                        "property",
                         "contains"
                     ]
                 },
@@ -740,6 +777,9 @@
                 }
             ],
             "properties": {
+                "set": {
+                    "$ref": "#/definitions/set"
+                },
                 "style": {
                     "$ref": "#/definitions/dom_selector"
                 },

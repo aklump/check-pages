@@ -1,0 +1,31 @@
+# This test also tests to make sure that variables can be reassigned across tests.
+-
+  why: Demonstrate how to assert an image's aspect ratio using `eval`.
+  visit: /test_subject.html
+  find:
+    -
+      style: img.tree
+      property: width
+      set: width
+    -
+      style: img.tree
+      property: height
+      set: height
+    -
+      why: Assert image has a landscape aspect ratio.
+      eval: ${height} < ${width}
+-
+  why: Demonstrate how to assert an image's aspect ratio using `eval`.
+  visit: /test_subject.html
+  find:
+    -
+      style: img.lake
+      property: width
+      set: width
+    -
+      style: img.lake
+      property: height
+      set: height
+    -
+      why: Assert image has a tall aspect ratio.
+      eval: ${height} > ${width}

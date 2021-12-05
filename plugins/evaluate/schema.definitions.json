@@ -1,0 +1,9 @@
+{
+    "eval_selector": {
+        "type": "string",
+        "pattern": ".+",
+        "examples": [
+            "${height} > ${width}"
+        ]
+    }
+}
