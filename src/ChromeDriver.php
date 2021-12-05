@@ -31,6 +31,11 @@ use Psr\Http\Message\ResponseInterface;
 final class ChromeDriver extends RequestDriver {
 
   /**
+   * @var mixed|null
+   */
+  protected $location;
+
+  /**
    * An array of optional query selectors to fill with computed CSS style info.
    *
    * @var array
@@ -105,7 +110,9 @@ final class ChromeDriver extends RequestDriver {
         $this->response = NULL;
         $this->devtools->network()
           ->addResponseReceivedListener(function (ResponseReceivedEvent $ev) {
-            $this->response = $ev->response;
+            // This will will be called potentially many times, but it's the
+            // first response that we want to deal with.
+            $this->response = $this->response ?? $ev->response;
           });
 
         $request_headers = $this->getHeaders();
@@ -136,6 +143,14 @@ final class ChromeDriver extends RequestDriver {
           // ResponseInterface.
           $response_headers['X-Computed-Styles'] = json_encode($this->styleRequests);
         }
+
+        // In order to get the entire URL including the fragment we evaluate
+        // using JS, it did not seem possible to get this from the response,
+        // which didn't include the fragment.
+        $this->location = $this->devtools->runtime()
+          ->evaluate($this->ctx, EvaluateRequest::builder()
+            ->setExpression('window.location.href')
+            ->build())->result->value;
 
         if ($this->javascriptEvals) {
           foreach ($this->javascriptEvals as &$eval) {
@@ -178,7 +193,7 @@ final class ChromeDriver extends RequestDriver {
    * {@inheritdoc}
    */
   public function getLocation(): string {
-    return $this->response->url;
+    return $this->location;
   }
 
   public function getRedirectCode(): int {
