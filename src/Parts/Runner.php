@@ -507,7 +507,15 @@ class Runner {
       $config = $test->getConfig();
 
       if (count($suite->variables())) {
-        $config = $suite->variables()->interpolate($config);
+        foreach ($config as $key => &$item) {
+          // We must not interpolate `find` at this time, that will take place
+          // inside of the handleFindAssert method.  That is because variables
+          // can be set on every assert.  However the rest of the config should
+          // be interpolated, such as will affect the URL.
+          if ($key !== 'find') {
+            $item = $suite->variables()->interpolate($item);
+          }
+        }
       }
 
       if (!empty($config['why'])) {
@@ -697,7 +705,6 @@ class Runner {
         $definition = [Assert::ASSERT_CONTAINS => $definition];
       }
       $test_passed($this->handleFindAssert(strval($id), $definition, $response));
-      $assertions = $this->getSuite()->variables()->interpolate($assertions);
       ++$id;
     }
 
@@ -831,6 +838,7 @@ class Runner {
    *   True if the find was successful.
    */
   protected function handleFindAssert(string $id, array $definition, ResponseInterface $response): bool {
+    $definition = $this->getSuite()->variables()->interpolate($definition);
     $assert = new Assert($definition, $id);
     $assert
       ->setSearch(Assert::SEARCH_ALL)
