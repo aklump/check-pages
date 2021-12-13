@@ -90,4 +90,22 @@ abstract class RequestDriver implements RequestDriverInterface {
     return $this->headers ?? [];
   }
 
+  public function __toString() {
+    $string = [];
+    foreach ($this->getHeaders() as $name => $value) {
+      $string[] = sprintf('%s: %s', $name, $value);
+    }
+    if ($this->body) {
+      $string[] = NULL;
+      $body = $this->body;
+      $json = json_decode($body);
+      if (!is_null($json)) {
+        $body = json_encode($json, JSON_PRETTY_PRINT);
+      }
+      $string[] = $body;
+    }
+
+    return implode(PHP_EOL, $string) . PHP_EOL . PHP_EOL;
+  }
+
 }

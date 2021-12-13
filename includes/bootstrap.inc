@@ -39,6 +39,8 @@ if (($diff = array_diff_key($cli->getParams(), array_flip([
   'config',
   'quiet',
   'show-source',
+  'show-request',
+  'show-response',
 
   // A single suite filename or CSV string of them.
   'filter',

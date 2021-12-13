@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - If `expect` is not explicitly provided, any value from `200` to `299` will pass the test. Previously the response code would have to be exactly `200` to pass.
+- Added `--show-request` and `--show-response`.
+- Added request headers and body to display with `--show-request` or `--show-source`. If you do not want to see request and ONLY response, use `--show-response` instead of `--show-source`.
 
 ### Added
 

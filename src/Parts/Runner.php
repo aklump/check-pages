@@ -635,6 +635,15 @@ class Runner {
     }
     $this->pluginsManager->onBeforeRequest($driver);
 
+
+    // This will show the request headers and body if asked
+    if (array_intersect_key(array_flip([
+      'show-request',
+      'show-source',
+    ]), $this->runner['options'])) {
+      $this->debug($driver . '---' . PHP_EOL);
+    }
+
     try {
       $response = $driver
         ->setUrl($this->url($config['url']))
@@ -660,7 +669,10 @@ class Runner {
       $test_passed($http_response_code == $config['expect']);
     }
 
-    if (array_key_exists('show-source', $this->runner['options'])) {
+    if (array_intersect_key(array_flip([
+      'show-response',
+      'show-source',
+    ]), $this->runner['options'])) {
       $show_source = (string) $response->getBody();
 
       // Try to make it more readable if we can.
