@@ -7,6 +7,7 @@
  * This is the CLI controller for check_pages
  */
 
+use AKlump\CheckPages\Output\Timer;
 use AKlump\LoftLib\Bash\Color;
 
 define('ROOT', __DIR__);
@@ -14,8 +15,6 @@ define('ROOT', __DIR__);
 global $app;
 global $cli;
 global $test_runner;
-
-$start_time = microtime(TRUE);
 
 // Find and load the autoloader
 $autoloaders = [
@@ -34,6 +33,13 @@ while ($autoloader = array_shift($autoloaders)) {
 }
 
 try {
+
+  // Pull the timezone from the system running this.
+  $timezone = new \DateTimeZone(exec('date +%Z'));
+  $timer = new Timer($timezone);
+  $timer->start();
+  echo '🚩 ' . Color::wrap('light gray', $timer->getCurrent()) . PHP_EOL;
+
   require ROOT . '/includes/bootstrap.inc';
   $filters = array_filter(explode(' ', $cli->getParam('filter', '')));
   foreach ($filters as $filter) {
@@ -53,16 +59,8 @@ catch (\Exception $exception) {
   exit(1);
 }
 
-// Calculate the elapsed time.
-$elapsed = microtime(TRUE) - $start_time;
-if ($elapsed < 60) {
-  $elapsed = round($elapsed, 1) . ' seconds';
-}
-else {
-  $elapsed = round($elapsed / 60, 1) . ' minutes';
-}
-
 // Finish with a happy response.
 echo PHP_EOL;
-echo Color::wrap('white on green', "Testing completed successfully in $elapsed.") . PHP_EOL . PHP_EOL;
+echo '🏁 ' . Color::wrap('light gray', $timer->getCurrent()) . PHP_EOL;
+echo Color::wrap('white on green', sprintf('Testing completed successfully in %s.', $timer->getElapsed())) . PHP_EOL . PHP_EOL;
 exit(0);

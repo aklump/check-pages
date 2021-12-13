@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- start and stop date and times.
 - `--filter` now accepts multiple suites as CSV, e.g. `--filter=foo,bar` as well as single suites.
 - The ability to test data-serving URLs (i.e. API endpoints) using JSON Schema.
 
