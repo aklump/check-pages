@@ -1,6 +1,8 @@
 {
     "request": {
         "type": "object",
+        "additionalProperties": false,
+        "patternProperties": "^(?!find).+",
         "properties": {
             "method": {
                 "type": "string",
