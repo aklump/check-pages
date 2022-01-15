@@ -26,15 +26,15 @@ $argv = array_map(function ($line) {
 
 $cli = new Bash($argv);
 
-// Validate flags.
-if (($diff = array_diff($cli->getFlags(), ['v']))) {
+// Enter valid flags.
+$valid_flags = ['v', 'h'];
+if (($diff = array_diff($cli->getFlags(), $valid_flags))) {
   throw new \InvalidArgumentException("Unknown flag: " . reset($diff));
 }
 
-// Validate parameters.
-if (($diff = array_diff_key($cli->getParams(), array_flip([
-
-  // Enter valid parameters.
+// Enter valid parameters.
+$valid_parameters = [
+  'help',
   'dir',
   'config',
   'quiet',
@@ -44,15 +44,40 @@ if (($diff = array_diff_key($cli->getParams(), array_flip([
 
   // A single suite filename or CSV string of them.
   'filter',
-])))) {
+];
+if (($diff = array_diff_key($cli->getParams(), array_flip($valid_parameters)))) {
   throw new \InvalidArgumentException("Unknown parameter: " . key($diff));
 }
 
-// Display the version.
-if ($cli->hasFlag('v')) {
+$print_version = function () {
   $data = FilePath::create(ROOT . '/composer.json')->load()->getJson();
   $credits = sprintf("Check Pages by In the Loft Studios ~ Version %s", $data->version);
   echo Color::wrap('cyan', $credits) . PHP_EOL . PHP_EOL;
+};
+
+// Display the version.
+if ($cli->hasFlag('v')) {
+  $print_version();
+  exit(0);
+}
+
+if ($cli->hasFlag('h') || $cli->hasParam('help')) {
+  $print_version();
+
+  // TODO Build this out with hooks for plugins or something more dynamic.
+
+  echo "Parameters:" . PHP_EOL;
+  sort($valid_parameters);
+  echo implode(PHP_EOL, array_map(function ($p) {
+      return "  --$p";
+    }, $valid_parameters)) . PHP_EOL . PHP_EOL;
+
+  echo "Flags:" . PHP_EOL;
+  sort($valid_flags);
+  echo implode(PHP_EOL, array_map(function ($flag) {
+      return "  -$flag";
+    }, $valid_flags)) . PHP_EOL . PHP_EOL;
+
   exit(0);
 }
 
