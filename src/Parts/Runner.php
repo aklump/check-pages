@@ -172,7 +172,7 @@ class Runner {
       'name' => $basename,
       'options' => $options,
     ];
-    $this->debugging = !in_array('quiet', $options);
+    $this->debugging = !array_key_exists('quiet', $options);
 
     return $this;
   }
