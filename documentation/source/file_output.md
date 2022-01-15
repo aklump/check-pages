@@ -1,10 +1,21 @@
+---
+id: files
+---
+
 # File Output
 
-If you create the files directory, certain files will be written there when you run your suites.
+1. Create a writeable directory for file output.
+2. Add that path to `files` in your runner config.
 
-* Each suite will create a directory by it's filename.
+```yaml
+files: files/dev
+```
+
+Once this is configured and exists:
+
+* Each suite will create a subdirectory by it's filename.
 * In that directory the following files will be created:
     * _urls.txt_ a list of urls that failed testing.
     * _failures.txt_ verbose output of the failures only.
-  
+
 Try using `tail -f files/SUITE/urls.txt` during development.

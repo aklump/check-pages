@@ -9,6 +9,7 @@ use AKlump\CheckPages\Output\FailedTestMarkdown;
 use AKlump\CheckPages\PluginsManager;
 use AKlump\CheckPages\SerializationTrait;
 use AKlump\CheckPages\Storage;
+use AKlump\CheckPages\StorageInterface;
 use AKlump\CheckPages\SuiteFailedException;
 use AKlump\CheckPages\TestFailedException;
 use AKlump\CheckPages\UnresolvablePathException;
@@ -985,13 +986,13 @@ class Runner {
   /**
    * Get a runner storage instance.
    *
-   * This should be used to share data across test suites, as it will persiste
+   * This should be used to share data across test suites, as it will persist
    * for the life of a given runner instance.
    *
    * @return \AKlump\CheckPages\StorageInterface
    *   A persistent storage across all test suites for a given runner instance.
    */
-  public function getStorage(): \AKlump\CheckPages\StorageInterface {
+  public function getStorage(): StorageInterface {
     if ($this->storage) {
       return $this->storage;
     }
@@ -1001,6 +1002,11 @@ class Runner {
     if (is_dir($path_to_storage)) {
       $storage_name = pathinfo($this->runner['name'], PATHINFO_FILENAME);
       $storage_name = rtrim($path_to_storage, '/') . "/$storage_name";
+    }
+    else {
+      if ($this->debugging) {
+        $this->debug(sprintf('├── To enable disk storage (i.e., sessions) create a writeable directory at %s.', $path_to_storage));
+      }
     }
     $this->storage = new Storage($storage_name);
 
@@ -1016,6 +1022,9 @@ class Runner {
   private function getPathToFilesDirectory(): string {
     if (NULL === $this->pathToFiles) {
       if (empty($this->config['files'])) {
+        if ($this->debugging) {
+          $this->debug('├── To enable file output you must set a value for "files" in your config.');
+        }
         $this->pathToFiles = '';
       }
       else {

@@ -10,6 +10,13 @@ use Adam\Bag\Bag;
 class Storage extends Bag implements StorageInterface {
 
   /**
+   * Path to the file for persistent storage.
+   *
+   * @var string
+   */
+  protected $diskStorage;
+
+  /**
    * Storage constructor.
    *
    * @param string $path_to_disk_storage
