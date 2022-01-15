@@ -710,6 +710,9 @@ class Runner {
       }
     }
 
+    if (empty($config['find']) && $this->debugging) {
+      $this->debug('├── The test has provided NO assertions.');
+    }
     $assertions = $config['find'];
     $id = 0;
     while ($definition = array_shift($assertions)) {
