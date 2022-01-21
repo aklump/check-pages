@@ -4,57 +4,64 @@
     "anyOf": [
         {
             "required": [
+                "dom",
                 "style",
-                "property",
                 "set"
             ]
         },
         {
             "required": [
+                "dom",
                 "style",
-                "property",
                 "contains"
             ]
         },
         {
             "required": [
+                "dom",
                 "style",
-                "property",
                 "not contains"
             ]
         },
         {
             "required": [
+                "dom",
                 "style",
-                "property",
                 "is"
             ]
         },
         {
             "required": [
+                "dom",
                 "style",
-                "property",
                 "is not"
             ]
         },
         {
             "required": [
+                "dom",
                 "style",
-                "property",
                 "matches"
             ]
         },
         {
             "required": [
+                "dom",
                 "style",
-                "property",
+                "not matches"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "style",
                 "count"
             ]
         },
         {
             "required": [
+                "dom",
                 "style",
-                "property",
                 "text"
             ]
         }
@@ -63,7 +70,7 @@
         "set": {
             "$ref": "#/definitions/set"
         },
-        "style": {
+        "dom": {
             "$ref": "#/definitions/dom_selector"
         },
         "contains": {
@@ -81,14 +88,17 @@
         "matches": {
             "$ref": "#/definitions/matches"
         },
+        "not matches": {
+            "$ref": "#/definitions/matches"
+        },
         "count": {
             "$ref": "#/definitions/count"
         },
         "text": {
             "$ref": "#/definitions/text"
         },
-        "property": {
-            "$ref": "#/definitions/property"
+        "style": {
+            "$ref": "#/definitions/style_property"
         }
     }
 }

@@ -4,12 +4,12 @@
   visit: /test_subject.html
   find:
     -
-      style: img.tree
-      property: width
+      dom: img.tree
+      style: width
       set: width
     -
-      style: img.tree
-      property: height
+      dom: img.tree
+      style: height
       set: height
     -
       why: Assert image has a landscape aspect ratio.
@@ -19,12 +19,12 @@
   visit: /test_subject.html
   find:
     -
-      style: img.lake
-      property: width
+      dom: img.lake
+      style: width
       set: width
     -
-      style: img.lake
-      property: height
+      dom: img.lake
+      style: height
       set: height
     -
       why: Assert image has a tall aspect ratio.

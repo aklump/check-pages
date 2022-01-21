@@ -3,23 +3,32 @@
     js: true
     find:
         -
-            style: .visible
-            property: display
+            dom: .visible
+            style: display
             matches: '/^(?!none).+$/'
             set: display
         -
-            style: .visible
-            property: display
+            dom: .visible
+            style: display
+            'not matches': /^block$/
+            set: display
+        -
+            dom: .visible
+            style: display
             contains: inline
         -
-            style: .hidden-by-style
-            property: display
+            dom: .visible
+            style: display
+            'not contains': flex
+        -
+            dom: .hidden-by-style
+            style: display
             is: none
         -
-            style: .hidden-by-style
-            property: display
+            dom: .hidden-by-style
+            style: display
             'is not': hidden
         -
-            style: .hidden-by-class
-            property: display
+            dom: .hidden-by-class
+            style: display
             is: none

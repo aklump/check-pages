@@ -11,7 +11,7 @@ class Style extends Plugin {
 
   const SEARCH_TYPE = 'style';
 
-  const MODIFIER_TYPE = 'property';
+  const MODIFIER_TYPE = 'style';
 
   /**
    * Captures the test config to share across methods.
@@ -43,8 +43,8 @@ class Style extends Plugin {
       return;
     }
     foreach ($this->assertions as $assertion) {
-      if (!empty($assertion[self::SEARCH_TYPE])) {
-        $driver->addStyleRequest($assertion[self::SEARCH_TYPE]);
+      if (!empty($assertion[Dom::SEARCH_TYPE])) {
+        $driver->addStyleRequest($assertion[Dom::SEARCH_TYPE]);
       }
     }
   }
@@ -53,13 +53,13 @@ class Style extends Plugin {
    * {@inheritdoc}
    */
   public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
-    $search_value = $assert->{self::SEARCH_TYPE};
-    $modifier_value = $assert->{self::MODIFIER_TYPE};
+    $dom_path = $assert->{Dom::SEARCH_TYPE};
+    $style_property = $assert->{self::MODIFIER_TYPE};
     $assert
-      ->setSearch(self::SEARCH_TYPE, $search_value)
-      ->setModifer(self::MODIFIER_TYPE, $modifier_value);
+      ->setSearch(self::SEARCH_TYPE, $dom_path)
+      ->setModifer(self::MODIFIER_TYPE, $style_property);
     $haystack = json_decode($response->getHeader('X-Computed-Styles')[0] ?? '{}', TRUE);
-    $assert->setHaystack([$haystack[$search_value][$modifier_value] ?? NULL]);
+    $assert->setHaystack([$haystack[$dom_path][$style_property] ?? NULL]);
   }
 
 }

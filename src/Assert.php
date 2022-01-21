@@ -22,7 +22,7 @@ final class Assert {
   /**
    * @var string
    */
-  const MODIFIER_PROPERTY = 'property';
+  const MODIFIER_PROPERTY = 'style';
 
   /**
    * @var string
