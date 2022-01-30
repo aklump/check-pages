@@ -54,12 +54,7 @@ class Runner {
   /**
    * @var int
    */
-  protected $longestUrl = 0;
-
-  /**
-   * @var bool
-   */
-  protected $preflight;
+  //  protected $longestUrl = 0;
 
   /**
    * @var array
@@ -370,9 +365,6 @@ class Runner {
         $filter_message = sprintf(' (using suite filter(s) "%s")', implode(', ', $this->filters));
       }
       echo Color::wrap('blue', sprintf('Testing started with "%s"%s', basename($runner), $filter_message)) . PHP_EOL;
-      $this->preflight = TRUE;
-      require $runner;
-      $this->preflight = FALSE;
       require $runner;
 
       if ($this->filters && !$this->filterApplied) {
@@ -454,9 +446,7 @@ class Runner {
     }
 
     if (in_array($path_to_suite, $this->config['suites_to_ignore'])) {
-      if ($this->preflight) {
-        echo PHP_EOL . Color::wrap('blue', '😴 ' . strtoupper(sprintf('Ignoring "%s" suite...', $suite_id))) . PHP_EOL;
-      }
+      echo PHP_EOL . Color::wrap('blue', '😴 ' . strtoupper(sprintf('Ignoring "%s" suite...', $suite_id))) . PHP_EOL;
 
       return;
     }
@@ -467,19 +457,7 @@ class Runner {
 
     $tests = $this->validateAndLoadYaml($path_to_suite, static::SCHEMA_VISIT . '.json');
     $this->normalizeSuiteData($tests);
-
-    $this->longestUrl = array_reduce($tests, function ($carry, $item) {
-      $url = is_string($item) ? $item : ($item['url'] ?? '');
-
-      return max($carry, strlen($url));
-    }, $this->longestUrl);
     $results = [];
-
-    // The preflight is to determine the longest URL so that all our tables are
-    // the same width.
-    if ($this->preflight) {
-      return;
-    }
 
     if (!$this->debugging && empty($this->printed['base_url'])) {
       echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->config['base_url'])) . PHP_EOL;
