@@ -8,6 +8,8 @@
 - why: Assert we can store the ID of a REST response resource to use later
   visit: /test_subject.php?op=rest
   find:
+    - path: 0
+      count: 1
     - path: 0.id
       is: 144
       set: resourceId

@@ -11,6 +11,9 @@
     visit: '/plugins/data.php?op=rest'
     find:
         -
+            path: 0
+            count: 1
+        -
             path: 0.id
             is: 144
             set: resourceId
