@@ -31,6 +31,12 @@ class Runner {
    */
   const SCHEMA_VISIT = 'schema.visit.DO_NOT_EDIT';
 
+  const OUTPUT_NORMAL = 1;
+
+  const OUTPUT_QUIET = 2;
+
+  protected $outputMode;
+
   protected $totalTestCount = 0;
 
   protected $failedTestCount = 0;
@@ -150,6 +156,18 @@ class Runner {
   }
 
   /**
+   * Get the output mode for echo consideration.
+   *
+   * @return int
+   *
+   * @see Runner::OUTPUT_QUIET
+   * @see Runner::OUTPUT_NORMAL
+   */
+  public function getOutputMode(): int {
+    return $this->outputMode;
+  }
+
+  /**
    * Set the runner information.
    *
    * @param string $basename
@@ -169,6 +187,11 @@ class Runner {
       'options' => $options,
     ];
     $this->debugging = !array_key_exists('quiet', $options);
+
+    $this->outputMode = Runner::OUTPUT_NORMAL;
+    if (array_key_exists('quiet', $options)) {
+      $this->outputMode = Runner::OUTPUT_QUIET;
+    }
 
     return $this;
   }
@@ -498,14 +521,17 @@ class Runner {
       }
 
       if (!empty($config['why'])) {
-        echo '🔎 ' . Color::wrap('blue', $config['why']) . PHP_EOL;
+        echo PHP_EOL . '🔎 ' . Color::wrap('blue', $config['why']) . ' ';
       }
 
       $method = $has_multiple_methods ? $test->getHttpMethod() : '';
 
       // Print the URL before we run the test so it appears before the user has to wait.
       $url = $this->debugging ? $this->url($config['url']) : $config['url'];
-      echo Color::wrap('blue', ltrim("$method $url ", ' '));
+
+      if ($this->getOutputMode() !== self::OUTPUT_QUIET) {
+        echo PHP_EOL . Color::wrap('blue', ltrim("$method $url ", ' '));
+      }
 
       if ($config['js'] ?? FALSE) {
         echo "☕ ";
