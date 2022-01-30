@@ -54,9 +54,6 @@ add_test_option('user', [
     if ($runner->getOutputMode() !== \AKlump\CheckPages\Parts\Runner::OUTPUT_QUIET) {
       echo Color::wrap('green', sprintf('(👤 %s) ', $username));
     }
-    else {
-      echo '👤 ';
-    }
     $driver->setHeader('Cookie', $sessions[$username]);
   },
 ]);

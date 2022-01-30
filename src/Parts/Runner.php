@@ -482,11 +482,13 @@ class Runner {
     $this->normalizeSuiteData($tests);
     $results = [];
 
+    $quiet_mode = $this->getOutputMode() === self::OUTPUT_QUIET;
+
     if (!$this->debugging && empty($this->printed['base_url'])) {
       echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->config['base_url'])) . PHP_EOL;
       $this->printed['base_url'] = TRUE;
     }
-    echo PHP_EOL . Color::wrap('blue', '⏱  ' . strtoupper(sprintf('Running "%s" suite...', $suite_id))) . PHP_EOL;
+    echo PHP_EOL . '⏱  ' . Color::wrap('white on blue',  strtoupper(sprintf('Running "%s" suite...', $suite_id))) . PHP_EOL;
 
     $this->debug = [];
     $failed_tests = 0;
@@ -520,24 +522,30 @@ class Runner {
         }
       }
 
-      if (!empty($config['why'])) {
-        echo PHP_EOL . '🔎 ' . Color::wrap('blue', $config['why']) . ' ';
-      }
 
       $method = $has_multiple_methods ? $test->getHttpMethod() : '';
 
       // Print the URL before we run the test so it appears before the user has to wait.
       $url = $this->debugging ? $this->url($config['url']) : $config['url'];
 
-      if ($this->getOutputMode() !== self::OUTPUT_QUIET) {
-        echo PHP_EOL . Color::wrap('blue', ltrim("$method $url ", ' '));
+      if (!$quiet_mode) {
+        echo PHP_EOL;
+      }
+      echo '🔎 ';
+      if (!empty($config['why'])) {
+        echo Color::wrap('blue', $config['why']) . ' ';
+        if (!$quiet_mode) {
+          echo PHP_EOL;
+        }
+      }
+      if (!$quiet_mode || empty($config['why'])) {
+        echo Color::wrap('blue', ltrim("$method $url ", ' '));
       }
 
       if ($config['js'] ?? FALSE) {
         echo "☕ ";
       }
       $test->setConfig($config);
-
       $result = $this->runTest($test);
 
       // This icon will affix itself to the URL after the test.
@@ -592,7 +600,7 @@ class Runner {
     $messages = array_map(function ($item) use ($color_map) {
       return Color::wrap($color_map[$item['level']], $item['data']);
     }, $this->debug);
-    echo implode(PHP_EOL, $messages) . PHP_EOL;
+    echo implode(PHP_EOL, $messages);
     $this->debug = [];
   }
 
