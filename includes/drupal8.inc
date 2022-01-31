@@ -10,7 +10,7 @@
  * commit to source control for security sake.  You may also use YAML files, in
  * which case replace users.json with users.yaml or users.yml.
  *
- *     [{"user":"foo","pass":"bar"},{"user":"alpha","pass":"bravo"}]
+ *     [{"name":"foo","pass":"bar"},{"name":"alpha","pass":"bravo"}]
  *
  * 2. Add the following to all runner files, where the path is to your JSON.
  *
@@ -24,46 +24,74 @@
  *     -
  *       user: foo
  *       visit: /some/path
+ *
+ * 4. This will also provide the following replacement variables which you can
+ * use to write dynamic suites and tests:
+ *
+ *    - ${user.id}
+ *    - ${user.uid} (same as user.id)
+ *    - ${user.name}
+ *    - ${user.mail}
+ *    - ${user.pass}
+ *
+ * For example you can write: visit: /user/{user.uid}/edit
  */
 
 use AKlump\CheckPages\Options\AuthenticateDrupal8;
+use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Bash\Color;
 
+$_get_session = function (string $username, Runner $runner) use ($drupal8) {
+  $sessions = $runner->getStorage()->get('drupal8.sessions');
+
+  // Check for expiry and discard if passed.
+  if (empty($sessions[$username]['expires']) || $sessions[$username]['expires'] < time()) {
+    unset($sessions[$username]);
+  }
+
+  if (empty($sessions[$username])) {
+    if (!array_key_exists('users', $drupal8)) {
+      throw new \InvalidArgumentException('You must provide a filepath to the users list as "users".');
+    }
+    echo "🔐";
+
+    // Load our non-version username/password index.
+    $path_to_users_list = $runner->resolve($drupal8['users']);
+    $login_url = $drupal8['login_url'] ?? '/user/login';
+    $absolute_login_url = $runner->url($login_url);
+    $auth = new AuthenticateDrupal8($path_to_users_list, $absolute_login_url);
+    $user = $auth->getUser($username);
+    $auth->login($user);
+
+    $sessions[$username] = [
+      'cookie' => $auth->getSessionCookie(),
+      'expires' => $auth->getSessionExpires(),
+      'account' => $user->jsonSerialize(),
+    ];
+    $runner->getStorage()->set('drupal8.sessions', $sessions);
+  }
+
+  return $sessions[$username];
+};
+
 add_test_option('user', [
-  'onBeforeRequest' => function ($username, $driver, $context) use ($drupal8) {
+
+  'onBeforeTest' => function ($username, $config, $context) use ($_get_session) {
+    $session = $_get_session($username, $context['runner']);
+    $context['runner']->getSuite()
+      ->variables()
+      ->setItem('user.id', $session['account']['id'])
+      ->setItem('user.uid', $session['account']['uid'])
+      ->setItem('user.name', $session['account']['name'])
+      ->setItem('user.pass', $session['account']['pass']);
+  },
+
+  'onBeforeRequest' => function ($username, $driver, $context) use ($_get_session) {
     $runner = $context['runner'];
-    $sessions = $runner->getStorage()->get('drupal8.sessions');
-
-    // Check for expiry and discard if passed.
-    if (isset($sessions[$username])) {
-      list(, $expiry) = explode(';', $sessions[$username]);
-      if ($expiry < time()) {
-        unset($sessions[$username]);
-      }
-    }
-
-    if (empty($sessions[$username])) {
-      if (!array_key_exists('users', $drupal8)) {
-        throw new \InvalidArgumentException('You must provide a filepath to the users list as "users".');
-      }
-
-      echo "🔐";
-
-      // Load our non-version username/password index.
-      $path_to_users_list = $runner->resolve($drupal8['users']);
-      $login_url = $drupal8['login_url'] ?? '/user/login';
-      $absolute_login_url = $runner->url($login_url);
-      $auth = new AuthenticateDrupal8($path_to_users_list, $absolute_login_url);
-      $auth->login($username, $auth->getUser($username)['pass']);
-
-      $sessions[$username] = $auth->getSessionCookie();
-      $runner->getStorage()->set('drupal8.sessions', $sessions);
-    }
-
-    if ($runner->getOutputMode() !== \AKlump\CheckPages\Parts\Runner::OUTPUT_QUIET) {
+    if ($runner->getOutputMode() !== Runner::OUTPUT_QUIET) {
       echo Color::wrap('green', sprintf('(👤 %s) ', $username));
     }
-    list($cookie) = explode(';', $sessions[$username]);
-    $driver->setHeader('Cookie', $cookie);
+    $session = $_get_session($username, $runner);
+    $driver->setHeader('Cookie', $session['cookie']);
   },
 ]);

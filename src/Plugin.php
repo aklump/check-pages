@@ -24,6 +24,10 @@ abstract class Plugin implements TestPluginInterface {
     // TODO: Implement applies() method.
   }
 
+  public function onBeforeTest(array &$config) {
+    // TODO: Implement onBeforeDriver() method.
+  }
+
   public function onBeforeDriver(array &$config) {
     // TODO: Implement onBeforeDriver() method.
   }

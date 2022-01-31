@@ -23,6 +23,8 @@ interface TestPluginInterface {
    */
   public function applies(array &$config);
 
+  public function onBeforeTest(array &$config);
+
   public function onBeforeDriver(array &$config);
 
   public function onBeforeRequest(&$driver);

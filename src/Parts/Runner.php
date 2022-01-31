@@ -648,7 +648,6 @@ class Runner {
     }
     $this->pluginsManager->onBeforeRequest($driver);
 
-
     // This will show the request headers and body if asked
     if (array_intersect_key(array_flip([
       'show-request',

@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- The authentication for Drupal now adds the following variables automatically: `${user.uid}, ${user.id}, ${user.name}, ${user.pass}` for the authenticated user. That means you can use these in subsequent tests, even if not authenticating said test.
 - `--show-request` and `--show-response`.
 - Request headers and body to display with `--show-request` or `--show-source`. If you do not want to see request and ONLY response, use `--show-response` instead of `--show-source`.
 - --help and -h to printout CLI options.

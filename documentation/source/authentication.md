@@ -15,7 +15,7 @@ If you want to check pages as an authenticated user of a website, then you have 
      pass: secret5
    ```
 
-1. Add the following to your test runner file. Notice we include the path to the user data file. It must be a resolvable path.
+2. Add the following to your test runner file. Notice we include the path to the user data file. It must be a resolvable path.
 
     ```php
     with_extras('drupal8', [
@@ -23,7 +23,7 @@ If you want to check pages as an authenticated user of a website, then you have 
     ]); 
     ```
 
-1. If the login form is located at a non-standard URL, you may indicate that URL, which renders the login form, as shown here.
+3. If the login form is located at a non-standard URL, you may indicate that URL, which renders the login form, as shown here.
 
     ```php
     with_extras('drupal8', [
@@ -32,7 +32,7 @@ If you want to check pages as an authenticated user of a website, then you have 
     ]); 
     ```
 
-1. In your test suite add the line `user` key to each test with the value of the username to be logged in as when visiting the URL.
+4. In your test suite add the line `user` key to each test with the value of the username to be logged in as when visiting the URL.
 
     ```yaml
     -
@@ -42,6 +42,19 @@ If you want to check pages as an authenticated user of a website, then you have 
       user: member
       visit: /admin
       expect: 403
+   ```
+5. You can also use dynamic values from the authenticated use like this. Notice how the variable persists in the second test, even though it is not authenticated. The values will carry over into subsequent tests until the next authentication, when they will be re-set.
+
+   ```yaml
+   -
+   user: testbot.member
+   visit: /user/${user.uid}/edit
+   -
+   visit: /user/${user.uid}/edit
+   expect: 403
+   -
+   visit: /user/${user.name}
+   expect: 200
    ```
 
 ## Advanced Configuration

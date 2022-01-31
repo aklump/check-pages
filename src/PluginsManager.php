@@ -178,7 +178,10 @@ final class PluginsManager implements TestPluginInterface {
       if ($applies) {
         $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
       }
-      elseif (!is_bool($applies)) {
+      elseif (!is_bool($applies) && isset($config['find'])) {
+        if (!is_array($config['find'])) {
+          $config['find'] = [$config['find']];
+        }
         // We need to index each "find" element (assertion) and figure out which
         // plugin(s) should handle the assertion, if any.
         foreach ($config['find'] as $index => $assert_config) {

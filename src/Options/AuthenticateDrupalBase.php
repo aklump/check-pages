@@ -28,6 +28,13 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
   private $sessionExpires;
 
   /**
+   * The most recent authentication request response.
+   *
+   * @var \GuzzleHttp\Psr7\Response
+   */
+  private $response;
+
+  /**
    * AuthenticateDrupalBase constructor.
    *
    * @param string $path_to_users_login_data
@@ -50,7 +57,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
   /**
    * @inherit
    */
-  public function getUser(string $username): array {
+  public function getUser(string $username): UserInterface {
     // Load our non-version username/password index.
     switch (pathinfo($this->usersFile, PATHINFO_EXTENSION)) {
       case 'yaml':
@@ -64,17 +71,18 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     }
 
     // Find the account by username.
-    $user = array_first(array_filter($users, function ($account) use ($username) {
+    $user_data = array_first(array_filter($users, function ($account) use ($username) {
       return $account['name'] === $username;
     }));
-    if (empty($user)) {
+    if (empty($user_data)) {
       throw new \RuntimeException(sprintf('No record for user "%s" in %s', $username, $this->usersFile));
     }
-    if (empty($user['pass'])) {
+    if (empty($user_data['pass'])) {
       throw new \RuntimeException(sprintf('Missing "pass" key for the user "%s" in %s', $username, $this->usersFile));
     }
+    $user = new User();
 
-    return $user;
+    return $user->setPassword($user_data['pass'])->setAccountName($username);
   }
 
   /**
@@ -86,11 +94,14 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
    *
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  public function login(string $username, string $password) {
+  public function login(UserInterface $user) {
+    $username = $user->getAccountName();
+    $password = $user->getPassword();
+
     // Scrape the form_build_id, which is necessary lest the form not submit.
     $authenticator = new GuzzleDriver();
-    $response = $authenticator->getClient()->get($this->loginUrl);
-    $body = strval($response->getBody());
+    $this->response = $authenticator->getClient()->get($this->loginUrl);
+    $body = strval($this->response->getBody());
     $crawler = new Crawler($body);
     $form_build_id = $crawler->filter($this->formSelector . ' input[name="form_build_id"]')
       ->getNode(0);
@@ -103,7 +114,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
 
     // Log in and get a session.
     $jar = new CookieJar();
-    $response = $authenticator
+    $this->response = $authenticator
       ->getClient()
       ->request('POST', $this->loginUrl, [
         'cookies' => $jar,
@@ -121,7 +132,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     // "Set-Cookie" to see if it changed from the request above, if this doesn't
     // prove to work over time.  A changed session cookie indicates a new
     // session was created, but not necessarily that the login succeeded.
-    $crawler = new Crawler(strval($response->getBody()));
+    $crawler = new Crawler(strval($this->response->getBody()));
     if ($crawler->filter($this->formSelector)->count() > 0) {
       throw new \RuntimeException(sprintf('Login failed for username "%s".', $username));
     }
@@ -139,6 +150,13 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getSessionExpires(): int {
+    return $this->sessionExpires;
+  }
+
+  /**
    * @inherit
    */
   public function getSessionCookie(): string {
@@ -146,7 +164,15 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
       throw new \RuntimeException('Missing session, have you called ::login()?');
     }
 
-    return $this->sessionName . '=' . $this->sessionValue . ';' . $this->sessionExpires;
+    return $this->sessionName . '=' . $this->sessionValue;
+  }
+
+  /**
+   * @return \GuzzleHttp\Psr7\Response
+   *   The most recent response instance.
+   */
+  public function getResponse(): \GuzzleHttp\Psr7\Response {
+    return $this->response;
   }
 
 }

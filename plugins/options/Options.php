@@ -40,7 +40,16 @@ final class Options extends Plugin {
     $this->pluginData['config'] = $config;
     $this->options = array_intersect_key($this->options, $config);
 
-    return count($this->options) > 0;
+    if (count($this->options) > 0) {
+      return TRUE;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onBeforeTest(array &$config) {
+    $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
 
   /**
