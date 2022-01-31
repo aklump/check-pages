@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages;
 
 use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\Parts\Test;
 use AKlump\LoftLib\Code\Strings;
 use JsonSchema\Validator;
 use Psr\Http\Message\ResponseInterface;
@@ -167,9 +168,25 @@ final class PluginsManager implements TestPluginInterface {
   /**
    * {@inheritdoc}
    */
+  public function onBeforeTest(Test $test) {
+    $config = $test->getConfig();
+    foreach ($this->getAllPlugins() as $plugin) {
+      $instance = $this->getPluginInstance($plugin['id']);
+      if ($instance->applies($config)) {
+        $instance->{__FUNCTION__}($test);
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function onBeforeDriver(array &$config) {
     $all_plugins = $this->getAllPlugins();
+
+    /** @var array assertionPlugins These will be captured here and used in subsequent methods. */
     $this->assertionPlugins = [];
+
     $this->testPlugins = [];
 
     foreach ($all_plugins as $plugin) {

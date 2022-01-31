@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages;
 
 use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\Parts\Test;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -48,7 +49,7 @@ final class Options extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeTest(array &$config) {
+  public function onBeforeTest(Test $test) {
     $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
 

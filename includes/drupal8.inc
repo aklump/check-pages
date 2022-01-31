@@ -40,6 +40,7 @@
 use AKlump\CheckPages\Options\AuthenticateDrupal8;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Bash\Color;
+use AKlump\CheckPages\Parts\Test;
 
 $_get_session = function (string $username, Runner $runner) use ($drupal8) {
   $sessions = $runner->getStorage()->get('drupal8.sessions');
@@ -76,7 +77,7 @@ $_get_session = function (string $username, Runner $runner) use ($drupal8) {
 
 add_test_option('user', [
 
-  'onBeforeTest' => function ($username, $config, $context) use ($_get_session) {
+  'onBeforeTest' => function ($username, Test $test, $context) use ($_get_session) {
     $session = $_get_session($username, $context['runner']);
     $context['runner']->getSuite()
       ->variables()

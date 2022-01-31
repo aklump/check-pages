@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Parts\Test;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -23,7 +24,7 @@ interface TestPluginInterface {
    */
   public function applies(array &$config);
 
-  public function onBeforeTest(array &$config);
+  public function onBeforeTest(Test $test);
 
   public function onBeforeDriver(array &$config);
 

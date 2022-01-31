@@ -43,7 +43,7 @@ If you want to check pages as an authenticated user of a website, then you have 
       visit: /admin
       expect: 403
    ```
-5. You can also use dynamic values from the authenticated use like this. Notice how the variable persists in the second test, even though it is not authenticated. The values will carry over into subsequent tests until the next authentication, when they will be re-set.
+5. You can also use dynamic values from the authenticated user as shown below. Notice how the variables persist into the second test even though it is not authenticated. The user variables will carry over into subsequent tests until the next authentication, when they will be re-set.
 
    ```yaml
    -

@@ -2,6 +2,10 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\Parts\Test;
+use Psr\Http\Message\ResponseInterface;
+
 abstract class Plugin implements TestPluginInterface {
 
   /**
@@ -13,7 +17,7 @@ abstract class Plugin implements TestPluginInterface {
    * @param \AKlump\CheckPages\Parts\Runner $runner
    *   A test runner instance.
    */
-  public function __construct(\AKlump\CheckPages\Parts\Runner $runner) {
+  public function __construct(Runner $runner) {
     $this->runner = $runner;
   }
 
@@ -24,7 +28,7 @@ abstract class Plugin implements TestPluginInterface {
     // TODO: Implement applies() method.
   }
 
-  public function onBeforeTest(array &$config) {
+  public function onBeforeTest(Test $test) {
     // TODO: Implement onBeforeDriver() method.
   }
 
@@ -39,7 +43,7 @@ abstract class Plugin implements TestPluginInterface {
   /**
    * @inheritDoc
    */
-  public function onBeforeAssert(Assert $assert, \Psr\Http\Message\ResponseInterface $response) {
+  public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
     // TODO: Implement onBeforeAssert() method.
   }
 

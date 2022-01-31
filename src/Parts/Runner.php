@@ -294,13 +294,15 @@ class Runner {
   public function addTestOption(string $name, array $callbacks): self {
     $this->options[$name] = ['name' => $name, 'hooks' => []];
     foreach ($callbacks as $hook => $callback) {
-      $cb = new \ReflectionFunction($callback);
+      $callback_reflection = new \ReflectionFunction($callback);
       $arguments = array_map(function ($param) {
+        $type = $param->getType();
+
         return [
-          (string) $param->getType(),
+          $type ? $type->getName() : '',
           $param->getName(),
         ];
-      }, $cb->getParameters());
+      }, $callback_reflection->getParameters());
       $this->options[$name]['hooks'][$hook] = [
         'name' => $hook,
         'arguments' => $arguments,
@@ -488,7 +490,7 @@ class Runner {
       echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->config['base_url'])) . PHP_EOL;
       $this->printed['base_url'] = TRUE;
     }
-    echo PHP_EOL . '⏱  ' . Color::wrap('white on blue',  strtoupper(sprintf('Running "%s" suite...', $suite_id))) . PHP_EOL;
+    echo PHP_EOL . '⏱  ' . Color::wrap('white on blue', strtoupper(sprintf('Running "%s" suite...', $suite_id))) . PHP_EOL;
 
     $this->debug = [];
     $failed_tests = 0;
@@ -508,6 +510,8 @@ class Runner {
 
     $has_multiple_methods = count($suite->getHttpMethods()) > 1;
     foreach ($suite->getTests() as $test_index => $test) {
+
+      $this->pluginsManager->onBeforeTest($test);
       $config = $test->getConfig();
 
       if (count($suite->variables())) {
@@ -521,7 +525,6 @@ class Runner {
           }
         }
       }
-
 
       $method = $has_multiple_methods ? $test->getHttpMethod() : '';
 
