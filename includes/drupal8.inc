@@ -6,7 +6,7 @@
  *
  * Installation:
  *
- * 1. Create a json file with a list of users in the following format, do not
+ * 1. Create a json (or YAML) file with a list of users in the following format, do not
  * commit to source control for security sake.  You may also use YAML files, in
  * which case replace users.json with users.yaml or users.yml.
  *
@@ -33,6 +33,15 @@ add_test_option('user', [
   'onBeforeRequest' => function ($username, $driver, $context) use ($drupal8) {
     $runner = $context['runner'];
     $sessions = $runner->getStorage()->get('drupal8.sessions');
+
+    // Check for expiry and discard if passed.
+    if (isset($sessions[$username])) {
+      list(, $expiry) = explode(';', $sessions[$username]);
+      if ($expiry < time()) {
+        unset($sessions[$username]);
+      }
+    }
+
     if (empty($sessions[$username])) {
       if (!array_key_exists('users', $drupal8)) {
         throw new \InvalidArgumentException('You must provide a filepath to the users list as "users".');
@@ -54,6 +63,7 @@ add_test_option('user', [
     if ($runner->getOutputMode() !== \AKlump\CheckPages\Parts\Runner::OUTPUT_QUIET) {
       echo Color::wrap('green', sprintf('(👤 %s) ', $username));
     }
-    $driver->setHeader('Cookie', $sessions[$username]);
+    list($cookie) = explode(';', $sessions[$username]);
+    $driver->setHeader('Cookie', $cookie);
   },
 ]);

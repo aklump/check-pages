@@ -23,6 +23,11 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
   private $sessionName;
 
   /**
+   * @var \DateTime
+   */
+  private $sessionExpires;
+
+  /**
    * AuthenticateDrupalBase constructor.
    *
    * @param string $path_to_users_login_data
@@ -84,9 +89,8 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
   public function login(string $username, string $password) {
     // Scrape the form_build_id, which is necessary lest the form not submit.
     $authenticator = new GuzzleDriver();
-    $body = strval($authenticator->getClient()
-      ->get($this->loginUrl)
-      ->getBody());
+    $response = $authenticator->getClient()->get($this->loginUrl);
+    $body = strval($response->getBody());
     $crawler = new Crawler($body);
     $form_build_id = $crawler->filter($this->formSelector . ' input[name="form_build_id"]')
       ->getNode(0);
@@ -131,6 +135,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
 
     $this->sessionName = $session_cookie['Name'];
     $this->sessionValue = $session_cookie['Value'];
+    $this->sessionExpires = $session_cookie['Expires'];
   }
 
   /**
@@ -141,7 +146,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
       throw new \RuntimeException('Missing session, have you called ::login()?');
     }
 
-    return $this->sessionName . '=' . $this->sessionValue;
+    return $this->sessionName . '=' . $this->sessionValue . ';' . $this->sessionExpires;
   }
 
 }
