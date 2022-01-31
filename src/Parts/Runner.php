@@ -495,23 +495,26 @@ class Runner {
     $this->debug = [];
     $failed_tests = 0;
 
+    // Iterate over all tests in the suite, convert to Test instances and
+    // process/skip "tests" which are simply variable assignments.
     foreach (array_values($tests) as $test_index => $config) {
-      if (isset($config['set'])) {
-        $suite->variables()->setItem($config['set'], $config['is']);
-        continue;
-      }
       $config += [
         'expect' => NULL,
         'find' => '',
       ];
-      $test = new Test(strval($test_index), $config, $suite);
-      $suite->addTest($test);
+      if (isset($config['set'])) {
+        $config['is'] = $suite->variables()->interpolate($config['is']);
+        $suite->variables()->setItem($config['set'], $config['is']);
+      }
+      else {
+        $test = new Test(strval($test_index), $config, $suite);
+        $this->pluginsManager->onBeforeTest($test);
+        $suite->addTest($test);
+      }
     }
 
     $has_multiple_methods = count($suite->getHttpMethods()) > 1;
     foreach ($suite->getTests() as $test_index => $test) {
-
-      $this->pluginsManager->onBeforeTest($test);
       $config = $test->getConfig();
 
       if (count($suite->variables())) {

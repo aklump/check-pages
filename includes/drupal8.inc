@@ -81,7 +81,7 @@ add_test_option('user', [
     $session = $_get_session($username, $context['runner']);
     $context['runner']->getSuite()
       ->variables()
-      ->setItem('user.id', $session['account']['id'])
+      ->setItem('user.id', $session['account']['uid'])
       ->setItem('user.uid', $session['account']['uid'])
       ->setItem('user.name', $session['account']['name'])
       ->setItem('user.pass', $session['account']['pass']);
