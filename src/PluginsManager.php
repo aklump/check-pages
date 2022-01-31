@@ -157,12 +157,31 @@ final class PluginsManager implements TestPluginInterface {
   private function getPluginSchema(string $plugin_id): array {
     $schema = $this->schema['definitions'][$plugin_id] ?? NULL;
     if (!$schema) {
-      throw new \RuntimeException(sprintf('Missing schema for plugin %s', $plugin_id));
+      throw new \RuntimeException(sprintf('Missing schema for plugin "%s".', $plugin_id));
     }
     $schema['definitions'] = $this->schema['definitions'];
     unset($schema['definitions'][$plugin_id]);
 
     return $schema;
+  }
+
+  /**
+   * Tell if a plugin provides a schema or not.
+   *
+   * @param string $plugin_id
+   *
+   * @return bool
+   *   True if it does.
+   */
+  private function hasSchema(string $plugin_id): bool {
+    try {
+      $this->getPluginSchema($plugin_id);
+
+      return TRUE;
+    }
+    catch (\Exception $exception) {
+      return FALSE;
+    }
   }
 
   /**
@@ -195,7 +214,9 @@ final class PluginsManager implements TestPluginInterface {
       if ($applies) {
         $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
       }
-      elseif (!is_bool($applies) && isset($config['find'])) {
+      elseif (!is_bool($applies)
+        && isset($config['find'])
+        && $this->hasSchema($plugin['id'])) {
         if (!is_array($config['find'])) {
           $config['find'] = [$config['find']];
         }
