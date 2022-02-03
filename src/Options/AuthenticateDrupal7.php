@@ -26,4 +26,16 @@ final class AuthenticateDrupal7 extends AuthenticateDrupalBase {
     parent::__construct($path_to_users_login_data, $absolute_login_url, $form_selector, $form_id);
   }
 
+  public function login(UserInterface $user) {
+    parent::login($user);
+
+    // Sniff the page for the user ID.
+    $body = strval($this->getResponse()->getBody());
+    if (preg_match('/"uid"\:"(\d+?)"/', $body, $matches)) {
+      $user->setId(intval($matches[1]));
+    }
+
+    // TODO Figure out how to get the email address.
+  }
+
 }

@@ -40,5 +40,4 @@ final class AuthenticateDrupal8 extends AuthenticateDrupalBase {
     // TODO Figure out how to get the email address.
   }
 
-
 }
