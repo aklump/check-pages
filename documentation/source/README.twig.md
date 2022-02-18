@@ -80,7 +80,7 @@ If you are new to this project and would like to see a demonstration, it would b
 
 1. Open a second shell window to execute the tests.
 
-        $ ./bin/test.sh
+        $ ./bin/run_tests.sh
 
 Some failing tests are also available to explore:
 

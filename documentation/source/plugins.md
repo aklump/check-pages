@@ -75,3 +75,7 @@ public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
   });
 }
 ```
+
+## Testing Plugins
+
+To run a plugin's tests do this: `./bin/run_plugin_tests <plugin>`.  (Don't forget to `bump build plugins` if you make a change.)
