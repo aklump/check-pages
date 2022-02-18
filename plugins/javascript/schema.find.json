@@ -9,6 +9,12 @@
         {
             "required": [
                 "javascript",
+                "set"
+            ]
+        },
+        {
+            "required": [
+                "javascript",
                 "contains"
             ]
         },
@@ -39,6 +45,9 @@
     ],
     "additionalProperties": false,
     "properties": {
+        "set": {
+            "$ref": "#/definitions/set"
+        },
         "javascript": {
             "$ref": "#/definitions/js_eval"
         },

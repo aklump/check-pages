@@ -1,3 +1,8 @@
+<?php
+if (array_key_exists('redirect', $_GET)) {
+  header("HTTP/1.1 301 Moved Permanently");
+  header('Location: ' . $_SERVER['PHP_SELF'] . '?redirected');
+} ?>
 <html>
 <head>
   <script type="text/javascript">
