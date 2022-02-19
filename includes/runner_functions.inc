@@ -17,7 +17,7 @@ use MidwestE\ObjectPath;
  *   false to block that handling.
  */
 function load_config(string $config, bool $allow_override = TRUE) {
-  global $app, $cli;
+  global $runner, $cli;
 
   if ($allow_override && ($override = $cli->getParam('config'))) {
 
@@ -27,13 +27,13 @@ function load_config(string $config, bool $allow_override = TRUE) {
     // to allow "--config=foo" instead.  That's the reason for the next few
     // lines.  July 16, 2021 at 11:23:12 AM PDT, aklump.
     try {
-      $app->resolve($override);
+      $runner->resolve($override);
     }
     catch (\Exception $exception) {
       $override = 'config/' . $override;
     }
     try {
-      $app->resolve($override);
+      $runner->resolve($override);
     }
     catch (\Exception $exception) {
       // If the presumption failed, then we just rollback.
@@ -43,7 +43,7 @@ function load_config(string $config, bool $allow_override = TRUE) {
     $config = $override;
   }
 
-  $app->setConfig($config);
+  $runner->setConfig($config);
 }
 
 /**
@@ -53,14 +53,14 @@ function load_config(string $config, bool $allow_override = TRUE) {
  *   A dot-separated path for a config key.
  */
 function config_get($config_path) {
-  global $app;
+  global $runner;
   try {
-    $o = new ObjectPath($app->getConfig());
+    $o = new ObjectPath($runner->getConfig());
 
     return $o->get($config_path);
   }
   catch (\Exception $exception) {
-    throw new RuntimeException(sprintf("%s\nCheck your configuration file: %s", $exception->getMessage(), $app->getPathToConfig()), $exception->getCode(), $exception);
+    throw new RuntimeException(sprintf("%s\nCheck your configuration file: %s", $exception->getMessage(), $runner->getPathToConfig()), $exception->getCode(), $exception);
   }
 }
 
@@ -74,7 +74,7 @@ function config_get($config_path) {
  *   The absolute path to an existing directory to use for resolution.
  */
 function add_directory(string $custom_dir) {
-  global $app;
+  global $runner;
   if (!is_dir($custom_dir)) {
     throw new \InvalidArgumentException("\"$custom_dir\" must be an existing directory.");
   }
@@ -82,7 +82,7 @@ function add_directory(string $custom_dir) {
   if ($path) {
     $custom_dir = $path;
   }
-  $app->addResolveDirectory($custom_dir);
+  $runner->addResolveDirectory($custom_dir);
 }
 
 /**
@@ -102,8 +102,8 @@ function add_directory(string $custom_dir) {
  *   to customize the runner, suite, test, or assertions.
  */
 function add_test_option(string $name, array $callbacks) {
-  global $app;
-  $app->addTestOption($name, $callbacks);
+  global $runner;
+  $runner->addTestOption($name, $callbacks);
 }
 
 /**
@@ -116,15 +116,15 @@ function add_test_option(string $name, array $callbacks) {
  * @throws \AKlump\CheckPages\Exceptions\SuiteFailedException|\AKlump\CheckPages\Exceptions\TestFailedException
  */
 function run_suite(string $path_to_suite, array $suite_config = []): void {
-  global $app;
+  global $runner;
 
   // Process a glob string if present, relative to the --dir or runner.php dir.
   if (strstr($path_to_suite, '*') !== FALSE) {
-    $suites = array_filter(glob($app->getPathToSuites() . '/' . $path_to_suite), function ($path) {
+    $suites = array_filter(glob($runner->getPathToSuites() . '/' . $path_to_suite), function ($path) {
       return preg_match('/\.yml$/', $path);
     });
 
-    $suites = $app->filterSuites($suites);
+    $suites = $runner->filterSuites($suites);
   }
   else {
     $suites = [$path_to_suite];
@@ -132,7 +132,7 @@ function run_suite(string $path_to_suite, array $suite_config = []): void {
 
   foreach ($suites as $suite) {
     $suite = pathinfo($suite, PATHINFO_FILENAME);
-    $app->runSuite($suite, $suite_config);
+    $runner->runSuite($suite, $suite_config);
   }
 }
 
@@ -149,13 +149,11 @@ function run_suite(string $path_to_suite, array $suite_config = []): void {
  *   Configuration to be passed to the extra.
  */
 function with_extras(string $extras_filename, array $config) {
-  global $app;
-  $require_path = $app->resolve("extras/$extras_filename.php");
+  global $runner;
+  $require_path = $runner->resolve("extras/$extras_filename.php");
   if (!$require_path) {
     $require_path = __DIR__ . "/$extras_filename.php";
   }
-  $scoped = function ($runner, $path) use ($config) {
-    require_once $path;
-  };
-  $scoped($app, $require_path);
+  unset($extras_filename);
+  require_once $require_path;
 }

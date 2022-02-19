@@ -6,8 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [0.16.0] - TBD
 
+### Deprecated
+
+- `Runner::getRunner`
+- `Runner::setRunner`
+
 ### Changed
 
+- BREAKING CHANGE! Rename `global $app` to `$runner`.
 - BREAKING CHANGE! The style plugin now uses this format; (you must replace `style` with `dom` and `property` with `style`).
   ```yaml
   -

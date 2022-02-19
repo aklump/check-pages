@@ -168,6 +168,17 @@ class Runner {
   }
 
   /**
+   * @param string $basename
+   * @param array $options
+   *
+   * @return \AKlump\CheckPages\Parts\Runner
+   * @deprecated Use \AKlump\CheckPages\Parts\Runner::setBasename().
+   */
+  public function setRunner(string $basename, array $options): Runner {
+    return $this->setBasename($basename, $options);
+  }
+
+  /**
    * Set the runner information.
    *
    * @param string $basename
@@ -178,7 +189,7 @@ class Runner {
    * @return $this
    *   Self for chaining.
    */
-  public function setRunner(string $basename, array $options): Runner {
+  public function setBasename(string $basename, array $options): Runner {
     if (strstr($basename, '/') !== FALSE) {
       throw new \InvalidArgumentException(sprintf('::setRunner() only takes a basename, not a full path; change "%s" to "%s"', $basename, basename($basename)));
     }
@@ -224,7 +235,7 @@ class Runner {
    * @return
    *   Self for chaining.
    *
-   * @deprecated Use addSuiteFilter instead.
+   * @deprecated Use \AKlump\CheckPages\Parts\Runner::addSuiteFilter().
    */
   public function setSuiteFilter(string $filter): Runner {
     $this->filters = [$filter];
@@ -360,8 +371,20 @@ class Runner {
    *
    * @return string
    *   The resolved test filepath.
+   *
+   * @deprecated Use \AKlump\CheckPages\Parts\Runner::getRunnerPath().
    */
   public function getRunner(): string {
+    return $this->getRunnerPath();
+  }
+
+  /**
+   * Get the resolved test filepath.
+   *
+   * @return string
+   *   The resolved test filepath.
+   */
+  public function getRunnerPath(): string {
     try {
       return $this->resolve((string) $this->runner['name']);
     }

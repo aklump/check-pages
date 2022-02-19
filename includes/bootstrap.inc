@@ -81,9 +81,9 @@ if ($cli->hasFlag('h') || $cli->hasParam('help')) {
   exit(0);
 }
 
-$app = new Runner(ROOT);
+$runner = new Runner(ROOT);
 $path_to_runner = $cli->getArg(1, '');
-$app->setRunner(basename($path_to_runner), $cli->getParams());
+$runner->setBasename(basename($path_to_runner), $cli->getParams());
 
 // Add the directory of the runner as a resolvable directory and path to suites.
 if ($path_to_runner) {
@@ -92,7 +92,7 @@ if ($path_to_runner) {
     throw new \InvalidArgumentException("The runner file: \"$path_to_runner\" does not exist.");
   }
   $runner_dir = dirname($realpath_to_runner);
-  $app->addResolveDirectory($runner_dir)->setPathToSuites($runner_dir);
+  $runner->addResolveDirectory($runner_dir)->setPathToSuites($runner_dir);
 }
 
 if (($dir = $cli->getParam('dir'))) {
@@ -102,11 +102,10 @@ if (($dir = $cli->getParam('dir'))) {
   }
 
   // This path to suites needs to overwrite that from runner directory above.
-  $app->addResolveDirectory($dir)->setPathToSuites($dir);
+  $runner->addResolveDirectory($dir)->setPathToSuites($dir);
 }
 
-$test_runner = $app->getRunner();
-if (!$test_runner) {
+if (!$runner->getRunnerPath()) {
   throw new \InvalidArgumentException('You must pass a resolvable path to your PHP runner file, as the only argument, e.g., ./check_pages runner.php');
 }
 
