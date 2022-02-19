@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\CheckPages;
+namespace AKlump\CheckPages\Exceptions;
 
 class TestFailedException extends StopRunnerException {
 

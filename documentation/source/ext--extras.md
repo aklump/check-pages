@@ -38,3 +38,7 @@ You may write output if desired, for example:
 echo sprintf('Base URL is %s', config_get('base_url')) . PHP_EOL;
 echo \AKlump\LoftLib\Bash\Color::wrap('blue', 'foo');
 ```
+
+## Errors
+
+To stop testing immediately you should throw an instance of `\AKlump\CheckPages\Exceptions\StopRunnerException`. The message argument will be displayed to the user.

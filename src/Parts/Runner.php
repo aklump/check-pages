@@ -4,15 +4,15 @@ namespace AKlump\CheckPages\Parts;
 
 use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\ChromeDriver;
+use AKlump\CheckPages\Exceptions\SuiteFailedException;
+use AKlump\CheckPages\Exceptions\TestFailedException;
+use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\GuzzleDriver;
 use AKlump\CheckPages\Output\FailedTestMarkdown;
 use AKlump\CheckPages\PluginsManager;
 use AKlump\CheckPages\SerializationTrait;
 use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
-use AKlump\CheckPages\SuiteFailedException;
-use AKlump\CheckPages\TestFailedException;
-use AKlump\CheckPages\UnresolvablePathException;
 use AKlump\LoftLib\Bash\Color;
 use GuzzleHttp\Exception\ServerException;
 use JsonSchema\Constraints\Constraint;
@@ -377,9 +377,9 @@ class Runner {
    *   A resolvable path to a PHP runner file.
    *
    * @throws \RuntimeException If the test completed with failures.
-   * @throws \AKlump\CheckPages\SuiteFailedException If the runner stopped
+   * @throws \AKlump\CheckPages\Exceptions\SuiteFailedException If the runner stopped
    *   before it was finished due to a failure.
-   * @throws \AKlump\CheckPages\TestFailedException If the runner stopped
+   * @throws \AKlump\CheckPages\Exceptions\TestFailedException If the runner stopped
    *   before it was finished due to a failure.
    */
   public function executeRunner() {
@@ -434,8 +434,8 @@ class Runner {
    * @param string $path
    *   A resolvable path to a yaml file.
    *
-   * @throws \AKlump\CheckPages\TestFailedException
-   * @throws \AKlump\CheckPages\SuiteFailedException
+   * @throws \AKlump\CheckPages\Exceptions\TestFailedException
+   * @throws \AKlump\CheckPages\Exceptions\SuiteFailedException
    * @see run_suite()
    *
    */
@@ -766,7 +766,7 @@ class Runner {
    * @return string
    *   The resolved full path to a file if it exists.
    *
-   * @throws \AKlump\CheckPages\UnresolvablePathException
+   * @throws \AKlump\CheckPages\Exceptions\UnresolvablePathException
    *   If the path cannot be resolved.
    */
   public function resolve(string $path, &$resolved_path = NULL) {

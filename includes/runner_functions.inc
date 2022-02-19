@@ -113,7 +113,7 @@ function add_test_option(string $name, array $callbacks) {
  *   This can be a resolvable path or a glob pattern that will be resolved using
  *   the getPathToSuites() directory, e.g. '*', or 'user*'.
  *
- * @throws \AKlump\CheckPages\SuiteFailedException|\AKlump\CheckPages\TestFailedException
+ * @throws \AKlump\CheckPages\Exceptions\SuiteFailedException|\AKlump\CheckPages\Exceptions\TestFailedException
  */
 function run_suite(string $path_to_suite, array $suite_config = []): void {
   global $app;
