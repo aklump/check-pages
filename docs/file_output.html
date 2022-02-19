@@ -7,9 +7,9 @@
   <link href="style.css" rel="stylesheet">
 </head>
 
-<body class="page--file_output">
+<body class="page--files">
 <header>
-  <div class="pager"><a href="examples.html" class="prev examples">&laquo;Examples</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="storage.html" class="next storage">File Storage&raquo;</a></div></header>
+  <div class="pager"><a href="authentication.html" class="prev authentication">&laquo;Authentication</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="xdebug.html" class="next xdebug">Debugging While Running Tests&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -20,15 +20,22 @@
 </div>
   </section>
 
-
-<h1>File Output</h1>
-
 <section>
+  <h1>File Output</h1>
+  
 
-<p>If you create the files directory, certain files will be written there when you run your suites.</p>
+<ol>
+<li>Create a writeable directory for file output.</li>
+<li>Add that path to <code>files</code> in your runner config.</li>
+</ol>
+
+<pre><code class="yaml">files: files/dev
+</code></pre>
+
+<p>Once this is configured and exists:</p>
 
 <ul>
-<li>Each suite will create a directory by it's filename.</li>
+<li>Each suite will create a subdirectory by it's filename.</li>
 <li>In that directory the following files will be created:
 
 <ul>
@@ -38,6 +45,13 @@
 </ul>
 
 <p>Try using <code>tail -f files/SUITE/urls.txt</code> during development.</p>
+
+<h2>Storing Sessions</h2>
+
+<p>Authentication can slow down your tests. To mitigate this you can create a writeable folder at <em>{config.files}/storage</em> and the session cookies will be written to disk the first time they are obtained from the test subject. After that, authentication will skip the login step and pull the session data from <em>files/storage</em>. Protect the contents of that directory because it contains credentials.</p>
+
+<p>If you do not want this feature, then make sure that there is no directory called <em>storage</em> in the the directory you've defined as your writeable files in the runner config.</p>
+
 </section>
 
 <div class="search__results">
@@ -45,9 +59,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="examples.html" class="prev examples">&laquo;Examples</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="storage.html" class="next storage">File Storage&raquo;</a></div>  
+  <div class="pager"><a href="authentication.html" class="prev authentication">&laquo;Authentication</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="xdebug.html" class="next xdebug">Debugging While Running Tests&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.1 &bull; Last Updated: Sun, 28 Nov 2021 20:07:48 -0800</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 19 Feb 2022 00:36:24 -0800</p>
   </div>
 </footer>
 
@@ -63,4 +77,3 @@
 <script src="js/core.js"></script>
 </body>
 </html>
-

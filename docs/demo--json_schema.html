@@ -2,16 +2,18 @@
 
 <html>
 <head>
-  <title>Testing Your APIs</title>
+  <title>Testing APIs with JSON Schema</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
 </head>
 
 <body class="page--plugin_json_schema">
 <header>
-  <div class="pager"><a href="javascript.html" class="prev javascript">&laquo;Testing with Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="plugin_data.html" class="next plugin_data">The Path Plugin is for Testing Structured Content&raquo;</a></div></header>
+  <div class="pager"><a href="demo--request.html" class="prev demo--request">&laquo;Request</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--header.html" class="next plugin_header">Testing Response Headers&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2.html">Usage and Examples</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -20,15 +22,24 @@
 </div>
   </section>
 
-
-<h1>Testing Your APIs</h1>
-
 <section>
+  <h1>Testing APIs with JSON Schema</h1>
+  
 
 <p>You can test APIs using <a href="https://json-schema.org/">JSON Schema</a>, here's the basic idea...</p>
 
+<pre><code class="text">.
+├── runner.php
+├── schemas
+│   └── object.json
+└── suite.yml
+</code></pre>
+
 <ol>
 <li><p>Create a JSON file with the JSON schema and save it somewhere, e.g. <em>schemas/object.json</em>.</p>
+
+<pre><code class="yaml"># file: object.json
+</code></pre>
 
 <pre><code class="json">{
     "type": "object"
@@ -36,7 +47,8 @@
 </code></pre></li>
 <li><p>Then write a test to use that schema:</p>
 
-<pre><code class="yaml">-
+<pre><code class="yaml"># file: suite.yml
+-
   visit: /api/2/thing/99
   find:
     -
@@ -67,9 +79,10 @@
    }
 }
 </code></pre></li>
-<li><p>You can apply a schema to the array at <code>ipsum</code>.  Provide the schema subject using dot notation as <code>path</code>, in this case <code>lorem.ipsum</code>.</p>
+<li><p>You can apply a schema to the array at <code>ipsum</code>. Provide the schema subject using dot notation as <code>path</code>, in this case <code>lorem.ipsum</code>.</p>
 
-<pre><code class="yaml">-
+<pre><code class="yaml"># file: suite.yml
+-
  visit: /api/2/thing/99
  find:
    -
@@ -77,6 +90,40 @@
      path: lorem.ipsum
 </code></pre></li>
 </ol>
+
+<h2>Example Tests</h2>
+
+<pre><code class="yaml">-
+  visit: /test_subject.json
+  find:
+    -
+      schema: plugins/json_schema/is_object.json
+    -
+      schema: plugins/json_schema/is_array.json
+      matches: false
+-
+  visit: /test_subject.json
+  find:
+    -
+      path: lorem.ipsum
+      schema: plugins/json_schema/is_array.json
+-
+  visit: /test_subject.json
+  find:
+    -
+      schema: plugins/json_schema/is_object.json
+      matches: true
+    -
+      schema: plugins/json_schema/is_foo.json
+      matches: true
+    -
+      schema: plugins/json_schema/is_array.json
+      matches: false
+
+</code></pre>
+
+<p><em>Provided by the json_schema plugin.</em></p>
+
 </section>
 
 <div class="search__results">
@@ -84,9 +131,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="javascript.html" class="prev javascript">&laquo;Testing with Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="plugin_data.html" class="next plugin_data">The Path Plugin is for Testing Structured Content&raquo;</a></div>  
+  <div class="pager"><a href="demo--request.html" class="prev demo--request">&laquo;Request</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--header.html" class="next plugin_header">Testing Response Headers&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.1 &bull; Last Updated: Sun, 28 Nov 2021 20:07:52 -0800</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 19 Feb 2022 00:36:21 -0800</p>
   </div>
 </footer>
 
@@ -102,4 +149,3 @@
 <script src="js/core.js"></script>
 </body>
 </html>
-

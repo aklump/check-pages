@@ -2,16 +2,18 @@
 
 <html>
 <head>
-  <title>Response Header Assertions</title>
+  <title>Testing Response Headers</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
 </head>
 
-<body class="page--headers">
+<body class="page--plugin_header">
 <header>
-  <div class="pager"><a href="cheatsheet.html" class="prev cheatsheet">&laquo;Quick Reference: Test Writing</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="variables.html" class="next variables">Sharing Values Between Tests&raquo;</a></div></header>
+  <div class="pager"><a href="demo--json_schema.html" class="prev demo--json_schema">&laquo;Testing APIs with JSON Schema</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript.html" class="next plugin_javascript">Testing with Javascript&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2.html">Usage and Examples</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -20,10 +22,9 @@
 </div>
   </section>
 
-
-<h1>Response Header Assertions</h1>
-
 <section>
+  <h1>Testing Response Headers</h1>
+  
 
 <p>You can assert against response headers like this:</p>
 
@@ -44,7 +45,41 @@
 </code></pre></li>
 </ul>
 
-<p>See more examples in <em>example/tests/plugins/header.yml</em></p>
+<h2>Example Tests</h2>
+
+<pre><code class="yaml">-
+  visit: /test_subject.php
+  find:
+    -
+      header: foo
+      is not: pha
+    -
+      header: foo
+      contains: pha
+    -
+      header: foo
+      is: alpha
+    -
+      header: bar
+      is: BRAVO
+    -
+      header: bar
+      matches: /^bravo$/i
+    -
+      header: bar
+      not matches: /^charlie$/i
+    -
+      why: This header should not even exist, testing that case.
+      header: zulu
+      not matches: /^charlie$/i
+    -
+      header: baz
+      count: 0
+
+</code></pre>
+
+<p><em>Provided by the header plugin.</em></p>
+
 </section>
 
 <div class="search__results">
@@ -52,9 +87,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="cheatsheet.html" class="prev cheatsheet">&laquo;Quick Reference: Test Writing</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="variables.html" class="next variables">Sharing Values Between Tests&raquo;</a></div>  
+  <div class="pager"><a href="demo--json_schema.html" class="prev demo--json_schema">&laquo;Testing APIs with JSON Schema</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript.html" class="next plugin_javascript">Testing with Javascript&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.1 &bull; Last Updated: Sun, 28 Nov 2021 20:07:49 -0800</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 19 Feb 2022 00:36:19 -0800</p>
   </div>
 </footer>
 
@@ -70,4 +105,3 @@
 <script src="js/core.js"></script>
 </body>
 </html>
-

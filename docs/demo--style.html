@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>CSS and Styles</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--plugin_style">
+<header>
+  <div class="pager"><a href="demo--javascript2.html" class="prev demo--javascript2">&laquo;More Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--dom.html" class="next plugin_dom">Dom&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2.html">Usage and Examples</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>CSS and Styles</h1>
+  
+
+<h2>Assert a DOM element is visible</h2>
+
+<p>This example checks the CSS for both display and opacity properties to determine
+if the modal is visible based on CSS.</p>
+
+<pre><code class="yaml">find:
+  -
+    dom: .modal
+    count: 1
+  -
+    style: .modal
+    property: display
+    matches: /^(?!none).+$/
+  -
+    style: .modal
+    property: opacity
+    is: 1
+</code></pre>
+
+<h2>Example Tests</h2>
+
+<pre><code class="yaml">-
+  visit: /test_subject.html
+  js: true
+  find:
+    -
+      dom: .visible
+      style: display
+      matches: /^(?!none).+$/
+      set: display
+    -
+      dom: .visible
+      style: display
+      not matches: /^block$/
+      set: display
+    -
+      dom: .visible
+      style: display
+      contains: inline
+    -
+      dom: .visible
+      style: display
+      not contains: flex
+    -
+      dom: .hidden-by-style
+      style: display
+      is: none
+    -
+      dom: .hidden-by-style
+      style: display
+      is not: hidden
+    -
+      dom: .hidden-by-class
+      style: display
+      is: none
+
+
+</code></pre>
+
+<p><em>Provided by the style plugin.</em></p>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="demo--javascript2.html" class="prev demo--javascript2">&laquo;More Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--dom.html" class="next plugin_dom">Dom&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 19 Feb 2022 00:36:22 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
