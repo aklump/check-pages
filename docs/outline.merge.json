@@ -2,16 +2,61 @@
     "title": "Check Pages",
     "chapters": [
         {
+            "id": "",
             "title": "How to Use"
         },
         {
-            "id": "dev",
+            "id": "deep",
+            "title": "Going Deeper"
+        },
+        {
+            "id": "ext",
             "title": "Extending"
+        },
+        {
+            "id": "demo",
+            "title": "Usage and Examples"
         }
     ],
     "sections": [
         {
-            "id": "dev--add_test_option"
+            "id": "readme"
+        },
+        {
+            "id": "cheatsheet"
+        },
+        {
+            "id": "why"
+        },
+        {
+            "id": "authentication"
+        },
+        {
+            "id": "files"
+        },
+        {
+            "id": "custom_dirs"
+        },
+        {
+            "id": "javascript"
+        },
+        {
+            "id": "variables"
+        },
+        {
+            "id": "xdebug"
+        },
+        {
+            "id": "changelog"
+        },
+        {
+            "id": "custom_test_options"
+        },
+        {
+            "id": "with_extras"
+        },
+        {
+            "id": "plugins"
         }
     ]
 }

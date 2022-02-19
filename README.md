@@ -1,10 +1,14 @@
 <!-- Compiled from ./source/README.md: DO NOT EDIT -->
 
+<!--
+title: Overview
+-->
+
 # Check Pages
 
-## Very Simple QA for Websites
+## Very Simple QA for HTTP
 
-![Check Pages](docs/images/check-pages.jpg)
+![Check Pages](images/check-pages.jpg)
 
 ## Summary
 
@@ -82,7 +86,7 @@ If you are new to this project and would like to see a demonstration, it would b
 
 1. Open a second shell window to execute the tests.
 
-        $ ./bin/test.sh
+        $ ./bin/run_tests.sh
 
 Some failing tests are also available to explore:
 

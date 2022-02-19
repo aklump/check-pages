@@ -8,10 +8,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [0.16.0] - TBD
 
+### Changed
+
+- BREAKING CHANGE! The style plugin now uses this format; (you must replace `style` with `dom` and `property` with `style`).
+  ```yaml
+  -
+    dom: .visible
+    style: display
+    ...
+  ```
+- If `expect` is not explicitly provided, any value from `200` to `299` will pass the test. Previously the response code would have to be exactly `200` to pass.
+
 ### Added
 
+- The authentication for Drupal now adds the following variables automatically: `${user.uid}, ${user.id}, ${user.name}, ${user.pass}` for the authenticated user. That means you can use these in subsequent tests, even if not authenticating said test.
+- `--show-request` and `--show-response`.
+- Request headers and body to display with `--show-request` or `--show-source`. If you do not want to see request and ONLY response, use `--show-response` instead of `--show-source`.
+- --help and -h to printout CLI options.
+- A debug message if test is missing assertions.
+- Start and stop date and times.
 - `--filter` now accepts multiple suites as CSV, e.g. `--filter=foo,bar` as well as single suites.
 - The ability to test data-serving URLs (i.e. API endpoints) using JSON Schema.
+
+### Fixed
+
+- --quite mode was not working.
 
 ## [0.15.0] - 2021-07-16
 

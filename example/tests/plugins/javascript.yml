@@ -1,6 +1,7 @@
 -
     why: 'Assert javascript is run after the redirect.'
     visit: '/plugins/javascript.php?redirect'
+    expect: 302
     find:
         -
             javascript: location.search

@@ -222,10 +222,12 @@
         },
         "path_selector": {
             "type": [
-                "string"
+                "string",
+                "number"
             ],
             "examples": [
                 "",
+                0,
                 "foo",
                 "foo.bar",
                 "foo.bar.0"
@@ -591,6 +593,12 @@
                 {
                     "required": [
                         "javascript",
+                        "set"
+                    ]
+                },
+                {
+                    "required": [
+                        "javascript",
                         "contains"
                     ]
                 },
@@ -621,6 +629,9 @@
             ],
             "additionalProperties": false,
             "properties": {
+                "set": {
+                    "$ref": "#/definitions/set"
+                },
                 "javascript": {
                     "$ref": "#/definitions/js_eval"
                 },

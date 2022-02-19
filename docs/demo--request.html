@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Request</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--plugin_request">
+<header>
+  <div class="pager"><a href="demo--evaluate.html" class="prev demo--evaluate">&laquo;Evaluate</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--json_schema.html" class="next plugin_json_schema">Testing APIs with JSON Schema&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2.html">Usage and Examples</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Request</h1>
+  
+
+<h2>Example Tests</h2>
+
+<pre><code class="yaml">- why: Assert post with content-type header and body works as expected.
+  visit: /plugins/request.php
+  request:
+    method: post
+    headers:
+      content-type: application/json
+    body: '{"foo":"bar"}'
+  find:
+    - 'POST'
+    - 'content-type: application/json'
+    - '{"foo":"bar"}'
+
+- visit: /plugins/request.php
+  request:
+    body: 'lorem ipsum'
+  find:
+    - 'GET'
+    - 'lorem ipsum'
+
+- why: Assert put with multiple headers and body works as expected.
+  visit: /plugins/request.php
+  request:
+    method: PUT
+    headers:
+      content-type: application/x-www-form-urlencoded
+      accept: application/json, application/xml
+    body: 'foo=bar&amp;do=re'
+  find:
+    - 'PUT'
+    - "content-type: application/x-www-form-urlencoded"
+    - "accept: application/json, application/xml"
+    - 'foo=bar&amp;do=re'
+
+
+</code></pre>
+
+<p><em>Provided by the request plugin.</em></p>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="demo--evaluate.html" class="prev demo--evaluate">&laquo;Evaluate</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--json_schema.html" class="next plugin_json_schema">Testing APIs with JSON Schema&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.1 &bull; Last Updated: Sat, 19 Feb 2022 00:30:21 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

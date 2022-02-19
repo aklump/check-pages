@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Evaluate</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--plugin_evaluate">
+<header>
+  <div class="pager"><a href="demo--dom.html" class="prev demo--dom">&laquo;Dom</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--request.html" class="next plugin_request">Request&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2.html">Usage and Examples</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Evaluate</h1>
+  
+
+<p>Allows runtime evaluation such as comparing values captured using <code>set</code>.</p>
+
+<p><a href="https://symfony.com/doc/current/components/expression_language.html">https://symfony.com/doc/current/components/expression_language.html</a></p>
+
+<h2>Example Tests</h2>
+
+<pre><code class="yaml"># This test also tests to make sure that variables can be reassigned across tests.
+-
+  why: Demonstrate how to assert an image's aspect ratio using `eval`.
+  visit: /test_subject.html
+  find:
+    -
+      dom: img.tree
+      style: width
+      set: width
+    -
+      dom: img.tree
+      style: height
+      set: height
+    -
+      why: Assert image has a landscape aspect ratio.
+      eval: ${height} &lt; ${width}
+-
+  why: Demonstrate how to assert an image's aspect ratio using `eval`.
+  visit: /test_subject.html
+  find:
+    -
+      dom: img.lake
+      style: width
+      set: width
+    -
+      dom: img.lake
+      style: height
+      set: height
+    -
+      why: Assert image has a tall aspect ratio.
+      eval: ${height} &gt; ${width}
+
+</code></pre>
+
+<p><em>Provided by the evaluate plugin.</em></p>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="demo--dom.html" class="prev demo--dom">&laquo;Dom</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--request.html" class="next plugin_request">Request&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.1 &bull; Last Updated: Sat, 19 Feb 2022 00:30:19 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

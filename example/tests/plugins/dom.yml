@@ -6,6 +6,7 @@
             attribute: title
             is: 'An SVG image'
         -
+            why: 'Find an anchor tag with an href ending in something.'
             dom: a
             attribute: href
             matches: '/\/bar?/'
@@ -16,9 +17,11 @@
             dom: p
             count: '< 2000'
         -
+            why: 'Assertions in the DOM using CSS selectors.'
             dom: '#logo svg'
             count: 1
         -
+            why: 'Notice the use or `text` vs. `is` for accessing the contents of a DOM find as either plaintext or markup respectively.'
             dom: h1.page-title
             text: 'About In the Loft Studios'
         -
@@ -28,12 +31,15 @@
             dom: h1.page-title
             'is not': '<div>About In the Loft Studios</div>'
         -
+            why: 'Case-insensitive RegEx match against the markup of'
             dom: '#footer'
             matches: '/in the loft studios/i'
         -
+            why: 'Showing how to check the hero alt tag two different ways.'
             dom: '[title="An SVG image"]'
             count: 1
         -
+            why: 'Make sure no forms appear on the homepage.'
             dom: form
             count: 0
         -

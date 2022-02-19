@@ -20,6 +20,7 @@
             header: bar
             'not matches': /^charlie$/i
         -
+            why: 'This header should not even exist, testing that case.'
             header: zulu
             'not matches': /^charlie$/i
         -

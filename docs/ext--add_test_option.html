@@ -2,18 +2,18 @@
 
 <html>
 <head>
-  <title>Add Custom Test Options</title>
+  <title>Add Test Options</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
 </head>
 
-<body class="page--dev--add_test_option">
+<body class="page--custom_test_options">
 <header>
-  <div class="pager"><a href="why.html" class="prev why">&laquo;Using `why` For Better Clarity</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="index.html" class="next index">Index&raquo;</a></div></header>
+  <div class="pager"><a href="deep--setup.html" class="prev deep--setup">&laquo;Setup Before Test</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--extras.html" class="next with_extras">Add Runner Functionality&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
-                        <a href="dev--add_test_option.html">Extending</a>
+                        <a href="ext--add_test_option.html">Extending</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -23,18 +23,17 @@
   </section>
 
 <section>
-  <h1>Add Custom Test Options</h1>
+  <h1>Add Test Options</h1>
   
   <!--
-id: add_test_option
+id: custom_test_options
 -->
 
 
-<p>In this example <code>foo</code> is the custom test option:</p>
+<p>If you need to do some fancy PHP transformations at certain points of test execution, you can hook into that flow using one or more custom test options.  <strong>These are nothing more than functions attached to events.</strong> In the following example, <code>foo</code> is the custom test option under study.</p>
 
-<h2>Suite</h2>
-
-<pre><code class="yaml">-
+<pre><code class="yaml"># file: suite.yml
+-
   visit: /index.html
   foo: 123
   find:
@@ -43,14 +42,12 @@ id: add_test_option
       is: Hello World!
 </code></pre>
 
-<h2>Runner</h2>
-
 <p>The <code>add_test_option()</code> function allows you to add customization at the level of your runner file.</p>
 
-<pre><code class="php">add_test_option('foo', [
+<pre><code class="php"># file: runner.php
+add_test_option('foo', [
   'onBeforeTest' =&gt; function ($option, \AKlump\CheckPages\Parts\Test $test, $context){
-    assert($option === 123)
-    // TODO Alter $test is so meaningful way.
+    // Note, $option === 123
   },
 ]);
 </code></pre>
@@ -80,6 +77,10 @@ id: add_test_option
     list($do, $re, $mi) = $option;
     // ...
   },
+  'onBeforeRequest' =&gt; function ($option, &amp;$driver, array $context){
+    list($do, $re, $mi) = $option;
+    // ...
+  },
 ]);
 
 add_test_option('baz', [
@@ -100,9 +101,9 @@ run_suite('*');
 </div>
 
 <footer>
-  <div class="pager"><a href="why.html" class="prev why">&laquo;Using `why` For Better Clarity</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="index.html" class="next index">Index&raquo;</a></div>  
+  <div class="pager"><a href="deep--setup.html" class="prev deep--setup">&laquo;Setup Before Test</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--extras.html" class="next with_extras">Add Runner Functionality&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.1 &bull; Last Updated: Fri, 18 Feb 2022 18:17:57 -0800</p>
+    <p class="legaleeze center">Version: 0.15.1 &bull; Last Updated: Sat, 19 Feb 2022 00:30:22 -0800</p>
   </div>
 </footer>
 

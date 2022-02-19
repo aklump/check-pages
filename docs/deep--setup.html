@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Setup Before Test</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--setup">
+<header>
+  <div class="pager"><a href="deep--variables.html" class="prev deep--variables">&laquo;Variables</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--add_test_option.html" class="next custom_test_options">Add Test Options&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="deep--custom_dirs.html">Going Deeper</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Setup Before Test</h1>
+  
+
+<p>Some integration testing requires that an environment exist in a given state before the tests can run. How can you ensure that the website is in that state before your test suite begins?</p>
+
+<h2>Server-Side Setup</h2>
+
+<p>In this strategy, you setup an endpoint that receives an ID representing a state. You then write server-side code to put your website into that state when it receives a request. How you write the server-side is up to you, and depends on the language, framework, etc. All you do on the Check Pages side of things is make a request to that appropriate endpoint at the beginning of your suite:</p>
+
+<pre><code class="yaml"># file: suite.yml
+-
+  visit: /test-set-state.php?state=foo
+  ...
+
+</code></pre>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="deep--variables.html" class="prev deep--variables">&laquo;Variables</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--add_test_option.html" class="next custom_test_options">Add Test Options&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.1 &bull; Last Updated: Sat, 19 Feb 2022 00:30:18 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

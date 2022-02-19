@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Add Runner Functionality</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--with_extras">
+<header>
+  <div class="pager"><a href="ext--add_test_option.html" class="prev ext--add_test_option">&laquo;Add Test Options</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--plugins.html" class="next plugins">Build a Plugin&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="ext--add_test_option.html">Extending</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Add Runner Functionality</h1>
+  
+
+<p>Another way to extend <em>Check Pages</em> is to use the <code>with_extras()</code> function. This method is easier and faster than writing a plugin. It is a simple means to share runner customisation across different runners, or even projects. This is the basis for the authentication providers shipped with Check Pages.</p>
+
+<ol>
+<li>Create a directory <code>extras</code>, for example inside your <em>tests</em> directory. (Note: It must be resolvable by <code>\AKlump\CheckPages\Parts\Runner::resolve()</code>.)</li>
+<li><p>In that directory create a file, whose filename will be used as the first argument to <code>with_extras()</code>. So for <code>with_extras('foo')</code> you should create <em>extras/foo.php</em>.</p>
+
+<pre><code class="php"># file: runner.php
+
+with_extras('foo', [
+  "title" =&gt; "Lorem",
+  "color" =&gt; "blue",
+]);
+...
+</code></pre></li>
+<li><p>The second argument passed to <code>with_extras()</code> is available in <em>extras/foo.php</em> as <code>$config</code>.</p>
+
+<pre><code class="php"># file: extras/foo.php
+
+$title = $config['title'];
+$color = $config['color'];
+
+</code></pre></li>
+<li>Also, you have access to the <code>\AKlump\CheckPages\Parts\Runner</code> instance in the variable <code>$runner</code>.</li>
+<li>You may use any of the <em>runner_functions.inc</em> as you might otherwise do in a runner file.</li>
+</ol>
+
+<h2>Output</h2>
+
+<p>You may write output if desired, for example:</p>
+
+<pre><code class="php">echo sprintf('Base URL is %s', config_get('base_url')) . PHP_EOL;
+echo \AKlump\LoftLib\Bash\Color::wrap('blue', 'foo');
+</code></pre>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="ext--add_test_option.html" class="prev ext--add_test_option">&laquo;Add Test Options</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--plugins.html" class="next plugins">Build a Plugin&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.1 &bull; Last Updated: Sat, 19 Feb 2022 00:30:23 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
