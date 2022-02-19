@@ -2,16 +2,18 @@
 
 <html>
 <head>
-  <title>Plugins</title>
+  <title>Build a Plugin</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
 </head>
 
 <body class="page--plugins">
 <header>
-  <div class="pager"><a href="custom_dirs.html" class="prev custom_dirs">&laquo;How To Use A Custom Directory For Suite Files</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cheatsheet.html" class="next cheatsheet">Quick Reference: Test Writing&raquo;</a></div></header>
+  <div class="pager"><a href="ext--extras.html" class="prev ext--extras">&laquo;Add Runner Functionality</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="ext--add_test_option.html">Extending</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -20,10 +22,13 @@
 </div>
   </section>
 
-
-<h1>Plugins</h1>
-
 <section>
+  <h1>Build a Plugin</h1>
+  
+
+<p>@todo Where do I put these as an end user?</p>
+
+<p>This is the most involved method of extending Check Pages, and offers the greatest control as well.</p>
 
 <p>To add new functionality to <code>find</code>...</p>
 
@@ -97,6 +102,29 @@ suite.yml_.</li>
   });
 }
 </code></pre>
+
+<h2>Testing Plugins</h2>
+
+<p>To run a plugin's tests do this: <code>./bin/run_plugin_tests &lt;plugin&gt;</code>.  (Don't forget to <code>bump build plugins</code> if you make a change.)</p>
+
+<h2>Compiled Files</h2>
+
+<p>Do not edit the following, as they are created in the build step and will be overwritten. To affect these files you need to look to <em>plugins/</em>
+directory, which contains the source code.</p>
+
+<pre><code>.
+├── tests
+│     ├── plugins
+│     │     ├── foo.yml
+│     │     └── javascript.yml
+│     ├── runner_plugins.php
+└── web
+    └── plugins
+        ├── foo.html
+        └── javascript.html
+
+</code></pre>
+
 </section>
 
 <div class="search__results">
@@ -104,9 +132,9 @@ suite.yml_.</li>
 </div>
 
 <footer>
-  <div class="pager"><a href="custom_dirs.html" class="prev custom_dirs">&laquo;How To Use A Custom Directory For Suite Files</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cheatsheet.html" class="next cheatsheet">Quick Reference: Test Writing&raquo;</a></div>  
+  <div class="pager"><a href="ext--extras.html" class="prev ext--extras">&laquo;Add Runner Functionality</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.1 &bull; Last Updated: Sun, 28 Nov 2021 20:07:53 -0800</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 19 Feb 2022 00:36:23 -0800</p>
   </div>
 </footer>
 
@@ -122,4 +150,3 @@ suite.yml_.</li>
 <script src="js/core.js"></script>
 </body>
 </html>
-

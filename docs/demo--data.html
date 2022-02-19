@@ -9,9 +9,11 @@
 
 <body class="page--plugin_data">
 <header>
-  <div class="pager"><a href="plugin_json_schema.html" class="prev plugin_json_schema">&laquo;Testing Your APIs</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="why.html" class="next why">Using `why` For Better Clarity&raquo;</a></div></header>
+  <div class="pager"><a href="demo--javascript.html" class="prev demo--javascript">&laquo;Testing with Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--xpath.html" class="next plugin_xpath">Xpath&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2.html">Usage and Examples</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -20,10 +22,9 @@
 </div>
   </section>
 
-
-<h1>The Path Plugin is for Testing Structured Content</h1>
-
 <section>
+  <h1>The Path Plugin is for Testing Structured Content</h1>
+  
 
 <pre><code class="json">{
     "foo": {
@@ -157,6 +158,105 @@ title: Foods
       path: foo.bar
       is: ${fooBar}
 </code></pre>
+
+<h2>Example Tests</h2>
+
+<pre><code class="yaml">- why: Assert we can count the root data.
+  visit: /test_subject.php?op=root
+  find:
+    - why: Using an empty string, may be more intuitive for some.
+      path: ""
+      count: 5
+
+- why: Assert we can store the ID of a REST response resource to use later
+  visit: /test_subject.php?op=rest
+  find:
+    - path: 0
+      count: 1
+    - path: 0.id
+      is: 144
+      set: resourceId
+    - path: 0.title
+      set: resourceTitle
+
+- why: Assert we can delete the resource by ID stored in previous test.
+  visit: /test_subject.php?op=rest&amp;id=${resourceId}
+  request:
+    method: delete
+  expect: 204
+
+- visit: /test_subject.php?op=items
+  request:
+    headers:
+      accept: text/yaml
+  find:
+    - path: items
+      count: 5
+    - path: items
+      count: "&gt;1"
+    - path: items
+      contains: apple
+    - path: items
+      not contains: fish
+    - path: items.1
+      is: banana
+
+- visit: /test_subject.php
+  request:
+    method: get
+    headers:
+      accept: application/json
+  find:
+    - why: Assert accept header is applied by matching JSON.
+      contains: '{"bar":"baz"}'
+    - path: foo
+      count: 1
+    - path: foo.bar
+      is: baz
+    - path: foo.bar
+      is not: yaz
+    - path: foo.bar
+      contains: az
+    - path: foo.bar
+      not contains: alpha
+    - path: foo.bar
+      matches: /^baz$/
+    - path: foo.bar
+      not matches: /\d+/
+
+- visit: /test_subject.php
+  request:
+    method: get
+    headers:
+      accept: application/json
+  find:
+    - '{"bar":"baz"}'
+    - path: foo.bar
+      is: baz
+
+- visit: /test_subject.php
+  request:
+    headers:
+      accept: application/xml
+  find:
+    - '&lt;?xml version="1.0" encoding="UTF-8" ?&gt;'
+    - path: foo.bar
+      is: baz
+
+- visit: /test_subject.php
+  request:
+    headers:
+      accept: text/yaml
+  find:
+    - 'bar: baz'
+    - path: foo.bar
+      is: baz
+
+
+</code></pre>
+
+<p><em>Provided by the data plugin.</em></p>
+
 </section>
 
 <div class="search__results">
@@ -164,9 +264,9 @@ title: Foods
 </div>
 
 <footer>
-  <div class="pager"><a href="plugin_json_schema.html" class="prev plugin_json_schema">&laquo;Testing Your APIs</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="why.html" class="next why">Using `why` For Better Clarity&raquo;</a></div>  
+  <div class="pager"><a href="demo--javascript.html" class="prev demo--javascript">&laquo;Testing with Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--xpath.html" class="next plugin_xpath">Xpath&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.1 &bull; Last Updated: Sun, 28 Nov 2021 20:07:51 -0800</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 19 Feb 2022 00:36:17 -0800</p>
   </div>
 </footer>
 
@@ -182,4 +282,3 @@ title: Foods
 <script src="js/core.js"></script>
 </body>
 </html>
-

@@ -9,7 +9,7 @@
 
 <body class="page--changelog">
 <header>
-  <div class="pager"><a href="authentication.html" class="prev authentication">&laquo;Authentication</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="README.html" class="next readme">Check Pages&raquo;</a></div></header>
+  <div class="pager"><a href="xdebug.html" class="prev xdebug">&laquo;Debugging While Running Tests</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cli.html" class="next cli">Command Line Runner&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -20,10 +20,9 @@
 </div>
   </section>
 
-
-<h1>Changelog</h1>
-
 <section>
+  <h1>Changelog</h1>
+  
 
 <p>All notable changes to this project will be documented in this file.</p>
 
@@ -31,11 +30,35 @@
 
 <h2>[0.16.0] - TBD</h2>
 
+<h3>Changed</h3>
+
+<ul>
+<li>BREAKING CHANGE! The style plugin now uses this format; (you must replace <code>style</code> with <code>dom</code> and <code>property</code> with <code>style</code>).
+<code>yaml
+-
+dom: .visible
+style: display
+...</code></li>
+<li>If <code>expect</code> is not explicitly provided, any value from <code>200</code> to <code>299</code> will pass the test. Previously the response code would have to be exactly <code>200</code> to pass.</li>
+</ul>
+
 <h3>Added</h3>
 
 <ul>
+<li>The authentication for Drupal now adds the following variables automatically: <code>${user.uid}, ${user.id}, ${user.name}, ${user.pass}</code> for the authenticated user. That means you can use these in subsequent tests, even if not authenticating said test.</li>
+<li><code>--show-request</code> and <code>--show-response</code>.</li>
+<li>Request headers and body to display with <code>--show-request</code> or <code>--show-source</code>. If you do not want to see request and ONLY response, use <code>--show-response</code> instead of <code>--show-source</code>.</li>
+<li>--help and -h to printout CLI options.</li>
+<li>A debug message if test is missing assertions.</li>
+<li>Start and stop date and times.</li>
 <li><code>--filter</code> now accepts multiple suites as CSV, e.g. <code>--filter=foo,bar</code> as well as single suites.</li>
 <li>The ability to test data-serving URLs (i.e. API endpoints) using JSON Schema.</li>
+</ul>
+
+<h3>Fixed</h3>
+
+<ul>
+<li>--quite mode was not working.</li>
 </ul>
 
 <h2>[0.15.0] - 2021-07-16</h2>
@@ -234,6 +257,7 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
 <ul>
 <li>The <code>--debug</code> flag</li>
 </ul>
+
 </section>
 
 <div class="search__results">
@@ -241,9 +265,9 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
 </div>
 
 <footer>
-  <div class="pager"><a href="authentication.html" class="prev authentication">&laquo;Authentication</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="README.html" class="next readme">Check Pages&raquo;</a></div>  
+  <div class="pager"><a href="xdebug.html" class="prev xdebug">&laquo;Debugging While Running Tests</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cli.html" class="next cli">Command Line Runner&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.1 &bull; Last Updated: Sun, 28 Nov 2021 20:07:43 -0800</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 19 Feb 2022 00:36:12 -0800</p>
   </div>
 </footer>
 
@@ -259,4 +283,3 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
 <script src="js/core.js"></script>
 </body>
 </html>
-

@@ -8,7 +8,7 @@ title: Overview
 
 ## Very Simple QA for HTTP
 
-![Check Pages](images/check-pages.jpg)
+![Check Pages](docs/images/check-pages.jpg)
 
 ## Summary
 

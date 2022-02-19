@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Command Line Runner</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--cli">
+<header>
+  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="deep--custom_dirs.html" class="next custom_dirs">How To Use A Custom Directory For Suite Files&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Command Line Runner</h1>
+  
+
+<h2>Quiet Mode</h2>
+
+<p>To make the output much simpler, use the <code>--quite</code> flag. This will hide the assertions and reduce the output to simply pass/fail.</p>
+
+<pre><code>./check_pages failing_tests_runner.php --quiet
+</code></pre>
+
+<h2>Filter</h2>
+
+<p>Use the <code>--filter</code> parameter combined with a suite name to limit the runner to a single suite. This is faster than editing your runner file.</p>
+
+<pre><code>./check_pages runner.php --filter=page_header
+</code></pre>
+
+<h2>Troubleshooting</h2>
+
+<p>Try using the <code>--show-source</code> to see the response source code as well.</p>
+
+<pre><code>./check_pages failing_tests_runner.php --show-source
+</code></pre>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="deep--custom_dirs.html" class="next custom_dirs">How To Use A Custom Directory For Suite Files&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 19 Feb 2022 00:36:15 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

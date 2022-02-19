@@ -2,14 +2,14 @@
 
 <html>
 <head>
-  <title>Quick Reference: Test Writing</title>
+  <title>Getting Started</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
 </head>
 
 <body class="page--cheatsheet">
 <header>
-  <div class="pager"><a href="plugins.html" class="prev plugins">&laquo;Plugins</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="headers.html" class="next headers">Response Header Assertions&raquo;</a></div></header>
+  <div class="pager"><a href="README.html" class="prev README">&laquo;Overview</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="why.html" class="next why">Using `why` For Better Clarity&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -20,41 +20,28 @@
 </div>
   </section>
 
-
-<h1>Quick Reference: Test Writing</h1>
-
 <section>
+  <h1>Getting Started</h1>
+  
 
-<p>{% include('_cheatsheet.md') %}</p>
-
-<h2>Check Page Loads</h2>
-
-<p>The most simple test involves checking that a page loads.</p>
+<h2>Does a Page Load?</h2>
 
 <pre><code class="yaml">-
   visit: /foo
 </code></pre>
 
-<h2>Check with Javascript Enabled</h2>
+<h2>Is the Status Code Correct?</h2>
 
-<p>By default the test will not run with Javascript. Use <code>js: true</code> to run the test
-with Javascript enabled.  <a href="javascript.html">Learn more.</a></p>
-
-<h2>Check Status Code</h2>
-
-<p>By saying that the "page loads", we mean that it returns a status code of 200.
-The following is exactly the same in function as the previous example. You can
-check for any code by changing the value of <code>expect</code>.</p>
+<p>By saying that the "page loads", we mean that it returns a status code of 200. The following is exactly the same in function as the previous example. You can assert any HTTP status code by changing the value of <code>expect</code>.</p>
 
 <pre><code class="yaml">-
   visit: /foo
   expect: 200
 </code></pre>
 
-<h2>Check Redirect</h2>
+<h2>Is an URL Redirecting As Expected?</h2>
 
-<p>For pages that redirect you can check for both the status code and the final
-location.  (<code>redirect</code> is a synonym for <code>location</code>.)</p>
+<p>For pages that redirect you can check for both the status code and the final location.  (<code>redirect</code> and <code>location</code> may be used interchangeably.)</p>
 
 <pre><code class="yaml">-
   visit: /moved.php
@@ -67,11 +54,9 @@ location.  (<code>redirect</code> is a synonym for <code>location</code>.)</p>
   redirect: /location.html
 </code></pre>
 
-<h2>Check Content</h2>
+<h2>Does the Page Have Certain Content?</h2>
 
-<p>Once loaded you can also look for things on the page with <code>find</code>. The most
-simple <code>find</code> assertion looks for a substring of text anywhere on the page. The
-following two examples are identical assertions.</p>
+<p>Once loaded you can also look for things on the page with <code>find</code>. The most simple <code>find</code> assertion looks for a substring of text anywhere on the page. The following two examples are identical assertions.</p>
 
 <pre><code class="yaml">-
   visit: /foo
@@ -92,23 +77,9 @@ following two examples are identical assertions.</p>
   visit: /foo
   find:
     -
-      none: "[token:123]"
+      not contains: "[token:123]"
 </code></pre>
 
-<h3>Selectors</h3>
-
-<p><strong>Selectors reduce the entire page content to one or more sections.</strong></p>
-
-<p>{% include('_selectors.md') %}</p>
-
-<h3>Assertions</h3>
-
-<p><strong>Assertions provide different ways to test the page or selected section(s).</strong></p>
-
-<p>In the case where there are multiple sections, such as multiple DOM elements,
-then the assertion is applied against all selections and only one must pass.</p>
-
-<p>{% include('_assertions.md') %}</p>
 </section>
 
 <div class="search__results">
@@ -116,9 +87,9 @@ then the assertion is applied against all selections and only one must pass.</p>
 </div>
 
 <footer>
-  <div class="pager"><a href="plugins.html" class="prev plugins">&laquo;Plugins</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="headers.html" class="next headers">Response Header Assertions&raquo;</a></div>  
+  <div class="pager"><a href="README.html" class="prev README">&laquo;Overview</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="why.html" class="next why">Using `why` For Better Clarity&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.1 &bull; Last Updated: Sun, 28 Nov 2021 20:07:45 -0800</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 19 Feb 2022 00:36:15 -0800</p>
   </div>
 </footer>
 
@@ -134,4 +105,3 @@ then the assertion is applied against all selections and only one must pass.</p>
 <script src="js/core.js"></script>
 </body>
 </html>
-
