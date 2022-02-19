@@ -1,3 +1,17 @@
 {
-    "title": "Check Pages"
+    "title": "Check Pages",
+    "chapters": [
+        {
+            "title": "How to Use"
+        },
+        {
+            "id": "dev",
+            "title": "Extending"
+        }
+    ],
+    "sections": [
+        {
+            "id": "dev--add_test_option"
+        }
+    ]
 }

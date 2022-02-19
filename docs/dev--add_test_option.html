@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Add Custom Test Options</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--dev--add_test_option">
+<header>
+  <div class="pager"><a href="why.html" class="prev why">&laquo;Using `why` For Better Clarity</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="index.html" class="next index">Index&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="dev--add_test_option.html">Extending</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Add Custom Test Options</h1>
+  
+  <!--
+id: add_test_option
+-->
+
+
+<p>In this example <code>foo</code> is the custom test option:</p>
+
+<h2>Suite</h2>
+
+<pre><code class="yaml">-
+  visit: /index.html
+  foo: 123
+  find:
+    -
+      dom: h1
+      is: Hello World!
+</code></pre>
+
+<h2>Runner</h2>
+
+<p>The <code>add_test_option()</code> function allows you to add customization at the level of your runner file.</p>
+
+<pre><code class="php">add_test_option('foo', [
+  'onBeforeTest' =&gt; function ($option, \AKlump\CheckPages\Parts\Test $test, $context){
+    assert($option === 123)
+    // TODO Alter $test is so meaningful way.
+  },
+]);
+</code></pre>
+
+<p>The first argument defines the option as it will be used in the suite file, e.g., <code>foo</code>. The second argument is an array of callbacks, keyed by one or more of these methods:</p>
+
+<ul>
+<li><code>onBeforeTest($option, Test $test, array $context)</code></li>
+<li><code>onBeforeDriver($option, array &amp;$config, array $context)</code></li>
+<li><code>onBeforeRequest($option, &amp;$driver, array $context)</code></li>
+<li><code>onBeforeAssert($option, Assert $assert, ResponseInterface $response, array $context)</code></li>
+</ul>
+
+<p>These examples show how <code>$option</code> can have non-scalar values.</p>
+
+<pre><code class="yaml">-
+  bar:
+    - do
+    - re
+    - mi
+  baz:
+    lorem: ipsum dolar
+</code></pre>
+
+<pre><code class="php">add_test_option('bar', [
+  'onBeforeTest' =&gt; function ($option, \AKlump\CheckPages\Parts\Test $test, $context){
+    list($do, $re, $mi) = $option;
+    // ...
+  },
+]);
+
+add_test_option('baz', [
+  'onBeforeTest' =&gt; function ($option, \AKlump\CheckPages\Parts\Test $test, $context){
+    if ($option['lorem'] === 'ipsum dolar') {
+      // ...
+    }
+  },
+]);
+
+run_suite('*');
+</code></pre>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="why.html" class="prev why">&laquo;Using `why` For Better Clarity</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="index.html" class="next index">Index&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.1 &bull; Last Updated: Fri, 18 Feb 2022 18:17:57 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
