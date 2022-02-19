@@ -149,6 +149,13 @@ function run_suite(string $path_to_suite, array $suite_config = []): void {
  *   Configuration to be passed to the extra.
  */
 function with_extras(string $extras_filename, array $config) {
-  ${$extras_filename} = $config;
-  require_once __DIR__ . "/$extras_filename.inc";
+  global $app;
+  $require_path = $app->resolve("extras/$extras_filename.php");
+  if (!$require_path) {
+    $require_path = __DIR__ . "/$extras_filename.php";
+  }
+  $scoped = function ($runner, $path) use ($config) {
+    require_once $path;
+  };
+  $scoped($app, $require_path);
 }

@@ -1,14 +1,14 @@
 <!--
-id: add_test_option
+id: custom_test_options
 -->
 
-# Add Custom Test Options
+# Add Test Options
 
-In this example `foo` is the custom test option:
+If you need to do some fancy PHP transformations at certain points of test execution, you can hook into that flow using one or more custom test options.  **These are nothing more than functions attached to events.** In the following example, `foo` is the custom test option under study.
 
-## Suite
 
 ```yaml
+# file: suite.yml
 -
   visit: /index.html
   foo: 123
@@ -18,15 +18,13 @@ In this example `foo` is the custom test option:
       is: Hello World!
 ```
 
-## Runner
-
 The `add_test_option()` function allows you to add customization at the level of your runner file.
 
 ```php
+# file: runner.php
 add_test_option('foo', [
   'onBeforeTest' => function ($option, \AKlump\CheckPages\Parts\Test $test, $context){
-    assert($option === 123)
-    // TODO Alter $test is some meaningful way.
+    // Note, $option === 123
   },
 ]);
 ```
@@ -50,6 +48,10 @@ These examples show how `$option` can have non-scalar values.
 ```php
 add_test_option('bar', [
   'onBeforeTest' => function ($option, \AKlump\CheckPages\Parts\Test $test, $context){
+    list($do, $re, $mi) = $option;
+    // ...
+  },
+  'onBeforeRequest' => function ($option, &$driver, array $context){
     list($do, $re, $mi) = $option;
     // ...
   },

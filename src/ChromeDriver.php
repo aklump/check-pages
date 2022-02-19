@@ -202,6 +202,9 @@ final class ChromeDriver extends RequestDriver {
     // Not sure how to get the redirect code with the ChromeDriver, but we do
     // know it with the GuzzleDriver.  Maybe this can be figured out some day.
     $redirect_driver = new GuzzleDriver();
+    foreach ($this->getHeaders() as $key => $value) {
+      $redirect_driver->setHeader($key, $value);
+    }
     $redirect_driver
       ->setMethod($this->method)
       ->setUrl($this->url)

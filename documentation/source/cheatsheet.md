@@ -2,29 +2,18 @@
 id: cheatsheet
 ---
 
-# Quick Reference: Test Writing
+# Getting Started
 
-{% include('_cheatsheet.md') %}
-
-## Check Page Loads
-
-The most simple test involves checking that a page loads.
+## Does a Page Load?
 
 ```yaml
 -
   visit: /foo
 ```
 
-## Check with Javascript Enabled
+## Is the Status Code Correct?
 
-By default the test will not run with Javascript. Use `js: true` to run the test
-with Javascript enabled.  [Learn more.](@javascript)
-
-## Check Status Code
-
-By saying that the "page loads", we mean that it returns a status code of 200.
-The following is exactly the same in function as the previous example. You can
-check for any code by changing the value of `expect`.
+By saying that the "page loads", we mean that it returns a status code of 200. The following is exactly the same in function as the previous example. You can assert any HTTP status code by changing the value of `expect`.
 
 ```yaml
 -
@@ -32,10 +21,9 @@ check for any code by changing the value of `expect`.
   expect: 200
 ```
 
-## Check Redirect
+## Is an URL Redirecting As Expected?
 
-For pages that redirect you can check for both the status code and the final
-location.  (`redirect` is a synonym for `location`.)
+For pages that redirect you can check for both the status code and the final location.  (`redirect` and `location` may be used interchangeably.)
 
 ```yaml
 -
@@ -49,11 +37,9 @@ location.  (`redirect` is a synonym for `location`.)
   redirect: /location.html
 ```
 
-## Check Content
+## Does the Page Have Certain Content?
 
-Once loaded you can also look for things on the page with `find`. The most
-simple `find` assertion looks for a substring of text anywhere on the page. The
-following two examples are identical assertions.
+Once loaded you can also look for things on the page with `find`. The most simple `find` assertion looks for a substring of text anywhere on the page. The following two examples are identical assertions.
 
 ```yaml
 -
@@ -77,20 +63,5 @@ Ensure something does NOT appear on the page like this:
   visit: /foo
   find:
     -
-      none: "[token:123]"
+      not contains: "[token:123]"
 ```
-
-### Selectors
-
-**Selectors reduce the entire page content to one or more sections.**
-
-{% include('_selectors.md') %}
-
-### Assertions
-
-**Assertions provide different ways to test the page or selected section(s).**
-
-In the case where there are multiple sections, such as multiple DOM elements,
-then the assertion is applied against all selections and only one must pass.
-
-{% include('_assertions.md') %}

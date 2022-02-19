@@ -1,4 +1,16 @@
-# Sharing Values Between Tests
+<!--
+id: variables
+-->
+
+# Variables
+
+* The user ID of the authenticated user is available to your suite as `${id}`.
+* You can capture the value of h1 into a variable as `${title}` and used in a subsequent test.
+* With javascript you can read the url into `${url}` and assert against it.
+
+All of these are examples of variables.
+
+## Sharing Values Between Tests
 
 You create variables like this:
 
@@ -22,7 +34,7 @@ Which can be used like this:
       is: ${title}
 ```
 
-**Note: Interpolation will only occur if the variable is set.** That means that in the following example, the second assert will assert against the literal value `${other}`.
+**Note: Interpolation will only occur if the variable exists.** That means that in the following example, the second assert will assert against the literal value `${other}`.
 
 ```yaml
 -

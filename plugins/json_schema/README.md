@@ -1,10 +1,21 @@
-# Testing Your APIs
+# Testing APIs with JSON Schema
 
 You can test APIs using [JSON Schema](https://json-schema.org/), here's the basic idea...
 
+```text
+.
+├── runner.php
+├── schemas
+│   └── object.json
+└── suite.yml
+```
+
 1. Create a JSON file with the JSON schema and save it somewhere, e.g. _schemas/object.json_.
 
-    ```json
+    ```yaml
+   # file: object.json
+   ```
+   ```json
     {
         "type": "object"
     }
@@ -12,6 +23,7 @@ You can test APIs using [JSON Schema](https://json-schema.org/), here's the basi
 2. Then write a test to use that schema:
 
     ```yaml
+    # file: suite.yml
     -
       visit: /api/2/thing/99
       find:
@@ -42,10 +54,11 @@ You may also apply a schema on just part of the reponse data using the `path` mo
        }
    }
    ```
-   
-2. You can apply a schema to the array at `ipsum`.  Provide the schema subject using dot notation as `path`, in this case `lorem.ipsum`.
+
+2. You can apply a schema to the array at `ipsum`. Provide the schema subject using dot notation as `path`, in this case `lorem.ipsum`.
 
    ```yaml
+   # file: suite.yml
    -
      visit: /api/2/thing/99
      find:

@@ -5,7 +5,8 @@
       dom: '#logo'
       attribute: title
       is: An SVG image
-    - # Find an anchor tag with an href ending in something.
+    -
+      why: Find an anchor tag with an href ending in something.
       dom: a
       attribute: href
       matches: /\/bar?/
@@ -15,14 +16,14 @@
     -
       dom: p
       count: "< 2000"
-    # Assertions in the DOM using CSS selectors.
+
     -
+      why: Assertions in the DOM using CSS selectors.
       dom: '#logo svg'
       count: 1
 
-    # Notice the use or `text` vs. `is` for accessing the contents of a DOM find
-    # as either plaintext or markup respectively.
     -
+      why: Notice the use or `text` vs. `is` for accessing the contents of a DOM find as either plaintext or markup respectively.
       dom: h1.page-title
       text: About In the Loft Studios
 
@@ -34,18 +35,18 @@
       dom: h1.page-title
       is not: '<div>About In the Loft Studios</div>'
 
-    # Case-insensitive RegEx match against the markup of #footer.
     -
+      why: Case-insensitive RegEx match against the markup of #footer.
       dom: '#footer'
       matches: '/in the loft studios/i'
 
-    # Showing how to check the hero alt tag two different ways.
     -
+      why: Showing how to check the hero alt tag two different ways.
       dom: '[title="An SVG image"]'
       count: 1
 
-    # Make sure no forms appear on the homepage.
     -
+      why: Make sure no forms appear on the homepage.
       dom: form
       count: 0
 

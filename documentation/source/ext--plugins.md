@@ -1,4 +1,12 @@
-# Plugins
+<!--
+id: plugins
+-->
+
+# Build a Plugin
+
+@todo Where do I put these as an end user?
+
+This is the most involved method of extending Check Pages, and offers the greatest control as well.
 
 To add new functionality to `find`...
 
@@ -79,3 +87,22 @@ public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
 ## Testing Plugins
 
 To run a plugin's tests do this: `./bin/run_plugin_tests <plugin>`.  (Don't forget to `bump build plugins` if you make a change.)
+
+## Compiled Files
+
+Do not edit the following, as they are created in the build step and will be overwritten. To affect these files you need to look to _plugins/_
+directory, which contains the source code.
+
+```
+.
+├── tests
+│     ├── plugins
+│     │     ├── foo.yml
+│     │     └── javascript.yml
+│     ├── runner_plugins.php
+└── web
+    └── plugins
+        ├── foo.html
+        └── javascript.html
+
+```

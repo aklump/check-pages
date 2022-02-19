@@ -1,6 +1,7 @@
----
+<!--
 id: javascript
----
-# Testing with Javascript
+-->
+
+# More Javascript
 
 {% include('_javascript.md') %}

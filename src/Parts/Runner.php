@@ -382,7 +382,7 @@ class Runner {
    * @throws \AKlump\CheckPages\TestFailedException If the runner stopped
    *   before it was finished due to a failure.
    */
-  public function executeRunner(string $path) {
+  public function executeRunner() {
     try {
       $runner = $this->getRunner();
       $filter_message = '';

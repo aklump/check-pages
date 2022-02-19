@@ -1,29 +1,49 @@
 # Authentication
 
-If you want to check pages as an authenticated user of a website, then you have to provide a login option to your test suites.
+If you want to check pages as an authenticated user of a website, then you have to be logged in, or authenticated before the request is made.  Some authentication providers are built-in, or you can write your own using  [add_test_option()](@custom_test_options). You might refer to _includes/drupal8.inc_ as a starting point.
 
-## Drupal 8
+## Basic Setup
 
-1. Create a YAML or JSON file containing user login credentials. Do not commit this to source control. You can place this whereever, but in this example it will be located in the config directory as _config/users.yml_. You may list as many users as you want. Each record must have the keys `name` and `pass`.
+This example will use the `drupal8` built-in authentication provider. _Note: for Drupal 7 authentication, simply change `with_extras('drupal8'...` to `with_extras('drupal7'...`_.
 
-   ```yaml
-   -
-     name: admin
-     pass: 123pass
-   -
-     name: member
-     pass: secret5
-   ```
+1. Create a YAML (or JSON) file containing user login credentials.  **Do not commit this to source control.** You can place this whereever, but in this example it will be located in the config directory as _config/users.yml_. You may list as many users as you want. Each record must have the keys `name` and `pass`. Yes, `pass` is the un-hashed plaintext password for the user, so be cautious.
 
-2. Add the following to your test runner file. Notice we include the path to the user data file. It must be a resolvable path.
+    ```yaml
+    # File: config/users.yml
+    -
+      name: admin
+      pass: 123pass
+    -
+      name: member
+      pass: secret5
+    ```
+
+2. Add the following to your test runner file. This tells your _runner.php_ to include the Drupal 8 authentication and from where to pull the user data.
 
     ```php
+    # File: runner.php
     with_extras('drupal8', [
       'users' => 'config/users.yml',
     ]); 
     ```
 
-3. If the login form is located at a non-standard URL, you may indicate that URL, which renders the login form, as shown here.
+4. In your test suite add the `user` option to a test, giving the username as the value. The request for that test will be made after first authenticating that user.
+
+   ```yaml
+   # File: suite.yml
+   -
+     user: admin
+     visit: /admin
+   -
+     user: member
+     visit: /admin
+     expect: 403
+
+   ```
+
+## Variations on the Above
+
+1. If the login form is located at a non-standard URL, you may indicate that URL, which renders the login form, as shown here.
 
     ```php
     with_extras('drupal8', [
@@ -32,18 +52,7 @@ If you want to check pages as an authenticated user of a website, then you have 
     ]); 
     ```
 
-4. In your test suite add the line `user` key to each test with the value of the username to be logged in as when visiting the URL.
-
-    ```yaml
-    -
-      user: admin
-      visit: /admin
-    -
-      user: member
-      visit: /admin
-      expect: 403
-   ```
-5. You can also use dynamic values from the authenticated user as shown below. Notice how the variables persist into the second test even though it is not authenticated. The user variables will carry over into subsequent tests until the next authentication, when they will be re-set.
+2. It's also worth nothing, once a user is authenticated, certain variables may be used on subsequenst tests. Notice how the variables persist into the second test even though it is not authenticated. The user variables will carry over into subsequent tests until the next authentication, when they will be re-set.
 
    ```yaml
    -
@@ -56,41 +65,25 @@ If you want to check pages as an authenticated user of a website, then you have 
    visit: /user/${user.name}
    expect: 200
    ```
+3. It's possible you don't want to use the same _users.yml_ data file for all configurations. To accommodate this you may replace the hardcoded path `config/users.yml` with `config_get('extras.users')` and add the hard-coded path to each of your configuration files.
 
-## Advanced Configuration
+   ```php
+   # file: runner.php
+   with_extras('drupal8', [
+     'users' => config_get('extras.users'),
+   ]); 
+   ```
 
-You may move the `with_extras` configuration into your configuration files when necessary. Do something like the following.
+   ```yaml
+   # file: config/live.yml
+   ...
+   extras:
+     users: config/users--live.yml
+   ```
 
-```php
-with_extras('drupal8', [
-  'users' => config_get('extras.users'),
-]); 
-```
-
-_config/live.yml_
-
-```yaml
-extras:
-  users: config/users--live.yml
-```
-
-_config/dev.yml_
-
-```yaml
-extras:
-  users: config/users--dev.yml
-```
-
-## Drupal 7
-
-1. Follow instructions for Drupal 8, but change the first argument to `with_extras()` to `drupal7`, e.g.,
-
-    ```php
-    with_extras('drupal7', [
-      'users' => 'config/users.yml',
-    ]); 
-    ```
-
-## Custom Authentication
-
-You can build your own authentication using the `add_test_option()` function. Refer to _drupal8.inc_ as a starting point.
+   ```yaml
+   # file: config/dev.yml
+   ...
+   extras:
+     users: config/users--dev.yml
+   ```

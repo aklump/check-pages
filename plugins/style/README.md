@@ -1,4 +1,4 @@
-# Examples
+# CSS and Styles
 
 ## Assert a DOM element is visible
 
@@ -20,11 +20,3 @@ find:
     is: 1
 ```
 
-## Assert the URL Hash Matches RegEx Pattern
-
-```yaml
-find:
-    -
-      javascript: location.hash
-      matches: /^#foo=bar&alpha=bravo$/
-```

@@ -1,4 +1,4 @@
-# Evaluation
+# Evaluate
 
 Allows runtime evaluation such as comparing values captured using `set`.
 

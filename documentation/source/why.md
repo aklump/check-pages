@@ -2,9 +2,9 @@
 
 The test suite output will automatically generate a line for each assertion, which in many cases is sufficient for test readability. However you may use the `why` key in your tests if you wish. This serves two purposes, it makes the tests more clear and readable, and it makes the test output more understandable, and especially if you're trying to troubleshoot a failed assertion.
 
-This can be used at two levels in your test suite.
-
 # At the Test Level
+
+You may attach `why` to a test, like this...
 
 ```yaml
 -
@@ -24,6 +24,8 @@ This can be used at two levels in your test suite.
 ```
 
 # At the Assert Level
+
+... or to any assertion, like this:
 
 ```yaml
 -

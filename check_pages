@@ -45,7 +45,7 @@ try {
   foreach ($filters as $filter) {
     $app->addSuiteFilter($filter);
   }
-  $app->executeRunner($test_runner);
+  $app->executeRunner();
 }
 
   // Finish with an error response.
