@@ -106,3 +106,36 @@ directory, which contains the source code.
         └── javascript.html
 
 ```
+
+### Unique Compilation
+
+If your plugin needs to do something unique during compilation, such as provide extra files, it can implement _compile.php_. Here's an example from the _imports_ plugin.
+
+```php
+# file: imports/compile.php
+
+/**
+ * @file Copy over the imports files during compile.
+ */
+
+$source = "$plugin_dir/imports";
+$destination = "$compile_dir/tests/imports";
+
+mkdir($destination, 0777, TRUE);
+copy("$source/_headings.yml", "$destination/_headings.yml");
+copy("$source/_links.yml", "$destination/_links.yml");
+
+foreach ([
+           "$destination/_headings.yml",
+           "$destination/_links.yml",
+         ] as $path) {
+  if (!file_exists($path)) {
+    return FALSE;
+  }
+  $data = file_get_contents($path);
+  $data = str_replace('test_subject', $plugin['id'], $data);
+  if (!file_put_contents($path, $data)) {
+    return FALSE;
+  }
+}
+```

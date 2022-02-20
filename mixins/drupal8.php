@@ -14,7 +14,7 @@
  *
  * 2. Add the following to all runner files, where the path is to your JSON.
  *
- *     with_extras('drupal8', [
+ *     add_mixin('drupal8', [
  *       'users' => 'config/users.json',
  *       'login_url' => '/user/login',
  *     ]);
@@ -42,7 +42,7 @@ use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Bash\Color;
 use AKlump\CheckPages\Parts\Test;
 
-$_get_session = function (string $username, Runner $runner) use ($drupal8) {
+$_get_session = function (string $username, Runner $runner) use ($config) {
   $sessions = $runner->getStorage()->get('drupal8.sessions');
 
   // Check for expiry and discard if passed.
@@ -51,14 +51,14 @@ $_get_session = function (string $username, Runner $runner) use ($drupal8) {
   }
 
   if (empty($sessions[$username])) {
-    if (!array_key_exists('users', $drupal8)) {
+    if (!array_key_exists('users', $config)) {
       throw new \InvalidArgumentException('You must provide a filepath to the users list as "users".');
     }
     echo "🔐";
 
     // Load our non-version username/password index.
-    $path_to_users_list = $runner->resolve($drupal8['users']);
-    $login_url = $drupal8['login_url'] ?? '/user/login';
+    $path_to_users_list = $runner->resolve($config['users']);
+    $login_url = $config['login_url'] ?? '/user/login';
     $absolute_login_url = $runner->url($login_url);
     $auth = new AuthenticateDrupal8($path_to_users_list, $absolute_login_url);
     $user = $auth->getUser($username);

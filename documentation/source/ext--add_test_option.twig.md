@@ -2,7 +2,7 @@
 id: custom_test_options
 -->
 
-# Add Test Options
+# Adding New Test Options
 
 If you need to do some fancy PHP transformations at certain points of test execution, you can hook into that flow using one or more custom test options.  **These are nothing more than functions attached to events.** In the following example, `foo` is the custom test option under study.
 

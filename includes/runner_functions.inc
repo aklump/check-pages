@@ -5,6 +5,8 @@
  * These are functions available for writing tests.
  */
 
+use AKlump\CheckPages\Exceptions\StopRunnerException;
+use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use MidwestE\ObjectPath;
 
 /**
@@ -137,6 +139,17 @@ function run_suite(string $path_to_suite, array $suite_config = []): void {
 }
 
 /**
+ * @param string $extras_filename
+ * @param array $config
+ *
+ * @return void
+ * @deprecated Use \add_mixin().
+ */
+function with_extras(string $extras_filename, array $config) {
+  return add_mixin($extras_filename, $config);
+}
+
+/**
  * Include an extra in your test runner.
  *
  * Extras are include files that bundle certain functionality, such as logging
@@ -147,13 +160,23 @@ function run_suite(string $path_to_suite, array $suite_config = []): void {
  *   adjacent to this file.
  * @param array $config
  *   Configuration to be passed to the extra.
+ *
+ * @throws \AKlump\CheckPages\Exceptions\StopRunnerException If the mixin cannot be found.
  */
-function with_extras(string $extras_filename, array $config) {
+function add_mixin(string $name, array $config) {
   global $runner;
-  $require_path = $runner->resolve("extras/$extras_filename.php");
-  if (!$require_path) {
-    $require_path = __DIR__ . "/$extras_filename.php";
+  try {
+    $require_path = $runner->resolve("$name.php");
   }
-  unset($extras_filename);
+  catch (UnresolvablePathException $exception) {
+    // Purposefully left blank.
+  }
+  try {
+    $require_path = $runner->resolve("mixins/$name.php");
+  }
+  catch (\Exception $exception) {
+    throw new StopRunnerException(sprintf('Cannot add mixin "%s"; the path does not resolve.', $name), $exception->getCode(), $exception);
+  }
+  unset($name);
   require_once $require_path;
 }

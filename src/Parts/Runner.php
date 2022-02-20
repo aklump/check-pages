@@ -407,19 +407,19 @@ class Runner {
    */
   public function executeRunner() {
     try {
-      $runner = $this->getRunner();
+      $runner_path = $this->getRunnerPath();
       $filter_message = '';
       if ($this->filters) {
         $filter_message = sprintf(' (using suite filter(s) "%s")', implode(', ', $this->filters));
       }
-      echo Color::wrap('blue', sprintf('Testing started with "%s"%s', basename($runner), $filter_message)) . PHP_EOL;
-      require $runner;
+      echo Color::wrap('blue', sprintf('Testing started with "%s"%s', basename($runner_path), $filter_message)) . PHP_EOL;
+      require $runner_path;
 
       if ($this->filters && !$this->filterApplied) {
         $code = array_map(function ($filter) {
           return sprintf("`run_suite('%s');`", $filter);
         }, $this->filters);
-        throw new \RuntimeException(sprintf("The filter(s) were not applied; have you added %s to %s?", implode(', ', $code), $runner));
+        throw new \RuntimeException(sprintf("The filter(s) were not applied; have you added %s to %s?", implode(', ', $code), $runner_path));
       }
     }
     catch (StopRunnerException $exception) {

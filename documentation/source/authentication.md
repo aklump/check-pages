@@ -22,7 +22,7 @@ This example will use the `drupal8` built-in authentication provider. _Note: for
 
     ```php
     # File: runner.php
-    with_extras('drupal8', [
+    add_mixin('drupal8', [
       'users' => 'config/users.yml',
     ]); 
     ```
@@ -46,7 +46,7 @@ This example will use the `drupal8` built-in authentication provider. _Note: for
 1. If the login form is located at a non-standard URL, you may indicate that URL, which renders the login form, as shown here.
 
     ```php
-    with_extras('drupal8', [
+    add_mixin('drupal8', [
       'users' => 'config/users.yml',
       'login_url' => '/login',
     ]); 
@@ -69,7 +69,7 @@ This example will use the `drupal8` built-in authentication provider. _Note: for
 
    ```php
    # file: runner.php
-   with_extras('drupal8', [
+   add_mixin('drupal8', [
      'users' => config_get('extras.users'),
    ]); 
    ```

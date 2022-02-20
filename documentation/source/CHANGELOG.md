@@ -10,9 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - `Runner::getRunner`
 - `Runner::setRunner`
+- `with_extras()`
 
 ### Changed
 
+- BREAKING CHANGE! You must use `$config` instead of the like-named variable for mixin configuration. E.g. `$drupal8, $drupal7` are now both just `$config`.
 - BREAKING CHANGE! Rename `global $app` to `$runner`.
 - BREAKING CHANGE! The style plugin now uses this format; (you must replace `style` with `dom` and `property` with `style`).
   ```yaml
