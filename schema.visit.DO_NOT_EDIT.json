@@ -574,6 +574,13 @@
                 }
             }
         },
+        "import_selector": {
+            "type": "string",
+            "pattern": ".+",
+            "examples": [
+                "imports/create_cycle"
+            ]
+        },
         "js_eval": {
             "type": "string",
             "pattern": ".+",
@@ -689,7 +696,6 @@
         "request": {
             "type": "object",
             "additionalProperties": false,
-            "patternProperties": "^(?!find).+",
             "properties": {
                 "method": {
                     "type": "string",
@@ -1162,6 +1168,21 @@
                     },
                     "find": {
                         "$ref": "#/definitions/find"
+                    }
+                }
+            },
+            {
+                "type": "object",
+                "required": [
+                    "import"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "import": {
+                        "$ref": "#/definitions/import_selector"
+                    },
+                    "why": {
+                        "$ref": "#/definitions/why"
                     }
                 }
             }

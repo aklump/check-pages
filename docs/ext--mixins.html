@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Adding Mixins (Reusable Runner Code)</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--add_mixin">
+<header>
+  <div class="pager"><a href="ext--add_test_option.html" class="prev ext--add_test_option">&laquo;Adding New Test Options</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--plugins.html" class="next plugins">Build a Plugin&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="ext--add_test_option.html">Extending</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Adding Mixins (Reusable Runner Code)</h1>
+  
+
+<p>Another way to extend <em>Check Pages</em> is to use the <code>add_mixin()</code> function. This method is easier and faster than writing a plugin. It is a simple means to share runner customisation across different runners, or even projects. This is the basis for the authentication providers shipped with Check Pages.</p>
+
+<pre><code class="text">.
+└── cp_tests
+    ├── mixins
+    │   └── foo.php
+    ├── runner.php
+    └── suite.yml
+</code></pre>
+
+<ol>
+<li>Create a directory to contain one or more mixin files. This can be located within any resolvable directory. (See <code>\AKlump\CheckPages\Parts\Runner::resolve</code>.)</li>
+<li>In that directory create a file, whose filename will be used as the first argument to <code>add_mixin()</code>--the mixin "name". So for <code>add_mixin('mixins/foo')</code> you should create <em>mixins/foo.php</em> as shown in the diagram above.</li>
+<li><p>In the runner file, make reference to the mixin, passing the configuration as expected by the mixin.</p>
+
+<pre><code class="php"># file: runner.php
+
+add_mixin('mixins/foo', [
+  "title" =&gt; "Lorem",
+  "color" =&gt; "blue",
+]);
+...
+</code></pre></li>
+<li><p>The second argument, the configuration, is available in the mixin file, <em>mixins/foo.php</em> as <code>$config</code>.</p>
+
+<pre><code class="php"># file: mixins/foo.php
+
+$title = $config['title'];
+$color = $config['color'];
+
+</code></pre></li>
+<li>The runner instance <code>\AKlump\CheckPages\Parts\Runner</code> is available as <code>$runner</code>.</li>
+<li>You may use any of the <em>runner_functions.inc</em> as you might otherwise do in a runner file.</li>
+</ol>
+
+<h2>Output</h2>
+
+<p>You may write output if desired, for example:</p>
+
+<pre><code class="php">echo sprintf('Base URL is %s', config_get('base_url')) . PHP_EOL;
+echo \AKlump\LoftLib\Bash\Color::wrap('blue', 'foo');
+</code></pre>
+
+<h2>Errors</h2>
+
+<p>To stop testing immediately you should throw an instance of <code>\AKlump\CheckPages\Exceptions\StopRunnerException</code>. The message argument will be displayed to the user.</p>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="ext--add_test_option.html" class="prev ext--add_test_option">&laquo;Adding New Test Options</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--plugins.html" class="next plugins">Build a Plugin&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 20 Feb 2022 15:36:50 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

@@ -6,6 +6,7 @@ run_suite('data');
 run_suite('dom');
 run_suite('evaluate');
 run_suite('header');
+run_suite('import');
 run_suite('javascript');
 run_suite('json_schema');
 run_suite('request');

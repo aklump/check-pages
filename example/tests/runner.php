@@ -5,9 +5,10 @@
  * Assert ITLS pages are working.
  */
 
+add_directory(__DIR__ . '/suites');
 load_config('config/local');
 
-with_extras('foo', [
+add_mixin('mixins/foo', [
   "title" => "Lorem",
   "color" => "blue",
 ]);

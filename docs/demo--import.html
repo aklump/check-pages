@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Imports (Code Reuse with Partials)</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--plugin_import">
+<header>
+  <div class="pager"><a href="demo--evaluate.html" class="prev demo--evaluate">&laquo;Evaluate</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--request.html" class="next plugin_request">Request&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2.html">Usage and Examples</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Imports (Code Reuse with Partials)</h1>
+  
+
+<p>The concept of imports is not new. Write a partial and include it in other files. You can do this too with <em>Check Pages</em>.</p>
+
+<p>If you write five suites and realize that you repeat the same tests in several, this is a time to consider an import. It creates coupling and dependency, so it may or may not be a good idea.</p>
+
+<p>What used to look like this, repeated in several suites:</p>
+
+<pre><code class="yaml"># files: suite.yml, suite2.yml, suite3.yml, ...
+
+-
+  visit: /
+  find:
+    -
+      dom: h1
+      set: title
+-
+  visit: /contact
+  find:
+    -
+      dom: h1
+      set: contactTitle
+-
+  visit: ...
+</code></pre>
+
+<p>Can be moved to a file called <em>imports/_headings.yml</em> and those repeated sections in your suite files can be replaced with an import, like this:</p>
+
+<pre><code class="yaml"># files: suite.yml, suite2.yml, suite3.yml, ...
+
+-
+  import: imports/headings
+-
+  visit: ...
+</code></pre>
+
+<h2>Key Points</h2>
+
+<ul>
+<li>The location is up to you, <em>imports</em> directory is given as an example. The value of <code>import</code> must be resolvable.</li>
+<li>The leading underscore is optional, and like SASS partials it is ignored by the parser. You may use it or not, that is to say <em>&#95;headings.yml</em> and <em>headings.yml</em> are seen as the same import file.</li>
+<li>The extension is optional and when excluded, is assumed as <em>.yml</em>.</li>
+<li>A single import line in your test (one YAML array element) maps to one or many tests in the import file. That is to say, a single import can include one test, or several tests.</li>
+<li>If you use <code>why</code> as a sibling to <code>import</code>, that is only for your test reading, it will not be printed when the test is run. So think of it as answering the question of "Why use this import?", if you use it.</li>
+</ul>
+
+<h2>Example Tests</h2>
+
+<pre><code class="yaml">-
+  import: imports/headings
+  why: Test the basic syntax of an import.
+-
+  import: imports/_headings
+  why: Assert underscore and no extension works.
+-
+  import: imports/links.yml
+  why: Assert extension behaves.
+-
+  import: imports/_links.yml
+  why: Verify the underscore works.
+
+</code></pre>
+
+<p><em>Provided by the import plugin.</em></p>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="demo--evaluate.html" class="prev demo--evaluate">&laquo;Evaluate</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--request.html" class="next plugin_request">Request&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 20 Feb 2022 15:36:47 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

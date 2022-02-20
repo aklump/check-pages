@@ -44,7 +44,7 @@
 <li><p>Add the following to your test runner file. This tells your <em>runner.php</em> to include the Drupal 8 authentication and from where to pull the user data.</p>
 
 <pre><code class="php"># File: runner.php
-with_extras('drupal8', [
+add_mixin('drupal8', [
   'users' =&gt; 'config/users.yml',
 ]); 
 </code></pre></li>
@@ -67,7 +67,7 @@ with_extras('drupal8', [
 <ol>
 <li><p>If the login form is located at a non-standard URL, you may indicate that URL, which renders the login form, as shown here.</p>
 
-<pre><code class="php">with_extras('drupal8', [
+<pre><code class="php">add_mixin('drupal8', [
   'users' =&gt; 'config/users.yml',
   'login_url' =&gt; '/login',
 ]); 
@@ -87,7 +87,7 @@ expect: 200
 <li><p>It's possible you don't want to use the same <em>users.yml</em> data file for all configurations. To accommodate this you may replace the hardcoded path <code>config/users.yml</code> with <code>config_get('extras.users')</code> and add the hard-coded path to each of your configuration files.</p>
 
 <pre><code class="php"># file: runner.php
-with_extras('drupal8', [
+add_mixin('drupal8', [
  'users' =&gt; config_get('extras.users'),
 ]); 
 </code></pre>
@@ -114,7 +114,7 @@ extras:
 <footer>
   <div class="pager"><a href="why.html" class="prev why">&laquo;Using `why` For Better Clarity</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="file_output.html" class="next files">File Output&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 19 Feb 2022 00:36:15 -0800</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 20 Feb 2022 15:36:43 -0800</p>
   </div>
 </footer>
 

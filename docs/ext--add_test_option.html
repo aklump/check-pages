@@ -2,14 +2,14 @@
 
 <html>
 <head>
-  <title>Add Test Options</title>
+  <title>Adding New Test Options</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
 </head>
 
 <body class="page--custom_test_options">
 <header>
-  <div class="pager"><a href="deep--setup.html" class="prev deep--setup">&laquo;Setup Before Test</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--extras.html" class="next with_extras">Add Runner Functionality&raquo;</a></div></header>
+  <div class="pager"><a href="deep--setup.html" class="prev deep--setup">&laquo;Setup Before Test</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--mixins.html" class="next add_mixin">Adding Mixins (Reusable Runner Code)&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -23,7 +23,7 @@
   </section>
 
 <section>
-  <h1>Add Test Options</h1>
+  <h1>Adding New Test Options</h1>
   
   <!--
 id: custom_test_options
@@ -55,9 +55,11 @@ add_test_option('foo', [
 <p>The first argument defines the option as it will be used in the suite file, e.g., <code>foo</code>. The second argument is an array of callbacks, keyed by one or more of these methods:</p>
 
 <ul>
+<li><code>onBeforeSuite($option, Suite $suite, array $context)</code></li>
 <li><code>onBeforeTest($option, Test $test, array $context)</code></li>
 <li><code>onBeforeDriver($option, array &amp;$config, array $context)</code></li>
 <li><code>onBeforeRequest($option, &amp;$driver, array $context)</code></li>
+<li><code>onAssertToString($option, string $stringified, Assert $assert, array $context)</code></li>
 <li><code>onBeforeAssert($option, Assert $assert, ResponseInterface $response, array $context)</code></li>
 </ul>
 
@@ -101,9 +103,9 @@ run_suite('*');
 </div>
 
 <footer>
-  <div class="pager"><a href="deep--setup.html" class="prev deep--setup">&laquo;Setup Before Test</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--extras.html" class="next with_extras">Add Runner Functionality&raquo;</a></div>  
+  <div class="pager"><a href="deep--setup.html" class="prev deep--setup">&laquo;Setup Before Test</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--mixins.html" class="next add_mixin">Adding Mixins (Reusable Runner Code)&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 19 Feb 2022 00:36:22 -0800</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 20 Feb 2022 15:36:49 -0800</p>
   </div>
 </footer>
 

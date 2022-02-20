@@ -9,7 +9,7 @@
 
 <body class="page--plugins">
 <header>
-  <div class="pager"><a href="ext--extras.html" class="prev ext--extras">&laquo;Add Runner Functionality</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div></header>
+  <div class="pager"><a href="ext--mixins.html" class="prev ext--mixins">&laquo;Adding Mixins (Reusable Runner Code)</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -30,53 +30,70 @@
 
 <p>This is the most involved method of extending Check Pages, and offers the greatest control as well.</p>
 
-<p>To add new functionality to <code>find</code>...</p>
+<h2>Creating a Plugin</h2>
 
 <ol>
 <li><p>Create a unique folder in <em>plugins</em> with the following structure. In this example the new plugin will be called <code>foo_bar</code>.</p>
 
 <pre><code>plugins
 └── foo_bar
+   ├── compile.php
    ├── FooBar.php
    ├── README.md
    ├── schema.definitions.json
    ├── schema.find.json
+   ├── schema.test.json
    ├── suite.yml
    └── test_subject.html
-</code></pre></li>
-<li><p>Write the find portion of the schema file as <em>schema.find.json</em>.</p>
-
-<pre><code class="json">{
-   "type": "object",
-   "required": [
-       "foo"
-   ],
-   "properties": {
-       "foo": {
-           "$ref": "#/definitions/dom_selector"
-       }
-   },
-   "additionalProperties": false
-}
-</code></pre></li>
-<li><p>Optionally, you may provide definitions in the schema as _
-schema.definitions.json_, e.g.,</p>
-
-<pre><code class="json">{
-   "js_eval": {
-       "type": "string",
-       "pattern": ".+",
-       "examples": [
-           "location.hash"
-       ]
-   }
-}
 </code></pre></li>
 <li><p>Write the <em>suite.yml</em> file which will be run against <em>test_subject.html, test_subject.php, test_subject.json</em>, etc</p></li>
 <li>Create <em>test_subject.html</em> or <em>test_subject.php</em> as needed to test _
 suite.yml_.</li>
 <li><em>README.md</em> is optional, but will be added to the Check Pages documentation when it's compiled and should be used to give examples of how the plugin should be implemented.</li>
 </ol>
+
+<h2>Extending the JSON Schema for Suite Validation</h2>
+
+<p>The plugin may provide schema with any of the following files:</p>
+
+<ol>
+<li><em>my_plugin/schema.definitions.json</em></li>
+<li><em>my_plugin/schema.test.json</em></li>
+<li><em>my_plugin/schema.find.json</em></li>
+</ol>
+
+<p><em>(Inspect plugins to see how these are used. Here are some examples.)</em></p>
+
+<pre><code class="yaml"># file: schema.find.json
+</code></pre>
+
+<pre><code class="json">{
+    "type": "object",
+    "required": [
+        "foo"
+    ],
+    "properties": {
+        "foo": {
+            "$ref": "#/definitions/dom_selector"
+        }
+    },
+    "additionalProperties": false
+}
+</code></pre>
+
+<pre><code class="yaml"># file: schema.find.json
+</code></pre>
+
+<pre><code class="json">{
+    "js_eval": {
+        "type": "string",
+        "pattern": ".+",
+        "examples": [
+            "location.hash"
+        ]
+    }
+}
+</code></pre>
 
 <h2>Advanced</h2>
 
@@ -125,6 +142,40 @@ directory, which contains the source code.</p>
 
 </code></pre>
 
+<h2>Unique Compilation</h2>
+
+<p>If your plugin needs to do something unique during compilation, such as provide extra files, it can implement <em>compile.php</em>. Here's an example from the <em>imports</em> plugin.</p>
+
+<pre><code class="php"># file: imports/compile.php
+
+/**
+ * @file Copy over the imports files during compile.
+ */
+
+$source = "$plugin_dir/imports";
+$destination = "$compile_dir/tests/imports";
+
+if (!is_dir($destination)) {
+  mkdir($destination, 0777, TRUE);
+}
+copy("$source/_headings.yml", "$destination/_headings.yml");
+copy("$source/_links.yml", "$destination/_links.yml");
+
+foreach ([
+           "$destination/_headings.yml",
+           "$destination/_links.yml",
+         ] as $path) {
+  if (!file_exists($path)) {
+    return FALSE;
+  }
+  $data = file_get_contents($path);
+  $data = str_replace('test_subject', $plugin['id'], $data);
+  if (!file_put_contents($path, $data)) {
+    return FALSE;
+  }
+}
+</code></pre>
+
 </section>
 
 <div class="search__results">
@@ -132,9 +183,9 @@ directory, which contains the source code.</p>
 </div>
 
 <footer>
-  <div class="pager"><a href="ext--extras.html" class="prev ext--extras">&laquo;Add Runner Functionality</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div>  
+  <div class="pager"><a href="ext--mixins.html" class="prev ext--mixins">&laquo;Adding Mixins (Reusable Runner Code)</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 19 Feb 2022 00:36:23 -0800</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 20 Feb 2022 15:36:50 -0800</p>
   </div>
 </footer>
 

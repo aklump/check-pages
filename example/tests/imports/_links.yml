@@ -1,5 +1,5 @@
 -
-  visit: imports.html
+  visit: /plugins/import.html
   find:
     -
       dom: a

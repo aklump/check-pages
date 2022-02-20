@@ -82,7 +82,7 @@ If you are new to this project and would like to see a demonstration, it would b
 
 1. Open a new shell window which will run the PHP server for our example test pages.
 
-        $ ./bin/test_server.sh
+        $ ./bin/start_test_server.sh
 
 1. Open a second shell window to execute the tests.
 
