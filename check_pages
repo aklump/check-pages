@@ -58,6 +58,17 @@ catch (\Exception $exception) {
   exit(1);
 }
 
+  // Finish with an error response.
+catch (\Exception $exception) {
+  // Shift the first line so only that is red, in case we want to dump a
+  // pretty-print JSON variable.
+  $lines = explode(PHP_EOL, $exception->getMessage());
+  echo PHP_EOL;
+  echo Color::wrap('white on red', array_shift($lines)) . PHP_EOL;
+  echo implode(PHP_EOL, $lines) . PHP_EOL . PHP_EOL;
+  exit(1);
+}
+
 // Finish with a happy response.
 echo PHP_EOL;
 echo '🏁 ' . Color::wrap('light gray', $timer->getCurrent()) . PHP_EOL;

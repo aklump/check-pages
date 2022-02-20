@@ -1,0 +1,5 @@
+-
+    import: headings
+-
+    import: links
+    why: 'Ensure proper links on the page.'

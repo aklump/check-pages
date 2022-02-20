@@ -1,0 +1,15 @@
+{
+    "type": "object",
+    "required": [
+        "import"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "import": {
+            "$ref": "#/definitions/import_selector"
+        },
+        "why": {
+            "$ref": "#/definitions/why"
+        }
+    }
+}

@@ -147,12 +147,19 @@ class Runner {
     $this->addResolveDirectory($this->rootDir);
     $this->addResolveDirectory($this->rootDir . '/tests');
     $this->pluginsManager = new PluginsManager($this, $this->rootDir . '/plugins');
-    $schema = [];
+    $this->schema = [];
     $schema_path = $this->rootDir . '/' . static::SCHEMA_VISIT . '.json';
     if (file_exists($schema_path)) {
-      $schema = json_decode(file_get_contents($schema_path), TRUE);
+      $this->schema = json_decode(file_get_contents($schema_path), TRUE);
     }
-    $this->pluginsManager->setSchema($schema);
+    $this->pluginsManager->setSchema($this->schema);
+  }
+
+  /**
+   * @return mixed
+   */
+  public function getSchema() {
+    return $this->schema;
   }
 
   /**
@@ -386,7 +393,7 @@ class Runner {
    */
   public function getRunnerPath(): string {
     try {
-      return $this->resolve((string) $this->runner['name']);
+      return $this->resolveFile((string) $this->runner['name']);
     }
     catch (\Exception $exception) {
       return '';
@@ -448,7 +455,7 @@ class Runner {
    *   The absolute path to the active configuration.
    */
   public function getPathToConfig(): string {
-    return $this->resolve($this->configPath);
+    return $this->resolveFile($this->configPath);
   }
 
   /**
@@ -466,16 +473,16 @@ class Runner {
     $this->config = $suite_config + $this->getConfig();
     $this->validateConfig($this->config);
 
-    $suite_id = '';
-    $path_to_suite = $this->resolve($path_to_suite, $suite_id);
-    $suite_id = pathinfo(substr($path_to_suite, strlen($suite_id) + 1), PATHINFO_FILENAME);
+    $resolved_path = '';
+    $path_to_suite = $this->resolveFile($path_to_suite, $resolved_path);
+    $suite_id = pathinfo(substr($path_to_suite, strlen($resolved_path) + 1), PATHINFO_FILENAME);
 
     $suite = new Suite($suite_id, $this->config, $this);
     $this->suite = $suite;
 
     $this->config['suites_to_ignore'] = array_filter(array_map(function ($suite_to_ignore) {
       try {
-        return $this->resolve($suite_to_ignore);
+        return $this->resolveFile($suite_to_ignore);
       }
       catch (UnresolvablePathException $exception) {
 
@@ -487,7 +494,7 @@ class Runner {
     }, $this->config['suites_to_ignore'] ?? []));
 
     if ($this->filters) {
-      $filters = array_map([$this, 'resolve'], $this->filters);
+      $filters = array_map([$this, 'resolveFile'], $this->filters);
       if (!in_array($path_to_suite, $filters)) {
         return;
       }
@@ -503,39 +510,42 @@ class Runner {
       $this->filterApplied = TRUE;
     }
 
-    $tests = $this->validateAndLoadYaml($path_to_suite, static::SCHEMA_VISIT . '.json');
-    $this->normalizeSuiteData($tests);
-    $results = [];
+    // Add the tests to the suite in prep for the plugin hook...
+    $suite_yaml = file_get_contents($path_to_suite);
+    $data = Yaml::parse($suite_yaml);
+    foreach (array_values($data) as $test_index => $config) {
+      $suite->addTest($test_index, $config);
+    }
+    $this->pluginsManager->onBeforeSuite($suite);
+
+    // On return from the hook, we need to reparse to get format for validation.
+    $suite_yaml = Yaml::dump($suite->jsonSerialize());
+    $data = Yaml::parse($suite_yaml, YAML::PARSE_OBJECT_FOR_MAP);
+    $this->validateSuiteYaml($data, static::SCHEMA_VISIT . '.json');
 
     $quiet_mode = $this->getOutputMode() === self::OUTPUT_QUIET;
-
     if (!$this->debugging && empty($this->printed['base_url'])) {
       echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->config['base_url'])) . PHP_EOL;
       $this->printed['base_url'] = TRUE;
     }
     echo PHP_EOL . '⏱  ' . Color::wrap('white on blue', strtoupper(sprintf('Running "%s" suite...', $suite_id))) . PHP_EOL;
 
-    $this->debug = [];
-    $failed_tests = 0;
-
-    // Iterate over all tests in the suite, convert to Test instances and
-    // process/skip "tests" which are simply variable assignments.
-    foreach (array_values($tests) as $test_index => $config) {
-      $config += [
-        'expect' => NULL,
-        'find' => '',
-      ];
+    // Interpolate top-level is, and fire plugin callbacks for each test.
+    foreach ($suite->getTests() as $test) {
+      $config = $test->getConfig();
       if (isset($config['set'])) {
         $config['is'] = $suite->variables()->interpolate($config['is']);
+        $test->setConfig($config);
+        $suite->removeTest($test);
         $suite->variables()->setItem($config['set'], $config['is']);
       }
       else {
-        $test = new Test(strval($test_index), $config, $suite);
         $this->pluginsManager->onBeforeTest($test);
-        $suite->addTest($test);
       }
     }
 
+    $this->debug = [];
+    $failed_tests = 0;
     $has_multiple_methods = count($suite->getHttpMethods()) > 1;
     foreach ($suite->getTests() as $test_index => $test) {
       $config = $test->getConfig();
@@ -614,7 +624,7 @@ class Runner {
     if ($failed_tests) {
       $this->failedSuiteCount++;
       if ($this->config['stop_on_failed_suite'] ?? FALSE) {
-        throw new SuiteFailedException($suite_id, $results);
+        throw new SuiteFailedException($suite_id);
       }
     }
   }
@@ -644,7 +654,7 @@ class Runner {
   protected function runTest(Test $test): array {
     $config = $test->getConfig();
     // Ensure find is an array so we don't have to check below in two places.
-    if (!is_array($config['find'])) {
+    if (empty($config['find']) || !is_array($config['find'])) {
       $config['find'] = empty($config['find']) ? [] : [$config['find']];
     }
 
@@ -664,7 +674,7 @@ class Runner {
     if ($config['js'] ?? FALSE) {
       try {
         if (empty($this->config['chrome'])) {
-          throw new \InvalidArgumentException(sprintf("Javascript testing is unavailable due to missing path to Chrome binary.  Add \"chrome\" in file %s.", $this->resolve($this->configPath)));
+          throw new \InvalidArgumentException(sprintf("Javascript testing is unavailable due to missing path to Chrome binary.  Add \"chrome\" in file %s.", $this->resolveFile($this->configPath)));
         }
         $driver = new ChromeDriver($this->config['chrome']);
       }
@@ -785,6 +795,54 @@ class Runner {
    * @param string $path
    * @param string &$resolved_path
    *   This variable will be set with the parents used to resolve $path.
+   * @param array $extensions
+   *   One or more extensions you're looking for.
+   *
+   * @return string
+   *   The resolved full path to a file if it exists.
+   *
+   * @throws \AKlump\CheckPages\Exceptions\UnresolvablePathException
+   *   If the path cannot be resolved.
+   */
+  public function resolveFile(string $path, string &$resolved_path = '', array $extensions = [
+    'yml',
+    'yaml',
+  ]
+  ) {
+
+    // If $path has an extension it will trump $extensions.
+    $ext = pathinfo($path, PATHINFO_EXTENSION);
+    if ($ext) {
+      $path = substr($path, 0, -1 * (strlen($ext) + 1));
+      $extensions = [$ext];
+    }
+
+    $candidates = [['', $path]];
+    foreach ($this->resolvePaths as $resolve_path) {
+      $resolve_path = rtrim($resolve_path, '/');
+      $candidates[] = [$resolve_path, $resolve_path . '/' . $path];
+      foreach ($extensions as $extension) {
+        $candidates[] = [
+          $resolve_path,
+          $resolve_path . '/' . $path . '.' . trim($extension, '.'),
+        ];
+      }
+    }
+    while (($try = array_shift($candidates))) {
+      list($resolved_path, $try) = $try;
+      if (is_file($try)) {
+        return $try;
+      }
+    }
+    throw new UnresolvablePathException($path);
+  }
+
+  /**
+   * Resolve a path.
+   *
+   * @param string $path
+   * @param string &$resolved_path
+   *   This variable will be set with the parents used to resolve $path.
    *
    * @return string
    *   The resolved full path to a file if it exists.
@@ -797,7 +855,6 @@ class Runner {
     foreach ($this->resolvePaths as $resolve_path) {
       $resolve_path = rtrim($resolve_path, '/');
       $candidates[] = [$resolve_path, $resolve_path . '/' . $path];
-      $candidates[] = [$resolve_path, $resolve_path . '/' . $path . '.yml'];
     }
     while (($try = array_shift($candidates))) {
       list($resolved_path, $try) = $try;
@@ -836,14 +893,13 @@ class Runner {
    *
    * @return array
    */
-  protected function validateAndLoadYaml(string $path, string $schema_basename): array {
-    $data = Yaml::parseFile($this->resolve($path), Yaml::PARSE_OBJECT_FOR_MAP);
+  protected function validateSuiteYaml($data, string $schema_basename): array {
     $validator = new Validator();
     $path_to_schema = $this->rootDir . '/' . $schema_basename;
     $validator->validate($data, (object) ['$ref' => 'file://' . $path_to_schema]);
     if (!$validator->isValid()) {
       $message = [
-        sprintf('Syntax error in suite: "%s" using "%s"', basename($path), $schema_basename),
+        sprintf('Syntax error in suite schema "%s"', $schema_basename),
         NULL,
       ];
       foreach ($validator->getErrors() as $error) {
@@ -1004,23 +1060,6 @@ class Runner {
    */
   protected function pass(string $message) {
     $this->debug[] = ['data' => $message, 'level' => 'success'];
-  }
-
-  /**
-   * Since we may have different schemas, this method will normalize them.
-   *
-   * Remap some schema keys to the original, base schema.
-   *
-   * @param array &$data
-   *   The YAML data from a test suite.
-   */
-  protected function normalizeSuiteData(array &$data) {
-    foreach ($data as &$test_data) {
-      $keys = array_map(function ($key) {
-        return $key === 'visit' ? 'url' : $key;
-      }, array_keys($test_data));
-      $test_data = array_combine($keys, $test_data);
-    }
   }
 
   /**

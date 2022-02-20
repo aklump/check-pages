@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages;
 
 use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
 use Psr\Http\Message\ResponseInterface;
 
@@ -26,6 +27,10 @@ abstract class Plugin implements TestPluginInterface {
    */
   public function applies(array &$config) {
     // TODO: Implement applies() method.
+  }
+
+  public function onBeforeSuite(Suite $suite) {
+    // TODO: Implement onBeforeDriver() method.
   }
 
   public function onBeforeTest(Test $test) {

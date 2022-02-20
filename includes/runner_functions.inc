@@ -166,16 +166,18 @@ function with_extras(string $extras_filename, array $config) {
 function add_mixin(string $name, array $config) {
   global $runner;
   try {
-    $require_path = $runner->resolve("$name.php");
+    $require_path = $runner->resolveFile("$name.php");
   }
   catch (UnresolvablePathException $exception) {
-    // Purposefully left blank.
+    $require_path = NULL;
   }
-  try {
-    $require_path = $runner->resolve("mixins/$name.php");
-  }
-  catch (\Exception $exception) {
-    throw new StopRunnerException(sprintf('Cannot add mixin "%s"; the path does not resolve.', $name), $exception->getCode(), $exception);
+  if (is_null($require_path)) {
+    try {
+      $require_path = $runner->resolveFile("mixins/$name.php");
+    }
+    catch (\Exception $exception) {
+      throw new StopRunnerException(sprintf('Cannot add mixin "%s"; the path does not resolve.', $name), $exception->getCode(), $exception);
+    }
   }
   unset($name);
   require_once $require_path;

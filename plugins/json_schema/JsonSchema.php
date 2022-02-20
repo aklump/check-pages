@@ -47,12 +47,12 @@ final class JsonSchema extends Plugin {
 
       // Resolve paths and load all our JSON schemas.
       if (is_array($assertion) && array_key_exists(self::SEARCH_TYPE, $assertion)) {
-        $path_to_schema = $this->runner->resolve($assertion['schema']);
+        $path_to_schema = $this->runner->resolveFile($assertion['schema']);
         $this->jsonSchemas[$assert_id] = file_get_contents($path_to_schema);
       }
     }
   }
-  
+
   /**
    * {@inheritdoc}
    */

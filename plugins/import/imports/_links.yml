@@ -1,0 +1,6 @@
+-
+  visit: /test_subject.html
+  find:
+    -
+      dom: a
+      text: home

@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
 use Psr\Http\Message\ResponseInterface;
 
@@ -23,6 +24,8 @@ interface TestPluginInterface {
    *   true or false.
    */
   public function applies(array &$config);
+
+  public function onBeforeSuite(Suite $suite);
 
   public function onBeforeTest(Test $test);
 

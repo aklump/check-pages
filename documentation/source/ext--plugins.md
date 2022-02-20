@@ -8,57 +8,73 @@ id: plugins
 
 This is the most involved method of extending Check Pages, and offers the greatest control as well.
 
-To add new functionality to `find`...
+## Creating a Plugin
 
 1. Create a unique folder in _plugins_ with the following structure. In this example the new plugin will be called `foo_bar`.
 
    ```
    plugins
    └── foo_bar
+       ├── compile.php
        ├── FooBar.php
        ├── README.md
        ├── schema.definitions.json
        ├── schema.find.json
+       ├── schema.test.json
        ├── suite.yml
        └── test_subject.html
    ```
 
-1. Write the find portion of the schema file as _schema.find.json_.
-
-   ```json
-   {
-       "type": "object",
-       "required": [
-           "foo"
-       ],
-       "properties": {
-           "foo": {
-               "$ref": "#/definitions/dom_selector"
-           }
-       },
-       "additionalProperties": false
-   }
-   ```
-
-1. Optionally, you may provide definitions in the schema as _
-   schema.definitions.json_, e.g.,
-
-   ```json
-   {
-       "js_eval": {
-           "type": "string",
-           "pattern": ".+",
-           "examples": [
-               "location.hash"
-           ]
-       }
-   }
-   ```
 
 1. Write the _suite.yml_ file which will be run against _test_subject.html, test_subject.php, test_subject.json_, etc
 2. Create _test_subject.html_ or _test_subject.php_ as needed to test _
    suite.yml_.
 3. _README.md_ is optional, but will be added to the Check Pages documentation when it's compiled and should be used to give examples of how the plugin should be implemented.
+
+## Extending the JSON Schema for Suite Validation
+
+The plugin may provide schema with any of the following files:
+
+1. _my_plugin/schema.definitions.json_
+2. _my_plugin/schema.test.json_
+3. _my_plugin/schema.find.json_
+
+_(Inspect plugins to see how these are used. Here are some examples.)_
+
+```yaml
+# file: schema.find.json
+```
+
+```json
+{
+    "type": "object",
+    "required": [
+        "foo"
+    ],
+    "properties": {
+        "foo": {
+            "$ref": "#/definitions/dom_selector"
+        }
+    },
+    "additionalProperties": false
+}
+```
+
+```yaml
+# file: schema.find.json
+```
+
+```json
+{
+    "js_eval": {
+        "type": "string",
+        "pattern": ".+",
+        "examples": [
+            "location.hash"
+        ]
+    }
+}
+```
 
 ## Advanced
 
@@ -107,7 +123,7 @@ directory, which contains the source code.
 
 ```
 
-### Unique Compilation
+## Unique Compilation
 
 If your plugin needs to do something unique during compilation, such as provide extra files, it can implement _compile.php_. Here's an example from the _imports_ plugin.
 
@@ -121,7 +137,9 @@ If your plugin needs to do something unique during compilation, such as provide 
 $source = "$plugin_dir/imports";
 $destination = "$compile_dir/tests/imports";
 
-mkdir($destination, 0777, TRUE);
+if (!is_dir($destination)) {
+  mkdir($destination, 0777, TRUE);
+}
 copy("$source/_headings.yml", "$destination/_headings.yml");
 copy("$source/_links.yml", "$destination/_links.yml");
 

@@ -1,0 +1,12 @@
+-
+  import: imports/headings
+  why: Test the basic syntax of an import.
+-
+  import: imports/_headings
+  why: Assert underscore and no extension works.
+-
+  import: imports/links.yml
+  why: Assert extension behaves.
+-
+  import: imports/_links.yml
+  why: Verify the underscore works.

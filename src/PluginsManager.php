@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages;
 
 use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\LoftLib\Code\Strings;
 use JsonSchema\Validator;
@@ -281,4 +282,13 @@ final class PluginsManager implements TestPluginInterface {
   public function applies(array &$config) {
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function onBeforeSuite(Suite $suite) {
+    foreach ($this->getAllPlugins() as $plugin) {
+      $instance = $this->getPluginInstance($plugin['id']);
+      $instance->{__FUNCTION__}($suite);
+    }
+  }
 }

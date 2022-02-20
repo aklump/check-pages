@@ -49,6 +49,13 @@ final class Options extends Plugin {
   /**
    * {@inheritdoc}
    */
+  public function onBeforeSuite(Suite $suite) {
+    $this->handleCallbackByHook(__FUNCTION__, func_get_args());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function onBeforeTest(Test $test) {
     $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
@@ -66,6 +73,13 @@ final class Options extends Plugin {
   public function onBeforeRequest(&$driver) {
     $this->pluginData['driver'] = $driver;
     $this->handleCallbackByHook(__FUNCTION__, func_get_args());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onAssertToString(string $stringified, Assert $assert): string {
+    return $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
 
   /**

@@ -2,7 +2,7 @@
 
 namespace AKlump\CheckPages\Parts;
 
-class Test {
+class Test implements \JsonSerializable {
 
   protected $results;
 
@@ -70,6 +70,13 @@ class Test {
    */
   public function getHttpMethod(): string {
     return strtoupper($this->config['request']['method'] ?? 'get');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function jsonSerialize(): array {
+    return $this->getConfig();
   }
 
 }

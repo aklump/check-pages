@@ -73,6 +73,14 @@ final class PluginsCompiler {
     $plugins = $this->pluginsManager->getAllPlugins();
     foreach ($plugins as &$plugin) {
       $this->compilePlugin($plugin);
+      if (file_exists($plugin['path'] . '/compile.php')) {
+        $plugin_dir = $plugin['path'];
+        $compile_dir = $this->examplesPath;
+        $result = require $plugin['path'] . '/compile.php';
+        if (!$result) {
+          throw new \RuntimeException(sprintf("Compilation failed in %s.", $plugin['path'] . '/compile.php'));
+        }
+      }
     }
     $this->createTestRunnerPhpFile($plugins);
   }
@@ -169,24 +177,32 @@ final class PluginsCompiler {
       throw new \RuntimeException(sprintf('Plugin ID conflict; %s.definitions.%s already exists', basename($this->masterSchemaPath), $id));
     }
 
+    $before = md5(json_encode($this->schema));
+
     // The plugin MAY provide new #definitions.
-    $schema_definitions_path = $path_to_plugin . '/schema.definitions.json';
-    if (file_exists($schema_definitions_path)) {
-      $to_merge = $this->loadJson($schema_definitions_path);
+    $plugin_definitions_schema = $path_to_plugin . '/schema.definitions.json';
+    if (file_exists($plugin_definitions_schema)) {
+      $to_merge = $this->loadJson($plugin_definitions_schema);
       $conflicting_keys = array_intersect_key($this->schema['definitions'], $to_merge);
       if ($conflicting_keys) {
         throw new \RuntimeException(sprintf('The following definitions exist in the master schema and cannot be added by the plugin %s: %s', $id, implode(', ', $conflicting_keys)));
       }
       $this->schema['definitions'] += $to_merge;
     }
+    // The plugin MAY provide test-level definitions.
+    $plugin_test_schema = $path_to_plugin . '/schema.test.json';
+    if (file_exists($plugin_test_schema)) {
+      $to_merge = $this->loadJson($plugin_test_schema);
+      $this->schema["items"]["anyOf"][] = $to_merge;
+    }
 
     // The plugin must provide the find schema.
-    $schema_find_path = $path_to_plugin . '/schema.find.json';
-    if (file_exists($schema_find_path)) {
+    $plugin_find_schema = $path_to_plugin . '/schema.find.json';
+    if (file_exists($plugin_find_schema)) {
       $this->schema['definitions'][$id] = [
         'title' => Strings::title("$id Plugin Assertion"),
       ];
-      $schema_find = $this->loadJson($schema_find_path);
+      $schema_find = $this->loadJson($plugin_find_schema);
 
       // This property should be present for all plugins, however a plugin can
       // set this to false if it wants to block it.
@@ -200,6 +216,9 @@ final class PluginsCompiler {
       $this->schema['definitions']['find']['oneOf'][1]['items']['oneOf'][] = [
         '$ref' => "#/definitions/{$id}",
       ];
+    }
+
+    if ($before !== md5(json_encode($this->schema))) {
       $this->saveJson($this->generatedSchemaPath, $this->schema);
     }
 

@@ -1,0 +1,9 @@
+{
+    "import_selector": {
+        "type": "string",
+        "pattern": ".+",
+        "examples": [
+            "imports/create_cycle"
+        ]
+    }
+}

@@ -57,7 +57,7 @@ $_get_session = function (string $username, Runner $runner) use ($config) {
     echo "🔐";
 
     // Load our non-version username/password index.
-    $path_to_users_list = $runner->resolve($config['users']);
+    $path_to_users_list = $runner->resolveFile($config['users']);
     $login_url = $config['login_url'] ?? '/user/login';
     $absolute_login_url = $runner->url($login_url);
     $auth = new AuthenticateDrupal7($path_to_users_list, $absolute_login_url);
