@@ -67,24 +67,26 @@ function config_get($config_path) {
 }
 
 /**
- * Add a resolve directory where additional tests may be found.
+ * Add an additional directory to use when resolving paths.
  *
  * Note, the run_suite('*') pattern does not look in this directory, so you will
  * have to explicitly call the suite name(s).
  *
- * @param string $custom_dir
- *   The absolute path to an existing directory to use for resolution.
+ * @param string $absolute_path_to_dir
+ *   The absolute path to an existing directory to use for resolution.  It must
+ *   exist and it must be an absolute path.
  */
-function add_directory(string $custom_dir) {
+function add_directory(string $absolute_path_to_dir) {
   global $runner;
-  if (!is_dir($custom_dir)) {
-    throw new \InvalidArgumentException("\"$custom_dir\" must be an existing directory.");
+
+  if (substr($absolute_path_to_dir, 0, 1) !== '/') {
+    throw new \InvalidArgumentException(sprintf('To add a directory, it must begin with a "/"; "%s" does not.', $absolute_path_to_dir));
   }
-  $path = realpath($custom_dir);
-  if ($path) {
-    $custom_dir = $path;
+  $path = rtrim(realpath($absolute_path_to_dir), '/');
+  if (!$path || !is_dir($path)) {
+    throw new \InvalidArgumentException("\"$absolute_path_to_dir\" must be an existing directory.");
   }
-  $runner->addResolveDirectory($custom_dir);
+  $runner->addResolveDirectory($path);
 }
 
 /**

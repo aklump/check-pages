@@ -760,7 +760,7 @@ class Runner {
     }
 
     if (empty($config['find']) && $this->debugging) {
-      $this->debug('├── This test has provided NO assertions.');
+      $this->debug('├── This test has no assertions.');
     }
     $assertions = $config['find'];
     $id = 0;
