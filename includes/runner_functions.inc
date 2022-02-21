@@ -29,13 +29,13 @@ function load_config(string $config, bool $allow_override = TRUE) {
     // to allow "--config=foo" instead.  That's the reason for the next few
     // lines.  July 16, 2021 at 11:23:12 AM PDT, aklump.
     try {
-      $runner->resolve($override);
+      $runner->resolveFile($override);
     }
     catch (\Exception $exception) {
       $override = 'config/' . $override;
     }
     try {
-      $runner->resolve($override);
+      $runner->resolveFile($override);
     }
     catch (\Exception $exception) {
       // If the presumption failed, then we just rollback.
