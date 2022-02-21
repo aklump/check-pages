@@ -530,17 +530,6 @@ class Runner {
     }
     echo PHP_EOL . '⏱  ' . Color::wrap('white on blue', strtoupper(sprintf('Running "%s" suite...', $suite_id))) . PHP_EOL;
 
-    // Interpolate top-level is, and fire plugin callbacks for each test.
-    foreach ($suite->getTests() as $test) {
-      $config = $test->getConfig();
-      if (isset($config['set'])) {
-        $config['is'] = $suite->variables()->interpolate($config['is']);
-        $test->setConfig($config);
-        $suite->removeTest($test);
-        $suite->variables()->setItem($config['set'], $config['is']);
-      }
-    }
-
     $this->debug = [];
     $failed_tests = 0;
     $has_multiple_methods = count($suite->getHttpMethods()) > 1;
@@ -548,16 +537,29 @@ class Runner {
       $this->pluginsManager->onBeforeTest($test);
       $config = $test->getConfig();
 
+      if (isset($config['set'])) {
+        $config['is'] = $suite->variables()->interpolate($config['is']);
+        $test->setConfig($config);
+        $suite->variables()->setItem($config['set'], $config['is']);
+      }
+
       if (count($suite->variables())) {
         foreach ($config as $key => &$item) {
           // We must not interpolate `find` at this time, that will take place
           // inside of the handleFindAssert method.  That is because variables
           // can be set on every assert.  However the rest of the config should
           // be interpolated, such as will affect the URL.
-          if ($key !== 'find') {
+          if ($key !== 'find' && $key !== 'set') {
             $item = $suite->variables()->interpolate($item);
           }
         }
+      }
+
+      // Without an URL, the test is doing something else, like setting a
+      // variable or authenticating.  Without a URL, there are no assertions and
+      // no reason to continue in this current iteration flow.
+      if (empty($config['url'])) {
+        continue;
       }
 
       $method = $has_multiple_methods ? $test->getHttpMethod() : '';

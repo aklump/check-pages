@@ -1,10 +1,10 @@
 # Authentication
 
-If you want to check pages as an authenticated user of a website, then you have to be logged in, or authenticated before the request is made.  Some authentication providers are built-in, or you can write your own using  [add_test_option()](@custom_test_options). You might refer to _includes/drupal8.inc_ as a starting point.
+If you want to check pages as an authenticated user of a website, then you have to be logged in, or authenticated before the request is made. Some authentication providers are built-in, or you can write your own using  [add_test_option()](@custom_test_options). You might refer to _includes/drupal8.inc_ as a starting point.
 
 ## Basic Setup
 
-This example will use the `drupal8` built-in authentication provider. _Note: for Drupal 7 authentication, simply change `with_extras('drupal8'...` to `with_extras('drupal7'...`_.
+This example will use the `drupal8` built-in authentication provider. _Note: for Drupal 7 authentication, simply change `add_mixin('drupal8'...` to `add_mixin('drupal7'...`_.
 
 1. Create a YAML (or JSON) file containing user login credentials.  **Do not commit this to source control.** You can place this whereever, but in this example it will be located in the config directory as _config/users.yml_. You may list as many users as you want. Each record must have the keys `name` and `pass`. Yes, `pass` is the un-hashed plaintext password for the user, so be cautious.
 
@@ -86,4 +86,18 @@ This example will use the `drupal8` built-in authentication provider. _Note: for
    ...
    extras:
      users: config/users--dev.yml
+   ```
+4. You can capture several user IDs at once like this. Furthermore, this can be moved to an import, and you have all user IDs available to all suites, very easily by importing with `- import: imports/get_user_ids`  See [imports](@plugin_import) for more info.
+
+   ```yaml
+   # file: imports/_get_user_ids
+   
+   -
+     user: site_test.worker
+     set: workerUid
+     is: ${user.id}
+   -
+     user: site_test.admin
+     set: adminUid
+     is: ${user.id}
    ```
