@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Support for Drupal 7 websites.
+ * Support for Drupal 8 websites.
  *
  * Installation:
  *
@@ -14,7 +14,7 @@
  *
  * 2. Add the following to all runner files, where the path is to your JSON.
  *
- *     add_mixin('drupal7', [
+ *     add_mixin('drupal', [
  *       'users' => 'config/users.json',
  *       'login_url' => '/user/login',
  *     ]);
@@ -37,13 +37,13 @@
  * For example you can write: visit: /user/{user.uid}/edit
  */
 
-use AKlump\CheckPages\Options\AuthenticateDrupal7;
+use AKlump\CheckPages\Options\AuthenticateProviderFactory;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Bash\Color;
 use AKlump\CheckPages\Parts\Test;
 
 $_get_session = function (string $username, Runner $runner) use ($config) {
-  $sessions = $runner->getStorage()->get('drupal7.sessions');
+  $sessions = $runner->getStorage()->get('drupal.sessions');
 
   // Check for expiry and discard if passed.
   if (empty($sessions[$username]['expires']) || $sessions[$username]['expires'] < time()) {
@@ -60,7 +60,10 @@ $_get_session = function (string $username, Runner $runner) use ($config) {
     $path_to_users_list = $runner->resolveFile($config['users']);
     $login_url = $config['login_url'] ?? '/user/login';
     $absolute_login_url = $runner->url($login_url);
-    $auth = new AuthenticateDrupal7($path_to_users_list, $absolute_login_url);
+
+    $factory = new AuthenticateProviderFactory();
+    $auth = $factory->get($path_to_users_list, $absolute_login_url);
+
     $user = $auth->getUser($username);
     $auth->login($user);
 
@@ -69,7 +72,7 @@ $_get_session = function (string $username, Runner $runner) use ($config) {
       'expires' => $auth->getSessionExpires(),
       'account' => $user->jsonSerialize(),
     ];
-    $runner->getStorage()->set('drupal7.sessions', $sessions);
+    $runner->getStorage()->set('drupal.sessions', $sessions);
   }
 
   return $sessions[$username];
