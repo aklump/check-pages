@@ -58,14 +58,16 @@ class Suite implements PartInterface, \JsonSerializable {
       return $key === 'visit' ? 'url' : $key;
     }, array_keys($config));
     $config = array_combine($keys, $config);
-
     $id = strval($test_index);
     $this->tests[$id] = new Test($id, $config, $this);
+
     return $this;
   }
 
   public function removeTest(Test $test): self {
-    array_splice($this->tests, $test->id(), 1);
+    $this->tests = array_values(array_filter($this->tests, function ($item) use ($test) {
+      return $item->id() != $test->id();
+    }));
 
     return $this;
   }
