@@ -206,6 +206,9 @@
                 ],
                 "additionalProperties": false,
                 "properties": {
+                    "user": {
+                        "$ref": "#/definitions/user"
+                    },
                     "set": {
                         "$ref": "#/definitions/set"
                     },
