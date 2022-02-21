@@ -29,7 +29,7 @@ abstract class Plugin implements TestPluginInterface {
     // TODO: Implement applies() method.
   }
 
-  public function onBeforeSuite(Suite $suite) {
+  public function onLoadSuite(Suite $suite) {
     // TODO: Implement onBeforeDriver() method.
   }
 

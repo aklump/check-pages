@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages;
 
 use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
 use Psr\Http\Message\ResponseInterface;
 
@@ -49,7 +50,7 @@ final class Options extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeSuite(Suite $suite) {
+  public function onLoadSuite(Suite $suite) {
     $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
 
@@ -78,19 +79,19 @@ final class Options extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onAssertToString(string $stringified, Assert $assert): string {
-    return $this->handleCallbackByHook(__FUNCTION__, func_get_args());
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
     $this->pluginData['assert'] = $assert;
     $this->pluginData['response'] = $response;
     $search_value = $assert->{self::SEARCH_TYPE};
     $assert->setSearch(self::SEARCH_TYPE, $search_value);
     $this->handleCallbackByHook(__FUNCTION__, func_get_args());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onAssertToString(string $stringified, Assert $assert): string {
+    return $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
 
   /**

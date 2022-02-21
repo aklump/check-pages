@@ -285,7 +285,7 @@ final class PluginsManager implements TestPluginInterface {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeSuite(Suite $suite) {
+  public function onLoadSuite(Suite $suite) {
     foreach ($this->getAllPlugins() as $plugin) {
       $instance = $this->getPluginInstance($plugin['id']);
       $instance->{__FUNCTION__}($suite);

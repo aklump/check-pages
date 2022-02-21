@@ -25,7 +25,7 @@ interface TestPluginInterface {
    */
   public function applies(array &$config);
 
-  public function onBeforeSuite(Suite $suite);
+  public function onLoadSuite(Suite $suite);
 
   public function onBeforeTest(Test $test);
 

@@ -11,7 +11,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 final class Import extends Plugin {
 
-  public function onBeforeSuite(Suite $suite) {
+  public function onLoadSuite(Suite $suite) {
     $new_data = $suite->jsonSerialize();
     $needs_update = FALSE;
     foreach ($suite->getTests() as $index => $test) {

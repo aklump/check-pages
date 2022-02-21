@@ -516,7 +516,7 @@ class Runner {
     foreach (array_values($data) as $test_index => $config) {
       $suite->addTest($test_index, $config);
     }
-    $this->pluginsManager->onBeforeSuite($suite);
+    $this->pluginsManager->onLoadSuite($suite);
 
     // On return from the hook, we need to reparse to get format for validation.
     $suite_yaml = Yaml::dump($suite->jsonSerialize());
@@ -539,15 +539,13 @@ class Runner {
         $suite->removeTest($test);
         $suite->variables()->setItem($config['set'], $config['is']);
       }
-      else {
-        $this->pluginsManager->onBeforeTest($test);
-      }
     }
 
     $this->debug = [];
     $failed_tests = 0;
     $has_multiple_methods = count($suite->getHttpMethods()) > 1;
     foreach ($suite->getTests() as $test_index => $test) {
+      $this->pluginsManager->onBeforeTest($test);
       $config = $test->getConfig();
 
       if (count($suite->variables())) {
