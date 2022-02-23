@@ -124,6 +124,13 @@ function run_suite(string $path_to_suite, array $suite_config = []): void {
 
   // Process a glob string if present, relative to the --dir or runner.php dir.
   if (strstr($path_to_suite, '*') !== FALSE) {
+
+    if (strstr($path_to_suite, '/') !== FALSE) {
+      $directory = dirname($path_to_suite);
+      $directory = $runner->resolve($directory);
+      $runner->addResolveDirectory($directory);
+    }
+
     $suites = array_filter(glob($runner->getPathToSuites() . '/' . $path_to_suite), function ($path) {
       return preg_match('/\.yml$/', $path);
     });
