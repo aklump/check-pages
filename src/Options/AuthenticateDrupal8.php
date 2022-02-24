@@ -2,6 +2,8 @@
 
 namespace AKlump\CheckPages\Options;
 
+use AKlump\CheckPages\GuzzleDriver;
+
 final class AuthenticateDrupal8 extends AuthenticateDrupalBase {
 
   /**
@@ -40,4 +42,21 @@ final class AuthenticateDrupal8 extends AuthenticateDrupalBase {
     // TODO Figure out how to get the email address.
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getCsrfToken(): string {
+    list($url) = explode('?', $this->loginUrl, 1);
+    $parts = parse_url($url);
+    $url = str_replace($parts['path'], '/session/token', $url);
+
+    $guzzle = new GuzzleDriver();
+    $response = $guzzle->getClient([
+      'headers' => [
+        'Cookie' => $this->getSessionCookie(),
+      ],
+    ])->get($url);
+
+    return (string) $response->getBody();
+  }
 }

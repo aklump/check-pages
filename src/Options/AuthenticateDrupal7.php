@@ -38,4 +38,8 @@ final class AuthenticateDrupal7 extends AuthenticateDrupalBase {
     // TODO Figure out how to get the email address.
   }
 
+  public function getCsrfToken(): string {
+    return '';
+  }
+
 }

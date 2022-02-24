@@ -48,4 +48,12 @@ interface AuthenticationInterface {
    *   The timestamp for when the cookie expires.
    */
   public function getSessionExpires(): int;
+
+  /**
+   * Get CSRF token.
+   *
+   * @return string
+   *   A CSRF token for the authenticated user, if available.
+   */
+  public function getCsrfToken(): string;
 }

@@ -71,6 +71,7 @@ $_get_session = function (string $username, Runner $runner) use ($config) {
       'cookie' => $auth->getSessionCookie(),
       'expires' => $auth->getSessionExpires(),
       'account' => $user->jsonSerialize(),
+      'csrf_token' => $auth->getCsrfToken(),
     ];
     $runner->getStorage()->set('drupal.sessions', $sessions);
   }
@@ -87,7 +88,8 @@ add_test_option('user', [
       ->setItem('user.id', $session['account']['uid'])
       ->setItem('user.uid', $session['account']['uid'])
       ->setItem('user.name', $session['account']['name'])
-      ->setItem('user.pass', $session['account']['pass']);
+      ->setItem('user.pass', $session['account']['pass'])
+      ->setItem('user.csrf', $session['csrf_token']);
   },
 
   'onBeforeRequest' => function ($username, $driver, $context) use ($_get_session) {

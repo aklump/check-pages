@@ -34,7 +34,9 @@ final class Request extends Plugin {
   public function onBeforeDriver(array &$config) {
     $this->config = $config;
     $this->request['method'] = strtoupper($config['request']['method'] ?? 'get');
-    $this->request['headers'] = array_map('strtolower', $config['request']['headers'] ?? []);
+    if (!empty($config['request']['headers'])) {
+      $this->request['headers'] = array_combine(array_map('strtolower', array_keys($config['request']['headers'])), $config['request']['headers']);
+    }
     $this->request['body'] = $config['request']['body'] ?? '';
   }
 
