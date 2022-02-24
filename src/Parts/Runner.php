@@ -544,13 +544,13 @@ class Runner {
       }
 
       if (count($suite->variables())) {
-        foreach ($config as $key => &$item) {
+        foreach (array_keys($config) as $key) {
           // We must not interpolate `find` at this time, that will take place
           // inside of the handleFindAssert method.  That is because variables
           // can be set on every assert.  However the rest of the config should
           // be interpolated, such as will affect the URL.
           if ($key !== 'find' && $key !== 'set') {
-            $item = $suite->variables()->interpolate($item);
+            $config[$key] = $suite->variables()->interpolate($config[$key]);
           }
         }
       }
@@ -593,8 +593,10 @@ class Runner {
 
       // Create the failure output files.
       if (!$result['pass']) {
-        $this->writeToFile('urls', [$url]);
-        $failure_log = [$url];
+        if (!empty($url)) {
+          $this->writeToFile('urls', [$url]);
+          $failure_log = [$url];
+        }
         foreach ($this->debug as $item) {
           if ('error' === $item['level']) {
             $failure_log[] = $item['data'];

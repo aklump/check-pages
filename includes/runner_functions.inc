@@ -168,11 +168,11 @@ function with_extras(string $extras_filename, array $config) {
  *   The filename without extension of the extras file.  This must be located
  *   adjacent to this file.
  * @param array $config
- *   Configuration to be passed to the extra.
+ *   Optional, configuration to be passed to the extra.
  *
  * @throws \AKlump\CheckPages\Exceptions\StopRunnerException If the mixin cannot be found.
  */
-function add_mixin(string $name, array $config) {
+function add_mixin(string $name, array $config = []) {
   global $runner;
   try {
     $require_path = $runner->resolveFile("$name.php");
