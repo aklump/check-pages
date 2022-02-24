@@ -501,7 +501,7 @@ class Runner {
     }
 
     if (in_array($path_to_suite, $this->config['suites_to_ignore'])) {
-      echo PHP_EOL . Color::wrap('blue', '😴 ' . strtoupper(sprintf('Ignoring "%s" suite...', $suite_id))) . PHP_EOL;
+      echo PHP_EOL . Color::wrap('blue', '😴 ' . strtoupper(sprintf('Ignoring "%s" suite...', $suite->id()))) . PHP_EOL;
 
       return;
     }
@@ -528,7 +528,7 @@ class Runner {
       echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->config['base_url'])) . PHP_EOL;
       $this->printed['base_url'] = TRUE;
     }
-    echo PHP_EOL . '⏱  ' . Color::wrap('white on blue', strtoupper(sprintf('Running "%s" suite...', $suite_id))) . PHP_EOL;
+    echo PHP_EOL . '⏱  ' . Color::wrap('white on blue', strtoupper(sprintf('Running "%s" suite...', $suite->id()))) . PHP_EOL;
 
     $this->debug = [];
     $failed_tests = 0;
@@ -605,7 +605,7 @@ class Runner {
         $failure_log[] = PHP_EOL;
         $this->writeToFile('failures', $failure_log);
 
-        FailedTestMarkdown::output("{$suite_id}{$test_index}", $test);
+        FailedTestMarkdown::output("{$suite->id()}{$test_index}", $test);
       }
 
       if ($this->debugging && $this->debug) {
@@ -626,7 +626,7 @@ class Runner {
     if ($failed_tests) {
       $this->failedSuiteCount++;
       if ($this->config['stop_on_failed_suite'] ?? FALSE) {
-        throw new SuiteFailedException($suite_id);
+        throw new SuiteFailedException($suite->id());
       }
     }
   }
@@ -896,9 +896,24 @@ class Runner {
    * @return array
    */
   protected function validateSuiteYaml($data, string $schema_basename): array {
-    $validator = new Validator();
+
+    // Do not validate $data properties that have been added using add_test_option().
+
+
     $path_to_schema = $this->rootDir . '/' . $schema_basename;
-    $validator->validate($data, (object) ['$ref' => 'file://' . $path_to_schema]);
+    $schema = json_decode(file_get_contents($path_to_schema));
+
+    // Dynamically add permissive items for every test option.  These have been
+    // added on the fly and do not have schema support, as plugins do.
+    foreach ($this->getTestOptions() as $test_option) {
+      $schema->items->anyOf[] = (object) [
+        'required' => [$test_option['name']],
+        'additionalProperties' => TRUE,
+      ];
+    }
+
+    $validator = new Validator();
+    $validator->validate($data, $schema);
     if (!$validator->isValid()) {
       $message = [
         sprintf('Syntax error in suite schema "%s"', $schema_basename),
