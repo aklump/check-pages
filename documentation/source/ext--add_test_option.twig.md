@@ -6,7 +6,6 @@ id: custom_test_options
 
 If you need to do some fancy PHP transformations at certain points of test execution, you can hook into that flow using one or more custom test options.  **These are nothing more than functions attached to events.** In the following example, `foo` is the custom test option under study.
 
-
 ```yaml
 # file: suite.yml
 -
@@ -66,4 +65,23 @@ add_test_option('baz', [
 ]);
 
 run_suite('*');
+```
+
+## `onBeforeTest`
+
+The `onBeforeTest` callback is the best place to put custom processing if you want to hijack a "test". For example you could use it to set a bunch of custom variables. It's not a test, but a processor, in such a case.
+
+## Advance to Next Test
+
+In some cases you may want to advance to the next test after you finish executing some code inside of `onBeforeTest` in your custom test option. That is to say, you want to mark the test (option) as complete and stop any further execution on that test config. To do this you should return the value `\AKlump\CheckPages\Parts\Test::IS_COMPLETE`. This will mark the test neither passed nor failed, rather it will silently move on.
+
+```php
+add_test_option('event.create', [
+  "onBeforeTest" => function ($option, \AKlump\CheckPages\Parts\Test $test, array $context) {
+  
+    // ...
+  
+    return \AKlump\CheckPages\Parts\Test::IS_COMPLETE;
+  },
+]);
 ```

@@ -193,7 +193,7 @@ final class PluginsManager implements TestPluginInterface {
     foreach ($this->getAllPlugins() as $plugin) {
       $instance = $this->getPluginInstance($plugin['id']);
       if ($instance->applies($config)) {
-        $instance->{__FUNCTION__}($test);
+        return $instance->{__FUNCTION__}($test);
       }
     }
   }

@@ -51,21 +51,21 @@ final class Options extends Plugin {
    * {@inheritdoc}
    */
   public function onLoadSuite(Suite $suite) {
-    $this->handleCallbackByHook(__FUNCTION__, func_get_args());
+    return $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
 
   /**
    * {@inheritdoc}
    */
   public function onBeforeTest(Test $test) {
-    $this->handleCallbackByHook(__FUNCTION__, func_get_args());
+    return $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
 
   /**
    * {@inheritdoc}
    */
   public function onBeforeDriver(array &$config) {
-    $this->handleCallbackByHook(__FUNCTION__, func_get_args());
+    return $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
 
   /**
@@ -73,7 +73,8 @@ final class Options extends Plugin {
    */
   public function onBeforeRequest(&$driver) {
     $this->pluginData['driver'] = $driver;
-    $this->handleCallbackByHook(__FUNCTION__, func_get_args());
+
+    return $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
 
   /**
@@ -84,7 +85,8 @@ final class Options extends Plugin {
     $this->pluginData['response'] = $response;
     $search_value = $assert->{self::SEARCH_TYPE};
     $assert->setSearch(self::SEARCH_TYPE, $search_value);
-    $this->handleCallbackByHook(__FUNCTION__, func_get_args());
+
+    return $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
 
   /**
@@ -103,18 +105,20 @@ final class Options extends Plugin {
   private function handleCallbackByHook(string $hook, array $hook_args) {
     foreach ($this->options as $option) {
       if (in_array($hook, array_keys($option['hooks']))) {
-        $config = $this->pluginData['config'][$option['name']] ?? [];
-        if (!is_array($config)) {
-          $config = [$config];
+        if (isset($this->pluginData['config'][$option['name']])) {
+          $config = $this->pluginData['config'][$option['name']];
+//          if (!is_array($config)) {
+//            $config = [$config];
+//          }
+          array_unshift($hook_args, $config);
         }
-        $args = array_merge($config, $hook_args, [$this->pluginData]);
+        $hook_args[] = $this->pluginData;
         try {
-          call_user_func_array($option['hooks'][$hook]['callback'], $args);
+          call_user_func_array($option['hooks'][$hook]['callback'], $hook_args);
         }
         catch (\Exception $exception) {
-          $class = get_class($exception);
-          $message = sprintf('Option "%s" failed: %s', $option['name'], $exception->getMessage());
-          throw new $class($message, $exception->getCode(), $exception);
+          // Repackage remaining exceptions as option failures.
+          throw new \AKlump\CheckPages\Exceptions\TestOptionFailed($this->pluginData, $exception->getMessage(), $exception);
         }
       }
     }

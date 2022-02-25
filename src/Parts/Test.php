@@ -4,7 +4,9 @@ namespace AKlump\CheckPages\Parts;
 
 class Test implements \JsonSerializable {
 
-  protected $results;
+  const IS_COMPLETE = 'c';
+
+  protected $results = [];
 
   public function __construct(string $id, array $config, Suite $suite) {
     $this->suite = $suite;

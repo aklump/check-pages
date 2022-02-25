@@ -534,8 +534,12 @@ class Runner {
     $failed_tests = 0;
     $has_multiple_methods = count($suite->getHttpMethods()) > 1;
     foreach ($suite->getTests() as $test_index => $test) {
-      $this->pluginsManager->onBeforeTest($test);
       $config = $test->getConfig();
+
+      $on_before_test_result = $this->pluginsManager->onBeforeTest($test);
+      if (Test::IS_COMPLETE === $on_before_test_result) {
+        continue;
+      }
 
       if (isset($config['set'])) {
         $config['is'] = $suite->variables()->interpolate($config['is']);
