@@ -26,6 +26,19 @@
   <h1>Imports (Code Reuse with Partials)</h1>
   
 
+<h2>How it Looks</h2>
+
+<pre><code class="yaml"># file: suite.yml
+-
+  import: headings
+</code></pre>
+
+<blockquote>
+  <p>Since imports are effectively cut and paste, they allow for no configuration. If you need something like a function, look to <a href="ext--shorthand.html">shorthand</a>, <a href="ext--add_test_option.html">options</a> or <a href="ext--plugins.html">plugins</a>.</p>
+</blockquote>
+
+<h2>Explained</h2>
+
 <p>The concept of imports is not new. Write a partial and include it in other files. You can do this too with <em>Check Pages</em>.</p>
 
 <p>If you write five suites and realize that you repeat the same tests in several, this is a time to consider an import. It creates coupling and dependency, so it may or may not be a good idea.</p>
@@ -98,7 +111,7 @@
 <footer>
   <div class="pager"><a href="demo--evaluate.html" class="prev demo--evaluate">&laquo;Evaluate</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--request.html" class="next plugin_request">Request&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 20 Feb 2022 21:48:36 -0800</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 27 Feb 2022 21:58:36 -0800</p>
   </div>
 </footer>
 

@@ -2,7 +2,8 @@
 
 namespace AKlump\CheckPages;
 
-use Psr\Http\Message\ResponseInterface;
+use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Plugin\Plugin;
 
 /**
  * Implements the style plugin.
@@ -23,14 +24,16 @@ class Style extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeDriver(array &$config) {
-    if (!is_array($config) || empty($config['find'])) {
+  public function onBeforeDriver(TestEventInterface $event) {
+    $config = $event->getTest()->getConfig();
+    if (empty($config['find'])) {
       return;
     }
     foreach ($config['find'] as $assertion) {
       if (is_array($assertion) && array_key_exists(self::SEARCH_TYPE, $assertion)) {
         $config['js'] = TRUE;
         $this->assertions[] = $assertion;
+        $event->getTest()->setConfig($config);
       }
     }
   }
@@ -38,13 +41,13 @@ class Style extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeRequest(&$driver) {
+  public function onBeforeRequest(\AKlump\CheckPages\Event\DriverEventInterface $event) {
     if (empty($this->assertions)) {
       return;
     }
     foreach ($this->assertions as $assertion) {
       if (!empty($assertion[Dom::SEARCH_TYPE])) {
-        $driver->addStyleRequest($assertion[Dom::SEARCH_TYPE]);
+        $event->getDriver()->addStyleRequest($assertion[Dom::SEARCH_TYPE]);
       }
     }
   }
@@ -52,7 +55,10 @@ class Style extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
+  public function onBeforeAssert(\AKlump\CheckPages\Event\AssertEventInterface $event) {
+    $assert = $event->getAssert();
+    $response = $event->getDriver()->getResponse();
+
     $dom_path = $assert->{Dom::SEARCH_TYPE};
     $style_property = $assert->{self::MODIFIER_TYPE};
     $assert

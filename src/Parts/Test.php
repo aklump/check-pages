@@ -56,6 +56,22 @@ class Test implements \JsonSerializable {
     return $this->config['url'] ?? '';
   }
 
+  /**
+   * Return the relative URL being tested.
+   *
+   * @return string
+   *   The relative test URL.  To get the absolute url, you need to do like
+   *   this: $this->getRunner()->url($this->getRelativeUrl()).
+   */
+  public function getAbsoluteUrl(): string {
+    $relative = $this->getRelativeUrl();
+    if (empty($relative)) {
+      return '';
+    }
+
+    return $this->getRunner()->url($relative);
+  }
+
   public function getRunner(): Runner {
     return $this->suite->getRunner();
   }

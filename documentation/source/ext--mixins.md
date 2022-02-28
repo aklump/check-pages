@@ -1,8 +1,20 @@
 <!--
-id: add_mixin
+id: mixins
+title: Mixins
 -->
 
-# Adding Mixins (Reusable Runner Code)
+# Mixins: Shared Code Between Runners
+
+## How it Looks
+
+```yaml
+# file: runner.php
+add_mixin('my_custom_mixin');
+```
+
+> When you want to share code across runners, you should look to _mixins_. Often you will want to put your runner function implementations inside a mixin file.
+
+## Explained
 
 Another way to extend _Check Pages_ is to use the `add_mixin()` function. This method is easier and faster than writing a plugin. It is a simple means to share runner customisation across different runners, or even projects. This is the basis for the authentication providers shipped with Check Pages.
 
@@ -47,6 +59,10 @@ You may write output if desired, for example:
 echo sprintf('Base URL is %s', config_get('base_url')) . PHP_EOL;
 echo \AKlump\LoftLib\Bash\Color::wrap('blue', 'foo');
 ```
+
+## Namespace
+
+You should use the namespace `AKlump\CheckPages\Mixins` for any class objects you might create.
 
 ## Errors
 

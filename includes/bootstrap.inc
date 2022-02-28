@@ -10,6 +10,7 @@ use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Bash\Bash;
 use AKlump\LoftLib\Bash\Color;
 use AKlump\LoftLib\Storage\FilePath;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 
 if (!class_exists("AKlump\CheckPages\Parts\Runner")) {

@@ -2,8 +2,8 @@
 
 namespace AKlump\CheckPages;
 
-use AKlump\CheckPages\Parts\Suite;
-use AKlump\CheckPages\Parts\Test;
+use AKlump\CheckPages\Event\SuiteEventInterface;
+use AKlump\CheckPages\Plugin\Plugin;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -11,7 +11,8 @@ use Symfony\Component\Yaml\Yaml;
  */
 final class Import extends Plugin {
 
-  public function onLoadSuite(Suite $suite) {
+  public function onLoadSuite(SuiteEventInterface $event) {
+    $suite = $event->getSuite();
     $new_data = $suite->jsonSerialize();
     $needs_update = FALSE;
     foreach ($suite->getTests() as $index => $test) {

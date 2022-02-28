@@ -6,8 +6,8 @@
  */
 
 use AKlump\CheckPages\Parts\Runner;
-use AKlump\CheckPages\PluginsCompiler;
-use AKlump\CheckPages\PluginsManager;
+use AKlump\CheckPages\Plugin\PluginsCompiler;
+use AKlump\CheckPages\Plugin\PluginsManager;
 
 define('ROOT', $argv[7]);
 

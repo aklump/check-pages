@@ -11,7 +11,7 @@ class GuzzleDriver extends RequestDriver {
   /**
    * {@inheritdoc}
    */
-  public function getResponse(): ResponseInterface {
+  public function request(): RequestDriverInterface {
     $client = $this->getClient([
       'headers' => $this->headers,
       // @link http://docs.guzzlephp.org/en/stable/faq.html#how-can-i-track-redirected-requests
@@ -29,9 +29,15 @@ class GuzzleDriver extends RequestDriver {
       $this->response = $exception->getResponse();
     }
 
-    return $this->response;
+    return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getResponse(): ResponseInterface {
+    return $this->response;
+  }
 
   /**
    * {@inheritdoc}
@@ -46,4 +52,5 @@ class GuzzleDriver extends RequestDriver {
   public function getRedirectCode(): int {
     return (int) ($this->response->getHeader('X-Guzzle-Redirect-Status-History')[0] ?? 0);
   }
+
 }

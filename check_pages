@@ -8,6 +8,7 @@
  */
 
 use AKlump\CheckPages\Output\Timer;
+use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Bash\Color;
 
 define('ROOT', __DIR__);
@@ -49,21 +50,18 @@ try {
 
   // Finish with an error response.
 catch (\Exception $exception) {
-  // Shift the first line so only that is red, in case we want to dump a
-  // pretty-print JSON variable.
-  $lines = explode(PHP_EOL, $exception->getMessage());
-  echo PHP_EOL;
-  echo Color::wrap('white on red', array_shift($lines)) . PHP_EOL;
-  echo implode(PHP_EOL, $lines) . PHP_EOL . PHP_EOL;
-  exit(1);
-}
 
-  // Finish with an error response.
-catch (\Exception $exception) {
+  if ($runner->getOutputMode() === Runner::OUTPUT_DEBUG) {
+    $runner->echoMessages();
+    echo PHP_EOL;
+  }
+
+  echo PHP_EOL;
+  echo '🏁 ' . Color::wrap('light gray', $timer->getCurrent()) . PHP_EOL;
+
   // Shift the first line so only that is red, in case we want to dump a
   // pretty-print JSON variable.
   $lines = explode(PHP_EOL, $exception->getMessage());
-  echo PHP_EOL;
   echo Color::wrap('white on red', array_shift($lines)) . PHP_EOL;
   echo implode(PHP_EOL, $lines) . PHP_EOL . PHP_EOL;
   exit(1);
@@ -72,5 +70,6 @@ catch (\Exception $exception) {
 // Finish with a happy response.
 echo PHP_EOL;
 echo '🏁 ' . Color::wrap('light gray', $timer->getCurrent()) . PHP_EOL;
+
 echo Color::wrap('white on green', sprintf('Testing completed successfully in %s.', $timer->getElapsed())) . PHP_EOL . PHP_EOL;
 exit(0);

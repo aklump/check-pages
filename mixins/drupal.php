@@ -37,10 +37,11 @@
  * For example you can write: visit: /user/{user.uid}/edit
  */
 
+use AKlump\CheckPages\Event\DriverEventInterface;
+use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Options\AuthenticateProviderFactory;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Bash\Color;
-use AKlump\CheckPages\Parts\Test;
 
 $_get_session = function (string $username, Runner $runner) use ($config) {
   $sessions = $runner->getStorage()->get('drupal.sessions');
@@ -81,10 +82,9 @@ $_get_session = function (string $username, Runner $runner) use ($config) {
 
 add_test_option('user', [
 
-  'onBeforeTest' => function ($username, Test $test, $context) use ($_get_session) {
-    $session = $_get_session($username, $context['runner']);
-    $context['runner']->getSuite()
-      ->variables()
+  'onBeforeTest' => function ($username, TestEventInterface $event) use ($_get_session) {
+    $session = $_get_session($username, $event->getTest()->getRunner());
+    $event->getTest()->getSuite()->variables()
       ->setItem('user.id', $session['account']['uid'])
       ->setItem('user.uid', $session['account']['uid'])
       ->setItem('user.name', $session['account']['name'])
@@ -92,12 +92,13 @@ add_test_option('user', [
       ->setItem('user.csrf', $session['csrf_token']);
   },
 
-  'onBeforeRequest' => function ($username, $driver, $context) use ($_get_session) {
+  'onBeforeRequest' => function ($username, DriverEventInterface $event, $context) use ($_get_session) {
     $runner = $context['runner'];
     if ($runner->getOutputMode() !== Runner::OUTPUT_QUIET) {
       echo Color::wrap('green', sprintf('(👤 %s) ', $username));
     }
     $session = $_get_session($username, $runner);
-    $driver->setHeader('Cookie', $session['cookie']);
+    $event->getDriver()->setHeader('Cookie', $session['cookie']);
   },
+
 ]);

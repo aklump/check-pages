@@ -58,6 +58,11 @@ trait SerializationTrait {
 
         return json_decode($serial);
     }
+
+    if (method_exists($this, 'debug')) {
+      $this->debug($serial);
+    }
+
     throw new \InvalidArgumentException(sprintf('Cannot deserialize content of type "%s".', $type));
   }
 

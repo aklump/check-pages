@@ -13,9 +13,10 @@
             "examples": [
                 "/",
                 "/foo",
-                "/foo?do=re"
+                "/foo?do=re",
+                "${someUrl}"
             ],
-            "pattern": "^/|http"
+            "pattern": "^/|http|\\$"
         },
         "js": {
             "type": "boolean",
@@ -990,6 +991,9 @@
                 ],
                 "additionalProperties": false,
                 "properties": {
+                    "user": {
+                        "$ref": "#/definitions/user"
+                    },
                     "set": {
                         "$ref": "#/definitions/set"
                     },

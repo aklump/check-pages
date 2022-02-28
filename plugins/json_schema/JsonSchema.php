@@ -2,10 +2,11 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Event\AssertEventInterface;
+use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Plugin\Plugin;
 use JsonSchema\Validator;
 use MidwestE\ObjectPath;
-use Psr\Http\Message\ResponseInterface;
-use AKlump\CheckPages\Parts\Runner;
 
 /**
  * Implements the Json Schema plugin.
@@ -39,7 +40,8 @@ final class JsonSchema extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeDriver(array &$config) {
+  public function onBeforeDriver(TestEventInterface $event) {
+    $config = $event->getTest()->getConfig();
     if (!is_array($config) || empty($config['find'])) {
       return;
     }
@@ -56,7 +58,10 @@ final class JsonSchema extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
+  public function onBeforeAssert(AssertEventInterface $event) {
+    $assert = $event->getAssert();
+    $response = $event->getDriver()->getResponse();
+
     $content_type = $this->getContentType($response);
     $haystack = array_map(function ($item) use ($assert, $content_type) {
       $item = $this->deserialize($item, $content_type);

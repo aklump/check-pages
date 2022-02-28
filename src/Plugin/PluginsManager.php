@@ -1,18 +1,30 @@
 <?php
 
-namespace AKlump\CheckPages;
+namespace AKlump\CheckPages\Plugin;
 
+use AKlump\CheckPages\Assert;
+use AKlump\CheckPages\Event\AssertEventInterface;
+use AKlump\CheckPages\Event\DriverEventInterface;
+use AKlump\CheckPages\Event\OnAfterAssert;
+use AKlump\CheckPages\Event\OnAfterRequest;
+use AKlump\CheckPages\Event\OnBeforeAssert;
+use AKlump\CheckPages\Event\OnBeforeDriver;
+use AKlump\CheckPages\Event\OnBeforeRequest;
+use AKlump\CheckPages\Event\OnBeforeTest;
+use AKlump\CheckPages\Event\OnLoadSuite;
+use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Parts\Runner;
-use AKlump\CheckPages\Parts\Suite;
-use AKlump\CheckPages\Parts\Test;
 use AKlump\LoftLib\Code\Strings;
 use JsonSchema\Validator;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Handles integration of plugins with the main app.
  */
-final class PluginsManager implements TestPluginInterface {
+final class PluginsManager {
+
+  private $runner;
 
   /**
    * @var array
@@ -50,6 +62,7 @@ final class PluginsManager implements TestPluginInterface {
   public function __construct(Runner $runner_instance, string $path_to_plugins) {
     $this->runner = $runner_instance;
     $this->testPluginsDir = rtrim($path_to_plugins, '/');
+    $this->subscribeToEvents($this->runner->getDispatcher());
   }
 
   /**
@@ -115,7 +128,7 @@ final class PluginsManager implements TestPluginInterface {
         // plugin should handle the assert.  We will allow more than one plugin
         // to handle an assert, if it's schema matches.
         $instance = $this->getPluginInstance($plugin['id']);
-        if ($instance instanceof TestPluginInterface) {
+        if ($instance instanceof PluginInterface) {
           $instance->handleAssert($assert, $needle, $response);
         }
       }
@@ -128,13 +141,13 @@ final class PluginsManager implements TestPluginInterface {
    * @param string $plugin_id
    *   The plugin ID.
    *
-   * @return \AKlump\CheckPages\TestPluginInterface
+   * @return \AKlump\CheckPages\Plugin\PluginInterface
    *   A plugin instance.
    *
    * @throws \RuntimeException
    *   If the class cannot be instantiated.
    */
-  private function getPluginInstance(string $plugin_id): TestPluginInterface {
+  private function getPluginInstance(string $plugin_id): PluginInterface {
     $plugins = $this->getAllPlugins();
     foreach ($plugins as $plugin) {
       if ($plugin['id'] === $plugin_id) {
@@ -188,20 +201,8 @@ final class PluginsManager implements TestPluginInterface {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeTest(Test $test) {
-    $config = $test->getConfig();
-    foreach ($this->getAllPlugins() as $plugin) {
-      $instance = $this->getPluginInstance($plugin['id']);
-      if ($instance->applies($config)) {
-        return $instance->{__FUNCTION__}($test);
-      }
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onBeforeDriver(array &$config) {
+  public function onBeforeDriver(TestEventInterface $event) {
+    $config = $event->getTest()->getConfig();
     $all_plugins = $this->getAllPlugins();
 
     /** @var array assertionPlugins These will be captured here and used in subsequent methods. */
@@ -231,7 +232,7 @@ final class PluginsManager implements TestPluginInterface {
           // This means that this plugin's schema matches $assert_config, therefore this
           // plugin should handle the assert.  We will allow more than one plugin
           // to handle an assert, if it's schema matches.
-          $applies = $validator->isValid() && $instance instanceof TestPluginInterface;
+          $applies = $validator->isValid() && $instance instanceof PluginInterface;
           if ($applies) {
             $this->assertionPlugins[$index][$plugin['id']] = $plugin + ['instance' => $instance];
             $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
@@ -240,27 +241,7 @@ final class PluginsManager implements TestPluginInterface {
       }
     }
     foreach ($this->testPlugins as $plugin) {
-      $plugin['instance']->{__FUNCTION__}($config);
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onBeforeRequest(&$driver) {
-    foreach ($this->testPlugins as $plugin) {
-      $plugin['instance']->{__FUNCTION__}($driver);
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
-    $assert->setToStringOverride([$this, 'onAssertToString']);
-    $plugin_collection = $this->assertionPlugins[$assert->getId()] ?? [];
-    foreach ($plugin_collection as $plugin) {
-      $plugin['instance']->{__FUNCTION__}($assert, $response);
+      $plugin['instance']->{__FUNCTION__}($event);
     }
   }
 
@@ -279,16 +260,66 @@ final class PluginsManager implements TestPluginInterface {
   /**
    * {@inheritdoc}
    */
-  public function applies(array &$config) {
+  public function defaultEventHandler($event) {
+    $method = explode('\\', get_class($event));
+    $method = array_pop($method);
+    foreach ($this->getAllPlugins() as $plugin) {
+      $instance = $this->getPluginInstance($plugin['id']);
+      $instance->$method($event);
+    }
   }
 
   /**
-   * {@inheritdoc}
+   * Register methods with the event dispatcher.
+   *
+   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher
+   *
+   * @return void
    */
-  public function onLoadSuite(Suite $suite) {
-    foreach ($this->getAllPlugins() as $plugin) {
-      $instance = $this->getPluginInstance($plugin['id']);
-      $instance->{__FUNCTION__}($suite);
-    }
+  public function subscribeToEvents(EventDispatcherInterface $dispatcher) {
+    $dispatcher->addListener(OnLoadSuite::class, [
+      $this,
+      'defaultEventHandler',
+    ]);
+
+    $dispatcher->addListener(OnBeforeTest::class, function (TestEventInterface $event) {
+      $config = $event->getTest()->getConfig();
+      foreach ($this->getAllPlugins() as $plugin) {
+        $instance = $this->getPluginInstance($plugin['id']);
+        if ($instance->applies($config)) {
+          return $instance->onBeforeTest($event);
+        }
+      }
+    });
+
+    $dispatcher->addListener(OnBeforeDriver::class, [
+      $this,
+      'onBeforeDriver',
+    ]);
+
+    $dispatcher->addListener(OnBeforeRequest::class, function (DriverEventInterface $event) {
+      foreach ($this->testPlugins as $plugin) {
+        $plugin['instance']->onBeforeRequest($event);
+      }
+    });
+
+    $dispatcher->addListener(OnAfterRequest::class, [
+      $this,
+      'defaultEventHandler',
+    ]);
+
+    $dispatcher->addListener(OnBeforeAssert::class, function (AssertEventInterface $event) {
+      $assert = $event->getAssert();
+      $assert->setToStringOverride([$this, 'onAssertToString']);
+      $plugin_collection = $this->assertionPlugins[$assert->getId()] ?? [];
+      foreach ($plugin_collection as $plugin) {
+        $plugin['instance']->onBeforeAssert($event);
+      }
+    });
+
+    $dispatcher->addListener(OnAfterAssert::class, [
+      $this,
+      'defaultEventHandler',
+    ]);
   }
 }

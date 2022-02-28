@@ -50,10 +50,16 @@
             "id": "changelog"
         },
         {
-            "id": "custom_test_options"
+            "id": "imports"
         },
         {
-            "id": "add_mixin"
+            "id": "shorthand"
+        },
+        {
+            "id": "options"
+        },
+        {
+            "id": "mixins"
         },
         {
             "id": "plugins"

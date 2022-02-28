@@ -30,7 +30,8 @@
         "midweste\/objectpath": "^1.0",
         "laminas\/laminas-xml2json": "^3.2",
         "ext-json": "*",
-        "symfony\/expression-language": "^5.4"
+        "symfony\/expression-language": "^5.4",
+        "symfony/event-dispatcher": "^5.4"
     },
     "version": "0.15.2",
     "bin": [

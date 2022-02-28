@@ -2,8 +2,9 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Event\AssertEventInterface;
+use AKlump\CheckPages\Plugin\Plugin;
 use MidwestE\ObjectPath;
-use Psr\Http\Message\ResponseInterface;
 
 /**
  * Implements the Data plugin.
@@ -34,26 +35,35 @@ final class Data extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
-    $assert->setSearch(self::SEARCH_TYPE);
-    $value = $this->deserialize(
-      $response->getBody(),
-      $this->getContentType($response)
-    );
+  public function onBeforeAssert(AssertEventInterface $event) {
+    try {
+      $assert = $event->getAssert();
+      $response = $event->getDriver()->getResponse();
+      $assert->setSearch(self::SEARCH_TYPE);
+      $value = $this->deserialize(
+        $response->getBody(),
+        $this->getContentType($response)
+      );
 
-    // "" means the root node.
-    $path = $assert->path ?? "";
-    if ($path) {
-      $o = new ObjectPath($value);
-      $value = $o->get($path);
-    }
-    $assert->setHaystack($this->normalize($value));
-    if ($assert->set) {
-      [$type] = $assert->getAssertion();
-      if (empty($type)) {
-        $assert->setNeedle($value);
-        $assert->setResult(TRUE);
+      // "" means the root node.
+      $path = $assert->path ?? "";
+      if ($path) {
+        $o = new ObjectPath($value);
+        $value = $o->get($path);
       }
+      $assert->setHaystack($this->normalize($value));
+      if ($assert->set) {
+        [$type] = $assert->getAssertion();
+        if (empty($type)) {
+          $assert->setNeedle($value);
+          $assert->setResult(TRUE);
+        }
+      }
+    }
+    catch (\Exception $exception) {
+      // TODO How to print a message? Throwing doesn't print anything to the user so that is not good.
+      $assert->setHaystack([]);
+      $assert->setResult(FALSE);
     }
   }
 

@@ -1,19 +1,20 @@
 <?php
 
-namespace AKlump\CheckPages;
+namespace AKlump\CheckPages\Plugin;
 
-use AKlump\CheckPages\Parts\Suite;
-use AKlump\CheckPages\Parts\Test;
-use Psr\Http\Message\ResponseInterface;
+use AKlump\CheckPages\Event\AssertEventInterface;
+use AKlump\CheckPages\Event\DriverEventInterface;
+use AKlump\CheckPages\Event\SuiteEventInterface;
+use AKlump\CheckPages\Event\TestEventInterface;
 
 /**
- * Interface TestPluginInterface.
+ * Interface PluginInterface.
  *
  * Give this to plugin classes that can handle assertions.
  *
  * @package AKlump\CheckPages
  */
-interface TestPluginInterface {
+interface PluginInterface {
 
   /**
    * @param array $config
@@ -25,25 +26,19 @@ interface TestPluginInterface {
    */
   public function applies(array &$config);
 
-  public function onLoadSuite(Suite $suite);
+  public function onLoadSuite(SuiteEventInterface $event);
 
-  public function onBeforeTest(Test $test);
+  public function onBeforeTest(TestEventInterface $event);
 
-  public function onBeforeDriver(array &$config);
+  public function onBeforeDriver(TestEventInterface $event);
 
-  public function onBeforeRequest(&$driver);
+  public function onBeforeRequest(DriverEventInterface $event);
 
-  /**
-   * Prepare the assert before it's run.
-   *
-   * This will only be called if the plugin will handle the assertion.
-   *
-   * @param \AKlump\CheckPages\Assert $assert
-   * @param \Psr\Http\Message\ResponseInterface $response
-   *
-   * @return mixed
-   */
-  public function onBeforeAssert(Assert $assert, ResponseInterface $response);
+  public function onAfterRequest(DriverEventInterface $event);
+
+  public function onBeforeAssert(AssertEventInterface $event);
+
+  public function onAfterAssert(AssertEventInterface $event);
 
   /**
    * Allow the plugin to control the stringification of the Assert instance.
@@ -62,6 +57,6 @@ interface TestPluginInterface {
    * @return string
    *   The stringified version of $assert.
    */
-  public function onAssertToString(string $stringified, Assert $assert): string;
+  public function onAssertToString(string $stringified, \AKlump\CheckPages\Assert $assert): string;
 
 }

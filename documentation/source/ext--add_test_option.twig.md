@@ -1,8 +1,23 @@
 <!--
-id: custom_test_options
+id: options
+title: Options
 -->
 
-# Adding New Test Options
+# Options: Configurable Abstraction
+
+@todo This needs to be rethought, now that we have shorthand.
+
+## How it Looks
+
+```yaml
+# file: suite.yml
+-
+  my_custom_option: 123
+```
+
+> Options are a step up from [imports](@imports) because they allow you to consolidate reusable code, while offering configuration via arguments, like a function. They are "options with arguments".
+
+## Explained
 
 If you need to do some fancy PHP transformations at certain points of test execution, you can hook into that flow using one or more custom test options.  **These are nothing more than functions attached to events.** In the following example, `foo` is the custom test option under study.
 

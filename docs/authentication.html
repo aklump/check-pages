@@ -24,11 +24,11 @@
   <h1>Authentication</h1>
   
 
-<p>If you want to check pages as an authenticated user of a website, then you have to be logged in, or authenticated before the request is made.  Some authentication providers are built-in, or you can write your own using  <a href="ext--add_test_option.html">add_test_option()</a>. You might refer to <em>includes/drupal8.inc</em> as a starting point.</p>
+<p>If you want to check pages as an authenticated user of a website, then you have to be logged in, or authenticated before the request is made. Some authentication providers are built-in, or you can write your own using  <a href="ext--add_test_option.html">add_test_option()</a>. You might refer to <em>includes/drupal8.inc</em> as a starting point.</p>
 
 <h2>Basic Setup</h2>
 
-<p>This example will use the <code>drupal8</code> built-in authentication provider. <em>Note: for Drupal 7 authentication, simply change <code>with_extras('drupal8'...</code> to <code>with_extras('drupal7'...</code></em>.</p>
+<p>This example will use the <code>drupal8</code> built-in authentication provider. <em>Note: for Drupal 7 authentication, simply change <code>add_mixin('drupal8'...</code> to <code>add_mixin('drupal7'...</code></em>.</p>
 
 <ol>
 <li><p>Create a YAML (or JSON) file containing user login credentials.  <strong>Do not commit this to source control.</strong> You can place this whereever, but in this example it will be located in the config directory as <em>config/users.yml</em>. You may list as many users as you want. Each record must have the keys <code>name</code> and <code>pass</code>. Yes, <code>pass</code> is the un-hashed plaintext password for the user, so be cautious.</p>
@@ -103,6 +103,19 @@ extras:
 extras:
  users: config/users--dev.yml
 </code></pre></li>
+<li><p>You can capture several user IDs at once like this. Furthermore, this can be moved to an import, and you have all user IDs available to all suites, very easily by importing with <code>- import: imports/get_user_ids</code>  See <a href="demo--import.html">imports</a> for more info.</p>
+
+<pre><code class="yaml"># file: imports/_get_user_ids
+
+-
+ user: site_test.worker
+ set: workerUid
+ is: ${user.id}
+-
+ user: site_test.admin
+ set: adminUid
+ is: ${user.id}
+</code></pre></li>
 </ol>
 
 </section>
@@ -114,7 +127,7 @@ extras:
 <footer>
   <div class="pager"><a href="why.html" class="prev why">&laquo;Using `why` For Better Clarity</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="file_output.html" class="next files">File Output&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 20 Feb 2022 21:48:31 -0800</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 27 Feb 2022 21:58:28 -0800</p>
   </div>
 </footer>
 

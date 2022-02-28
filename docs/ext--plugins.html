@@ -2,18 +2,18 @@
 
 <html>
 <head>
-  <title>Build a Plugin</title>
+  <title>Plugins</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
 </head>
 
 <body class="page--plugins">
 <header>
-  <div class="pager"><a href="ext--mixins.html" class="prev ext--mixins">&laquo;Adding Mixins (Reusable Runner Code)</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div></header>
+  <div class="pager"><a href="ext--mixins.html" class="prev ext--mixins">&laquo;Mixins</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
-                        <a href="ext--add_test_option.html">Extending</a>
+                        <a href="ext--imports.html">Extending</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -23,12 +23,18 @@
   </section>
 
 <section>
-  <h1>Build a Plugin</h1>
+  <h1>Plugins: Full Customization</h1>
   
 
-<p>@todo Where do I put these as an end user?</p>
+<h2>How it Looks</h2>
+
+<p><em>How it looks is myriad and you must refer to the plugin code to determine how it's implemented when writing tests.</em></p>
+
+<h2>Explained</h2>
 
 <p>This is the most involved method of extending Check Pages, and offers the greatest control as well.</p>
+
+<p>@todo Where do I put these as an end user?</p>
 
 <h2>Creating a Plugin</h2>
 
@@ -106,7 +112,10 @@ suite.yml_.</li>
 <li>If it failed you must throw an exception, the message of which will be printed in the test results as to the reason for the failure.</li>
 </ol>
 
-<pre><code class="php">public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
+<pre><code class="php">public function onBeforeAssert(\AKlump\CheckPages\Event\AssertEventInterface $event) {
+    $assert = $event-&gt;getAssert();
+    $response = $event-&gt;getReponse();
+
   $assert-&gt;setAssertion(Assert::ASSERT_CALLABLE, function ($assert) {
 
     // ... do your fancy assertion
@@ -183,9 +192,9 @@ foreach ([
 </div>
 
 <footer>
-  <div class="pager"><a href="ext--mixins.html" class="prev ext--mixins">&laquo;Adding Mixins (Reusable Runner Code)</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div>  
+  <div class="pager"><a href="ext--mixins.html" class="prev ext--mixins">&laquo;Mixins</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 20 Feb 2022 21:48:39 -0800</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 27 Feb 2022 21:58:44 -0800</p>
   </div>
 </footer>
 

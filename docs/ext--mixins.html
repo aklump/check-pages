@@ -2,18 +2,18 @@
 
 <html>
 <head>
-  <title>Adding Mixins (Reusable Runner Code)</title>
+  <title>Mixins</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
 </head>
 
-<body class="page--add_mixin">
+<body class="page--mixins">
 <header>
-  <div class="pager"><a href="ext--add_test_option.html" class="prev ext--add_test_option">&laquo;Adding New Test Options</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--plugins.html" class="next plugins">Build a Plugin&raquo;</a></div></header>
+  <div class="pager"><a href="ext--add_test_option.html" class="prev ext--add_test_option">&laquo;Options</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--plugins.html" class="next plugins">Plugins&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
-                        <a href="ext--add_test_option.html">Extending</a>
+                        <a href="ext--imports.html">Extending</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -23,8 +23,20 @@
   </section>
 
 <section>
-  <h1>Adding Mixins (Reusable Runner Code)</h1>
+  <h1>Mixins: Shared Code Between Runners</h1>
   
+
+<h2>How it Looks</h2>
+
+<pre><code class="yaml"># file: runner.php
+add_mixin('my_custom_mixin');
+</code></pre>
+
+<blockquote>
+  <p>When you want to share code across runners, you should look to <em>mixins</em>. Often you will want to put your runner function implementations inside a mixin file.</p>
+</blockquote>
+
+<h2>Explained</h2>
 
 <p>Another way to extend <em>Check Pages</em> is to use the <code>add_mixin()</code> function. This method is easier and faster than writing a plugin. It is a simple means to share runner customisation across different runners, or even projects. This is the basis for the authentication providers shipped with Check Pages.</p>
 
@@ -69,6 +81,10 @@ $color = $config['color'];
 echo \AKlump\LoftLib\Bash\Color::wrap('blue', 'foo');
 </code></pre>
 
+<h2>Namespace</h2>
+
+<p>You should use the namespace <code>AKlump\CheckPages\Mixins</code> for any class objects you might create.</p>
+
 <h2>Errors</h2>
 
 <p>To stop testing immediately you should throw an instance of <code>\AKlump\CheckPages\Exceptions\StopRunnerException</code>. The message argument will be displayed to the user.</p>
@@ -80,9 +96,9 @@ echo \AKlump\LoftLib\Bash\Color::wrap('blue', 'foo');
 </div>
 
 <footer>
-  <div class="pager"><a href="ext--add_test_option.html" class="prev ext--add_test_option">&laquo;Adding New Test Options</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--plugins.html" class="next plugins">Build a Plugin&raquo;</a></div>  
+  <div class="pager"><a href="ext--add_test_option.html" class="prev ext--add_test_option">&laquo;Options</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--plugins.html" class="next plugins">Plugins&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 20 Feb 2022 21:48:39 -0800</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 27 Feb 2022 21:58:43 -0800</p>
   </div>
 </footer>
 

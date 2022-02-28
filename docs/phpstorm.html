@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>PhpStorm Integration</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--phpstorm">
+<header>
+  <div class="pager"><a href="cli.html" class="prev cli">&laquo;Command Line Runner</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="deep--custom_dirs.html" class="next custom_dirs">How To Use A Custom Directory For Suite Files&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>PhpStorm Integration</h1>
+  
+
+<p>You may use the <em>phpstorm.http</em> mixin to export test suites as <a href="https://www.jetbrains.com/help/phpstorm/http-client-in-product-code-editor.html">HTTP Client</a> files.</p>
+
+<p>To enable this add the following to your runner:</p>
+
+<pre><code class="php">add_mixin('phpstorm.http', [
+  'output' =&gt; config_get('files') . '/phpstorm',
+  'single_file' =&gt; TRUE,
+  'exclude_passing' =&gt; TRUE,
+]);
+</code></pre>
+
+<ul>
+<li>As you can see you have to create an output directory as <code>output</code>.</li>
+<li>Each suite will create it's own file unless you set <code>single_file</code> to <code>TRUE</code>.</li>
+<li>Set <code>exclude_passing</code> and only failing tests will be exported.</li>
+</ul>
+
+<p>Each time your run the suite, the file will be recreated.</p>
+
+<p><strong>Be careful with these files because they contain session cookies for any authenticated requests.</strong></p>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="cli.html" class="prev cli">&laquo;Command Line Runner</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="deep--custom_dirs.html" class="next custom_dirs">How To Use A Custom Directory For Suite Files&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 27 Feb 2022 21:58:47 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

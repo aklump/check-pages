@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\CheckPages;
+namespace AKlump\CheckPages\Plugin;
 
 use AKlump\LoftLib\Code\Strings;
 use Symfony\Component\Yaml\Yaml;
@@ -13,7 +13,7 @@ final class PluginsCompiler {
   private $masterSchemaPath;
 
   /**
-   * @var \AKlump\CheckPages\PluginsManager
+   * @var \AKlump\CheckPages\Plugin\PluginsManager
    */
   private $pluginsManager;
 
@@ -137,9 +137,9 @@ final class PluginsCompiler {
     $this->ensureDir($this->examplesPath . "/web/plugins/");
 
     // Locate the file with the filename of 'test_subject'.
-    $subject = array_first(array_filter(scandir($path_to_plugin), function ($path) {
-      return pathinfo($path, PATHINFO_FILENAME) === 'test_subject';
-    }));
+    $subject = array_values(array_filter(scandir($path_to_plugin), function ($path) {
+        return pathinfo($path, PATHINFO_FILENAME) === 'test_subject';
+      }))[0] ?? NULL;
     if (empty($subject)) {
       return FALSE;
     }

@@ -2,7 +2,8 @@
 
 namespace AKlump\CheckPages;
 
-use Psr\Http\Message\ResponseInterface;
+use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Plugin\Plugin;
 
 /**
  * Implements the Header plugin.
@@ -21,7 +22,8 @@ final class Header extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeDriver(array &$config) {
+  public function onBeforeDriver(TestEventInterface $event) {
+    $config = $event->getTest()->getConfig();
     if (!is_array($config) || empty($config['find'])) {
       return;
     }
@@ -35,10 +37,11 @@ final class Header extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
+  public function onBeforeAssert(\AKlump\CheckPages\Event\AssertEventInterface $event) {
+    $assert = $event->getAssert();
     $search_value = $assert->{self::SEARCH_TYPE};
     $assert->setSearch(self::SEARCH_TYPE, $search_value);
-    $assert->setHaystack($response->getHeader($search_value));
+    $assert->setHaystack($event->getDriver()->getResponse()->getHeader($search_value));
   }
 
   /**

@@ -4,6 +4,8 @@
 namespace AKlump\CheckPages;
 
 
+use Psr\Http\Message\ResponseInterface;
+
 interface RequestDriverInterface {
 
   /**
@@ -16,11 +18,18 @@ interface RequestDriverInterface {
   public function setUrl(string $url): self;
 
   /**
-   * Get the request response.
+   * Perform the HTTP request.
+   *
+   * @return \AKlump\CheckPages\RequestDriverInterface
+   */
+  public function request(): self;
+
+  /**
+   * Return the response after fetching.
    *
    * @return \Psr\Http\Message\ResponseInterface
    */
-  public function getResponse(): \Psr\Http\Message\ResponseInterface;
+  public function getResponse(): ResponseInterface;
 
   /**
    * Return the final location of the page (after redirects, if any).

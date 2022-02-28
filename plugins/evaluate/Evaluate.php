@@ -2,7 +2,7 @@
 
 namespace AKlump\CheckPages;
 
-use Psr\Http\Message\ResponseInterface;
+use AKlump\CheckPages\Plugin\Plugin;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 /**
@@ -29,14 +29,15 @@ final class Evaluate extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeDriver(array &$config) {
-    $this->config = $config;
+  public function onBeforeDriver(\AKlump\CheckPages\Event\TestEventInterface $event) {
+    $this->config = $event->getTest()->getConfig();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
+  public function onBeforeAssert(\AKlump\CheckPages\Event\AssertEventInterface $event) {
+    $assert = $event->getAssert();
     $assert->setSearch(static::SEARCH_TYPE);
     $original_eval = $this->config['find'][$assert->getId()]['eval'] ?? NULL;
     $assert->setHaystack([$original_eval]);

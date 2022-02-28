@@ -2,7 +2,7 @@
 
 namespace AKlump\CheckPages;
 
-use Psr\Http\Message\ResponseInterface;
+use AKlump\CheckPages\Plugin\Plugin;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -15,7 +15,8 @@ final class Dom extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
+  public function onBeforeAssert(\AKlump\CheckPages\Event\AssertEventInterface $event) {
+    $assert = $event->getAssert();
     $search_value = $assert->{self::SEARCH_TYPE};
     $assert->setSearch(self::SEARCH_TYPE, $search_value);
     $crawler = new Crawler($assert->getHaystack());

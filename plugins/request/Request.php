@@ -2,7 +2,9 @@
 
 namespace AKlump\CheckPages;
 
-use Psr\Http\Message\ResponseInterface;
+use AKlump\CheckPages\Event\DriverEventInterface;
+use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Plugin\Plugin;
 
 /**
  * Implements the Request plugin.
@@ -31,19 +33,20 @@ final class Request extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeDriver(array &$config) {
-    $this->config = $config;
-    $this->request['method'] = strtoupper($config['request']['method'] ?? 'get');
-    if (!empty($config['request']['headers'])) {
-      $this->request['headers'] = array_combine(array_map('strtolower', array_keys($config['request']['headers'])), $config['request']['headers']);
+  public function onBeforeDriver(TestEventInterface $event) {
+    $this->config = $event->getTest()->getConfig();
+    $this->request['method'] = strtoupper($this->config['request']['method'] ?? 'get');
+    if (!empty($this->config['request']['headers'])) {
+      $this->request['headers'] = array_combine(array_map('strtolower', array_keys($this->config['request']['headers'])), $this->config['request']['headers']);
     }
-    $this->request['body'] = $config['request']['body'] ?? '';
+    $this->request['body'] = $this->config['request']['body'] ?? '';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function onBeforeRequest(&$driver) {
+  public function onBeforeRequest(DriverEventInterface $event) {
+    $driver = $event->getDriver();
     if (!$driver instanceof GuzzleDriver) {
       if (!empty($this->config['js'])) {
         // Only the GuzzleDriver has been tested to work with this plugin.  When
@@ -53,8 +56,10 @@ final class Request extends Plugin {
       throw new \RuntimeException(sprintf('The %s driver is not supported by the request plugin.', get_class($driver)));
     }
 
-    foreach ($this->request['headers'] as $key => $value) {
-      $driver->setHeader($key, $value);
+    if (!empty($this->request['headers'])) {
+      foreach ($this->request['headers'] as $key => $value) {
+        $driver->setHeader($key, $value);
+      }
     }
     $driver
       ->setBody($this->request['body'])

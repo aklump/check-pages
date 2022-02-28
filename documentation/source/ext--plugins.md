@@ -1,12 +1,20 @@
 <!--
 id: plugins
+title: Plugins
 -->
 
-# Build a Plugin
+# Plugins: Full Customization
 
-@todo Where do I put these as an end user?
+
+## How it Looks
+
+_How it looks is myriad and you must refer to the plugin code to determine how it's implemented when writing tests._
+
+## Explained
 
 This is the most involved method of extending Check Pages, and offers the greatest control as well.
+
+@todo Where do I put these as an end user?
 
 ## Creating a Plugin
 
@@ -86,7 +94,10 @@ You can see the basic strategy here:
 2. If it failed you must throw an exception, the message of which will be printed in the test results as to the reason for the failure.
 
 ```php
-public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
+public function onBeforeAssert(\AKlump\CheckPages\Event\AssertEventInterface $event) {
+    $assert = $event->getAssert();
+    $response = $event->getReponse();
+
   $assert->setAssertion(Assert::ASSERT_CALLABLE, function ($assert) {
     
     // ... do your fancy assertion

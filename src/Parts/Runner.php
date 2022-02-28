@@ -4,12 +4,20 @@ namespace AKlump\CheckPages\Parts;
 
 use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\ChromeDriver;
+use AKlump\CheckPages\Event\OnAfterAssert;
+use AKlump\CheckPages\Event\OnAfterRequest;
+use AKlump\CheckPages\Event\OnBeforeAssert;
+use AKlump\CheckPages\Event\OnBeforeDriver;
+use AKlump\CheckPages\Event\OnBeforeRequest;
+use AKlump\CheckPages\Event\OnBeforeTest;
+use AKlump\CheckPages\Event\OnLoadSuite;
 use AKlump\CheckPages\Exceptions\SuiteFailedException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\GuzzleDriver;
 use AKlump\CheckPages\Output\FailedTestMarkdown;
-use AKlump\CheckPages\PluginsManager;
+use AKlump\CheckPages\Plugin\PluginsManager;
+use AKlump\CheckPages\RequestDriverInterface;
 use AKlump\CheckPages\SerializationTrait;
 use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
@@ -17,7 +25,7 @@ use AKlump\LoftLib\Bash\Color;
 use GuzzleHttp\Exception\ServerException;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
-use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Yaml\Yaml;
 
 class Runner {
@@ -34,6 +42,8 @@ class Runner {
   const OUTPUT_NORMAL = 1;
 
   const OUTPUT_QUIET = 2;
+
+  const OUTPUT_DEBUG = 3;
 
   protected $outputMode;
 
@@ -134,6 +144,11 @@ class Runner {
   private $pathToFiles;
 
   /**
+   * @var \Symfony\Component\EventDispatcher\EventDispatcher
+   */
+  private $dispatcher;
+
+  /**
    * App constructor.
    *
    * @param string $root_dir
@@ -146,7 +161,7 @@ class Runner {
     $this->rootDir = $root_dir;
     $this->addResolveDirectory($this->rootDir);
     $this->addResolveDirectory($this->rootDir . '/tests');
-    $this->pluginsManager = new PluginsManager($this, $this->rootDir . '/plugins');
+    $this->pluginsManager = new PluginsManager($this, $this->rootDir . '/plugins', $this->getDispatcher());
     $this->schema = [];
     $schema_path = $this->rootDir . '/' . static::SCHEMA_VISIT . '.json';
     if (file_exists($schema_path)) {
@@ -156,22 +171,21 @@ class Runner {
   }
 
   /**
+   * @return \Symfony\Component\EventDispatcher\EventDispatcher
+   */
+  public function getDispatcher(): EventDispatcher {
+    if (empty($this->dispatcher)) {
+      $this->dispatcher = new EventDispatcher();
+    }
+
+    return $this->dispatcher;
+  }
+
+  /**
    * @return mixed
    */
   public function getSchema() {
     return $this->schema;
-  }
-
-  /**
-   * Get the output mode for echo consideration.
-   *
-   * @return int
-   *
-   * @see Runner::OUTPUT_QUIET
-   * @see Runner::OUTPUT_NORMAL
-   */
-  public function getOutputMode(): int {
-    return $this->outputMode;
   }
 
   /**
@@ -212,6 +226,25 @@ class Runner {
     }
 
     return $this;
+  }
+
+
+  /**
+   * Get the output mode for echo consideration.
+   *
+   * @return int
+   *   The current output mode.
+   *
+   * @see Runner::OUTPUT_QUIET
+   * @see Runner::OUTPUT_NORMAL
+   * @see Runner::OUTPUT_DEBUG
+   */
+  public function getOutputMode(): int {
+    if ($this->debugging) {
+      return self::OUTPUT_DEBUG;
+    }
+
+    return $this->outputMode;
   }
 
   /**
@@ -516,7 +549,9 @@ class Runner {
     foreach (array_values($data) as $test_index => $config) {
       $suite->addTest($test_index, $config);
     }
-    $this->pluginsManager->onLoadSuite($suite);
+
+    $event = new OnLoadSuite($suite);
+    $this->dispatcher->dispatch($event, get_class($event));;
 
     // On return from the hook, we need to reparse to get format for validation.
     $suite_yaml = Yaml::dump($suite->jsonSerialize());
@@ -536,10 +571,8 @@ class Runner {
     foreach ($suite->getTests() as $test_index => $test) {
       $config = $test->getConfig();
 
-      $on_before_test_result = $this->pluginsManager->onBeforeTest($test);
-      if (Test::IS_COMPLETE === $on_before_test_result) {
-        continue;
-      }
+      $event = new OnBeforeTest($test);
+      $this->dispatcher->dispatch($event, get_class($event));;
 
       if (isset($config['set'])) {
         $config['is'] = $suite->variables()->interpolate($config['is']);
@@ -550,7 +583,7 @@ class Runner {
       if (count($suite->variables())) {
         foreach (array_keys($config) as $key) {
           // We must not interpolate `find` at this time, that will take place
-          // inside of the handleFindAssert method.  That is because variables
+          // inside of the doFindAssert method.  That is because variables
           // can be set on every assert.  However the rest of the config should
           // be interpolated, such as will affect the URL.
           if ($key !== 'find' && $key !== 'set') {
@@ -635,7 +668,7 @@ class Runner {
     }
   }
 
-  protected function echoMessages() {
+  public function echoMessages() {
     $color_map = [
       'error' => 'red',
       'info' => 'blue',
@@ -664,7 +697,10 @@ class Runner {
       $config['find'] = empty($config['find']) ? [] : [$config['find']];
     }
 
-    $this->pluginsManager->onBeforeDriver($config);
+    $test->setConfig($config);
+    $event = new OnBeforeDriver($test);
+    $this->dispatcher->dispatch($event, get_class($event));;
+    $config = $test->getConfig();
 
     $test_passed = function (bool $result = NULL): bool {
       static $state;
@@ -691,7 +727,9 @@ class Runner {
     else {
       $driver = new GuzzleDriver();
     }
-    $this->pluginsManager->onBeforeRequest($driver);
+
+    $event = new OnBeforeRequest($test, $driver);
+    $this->dispatcher->dispatch($event, get_class($event));;
 
     // This will show the request headers and body if asked
     if (array_intersect_key(array_flip([
@@ -704,6 +742,7 @@ class Runner {
     try {
       $response = $driver
         ->setUrl($this->url($config['url']))
+        ->request()
         ->getResponse();
     }
     catch (ServerException $exception) {
@@ -767,6 +806,9 @@ class Runner {
       }
     }
 
+    $event = new OnAfterRequest($driver, $test);
+    $this->dispatcher->dispatch($event, get_class($event));;
+
     if (empty($config['find']) && $this->debugging) {
       $this->debug('├── This test has no assertions.');
     }
@@ -776,7 +818,11 @@ class Runner {
       if (is_scalar($definition)) {
         $definition = [Assert::ASSERT_CONTAINS => $definition];
       }
-      $test_passed($this->handleFindAssert(strval($id), $definition, $response));
+
+      $assert = $this->doFindAssert($test, strval($id), $definition, $driver);
+
+      $test_passed($assert->getResult());
+
       ++$id;
     }
 
@@ -967,10 +1013,11 @@ class Runner {
    * @param \Psr\Http\Message\ResponseInterface $response
    *   The response containing the custom headers and body.
    *
-   * @return bool
-   *   True if the find was successful.
+   * @return \AKlump\CheckPages\Assert
+   *    The result can be read from getResult().
    */
-  protected function handleFindAssert(string $id, array $definition, ResponseInterface $response): bool {
+  protected function doFindAssert(Test $test, string $id, array $definition, RequestDriverInterface $driver): Assert {
+    $response = $driver->getResponse();
     $definition = $this->getSuite()->variables()->interpolate($definition);
     $assert = new Assert($definition, $id);
     $assert
@@ -998,10 +1045,10 @@ class Runner {
       }
     }
 
-    $this->pluginsManager->onBeforeAssert($assert, $response);
+    $event = new OnBeforeAssert($assert, $test, $driver);
+    $this->dispatcher->dispatch($event, get_class($event));;
 
     $assert->run();
-    $pass = $assert->getResult();
 
     if ($assert->set) {
       $needle = $assert->getNeedle() ?? $assert->getHaystack()[0] ?? NULL;
@@ -1015,7 +1062,7 @@ class Runner {
     }
 
     $why = strval($assert);
-    if (!$pass) {
+    if (!$assert->getResult()) {
       if (!empty($definition['why'])) {
         $why = "{$definition['why']} $why";
       }
@@ -1028,7 +1075,10 @@ class Runner {
       $why && $this->pass("├── $why");
     }
 
-    return $pass;
+    $event = new OnAfterAssert($assert, $test, $driver);
+    $this->dispatcher->dispatch($event, get_class($event));
+
+    return $assert;
   }
 
   /**

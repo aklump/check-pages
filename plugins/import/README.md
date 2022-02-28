@@ -1,5 +1,17 @@
 # Imports (Code Reuse with Partials)
 
+## How it Looks
+
+```yaml
+# file: suite.yml
+-
+  import: headings
+```
+
+> Since imports are effectively cut and paste, they allow for no configuration. If you need something like a function, look to [shorthand](@shorthand), [options](@options) or [plugins](@plugins).
+
+## Explained
+
 The concept of imports is not new. Write a partial and include it in other files. You can do this too with _Check Pages_.
 
 If you write five suites and realize that you repeat the same tests in several, this is a time to consider an import. It creates coupling and dependency, so it may or may not be a good idea.

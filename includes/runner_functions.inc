@@ -5,6 +5,7 @@
  * These are functions available for writing tests.
  */
 
+use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use MidwestE\ObjectPath;
@@ -98,16 +99,42 @@ function add_directory(string $absolute_path_to_dir) {
  *   The name of the test option, which will be used as the key in each test
  *   YAML array.
  * @param array $callbacks
- *   An array keyed by the method from \AKlump\CheckPages\TestPluginInterface
+ *   An array keyed by the method from \AKlump\CheckPages\Plugin\PluginInterface
  *   which should trigger the callback, the value is a callback that will
  *   receive the arguments provided in the test suite yaml file as the value of
  *   $name + the arguments of the given method + an array of contextual info,
  *   including the test running instance.  Basically everything you might need
  *   to customize the runner, suite, test, or assertions.
+ *
+ * @deprecated This needs to be renamed, i.e. "listen", "create_plugin".
  */
 function add_test_option(string $name, array $callbacks) {
   global $runner;
   $runner->addTestOption($name, $callbacks);
+}
+
+/**
+ * Subscribe a callback to an event class.
+ *
+ * @param string|array $event_classname
+ *   If string, the FQN of the event class,
+ *   e.g."\AKlump\CheckPages\Event\OnAfterRequest::class" ; if array
+ *   [$event_classname, $priority].
+ * @param $callback
+ *   The function to call on event.
+ *
+ * @return $this
+ *   Self for chaining.
+ *
+ * @link https://symfony.com/doc/current/event_dispatcher.html
+ */
+function respond_to_event($event, callable $callback) {
+  global $runner;
+  if (!is_array($event)) {
+    $event = [$event, 0];
+  }
+  list($event, $priority) = $event;
+  $runner->getDispatcher()->addListener($event, $callback, $priority);
 }
 
 /**
@@ -172,22 +199,58 @@ function with_extras(string $extras_filename, array $config) {
  *
  * @throws \AKlump\CheckPages\Exceptions\StopRunnerException If the mixin cannot be found.
  */
-function add_mixin(string $name, array $config = []) {
+function add_mixin(string $mixin, array $config = []) {
   global $runner;
   try {
-    $require_path = $runner->resolveFile("$name.php");
+    $require_path = $runner->resolveFile("$mixin.php");
   }
   catch (UnresolvablePathException $exception) {
     $require_path = NULL;
   }
   if (is_null($require_path)) {
     try {
-      $require_path = $runner->resolveFile("mixins/$name.php");
+      $require_path = $runner->resolveFile("mixins/$mixin.php");
     }
     catch (\Exception $exception) {
-      throw new StopRunnerException(sprintf('Cannot add mixin "%s"; the path does not resolve.', $name), $exception->getCode(), $exception);
+      throw new StopRunnerException(sprintf('Cannot add mixin "%s"; the path does not resolve.', $mixin), $exception->getCode(), $exception);
     }
   }
-  unset($name);
-  require_once $require_path;
+  try {
+    require_once $require_path;
+  }
+  catch (\Exception $exception) {
+    $class = get_class($exception);
+    $message = sprintf('The mixin "%s" has failed.%s', $mixin, PHP_EOL . '└── ' . $exception->getMessage());
+    throw new $class($message, $exception->getCode(), $exception);
+  }
+}
+
+/**
+ * Register a custom test parameter.
+ *
+ * This function can be used as syntatic sugar around more complete configs,
+ * because it can be used to rewrite an alias, or shorthand--more readible test
+ * config--into the necessary configuration needed to run the test.  A common
+ * use-case is abstracting API calls.
+ *
+ * @param string $parameter_name
+ * @param callable $callback
+ *   Will receive ($config, $test) as it's arguments.  It should return void.
+ *   If changing the test config, then it should call $test->setConfig() with
+ *   the mutated $config.
+ *
+ * @return void
+ */
+function add_shorthand(string $parameter_name, callable $callback) {
+  global $runner;
+  $runner->addTestOption($parameter_name, [
+    'onLoadSuite' => function (SuiteEventInterface $event) use ($callback, $parameter_name) {
+      foreach ($event->getSuite()->getTests() as $test) {
+        $config = $test->getConfig();
+        if (isset($config[$parameter_name])) {
+          $callback($config, $test);
+        }
+      }
+    },
+  ]);
 }

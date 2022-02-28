@@ -2,10 +2,11 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Event\SuiteEventInterface;
+use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Exceptions\TestOptionFailed;
 use AKlump\CheckPages\Parts\Runner;
-use AKlump\CheckPages\Parts\Suite;
-use AKlump\CheckPages\Parts\Test;
-use Psr\Http\Message\ResponseInterface;
+use AKlump\CheckPages\Plugin\Plugin;
 
 /**
  * Implements the Options plugin.
@@ -50,29 +51,29 @@ final class Options extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onLoadSuite(Suite $suite) {
+  public function onLoadSuite(SuiteEventInterface $event) {
     return $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
 
   /**
    * {@inheritdoc}
    */
-  public function onBeforeTest(Test $test) {
+  public function onBeforeTest(TestEventInterface $event) {
     return $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
 
   /**
    * {@inheritdoc}
    */
-  public function onBeforeDriver(array &$config) {
+  public function onBeforeDriver(TestEventInterface $event) {
     return $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
 
   /**
    * {@inheritdoc}
    */
-  public function onBeforeRequest(&$driver) {
-    $this->pluginData['driver'] = $driver;
+  public function onBeforeRequest(\AKlump\CheckPages\Event\DriverEventInterface $event) {
+    $this->pluginData['driver'] = $event->getDriver();
 
     return $this->handleCallbackByHook(__FUNCTION__, func_get_args());
   }
@@ -80,7 +81,10 @@ final class Options extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
+  public function onBeforeAssert(\AKlump\CheckPages\Event\AssertEventInterface $event) {
+    $assert = $event->getAssert();
+    $response = $event->getDriver()->getResponse();
+
     $this->pluginData['assert'] = $assert;
     $this->pluginData['response'] = $response;
     $search_value = $assert->{self::SEARCH_TYPE};
@@ -118,7 +122,7 @@ final class Options extends Plugin {
         }
         catch (\Exception $exception) {
           // Repackage remaining exceptions as option failures.
-          throw new \AKlump\CheckPages\Exceptions\TestOptionFailed($this->pluginData, $exception->getMessage(), $exception);
+          throw new TestOptionFailed($this->pluginData, $exception->getMessage(), $exception);
         }
       }
     }

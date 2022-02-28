@@ -2,7 +2,8 @@
 
 namespace AKlump\CheckPages;
 
-use Psr\Http\Message\ResponseInterface;
+use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Plugin\Plugin;
 
 /**
  * Implements the javascript plugin.
@@ -21,13 +22,15 @@ final class Javascript extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeDriver(array &$config) {
-    if (!is_array($config) || empty($config['find'])) {
+  public function onBeforeDriver(TestEventInterface $event) {
+    $config = $event->getTest()->getConfig();
+    if (empty($config['find'])) {
       return;
     }
     foreach ($config['find'] as $assertion) {
       if (is_array($assertion) && array_key_exists(self::SEARCH_TYPE, $assertion)) {
         $config['js'] = TRUE;
+        $event->getTest()->setConfig($config);
         $this->assertions[] = $assertion;
       }
     }
@@ -36,13 +39,12 @@ final class Javascript extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeRequest(&$driver) {
-    if (empty($this->assertions)) {
-      return;
-    }
-    foreach ($this->assertions as $assertion) {
-      if (!empty($assertion[self::SEARCH_TYPE])) {
-        $driver->addJavascriptEval($assertion[self::SEARCH_TYPE]);
+  public function onBeforeRequest(\AKlump\CheckPages\Event\DriverEventInterface $event) {
+    if (!empty($this->assertions)) {
+      foreach ($this->assertions as $assertion) {
+        if (!empty($assertion[self::SEARCH_TYPE])) {
+          $event->getDriver()->addJavascriptEval($assertion[self::SEARCH_TYPE]);
+        }
       }
     }
   }
@@ -50,7 +52,9 @@ final class Javascript extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeAssert(Assert $assert, ResponseInterface $response) {
+  public function onBeforeAssert(\AKlump\CheckPages\Event\AssertEventInterface $event) {
+    $assert = $event->getAssert();
+    $response = $event->getDriver()->getResponse();
     $search_value = $assert->{self::SEARCH_TYPE};
     $assert->setSearch(self::SEARCH_TYPE, $search_value);
 

@@ -82,7 +82,7 @@ final class ChromeDriver extends RequestDriver {
   /**
    * @inheritDoc
    */
-  public function getResponse(): ResponseInterface {
+  public function request(): RequestDriverInterface {
 
     // Context creates deadline for operations.
     // TODO Make the timeout configurable.
@@ -107,12 +107,12 @@ final class ChromeDriver extends RequestDriver {
         $this->devtools->network()->enable($this->ctx, EnableRequest::make());
 
         /** @var \ChromeDevtoolsProtocol\Model\Network\Response $response */
-        $this->response = NULL;
+        $this->evResponse = NULL;
         $this->devtools->network()
           ->addResponseReceivedListener(function (ResponseReceivedEvent $ev) {
             // This will will be called potentially many times, but it's the
             // first response that we want to deal with.
-            $this->response = $this->response ?? $ev->response;
+            $this->evResponse = $this->evResponse ?? $ev->response;
           });
 
         $request_headers = $this->getHeaders();
@@ -129,10 +129,10 @@ final class ChromeDriver extends RequestDriver {
         $this->devtools->page()->awaitLoadEventFired($this->ctx);
         $page_contents = $this->getPage();
 
-        if (!$this->response) {
+        if (!$this->evResponse) {
           throw new \RuntimeException('No response.');
         }
-        $response_headers = $this->response->headers->all();
+        $response_headers = $this->evResponse->headers->all();
 
         if ($this->styleRequests) {
           foreach ($this->styleRequests as $selector => &$request) {
@@ -182,11 +182,20 @@ final class ChromeDriver extends RequestDriver {
       $instance->close();
     }
 
-    return new Response(
+    $this->response = new Response(
       $page_contents,
-      $this->response->status,
+      $this->evResponse->status,
       $response_headers
     );
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getResponse(): ResponseInterface {
+    return $this->response;
   }
 
   /**
@@ -209,6 +218,7 @@ final class ChromeDriver extends RequestDriver {
       ->setMethod($this->method)
       ->setUrl($this->url)
       ->setBody($this->body)
+      ->request()
       ->getResponse();
 
     return $redirect_driver->getRedirectCode();
@@ -324,4 +334,5 @@ final class ChromeDriver extends RequestDriver {
         );
       });
   }
+
 }
