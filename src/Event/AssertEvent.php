@@ -7,7 +7,7 @@ use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\RequestDriverInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
-final class OnBeforeAssert extends Event implements AssertEventInterface {
+final class AssertEvent extends Event implements AssertEventInterface {
 
   /**
    * @var \AKlump\CheckPages\Assert

@@ -2,6 +2,8 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Event\AssertEventInterface;
+use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\TestOptionFailed;
@@ -72,7 +74,7 @@ final class Options extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeRequest(\AKlump\CheckPages\Event\DriverEventInterface $event) {
+  public function onBeforeRequest(DriverEventInterface $event) {
     $this->pluginData['driver'] = $event->getDriver();
 
     return $this->handleCallbackByHook(__FUNCTION__, func_get_args());
@@ -81,7 +83,7 @@ final class Options extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeAssert(\AKlump\CheckPages\Event\AssertEventInterface $event) {
+  public function onBeforeAssert(AssertEventInterface $event) {
     $assert = $event->getAssert();
     $response = $event->getDriver()->getResponse();
 

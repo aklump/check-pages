@@ -117,8 +117,8 @@ function add_test_option(string $name, array $callbacks) {
  * Subscribe a callback to an event class.
  *
  * @param string|array $event_classname
- *   If string, the FQN of the event class,
- *   e.g."\AKlump\CheckPages\Event\OnAfterRequest::class" ; if array
+ *   If string, one of the \Drupal\check_pages\Event\Events constants.
+ *   e.g."\Drupal\check_pages\Event\Events::SUITE_LOADED" ; if array
  *   [$event_classname, $priority].
  * @param $callback
  *   The function to call on event.
@@ -128,7 +128,7 @@ function add_test_option(string $name, array $callbacks) {
  *
  * @link https://symfony.com/doc/current/event_dispatcher.html
  */
-function respond_to_event($event, callable $callback) {
+function respond_to($event, callable $callback) {
   global $runner;
   if (!is_array($event)) {
     $event = [$event, 0];

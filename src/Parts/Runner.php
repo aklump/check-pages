@@ -4,13 +4,12 @@ namespace AKlump\CheckPages\Parts;
 
 use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\ChromeDriver;
-use AKlump\CheckPages\Event\OnAfterAssert;
-use AKlump\CheckPages\Event\OnAfterRequest;
-use AKlump\CheckPages\Event\OnBeforeAssert;
-use AKlump\CheckPages\Event\OnBeforeDriver;
-use AKlump\CheckPages\Event\OnBeforeRequest;
-use AKlump\CheckPages\Event\OnBeforeTest;
-use AKlump\CheckPages\Event\OnLoadSuite;
+use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Event\AssertEvent;
+use AKlump\CheckPages\Event\DriverEvent;
+use AKlump\CheckPages\Event\SuiteEvent;
+use AKlump\CheckPages\Event\TestEvent;
+use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\SuiteFailedException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
@@ -55,6 +54,8 @@ class Runner {
 
   protected $storage;
 
+  protected $schema;
+
   /**
    * Holds a true state only when the filter is set and after a suite matching
    * the filter is used.  If a filter is set and all suites are run and this is
@@ -68,11 +69,6 @@ class Runner {
   protected $filters = [];
 
   /**
-   * @var int
-   */
-  //  protected $longestUrl = 0;
-
-  /**
    * @var array
    */
   protected $resolvePaths = [];
@@ -81,11 +77,6 @@ class Runner {
    * @var string
    */
   protected $pathToSuites = '';
-
-  /**
-   * @var bool
-   */
-  protected $outcome = TRUE;
 
   /**
    * @var array
@@ -137,6 +128,21 @@ class Runner {
   protected $writeToFileResources;
 
   /**
+   * @var \AKlump\CheckPages\Plugin\PluginsManager
+   */
+  protected $pluginsManager;
+
+  /**
+   * @var array
+   */
+  protected $runner;
+
+  /**
+   * @var \AKlump\CheckPages\Parts\Suite
+   */
+  protected $suite;
+
+  /**
    * Cache of discovered filepath.
    *
    * @var string
@@ -154,14 +160,12 @@ class Runner {
    * @param string $root_dir
    *   The system path to this test app root directory.  The schema files, for
    *   example are found in this directory.
-   * @param \AKlump\LoftLib\Bash\Bash $bash
-   *   An instance of \AKlump\LoftLib\Bash\Bash.
    */
   public function __construct(string $root_dir) {
     $this->rootDir = $root_dir;
     $this->addResolveDirectory($this->rootDir);
     $this->addResolveDirectory($this->rootDir . '/tests');
-    $this->pluginsManager = new PluginsManager($this, $this->rootDir . '/plugins', $this->getDispatcher());
+    $this->pluginsManager = new PluginsManager($this, $this->rootDir . '/plugins');
     $this->schema = [];
     $schema_path = $this->rootDir . '/' . static::SCHEMA_VISIT . '.json';
     if (file_exists($schema_path)) {
@@ -253,7 +257,7 @@ class Runner {
    * @param string $path
    *   A resolvable path to the config file.
    *
-   * @return
+   * @return \AKlump\CheckPages\Parts\Runner
    *   Self for chaining.
    *
    * @see load_config()
@@ -272,7 +276,7 @@ class Runner {
    * @param string $filter
    *   The suite id to filter by.
    *
-   * @return
+   * @return \AKlump\CheckPages\Parts\Runner
    *   Self for chaining.
    *
    * @deprecated Use \AKlump\CheckPages\Parts\Runner::addSuiteFilter().
@@ -327,6 +331,9 @@ class Runner {
     return $this->options;
   }
 
+  /**
+   * @return \AKlump\CheckPages\Parts\Suite|null
+   */
   public function getSuite() {
     return $this->suite ?? NULL;
   }
@@ -336,10 +343,9 @@ class Runner {
    *
    * @param string $name
    *   The unique command name.
-   * @param callable $callback
-   *   The callback function to execute.
+   * @param array $callbacks
    *
-   * @return \AKlump\CheckPages\CheckPages
+   * @return \AKlump\CheckPages\Parts\Runner
    *   Self for chaining.
    */
   public function addTestOption(string $name, array $callbacks): self {
@@ -368,7 +374,7 @@ class Runner {
    * @param string $path
    *   An absolute path to a directory to be used for resolving paths.
    *
-   * @return \AKlump\CheckPages\CheckPages
+   * @return \AKlump\CheckPages\Parts\Runner
    *   Self for chaining.
    */
   public function addResolveDirectory(string $path): self {
@@ -384,7 +390,7 @@ class Runner {
    * @param string $path
    *   This directory will be used for resolving globs.
    *
-   * @return \AKlump\CheckPages\CheckPages
+   * @return \AKlump\CheckPages\Parts\Runner
    *   Self for chaining.
    */
   public function setPathToSuites(string $path): self {
@@ -435,9 +441,6 @@ class Runner {
 
   /**
    * Run a test file.
-   *
-   * @param string $path
-   *   A resolvable path to a PHP runner file.
    *
    * @throws \RuntimeException If the test completed with failures.
    * @throws \AKlump\CheckPages\Exceptions\SuiteFailedException If the runner stopped
@@ -550,8 +553,7 @@ class Runner {
       $suite->addTest($test_index, $config);
     }
 
-    $event = new OnLoadSuite($suite);
-    $this->dispatcher->dispatch($event, get_class($event));;
+    $this->dispatcher->dispatch(new SuiteEvent($suite), Event::SUITE_LOADED);
 
     // On return from the hook, we need to reparse to get format for validation.
     $suite_yaml = Yaml::dump($suite->jsonSerialize());
@@ -571,8 +573,7 @@ class Runner {
     foreach ($suite->getTests() as $test_index => $test) {
       $config = $test->getConfig();
 
-      $event = new OnBeforeTest($test);
-      $this->dispatcher->dispatch($event, get_class($event));;
+      $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_CREATED);
 
       if (isset($config['set'])) {
         $config['is'] = $suite->variables()->interpolate($config['is']);
@@ -698,8 +699,7 @@ class Runner {
     }
 
     $test->setConfig($config);
-    $event = new OnBeforeDriver($test);
-    $this->dispatcher->dispatch($event, get_class($event));;
+    $this->dispatcher->dispatch(new TestEvent($test), Event::DRIVER_CREATED);
     $config = $test->getConfig();
 
     $test_passed = function (bool $result = NULL): bool {
@@ -728,8 +728,7 @@ class Runner {
       $driver = new GuzzleDriver();
     }
 
-    $event = new OnBeforeRequest($test, $driver);
-    $this->dispatcher->dispatch($event, get_class($event));;
+    $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
 
     // This will show the request headers and body if asked
     if (array_intersect_key(array_flip([
@@ -806,8 +805,7 @@ class Runner {
       }
     }
 
-    $event = new OnAfterRequest($driver, $test);
-    $this->dispatcher->dispatch($event, get_class($event));;
+    $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_FINISHED);
 
     if (empty($config['find']) && $this->debugging) {
       $this->debug('├── This test has no assertions.');
@@ -1045,8 +1043,7 @@ class Runner {
       }
     }
 
-    $event = new OnBeforeAssert($assert, $test, $driver);
-    $this->dispatcher->dispatch($event, get_class($event));;
+    $this->dispatcher->dispatch(new AssertEvent($assert, $test, $driver), Event::ASSERT_CREATED);
 
     $assert->run();
 
@@ -1075,8 +1072,7 @@ class Runner {
       $why && $this->pass("├── $why");
     }
 
-    $event = new OnAfterAssert($assert, $test, $driver);
-    $this->dispatcher->dispatch($event, get_class($event));
+    $this->dispatcher->dispatch(new AssertEvent($assert, $test, $driver), Event::ASSERT_FINISHED);
 
     return $assert;
   }

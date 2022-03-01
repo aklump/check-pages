@@ -3,15 +3,9 @@
 namespace AKlump\CheckPages\Plugin;
 
 use AKlump\CheckPages\Assert;
+use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Event\DriverEventInterface;
-use AKlump\CheckPages\Event\OnAfterAssert;
-use AKlump\CheckPages\Event\OnAfterRequest;
-use AKlump\CheckPages\Event\OnBeforeAssert;
-use AKlump\CheckPages\Event\OnBeforeDriver;
-use AKlump\CheckPages\Event\OnBeforeRequest;
-use AKlump\CheckPages\Event\OnBeforeTest;
-use AKlump\CheckPages\Event\OnLoadSuite;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Code\Strings;
@@ -260,9 +254,7 @@ final class PluginsManager {
   /**
    * {@inheritdoc}
    */
-  public function defaultEventHandler($event) {
-    $method = explode('\\', get_class($event));
-    $method = array_pop($method);
+  public function defaultEventHandler($event, $method) {
     foreach ($this->getAllPlugins() as $plugin) {
       $instance = $this->getPluginInstance($plugin['id']);
       $instance->$method($event);
@@ -277,12 +269,25 @@ final class PluginsManager {
    * @return void
    */
   public function subscribeToEvents(EventDispatcherInterface $dispatcher) {
-    $dispatcher->addListener(OnLoadSuite::class, [
-      $this,
-      'defaultEventHandler',
-    ]);
+    $dispatcher->addListener(Event::SUITE_LOADED, function (Event\SuiteEventInterface $event) {
+      $this->defaultEventHandler($event, 'onLoadSuite');
+    });
 
-    $dispatcher->addListener(OnBeforeTest::class, function (TestEventInterface $event) {
+//    // Discover plugin methods using \AKlump\CheckPages\Event constants.
+//    $events = new \ReflectionClass(Event::CLASS);
+//    foreach ($events->getConstants() as $method => $event_name) {
+//      $method = 'on' . Strings::upperCamel(strtolower($method));
+//      foreach ($this->getAllPlugins() as $data) {
+//        $plugin_instance = $this->getPluginInstance($data['id']);
+//        if (method_exists($plugin_instance, $method)) {
+//          $dispatcher->addListener($event_name, function ($event) use ($method, $plugin_instance) {
+//            $plugin_instance->$method($event);
+//          });
+//        }
+//      }
+//    }
+
+    $dispatcher->addListener(Event::TEST_CREATED, function (TestEventInterface $event) {
       $config = $event->getTest()->getConfig();
       foreach ($this->getAllPlugins() as $plugin) {
         $instance = $this->getPluginInstance($plugin['id']);
@@ -292,23 +297,22 @@ final class PluginsManager {
       }
     });
 
-    $dispatcher->addListener(OnBeforeDriver::class, [
+    $dispatcher->addListener(Event::DRIVER_CREATED, [
       $this,
       'onBeforeDriver',
     ]);
 
-    $dispatcher->addListener(OnBeforeRequest::class, function (DriverEventInterface $event) {
+    $dispatcher->addListener(Event::REQUEST_CREATED, function (DriverEventInterface $event) {
       foreach ($this->testPlugins as $plugin) {
         $plugin['instance']->onBeforeRequest($event);
       }
     });
 
-    $dispatcher->addListener(OnAfterRequest::class, [
-      $this,
-      'defaultEventHandler',
-    ]);
+    $dispatcher->addListener(Event::REQUEST_FINISHED, function (DriverEventInterface $event) {
+      $this->defaultEventHandler($event, 'onAfterRequest');
+    });
 
-    $dispatcher->addListener(OnBeforeAssert::class, function (AssertEventInterface $event) {
+    $dispatcher->addListener(Event::ASSERT_CREATED, function (AssertEventInterface $event) {
       $assert = $event->getAssert();
       $assert->setToStringOverride([$this, 'onAssertToString']);
       $plugin_collection = $this->assertionPlugins[$assert->getId()] ?? [];
@@ -317,9 +321,8 @@ final class PluginsManager {
       }
     });
 
-    $dispatcher->addListener(OnAfterAssert::class, [
-      $this,
-      'defaultEventHandler',
-    ]);
+    $dispatcher->addListener(Event::ASSERT_FINISHED, function (AssertEventInterface $event) {
+      $this->defaultEventHandler($event, 'onAfterAssert');
+    });
   }
 }

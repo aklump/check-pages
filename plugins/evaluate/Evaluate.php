@@ -2,6 +2,8 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Event\AssertEventInterface;
+use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Plugin\Plugin;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
@@ -29,14 +31,14 @@ final class Evaluate extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeDriver(\AKlump\CheckPages\Event\TestEventInterface $event) {
+  public function onBeforeDriver(TestEventInterface $event) {
     $this->config = $event->getTest()->getConfig();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function onBeforeAssert(\AKlump\CheckPages\Event\AssertEventInterface $event) {
+  public function onBeforeAssert(AssertEventInterface $event) {
     $assert = $event->getAssert();
     $assert->setSearch(static::SEARCH_TYPE);
     $original_eval = $this->config['find'][$assert->getId()]['eval'] ?? NULL;

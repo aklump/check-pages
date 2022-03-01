@@ -51,7 +51,7 @@ try {
   // Finish with an error response.
 catch (\Exception $exception) {
 
-  if ($runner->getOutputMode() === Runner::OUTPUT_DEBUG) {
+  if ($runner && $runner->getOutputMode() === Runner::OUTPUT_DEBUG) {
     $runner->echoMessages();
     echo PHP_EOL;
   }

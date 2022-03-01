@@ -5,7 +5,7 @@ namespace AKlump\CheckPages\Event;
 use AKlump\CheckPages\Parts\Suite;
 use Symfony\Contracts\EventDispatcher\Event;
 
-final class OnLoadSuite extends Event implements SuiteEventInterface {
+final class SuiteEvent extends Event implements SuiteEventInterface {
 
   /**
    * @var \AKlump\CheckPages\Parts\Suite

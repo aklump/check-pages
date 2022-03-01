@@ -16,15 +16,14 @@
 
 namespace AKlump\CheckPages\Mixins;
 
-use AKlump\CheckPages\Event\OnAfterAssert;
-use AKlump\CheckPages\Event\OnLoadSuite;
+use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\RequestDriverInterface;
-
 
 //
 // Verify the output directory.
@@ -45,12 +44,12 @@ if (!is_writable($output_dir)) {
   throw new StopRunnerException(sprintf('The output directory "%s" is not writeable.  Please update it\'s permissions.', $output_dir));
 }
 
-respond_to_event(OnLoadSuite::class, function (SuiteEventInterface $event) use ($mixin) {
+respond_to(Event::SUITE_LOADED, function (SuiteEventInterface $event) use ($mixin) {
   $http = fopen($mixin->getFilepath($event->getSuite()), 'w');
   fclose($http);
 });
 
-respond_to_event(OnAfterAssert::class, function (OnAfterAssert $event) use ($mixin, $config) {
+respond_to(Event::ASSERT_FINISHED, function (AssertEventInterface $event) use ($mixin, $config) {
   $did_pass = $event->getAssert()->getResult();
   if ($did_pass && TRUE === $config['exclude_passing']) {
     return;

@@ -2,6 +2,8 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Event\AssertEventInterface;
+use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Plugin\Plugin;
 
@@ -41,7 +43,7 @@ class Style extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeRequest(\AKlump\CheckPages\Event\DriverEventInterface $event) {
+  public function onBeforeRequest(DriverEventInterface $event) {
     if (empty($this->assertions)) {
       return;
     }
@@ -55,7 +57,7 @@ class Style extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeAssert(\AKlump\CheckPages\Event\AssertEventInterface $event) {
+  public function onBeforeAssert(AssertEventInterface $event) {
     $assert = $event->getAssert();
     $response = $event->getDriver()->getResponse();
 

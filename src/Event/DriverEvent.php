@@ -6,14 +6,16 @@ use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\RequestDriverInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
-final class OnAfterRequest extends Event implements DriverEventInterface {
+final class DriverEvent extends Event implements DriverEventInterface {
 
   /**
    * @var \AKlump\CheckPages\RequestDriverInterface
    */
   private $driver;
 
-  public function __construct(RequestDriverInterface $driver, Test $test) {
+  private $test;
+
+  public function __construct(Test $test, RequestDriverInterface $driver) {
     $this->driver = $driver;
     $this->test = $test;
   }
@@ -25,5 +27,4 @@ final class OnAfterRequest extends Event implements DriverEventInterface {
   public function getTest(): Test {
     return $this->test;
   }
-
 }

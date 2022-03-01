@@ -2,6 +2,8 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Event\AssertEventInterface;
+use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Plugin\Plugin;
 
@@ -39,7 +41,7 @@ final class Javascript extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeRequest(\AKlump\CheckPages\Event\DriverEventInterface $event) {
+  public function onBeforeRequest(DriverEventInterface $event) {
     if (!empty($this->assertions)) {
       foreach ($this->assertions as $assertion) {
         if (!empty($assertion[self::SEARCH_TYPE])) {
@@ -52,7 +54,7 @@ final class Javascript extends Plugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeAssert(\AKlump\CheckPages\Event\AssertEventInterface $event) {
+  public function onBeforeAssert(AssertEventInterface $event) {
     $assert = $event->getAssert();
     $response = $event->getDriver()->getResponse();
     $search_value = $assert->{self::SEARCH_TYPE};
