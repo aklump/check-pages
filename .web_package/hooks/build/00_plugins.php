@@ -15,7 +15,7 @@ require_once ROOT . '/vendor/autoload.php';
 
 $compiler = new PluginsCompiler(
   new PluginsManager(new Runner(ROOT), ROOT . '/plugins'),
-  ROOT . '/schema.visit.json',
+  ROOT . '/schema.test.json',
   ROOT . '/' . Runner::SCHEMA_VISIT . '.json',
   ROOT . '/example'
 );

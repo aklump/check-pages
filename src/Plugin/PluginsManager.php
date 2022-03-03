@@ -63,7 +63,7 @@ final class PluginsManager {
    * Set the master schema.
    *
    * @param array $schema
-   *   The master schema, e.g. "schema.visit.json".
+   *   The master schema, e.g. "schema.test.json".
    */
   public function setSchema(array $schema) {
     $this->schema = $schema;

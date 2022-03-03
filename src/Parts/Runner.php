@@ -37,7 +37,7 @@ class Runner {
    *
    * @var string
    */
-  const SCHEMA_VISIT = 'schema.visit.DO_NOT_EDIT';
+  const SCHEMA_VISIT = 'schema.test.DO_NOT_EDIT';
 
   const OUTPUT_NORMAL = 1;
 
