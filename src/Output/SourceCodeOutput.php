@@ -90,7 +90,14 @@ final class SourceCodeOutput {
     $output = [];
     $response = $event->getDriver()->getResponse();
     if (in_array('show-headers', $this->options)) {
-      $headers = $this->flattenHeaders($response->getHeaders());
+      $headers = sprintf('%s/%s %d %s',
+          strtoupper(parse_url($event->getTest()
+            ->getAbsoluteUrl(), PHP_URL_SCHEME)),
+          $response->getProtocolVersion(),
+          $response->getStatusCode(),
+          $response->getReasonPhrase()
+        ) . PHP_EOL;
+      $headers .= $this->flattenHeaders($response->getHeaders());
       if (!empty($headers)) {
         $output[] = $request_division . PHP_EOL . $headers;
       }
