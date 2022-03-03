@@ -2,8 +2,8 @@
 
 namespace AKlump\CheckPages;
 
+use GuzzleHttp\Exception\BadResponseException;
 use Psr\Http\Message\ResponseInterface;
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 
 class GuzzleDriver extends RequestDriver {
@@ -25,7 +25,7 @@ class GuzzleDriver extends RequestDriver {
     try {
       $this->response = $client->request($this->method, $this->url, ['body' => $this->body]);
     }
-    catch (ClientException $exception) {
+    catch (BadResponseException $exception) {
       $this->response = $exception->getResponse();
     }
 
