@@ -15,6 +15,7 @@ use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\GuzzleDriver;
 use AKlump\CheckPages\Output\FailedTestMarkdown;
+use AKlump\CheckPages\Output\SourceCodeOutput;
 use AKlump\CheckPages\Plugin\PluginsManager;
 use AKlump\CheckPages\RequestDriverInterface;
 use AKlump\CheckPages\SerializationTrait;
@@ -228,6 +229,7 @@ class Runner {
     if (array_key_exists('quiet', $options)) {
       $this->outputMode = Runner::OUTPUT_QUIET;
     }
+    $this->sourceCode = new SourceCodeOutput(array_keys($options), $this);
 
     return $this;
   }
@@ -730,14 +732,6 @@ class Runner {
 
     $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
 
-    // This will show the request headers and body if asked
-    if (array_intersect_key(array_flip([
-      'show-request',
-      'show-source',
-    ]), $this->runner['options'])) {
-      $this->debug($driver . '---' . PHP_EOL);
-    }
-
     try {
       $response = $driver
         ->setUrl($this->url($config['url']))
@@ -764,26 +758,10 @@ class Runner {
       $test_passed($http_response_code == $config['expect']);
     }
 
-    if (array_intersect_key(array_flip([
-      'show-response',
-      'show-source',
-    ]), $this->runner['options'])) {
-      $show_source = (string) $response->getBody();
-
-      // Try to make it more readable if we can.
-      $content_type = $this->getContentType($response);
-      if (strstr($content_type, 'json')) {
-        $show_source = $this->deserialize($show_source, $content_type);
-        $show_source = json_encode($show_source, JSON_PRETTY_PRINT);
-      }
-
-      if ($test_passed()) {
-        $this->debug($show_source);
-      }
-      else {
-        $this->fail($show_source);
-      }
+    if (!$test_passed()) {
+      $test->setFailed();
     }
+    $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_FINISHED);
 
     if ($test_passed()) {
       $this->pass('├── HTTP ' . $http_response_code);
@@ -805,7 +783,6 @@ class Runner {
       }
     }
 
-    $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_FINISHED);
 
     if (empty($config['find']) && $this->debugging) {
       $this->debug('├── This test has no assertions.');
@@ -1083,7 +1060,7 @@ class Runner {
    * @param string $message
    *   The debug message.
    */
-  protected function debug(string $message) {
+  public function debug(string $message) {
     $this->debug[] = ['data' => $message, 'level' => 'debug'];
   }
 
@@ -1102,7 +1079,7 @@ class Runner {
    *
    * @param string $message
    */
-  protected function fail(string $message) {
+  public function fail(string $message) {
     $this->debug[] = ['data' => $message, 'level' => 'error'];
   }
 

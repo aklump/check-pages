@@ -92,11 +92,7 @@ abstract class RequestDriver implements RequestDriverInterface {
 
   public function __toString() {
     $string = [];
-    foreach ($this->getHeaders() as $name => $value) {
-      $string[] = sprintf('%s: %s', $name, $value);
-    }
     if ($this->body) {
-      $string[] = NULL;
       $body = $this->body;
       $json = json_decode($body);
       if (!is_null($json)) {
@@ -105,7 +101,7 @@ abstract class RequestDriver implements RequestDriverInterface {
       $string[] = $body;
     }
 
-    return implode(PHP_EOL, $string) . PHP_EOL . PHP_EOL;
+    return implode(PHP_EOL, $string) . PHP_EOL;
   }
 
 }

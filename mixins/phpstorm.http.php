@@ -5,7 +5,7 @@
  *
  * @code
  *   add_mixin('phpstorm.http', [
- *     'output' => config_get('files/phpstorm'),
+ *     'output' => config_get('files') . '/phpstorm',
  *     'single_file' => TRUE,
  *     'exclude_passing' => TRUE,
  *   ]);
@@ -51,7 +51,7 @@ respond_to(Event::SUITE_LOADED, function (SuiteEventInterface $event) use ($mixi
 
 respond_to(Event::ASSERT_FINISHED, function (AssertEventInterface $event) use ($mixin, $config) {
   $did_pass = $event->getAssert()->getResult();
-  if ($did_pass && TRUE === $config['exclude_passing']) {
+  if ($did_pass && TRUE === ($config['exclude_passing'] ?? FALSE)) {
     return;
   }
 

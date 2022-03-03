@@ -12,6 +12,6 @@ Use the `--filter` parameter combined with a suite name to limit the runner to a
 
 ## Troubleshooting
 
-Try using the `--show-source` to see the response source code as well.
+Try using the `--show-response` to see the response source code as well.
 
-    ./check_pages failing_tests_runner.php --show-source
+    ./check_pages failing_tests_runner.php --show-response

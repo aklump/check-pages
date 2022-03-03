@@ -36,6 +36,10 @@ class GuzzleDriver extends RequestDriver {
    * {@inheritdoc}
    */
   public function getResponse(): ResponseInterface {
+    if (empty($this->response)) {
+      throw new \RuntimeException(sprintf('%s::request() has not been called; there is no response to get.', get_class($this)));
+    }
+
     return $this->response;
   }
 

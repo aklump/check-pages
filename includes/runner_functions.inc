@@ -235,9 +235,9 @@ function add_mixin(string $mixin, array $config = []) {
  *
  * @param string $parameter_name
  * @param callable $callback
- *   Will receive ($config, $test) as it's arguments.  It should return void.
+ *   Will receive ($test_config, $test) as it's arguments.  It should return void.
  *   If changing the test config, then it should call $test->setConfig() with
- *   the mutated $config.
+ *   the mutated $test_config.
  *
  * @return void
  */
@@ -246,9 +246,9 @@ function add_shorthand(string $parameter_name, callable $callback) {
   $runner->addTestOption($parameter_name, [
     'onLoadSuite' => function (SuiteEventInterface $event) use ($callback, $parameter_name) {
       foreach ($event->getSuite()->getTests() as $test) {
-        $config = $test->getConfig();
-        if (isset($config[$parameter_name])) {
-          $callback($config, $test);
+        $test_config = $test->getConfig();
+        if (isset($test_config[$parameter_name])) {
+          $callback($test_config, $test);
         }
       }
     },

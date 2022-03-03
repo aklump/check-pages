@@ -8,10 +8,40 @@ class Test implements \JsonSerializable {
 
   protected $results = [];
 
+  protected $failed = FALSE;
+
   public function __construct(string $id, array $config, Suite $suite) {
     $this->suite = $suite;
     $this->id = $id;
     $this->setConfig($config);
+  }
+
+  /**
+   * @param bool $failed
+   *
+   * @return
+   *   Self for chaining.
+   */
+  public function setFailed(): self {
+    $this->failed = TRUE;
+
+    return $this;
+  }
+
+  /**
+   * @param bool $failed
+   *
+   * @return
+   *   Self for chaining.
+   */
+  public function setPassed(): self {
+    $this->failed = FALSE;
+
+    return $this;
+  }
+
+  public function hasFailed(): bool {
+    return $this->failed;
   }
 
   /**

@@ -39,8 +39,9 @@ $valid_parameters = [
   'dir',
   'config',
   'quiet',
-  'show-source',
+  'show-request-headers',
   'show-request',
+  'show-headers',
   'show-response',
 
   // A single suite filename or CSV string of them.

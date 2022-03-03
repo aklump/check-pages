@@ -28,6 +28,9 @@ interface RequestDriverInterface {
    * Return the response after fetching.
    *
    * @return \Psr\Http\Message\ResponseInterface
+   *
+   * @throws \RuntimeException
+   *   If request has not yet been called.
    */
   public function getResponse(): ResponseInterface;
 
