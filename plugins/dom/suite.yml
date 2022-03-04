@@ -33,6 +33,10 @@
 
     -
       dom: h1.page-title
+      set: pageTitle
+
+    -
+      dom: h1.page-title
       is not: '<div>About In the Loft Studios</div>'
 
     -

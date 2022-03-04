@@ -325,6 +325,7 @@ final class Assert {
         case self::ASSERT_NOT_CONTAINS:
         case self::ASSERT_MATCHES:
         case self::ASSERT_NOT_MATCHES:
+        case self::ASSERT_SETTER:
         case self::ASSERT_EQUALS:
         case self::ASSERT_NOT_EQUALS:
           $haystack = $haystack->each(function ($node) {
@@ -343,11 +344,6 @@ final class Assert {
 
     $pass = NULL;
     switch ($this->assertType) {
-
-      case self::ASSERT_SETTER:
-        $pass = TRUE;
-        break;
-
       case self::ASSERT_CALLABLE:
         $callback = $this->assertValue;
         try {
@@ -412,6 +408,11 @@ final class Assert {
           $haystack = implode('", "', $haystack);
           $this->reason = sprintf("The actual value\n│\n│   \"%s\"\n│\n│   is not the expected\n│\n│   \"%s\"\n│", $haystack, $this->assertValue);
         }
+        break;
+
+      case self::ASSERT_SETTER:
+        $this->setNeedle($haystack[0]);
+        $pass = TRUE;
         break;
 
       case self::ASSERT_EQUALS:

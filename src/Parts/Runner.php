@@ -1025,7 +1025,7 @@ class Runner {
     $assert->run();
 
     if ($assert->set) {
-      $needle = $assert->getNeedle() ?? $assert->getHaystack()[0] ?? NULL;
+      $needle = $assert->getNeedle();
       if (is_scalar($needle)) {
         $this->pass(sprintf('├── ${%s} set as "%s".', $assert->set, $needle));
       }

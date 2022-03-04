@@ -3,6 +3,9 @@
   find:
     -
       header: foo
+      set: fooHeader
+    -
+      header: foo
       is not: pha
     -
       header: foo

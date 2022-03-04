@@ -4,6 +4,12 @@
         {
             "required": [
                 "dom",
+                "set"
+            ]
+        },
+        {
+            "required": [
+                "dom",
                 "contains"
             ]
         },

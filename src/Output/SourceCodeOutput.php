@@ -102,9 +102,6 @@ final class SourceCodeOutput {
         $output[] = $request_division . PHP_EOL . $headers;
       }
     }
-    else {
-      $output[] = $request_division . PHP_EOL;
-    }
 
     if (in_array('show-response', $this->options)) {
       $body = $response->getBody();
@@ -117,6 +114,9 @@ final class SourceCodeOutput {
           $body = json_encode($body, JSON_PRETTY_PRINT);
         }
         if ($body) {
+          if (empty($output)) {
+            $output[] = $request_division . PHP_EOL;
+          }
           $output[] = $body;
         }
       }
