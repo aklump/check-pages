@@ -71,6 +71,14 @@ respond_to(Event::ASSERT_FINISHED, function (AssertEventInterface $event) use ($
   }
 });
 
+respond_to(Event::TEST_FINISHED, function (Event\TestEventInterface $event) use ($mixin) {
+  $path = $mixin->getFilepath($event->getTest()->getSuite());
+  if (file_exists($path) && filesize($path) === 0) {
+    unlink($path);
+  }
+});
+
+
 final class PhpStormHttpMixin {
 
   /**

@@ -626,6 +626,8 @@ class Runner {
       }
       $test->setConfig($config);
       $result = $this->runTest($test);
+      
+      $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_FINISHED);
 
       // This icon will affix itself to the URL after the test.
       $icon = $result['pass'] ? '👍' : '🚫';
@@ -782,7 +784,6 @@ class Runner {
         $this->failReason(sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $this->url($expected_location)));
       }
     }
-
 
     if (empty($config['find']) && $this->debugging) {
       $this->debug('├── This test has no assertions.');

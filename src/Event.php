@@ -26,5 +26,6 @@ final class Event {
 
   const ASSERT_FINISHED = 'assert.finished';
 
+  const TEST_FINISHED = 'test.finished';
 
 }
