@@ -51,7 +51,12 @@ final class Data extends Plugin {
         $o = new ObjectPath($value);
         $value = $o->get($path);
       }
-      $assert->setHaystack($this->normalize($value));
+      if ($path && isset($o) && !$o->exists($path)) {
+        $assert->setHaystack([]);
+      }
+      else {
+        $assert->setHaystack($this->normalize($value));
+      }
       if ($assert->set) {
         [$type] = $assert->getAssertion();
         if (empty($type)) {
