@@ -46,8 +46,7 @@ if (!is_writable($output_dir)) {
 }
 
 respond_to(Event::SUITE_LOADED, function (SuiteEventInterface $event) use ($mixin) {
-  $path = $mixin->getFilepath($event->getSuite());
-  file_exists($path) && unlink($path);
+  fclose(fopen($mixin->getFilepath($event->getSuite()), 'w'));
 });
 
 respond_to(Event::TEST_FINISHED, function (DriverEvent $event) use ($mixin, $config) {
@@ -71,6 +70,14 @@ respond_to(Event::TEST_FINISHED, function (DriverEvent $event) use ($mixin, $con
     fclose($http);
   }
 });
+
+respond_to(Event::SUITE_FINISHED, function (Event\SuiteEventInterface $event) use ($mixin) {
+  $path = $mixin->getFilepath($event->getSuite());
+  if (file_exists($path) && filesize($path) === 0) {
+    unlink($path);
+  }
+});
+
 
 final class PhpStormHttpMixin {
 
