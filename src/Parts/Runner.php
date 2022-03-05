@@ -626,8 +626,6 @@ class Runner {
       }
       $test->setConfig($config);
       $result = $this->runTest($test);
-      
-      $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_FINISHED);
 
       // This icon will affix itself to the URL after the test.
       $icon = $result['pass'] ? '👍' : '🚫';
@@ -664,6 +662,8 @@ class Runner {
         }
       }
     }
+
+    $this->dispatcher->dispatch(new SuiteEvent($suite), Event::SUITE_FINISHED);
 
     if ($failed_tests) {
       $this->failedSuiteCount++;
@@ -810,6 +810,14 @@ class Runner {
     }
 
     $test->setResults($this->debug);
+
+    if ($test_passed()) {
+      $test->setPassed();
+    }
+    else {
+      $test->setFailed();
+    }
+    $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::TEST_FINISHED);
 
     return [
       'pass' => $test_passed(),

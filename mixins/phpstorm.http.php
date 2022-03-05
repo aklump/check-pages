@@ -18,6 +18,7 @@ namespace AKlump\CheckPages\Mixins;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
+use AKlump\CheckPages\Event\DriverEvent;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
@@ -45,12 +46,12 @@ if (!is_writable($output_dir)) {
 }
 
 respond_to(Event::SUITE_LOADED, function (SuiteEventInterface $event) use ($mixin) {
-  $http = fopen($mixin->getFilepath($event->getSuite()), 'w');
-  fclose($http);
+  $path = $mixin->getFilepath($event->getSuite());
+  file_exists($path) && unlink($path);
 });
 
-respond_to(Event::ASSERT_FINISHED, function (AssertEventInterface $event) use ($mixin, $config) {
-  $did_pass = $event->getAssert()->getResult();
+respond_to(Event::TEST_FINISHED, function (DriverEvent $event) use ($mixin, $config) {
+  $did_pass = !$event->getTest()->hasFailed();
   if ($did_pass && TRUE === ($config['exclude_passing'] ?? FALSE)) {
     return;
   }
@@ -70,14 +71,6 @@ respond_to(Event::ASSERT_FINISHED, function (AssertEventInterface $event) use ($
     fclose($http);
   }
 });
-
-respond_to(Event::TEST_FINISHED, function (Event\TestEventInterface $event) use ($mixin) {
-  $path = $mixin->getFilepath($event->getTest()->getSuite());
-  if (file_exists($path) && filesize($path) === 0) {
-    unlink($path);
-  }
-});
-
 
 final class PhpStormHttpMixin {
 

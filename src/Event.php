@@ -28,4 +28,6 @@ final class Event {
 
   const TEST_FINISHED = 'test.finished';
 
+  const SUITE_FINISHED = 'suite.finished';
+
 }
