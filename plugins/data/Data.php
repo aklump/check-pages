@@ -21,7 +21,7 @@ final class Data extends Plugin {
   public function onAssertToString(string $stringified, Assert $assert): string {
     if (!empty($stringified)) {
       $stringified = rtrim($stringified, '.');
-      if (empty($assert->path)) {
+      if (!$assert->path) {
         $stringified = sprintf('%s at the root node.', $stringified, $assert->path);
       }
       else {
