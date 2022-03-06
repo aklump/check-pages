@@ -20,8 +20,8 @@ if (!class_exists("AKlump\CheckPages\Parts\Runner")) {
 
 // This is a hack because Bash doesn't allow commas in param values.
 $argv = array_map(function ($line) {
-  return preg_replace_callback('/\-\-filter=(.+)/', function ($matches) {
-    return '--filter=' . str_replace(',', ' ', $matches[1]);
+  return preg_replace_callback('/\-\-(filter|group)=(.+)/', function ($matches) {
+    return sprintf('--%s=%s', $matches[1], str_replace(',', ' ', $matches[2]));
   }, $line);
 }, $argv);
 
@@ -44,6 +44,7 @@ $valid_parameters = [
   'show-headers',
   'show-response',
 
+  'group',
   // A single suite filename or CSV string of them.
   'filter',
 ];

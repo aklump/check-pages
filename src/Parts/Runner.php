@@ -69,6 +69,8 @@ class Runner {
 
   protected $filters = [];
 
+  protected $groupFilters = [];
+
   /**
    * @var array
    */
@@ -308,6 +310,15 @@ class Runner {
     return $this;
   }
 
+  public function addGroupFilter(string $filter): Runner {
+    if (strstr($filter, ',')) {
+      throw new \InvalidArgumentException(sprintf('$filter may not contain a comma; the value %s is invalid.', $filter));
+    }
+    $this->groupFilters[] = $filter;
+
+    return $this;
+  }
+
   /**
    * Reduce an array of suites by the applied filter(s), if any.
    *
@@ -454,8 +465,11 @@ class Runner {
     try {
       $runner_path = $this->getRunnerPath();
       $filter_message = '';
+      if ($this->groupFilters) {
+        $filter_message .= sprintf(' (using group filter(s) "%s")', implode(', ', $this->groupFilters));
+      }
       if ($this->filters) {
-        $filter_message = sprintf(' (using suite filter(s) "%s")', implode(', ', $this->filters));
+        $filter_message .= sprintf(' (using suite filter(s) "%s")', implode(', ', $this->filters));
       }
       echo Color::wrap('blue', sprintf('Testing started with "%s"%s', basename($runner_path), $filter_message)) . PHP_EOL;
       require $runner_path;
@@ -516,7 +530,7 @@ class Runner {
     $suite_id = pathinfo(substr($path_to_suite, strlen($resolved_path) + 1), PATHINFO_FILENAME);
 
     $suite = new Suite($suite_id, $this->config, $this);
-    $this->suite = $suite;
+    $this->suite = $suite->setGroup(basename(dirname($path_to_suite)));
 
     $this->config['suites_to_ignore'] = array_filter(array_map(function ($suite_to_ignore) {
       try {
@@ -534,6 +548,14 @@ class Runner {
     if ($this->filters) {
       $filters = array_map([$this, 'resolveFile'], $this->filters);
       if (!in_array($path_to_suite, $filters)) {
+        return;
+      }
+    }
+
+    if ($this->groupFilters) {
+      if (!in_array($suite->getGroup(), $this->groupFilters)) {
+        $this->fail(sprintf('Suite "%s" has the group "%s", which is not in the group filter.', $suite->id(), $suite->getGroup()));
+
         return;
       }
     }

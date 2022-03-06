@@ -45,6 +45,10 @@ try {
   foreach ($filters as $filter) {
     $runner->addSuiteFilter($filter);
   }
+  $groups = array_filter(explode(' ', $cli->getParam('group', '')));
+  foreach ($groups as $filter) {
+    $runner->addGroupFilter($filter);
+  }
   $runner->executeRunner();
 }
 

@@ -15,6 +15,27 @@ class Suite implements PartInterface, \JsonSerializable {
 
   protected $id;
 
+  protected $group;
+
+  /**
+   * @return mixed
+   */
+  public function getGroup() {
+    return $this->group;
+  }
+
+  /**
+   * @param mixed $group
+   *
+   * @return
+   *   Self for chaining.
+   */
+  public function setGroup($group): self {
+    $this->group = $group;
+
+    return $this;
+  }
+
   protected $config;
 
   protected $vars;
