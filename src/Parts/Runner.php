@@ -305,6 +305,10 @@ class Runner {
     if (strstr($filter, ',')) {
       throw new \InvalidArgumentException(sprintf('$filter may not contain a comma; the value %s is invalid.', $filter));
     }
+    $pathinfo = pathinfo($filter);
+    if (!empty($pathinfo['extension'])) {
+      throw new \InvalidArgumentException(sprintf('Omit the file extension for filter values; use "%s" not "%s".', $pathinfo['filename'], $pathinfo['basename']));
+    }
     $this->filters[] = $filter;
 
     return $this;
