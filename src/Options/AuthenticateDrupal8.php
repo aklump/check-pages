@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages\Options;
 
 use AKlump\CheckPages\GuzzleDriver;
+use GuzzleHttp\Exception\ConnectException;
 
 final class AuthenticateDrupal8 extends AuthenticateDrupalBase {
 
@@ -46,17 +47,20 @@ final class AuthenticateDrupal8 extends AuthenticateDrupalBase {
    * {@inheritdoc}
    */
   public function getCsrfToken(): string {
-    list($url) = explode('?', $this->loginUrl, 1);
-    $parts = parse_url($url);
-    $url = str_replace($parts['path'], '/session/token', $url);
+    $parts = parse_url($this->loginUrl);
+    $url = $parts['scheme'] . '://' . $parts['host'] . '/session/token';
+    try {
+      $guzzle = new GuzzleDriver();
+      $response = $guzzle->getClient([
+        'headers' => [
+          'Cookie' => $this->getSessionCookie(),
+        ],
+      ])->get($url);
 
-    $guzzle = new GuzzleDriver();
-    $response = $guzzle->getClient([
-      'headers' => [
-        'Cookie' => $this->getSessionCookie(),
-      ],
-    ])->get($url);
-
-    return (string) $response->getBody();
+      return (string) $response->getBody();
+    }
+    catch (ConnectException $exception) {
+      return '';
+    }
   }
 }
