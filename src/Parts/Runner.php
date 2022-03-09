@@ -183,6 +183,16 @@ class Runner {
   public function getDispatcher(): EventDispatcher {
     if (empty($this->dispatcher)) {
       $this->dispatcher = new EventDispatcher();
+
+      global $container;
+      $serviceIds = $container->findTaggedServiceIds('event_subscriber');
+      foreach ($serviceIds as $serviceId => $tags) {
+        $listeners = $container->get($serviceId)->getSubscribedEvents();
+        foreach ($listeners as $listener_info) {
+          list ($name, $listener) = $listener_info;
+          $this->dispatcher->addListener($name, $listener);
+        }
+      }
     }
 
     return $this->dispatcher;
@@ -235,7 +245,6 @@ class Runner {
 
     return $this;
   }
-
 
   /**
    * Get the output mode for echo consideration.
@@ -484,6 +493,7 @@ class Runner {
         }, $this->filters);
         throw new \RuntimeException(sprintf("The filter(s) were not applied; have you added %s to %s?", implode(', ', $code), $runner_path));
       }
+
     }
     catch (StopRunnerException $exception) {
       throw $exception;

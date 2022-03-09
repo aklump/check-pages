@@ -13,6 +13,7 @@ use AKlump\LoftLib\Bash\Color;
 
 define('ROOT', __DIR__);
 
+global $container;
 global $runner;
 global $cli;
 

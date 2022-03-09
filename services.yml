@@ -1,0 +1,5 @@
+services:
+  resume:
+    class: \AKlump\CheckPages\Service\Resume
+    tags:
+      - { name: event_subscriber }

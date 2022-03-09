@@ -10,7 +10,9 @@ use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Bash\Bash;
 use AKlump\LoftLib\Bash\Color;
 use AKlump\LoftLib\Storage\FilePath;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 
 if (!class_exists("AKlump\CheckPages\Parts\Runner")) {
@@ -83,6 +85,10 @@ if ($cli->hasFlag('h') || $cli->hasParam('help')) {
 
   exit(0);
 }
+
+$container = new ContainerBuilder();
+$loader = new YamlFileLoader($container, new FileLocator(ROOT));
+$loader->load('services.yml');
 
 $runner = new Runner(ROOT);
 $path_to_runner = $cli->getArg(1, '');
