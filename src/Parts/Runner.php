@@ -7,6 +7,7 @@ use AKlump\CheckPages\ChromeDriver;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEvent;
 use AKlump\CheckPages\Event\DriverEvent;
+use AKlump\CheckPages\Event\RunnerEvent;
 use AKlump\CheckPages\Event\SuiteEvent;
 use AKlump\CheckPages\Event\TestEvent;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
@@ -25,6 +26,8 @@ use AKlump\LoftLib\Bash\Color;
 use GuzzleHttp\Exception\ServerException;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Yaml\Yaml;
 
@@ -164,7 +167,10 @@ class Runner {
    *   The system path to this test app root directory.  The schema files, for
    *   example are found in this directory.
    */
-  public function __construct(string $root_dir) {
+  public function __construct(string $root_dir, InputInterface $input, OutputInterface $output) {
+    $this->input = $input;
+    $this->output = $output;
+
     $this->rootDir = $root_dir;
     $this->addResolveDirectory($this->rootDir);
     $this->addResolveDirectory($this->rootDir . '/tests');
@@ -175,6 +181,20 @@ class Runner {
       $this->schema = json_decode(file_get_contents($schema_path), TRUE);
     }
     $this->pluginsManager->setSchema($this->schema);
+  }
+
+  public function getInput(): InputInterface {
+    return $this->input;
+  }
+
+  /**
+   * Get the output method.
+   *
+   * @return \Symfony\Component\Console\Output\OutputInterface
+   *   The instance to use for output.
+   */
+  public function getOutput(): OutputInterface {
+    return $this->output;
   }
 
   /**
@@ -199,24 +219,6 @@ class Runner {
   }
 
   /**
-   * @return mixed
-   */
-  public function getSchema() {
-    return $this->schema;
-  }
-
-  /**
-   * @param string $basename
-   * @param array $options
-   *
-   * @return \AKlump\CheckPages\Parts\Runner
-   * @deprecated Use \AKlump\CheckPages\Parts\Runner::setBasename().
-   */
-  public function setRunner(string $basename, array $options): Runner {
-    return $this->setBasename($basename, $options);
-  }
-
-  /**
    * Set the runner information.
    *
    * @param string $basename
@@ -227,21 +229,23 @@ class Runner {
    * @return $this
    *   Self for chaining.
    */
-  public function setBasename(string $basename, array $options): Runner {
+  public function setBasename(string $basename): Runner {
     if (strstr($basename, '/') !== FALSE) {
       throw new \InvalidArgumentException(sprintf('::setRunner() only takes a basename, not a full path; change "%s" to "%s"', $basename, basename($basename)));
     }
     $this->runner = [
       'name' => $basename,
-      'options' => $options,
     ];
-    $this->debugging = !array_key_exists('quiet', $options);
+
+    // TODO This needs to be reworked.
+    $this->debugging = !$this->getOutput()->isQuiet();
 
     $this->outputMode = Runner::OUTPUT_NORMAL;
-    if (array_key_exists('quiet', $options)) {
+    if ($this->getOutput()->isQuiet()) {
       $this->outputMode = Runner::OUTPUT_QUIET;
     }
-    $this->sourceCode = new SourceCodeOutput(array_keys($options), $this);
+
+    $this->sourceCode = new SourceCodeOutput($this);
 
     return $this;
   }
@@ -264,6 +268,18 @@ class Runner {
     return $this->outputMode;
   }
 
+  public function loadConfig(string $resolve_config_path) {
+    $config_path = $this->resolveFile($resolve_config_path);
+    $config = Yaml::parseFile($config_path);
+    if ($config) {
+      $this->setConfig($config);
+      $this->getDispatcher()
+        ->dispatch(new RunnerEvent($this), Event::RUNNER_CONFIG_LOADED);
+    }
+
+    return $this;
+  }
+
   /**
    * Set the config file.
    *
@@ -275,10 +291,22 @@ class Runner {
    *
    * @see load_config()
    */
-  public function setConfig(string $path): Runner {
-    $this->configPath = $path;
+  public function setConfig(array $config): Runner {
+    $this->config = $config;
 
     return $this;
+  }
+
+  /**
+   * Return the active configuration values.
+   *
+   * @return array
+   *   The configuration array.
+   *
+   * @see ::getInput()->getOptions() for CLI options.
+   */
+  public function getConfig(): array {
+    return $this->config;
   }
 
   /**
@@ -412,6 +440,10 @@ class Runner {
     return $this;
   }
 
+  public function getResolveDirectories(): array {
+    return $this->resolvePaths;
+  }
+
   /**
    * @param string $path
    *   This directory will be used for resolving globs.
@@ -436,18 +468,6 @@ class Runner {
    */
   public function getPathToSuites(): string {
     return $this->pathToSuites;
-  }
-
-  /**
-   * Get the resolved test filepath.
-   *
-   * @return string
-   *   The resolved test filepath.
-   *
-   * @deprecated Use \AKlump\CheckPages\Parts\Runner::getRunnerPath().
-   */
-  public function getRunner(): string {
-    return $this->getRunnerPath();
   }
 
   /**
@@ -496,32 +516,16 @@ class Runner {
 
     }
     catch (StopRunnerException $exception) {
+      $this->getDispatcher()
+        ->dispatch(new RunnerEvent($this), Event::RUNNER_FINISHED);
       throw $exception;
     }
+    $this->getDispatcher()
+      ->dispatch(new RunnerEvent($this), Event::RUNNER_FINISHED);
 
     if ($this->failedTestCount) {
       throw new \RuntimeException(sprintf("Testing complete with %d out of %d tests failing.", $this->failedTestCount, $this->totalTestCount));
     }
-  }
-
-  /**
-   * Return the active configuration values.
-   *
-   * @return array
-   *   The configuration array.
-   */
-  public function getConfig(): array {
-    return Yaml::parseFile($this->getPathToConfig());
-  }
-
-  /**
-   * Get path to active configuration file.
-   *
-   * @return string
-   *   The absolute path to the active configuration.
-   */
-  public function getPathToConfig(): string {
-    return $this->resolveFile($this->configPath);
   }
 
   /**
@@ -536,17 +540,19 @@ class Runner {
    *
    */
   public function runSuite(string $path_to_suite, array $suite_config = []) {
-    $this->config = $suite_config + $this->getConfig();
-    $this->validateConfig($this->config);
-
     $resolved_path = '';
     $path_to_suite = $this->resolveFile($path_to_suite, $resolved_path);
     $suite_id = pathinfo(substr($path_to_suite, strlen($resolved_path) + 1), PATHINFO_FILENAME);
 
-    $suite = new Suite($suite_id, $this->config, $this);
+    // The runner has config in YAML, which the suite uses by default, however
+    // we allow per-suite overrides as well.
+    $suite_config = array_merge($this->getConfig(), $suite_config);
+    $suite = new Suite($suite_id, $suite_config, $this);
+    unset($suite_config);
+
     $this->suite = $suite->setGroup(basename(dirname($path_to_suite)));
 
-    $this->config['suites_to_ignore'] = array_filter(array_map(function ($suite_to_ignore) {
+    $ignored_suite_paths = array_filter(array_map(function ($suite_to_ignore) {
       try {
         return $this->resolveFile($suite_to_ignore);
       }
@@ -557,7 +563,7 @@ class Runner {
         // can't find it.  Return NULL, which will be filtered out.
         return NULL;
       }
-    }, $this->config['suites_to_ignore'] ?? []));
+    }, $suite->getConfig()['suites_to_ignore'] ?? []));
 
     if ($this->filters) {
       $filters = array_map([$this, 'resolveFile'], $this->filters);
@@ -574,8 +580,10 @@ class Runner {
       }
     }
 
-    if (in_array($path_to_suite, $this->config['suites_to_ignore'])) {
-      echo PHP_EOL . Color::wrap('blue', '😴 ' . strtoupper(sprintf('Ignoring "%s" suite...', $suite->id()))) . PHP_EOL;
+    if (in_array($path_to_suite, $ignored_suite_paths)) {
+      $message = Color::wrap('blue', '😴 ' . sprintf('Ignoring "%s" suite...', $suite->id()));
+      $this->getOutput()
+        ->writeln($message, OutputInterface::VERBOSITY_VERY_VERBOSE);
 
       return;
     }
@@ -600,7 +608,7 @@ class Runner {
 
     $quiet_mode = $this->getOutputMode() === self::OUTPUT_QUIET;
     if (!$this->debugging && empty($this->printed['base_url'])) {
-      echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->config['base_url'])) . PHP_EOL;
+      echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->getConfig()['base_url'])) . PHP_EOL;
       $this->printed['base_url'] = TRUE;
     }
     echo PHP_EOL . '⏱  ' . Color::wrap('white on blue', strtoupper(sprintf('Running "%s" suite...', $suite->id()))) . PHP_EOL;
@@ -693,7 +701,7 @@ class Runner {
       if (!$result['pass']) {
         $this->failedTestCount++;
         $failed_tests++;
-        if ($this->config['stop_on_failed_test'] ?? FALSE) {
+        if ($this->getConfig()['stop_on_failed_test'] ?? FALSE) {
           throw new TestFailedException($config);
         }
       }
@@ -703,7 +711,7 @@ class Runner {
 
     if ($failed_tests) {
       $this->failedSuiteCount++;
-      if ($this->config['stop_on_failed_suite'] ?? FALSE) {
+      if ($this->getConfig()['stop_on_failed_suite'] ?? FALSE) {
         throw new SuiteFailedException($suite->id());
       }
     }
@@ -755,10 +763,10 @@ class Runner {
 
     if ($config['js'] ?? FALSE) {
       try {
-        if (empty($this->config['chrome'])) {
+        if (empty($this->getConfig()['chrome'])) {
           throw new \InvalidArgumentException(sprintf("Javascript testing is unavailable due to missing path to Chrome binary.  Add \"chrome\" in file %s.", $this->resolveFile($this->configPath)));
         }
-        $driver = new ChromeDriver($this->config['chrome']);
+        $driver = new ChromeDriver($this->getConfig()['chrome']);
       }
       catch (\Exception $exception) {
         throw new TestFailedException($config, $exception);
@@ -954,7 +962,7 @@ class Runner {
       return $possible_relative_url;
     }
 
-    return rtrim($this->config['base_url'], '/') . '/' . trim($possible_relative_url, '/');
+    return rtrim($this->getConfig()['base_url'], '/') . '/' . trim($possible_relative_url, '/');
   }
 
   /**
@@ -1006,9 +1014,9 @@ class Runner {
    *
    * @throws \Exception
    */
-  protected function validateConfig(array &$config) {
+  protected function validateConfig(Suite $suite) {
     // Convert to objects.
-    $config = json_decode(json_encode($config));
+    $config = json_decode(json_encode($suite->getConfig()));
     $validator = new Validator();
     try {
       $validator->validate($config, (object) ['$ref' => 'file://' . $this->rootDir . '/' . 'schema.config.json'], Constraint::CHECK_MODE_EXCEPTIONS);
@@ -1021,6 +1029,7 @@ class Runner {
 
     // Convert to arrays, we only needed objects for the validation.
     $config = json_decode(json_encode($config), TRUE);
+    $suite->setConfig($config);
   }
 
   /**
@@ -1187,9 +1196,9 @@ class Runner {
    * @return string
    *   The path to the files directory or empty string.
    */
-  private function getPathToFilesDirectory(): string {
+  public function getPathToFilesDirectory(): string {
     if (NULL === $this->pathToFiles) {
-      if (empty($this->config['files'])) {
+      if (empty($this->getConfig()['files'])) {
         if ($this->debugging) {
           $this->debug('├── To enable file output you must set a value for "files" in your config.');
         }
@@ -1197,7 +1206,7 @@ class Runner {
       }
       else {
         try {
-          $this->pathToFiles = $this->resolve($this->config['files']);
+          $this->pathToFiles = $this->resolve($this->getConfig()['files']);
         }
         catch (\Exception $exception) {
           $this->pathToFiles = '';
@@ -1206,6 +1215,15 @@ class Runner {
     }
 
     return $this->pathToFiles;
+  }
+
+  public function getPathToRunnerFilesDirectory(): string {
+    $path_to_files = $this->getPathToFilesDirectory();
+    if ($path_to_files) {
+      return $path_to_files . '/' . pathinfo($this->runner['name'], PATHINFO_FILENAME);
+    }
+
+    return '';
   }
 
   /**
@@ -1219,11 +1237,10 @@ class Runner {
    * @return $this
    */
   public function writeToFile(string $name, array $content, string $mode = 'a+'): self {
-    $path_to_files = $this->getPathToFilesDirectory();
+    $path_to_files = $this->getPathToRunnerFilesDirectory();
     if (!$path_to_files) {
       return $this;
     }
-    $path_to_files .= '/' . pathinfo($this->runner['name'], PATHINFO_FILENAME);
     if (empty($this->writeToFileResources[$name])) {
 
       if (!is_dir($path_to_files)) {

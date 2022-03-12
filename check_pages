@@ -1,80 +1,24 @@
 #!/usr/bin/env php
 <?php
 
-/**
- * @file
- *
- * This is the CLI controller for check_pages
- */
+const ROOT = __DIR__;
+require ROOT . '/vendor/autoload.php';
 
-use AKlump\CheckPages\Output\Timer;
-use AKlump\CheckPages\Parts\Runner;
-use AKlump\LoftLib\Bash\Color;
-
-define('ROOT', __DIR__);
+use AKlump\CheckPages\Command\RunCommand;
+use Symfony\Component\Console\Application;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 global $container;
-global $runner;
-global $cli;
+$container = new ContainerBuilder();
+$loader = new YamlFileLoader($container, new FileLocator(ROOT));
+$loader->load('services.yml');
 
-// Find and load the autoloader
-$autoloaders = [
-  ROOT . '/vendor/autoload.php',
-  ROOT . '/../../../vendor/autoload.php',
-];
-while ($autoloader = array_shift($autoloaders)) {
-  if (file_exists($autoloader)) {
-    require_once $autoloader;
-    break;
-  }
-  if (empty($autoloaders)) {
-    echo "Could not find autoload.php" . PHP_EOL;
-    exit(2);
-  }
-}
 
-try {
-
-  // Pull the timezone from the system running this.
-  $timezone = new \DateTimeZone(exec('date +%Z'));
-  $timer = new Timer($timezone);
-  $timer->start();
-  echo '🚩 ' . Color::wrap('light gray', $timer->getCurrent()) . PHP_EOL;
-
-  require ROOT . '/includes/bootstrap.inc';
-  $filters = array_filter(explode(' ', $cli->getParam('filter', '')));
-  foreach ($filters as $filter) {
-    $runner->addSuiteFilter($filter);
-  }
-  $groups = array_filter(explode(' ', $cli->getParam('group', '')));
-  foreach ($groups as $filter) {
-    $runner->addGroupFilter($filter);
-  }
-  $runner->executeRunner();
-}
-
-  // Finish with an error response.
-catch (\Exception $exception) {
-
-  if ($runner && $runner->getOutputMode() === Runner::OUTPUT_DEBUG) {
-    $runner->echoMessages();
-    echo PHP_EOL;
-  }
-
-  echo PHP_EOL;
-  echo '🏁 ' . Color::wrap('light gray', $timer->getCurrent()) . PHP_EOL;
-
-  // Shift the first line so only that is red, in case we want to dump a
-  // pretty-print JSON variable.
-  $lines = explode(PHP_EOL, $exception->getMessage());
-  echo Color::wrap('white on red', array_shift($lines)) . PHP_EOL;
-  echo implode(PHP_EOL, $lines) . PHP_EOL . PHP_EOL;
-  exit(1);
-}
-
-// Finish with a happy response.
-echo PHP_EOL;
-echo '🏁 ' . Color::wrap('light gray', $timer->getCurrent()) . PHP_EOL;
-
-echo Color::wrap('white on green', sprintf('Testing completed successfully in %s.', $timer->getElapsed())) . PHP_EOL . PHP_EOL;
-exit(0);
+$application = new Application();
+$application->setName('Check Pages by In the Loft Studios');
+$version = json_decode(file_get_contents(ROOT . '/composer.json'))->version ?? '';
+$application->setVersion($version);
+$application->add(new RunCommand());
+$application->run();

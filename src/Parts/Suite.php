@@ -17,6 +17,17 @@ class Suite implements PartInterface, \JsonSerializable {
 
   protected $group;
 
+  protected $config;
+
+  protected $vars;
+
+  public function __construct(string $id, array $config, Runner $runner) {
+    $this->runner = $runner;
+    $this->id = $id;
+    $this->setConfig($config);
+    $this->vars = new Variables();
+  }
+
   /**
    * @return mixed
    */
@@ -36,23 +47,18 @@ class Suite implements PartInterface, \JsonSerializable {
     return $this;
   }
 
-  protected $config;
-
-  protected $vars;
-
-  public function __construct(string $id, array $config, Runner $runner) {
-    $this->runner = $runner;
-    $this->id = $id;
-    $this->config = $config;
-    $this->vars = new Variables();
-  }
-
   public function getRunner(): Runner {
     return $this->runner;
   }
 
   public function id(): string {
     return $this->id;
+  }
+
+  public function setConfig(array $config): Suite {
+    $this->config = $config;
+
+    return $this;
   }
 
   public function getConfig(): array {

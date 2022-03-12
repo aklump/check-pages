@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- Swithed to Symfony console.
+- `./check_pages` became `./check_pages run` (added `run` as a required argument).
 - BREAKING CHANGE! `drupal8` and `drupal7` mixins changed to a single `drupal`.
 - BREAKING CHANGE! You must use `$config` instead of the like-named variable for mixin configuration. E.g. `$drupal8, $drupal7` are now both just `$config`.
 - BREAKING CHANGE! Rename `global $app` to `$runner`.
@@ -27,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - If `expect` is not explicitly provided, any value from `200` to `299` will pass the test. Previously the response code would have to be exactly `200` to pass.
 
 ### Added
+
 - The import feature.
 - The authentication for Drupal now adds the following variables automatically: `${user.uid}, ${user.id}, ${user.name}, ${user.pass}` for the authenticated user. That means you can use these in subsequent tests, even if not authenticating said test.
 - `--show-request` and `--show-response`.

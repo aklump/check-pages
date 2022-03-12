@@ -13,4 +13,4 @@ done
 root="$( cd -P "$( dirname "$source" )" && pwd )"
 
 cd "$root/.."
-"./check_pages" example/tests/runner_failing_tests.php $@
+"./check_pages" run example/tests/runner_failing_tests.php $@

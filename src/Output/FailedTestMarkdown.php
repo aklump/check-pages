@@ -2,13 +2,22 @@
 
 namespace AKlump\CheckPages\Output;
 
-use AKlump\CheckPages\CheckPages;
 use AKlump\CheckPages\Parts\Test;
 
 /**
  * Writes a markdown file for failing tests.
  */
 final class FailedTestMarkdown implements ResultsToFileInterface {
+
+  /**
+   * @var \AKlump\CheckPages\Parts\Test
+   */
+  private $test;
+
+  /**
+   * @var string
+   */
+  private $basename;
 
   /**
    * The title, token is {{ suite.id }}.

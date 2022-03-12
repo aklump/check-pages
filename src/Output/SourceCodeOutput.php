@@ -16,22 +16,14 @@ final class SourceCodeOutput {
   use SerializationTrait;
 
   /**
-   * @var int[]|string[]
-   */
-  private $options;
-
-  /**
    * @var \AKlump\CheckPages\Parts\Runner
    */
   private $runner;
 
   /**
-   * @param array $options
-   *   Usually these come from the CLI runner.
    * @param \AKlump\CheckPages\Parts\Runner $runner
    */
-  public function __construct(array $options, Runner $runner) {
-    $this->options = $options;
+  public function __construct(Runner $runner) {
     $this->runner = $runner;
 
     // TODO Implement the subscriber patter; I think it's in the symfony package.
@@ -57,13 +49,13 @@ final class SourceCodeOutput {
   public function requestOutput(DriverEventInterface $event) {
     $driver = $event->getDriver();
     $output = [];
-    if (in_array('show-request-headers', $this->options)) {
+    if ($this->runner->getInput()->getOption('show-request-headers')) {
       $headers = $this->flattenHeaders($driver->getHeaders());
       if (!empty($headers)) {
         $output[] = $headers;
       }
     }
-    if (in_array('show-request', $this->options)) {
+    if ($this->runner->getInput()->getOption('show-request')) {
       $body = trim(strval($driver));
       if ($body) {
         $output[] = $body;
@@ -89,7 +81,8 @@ final class SourceCodeOutput {
 
     $output = [];
     $response = $event->getDriver()->getResponse();
-    if (in_array('show-headers', $this->options)) {
+
+    if ($this->runner->getInput()->getOption('show-headers')) {
       $headers = sprintf('%s/%s %d %s',
           strtoupper(parse_url($event->getTest()
             ->getAbsoluteUrl(), PHP_URL_SCHEME)),
@@ -103,7 +96,7 @@ final class SourceCodeOutput {
       }
     }
 
-    if (in_array('show-response', $this->options)) {
+    if ($this->runner->getInput()->getOption('show-response')) {
       $body = $response->getBody();
       if (!empty($body)) {
 

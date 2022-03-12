@@ -20,9 +20,11 @@ use MidwestE\ObjectPath;
  *   false to block that handling.
  */
 function load_config(string $config, bool $allow_override = TRUE) {
-  global $runner, $cli;
+  global $container;
+  $runner = $container->get('runner');
 
-  if ($allow_override && ($override = $cli->getParam('config'))) {
+  $input = $container->get('input');
+  if ($allow_override && ($override = $input->getOption('config'))) {
 
     // As a convenience, we will allow --config to omit the standard "config/"
     // path and try to use it if the passed value cannot resolve.  The reason is
@@ -40,13 +42,12 @@ function load_config(string $config, bool $allow_override = TRUE) {
     }
     catch (\Exception $exception) {
       // If the presumption failed, then we just rollback.
-      $override = $cli->getParam('config');
+      $override = $input->getOption('config');
     }
 
     $config = $override;
   }
-
-  $runner->setConfig($config);
+  $runner->loadConfig($config);
 }
 
 /**
@@ -56,7 +57,8 @@ function load_config(string $config, bool $allow_override = TRUE) {
  *   A dot-separated path for a config key.
  */
 function config_get($config_path) {
-  global $runner;
+  global $container;
+  $runner = $container->get('runner');
   try {
     $o = new ObjectPath($runner->getConfig());
 
@@ -78,7 +80,8 @@ function config_get($config_path) {
  *   exist and it must be an absolute path.
  */
 function add_directory(string $absolute_path_to_dir) {
-  global $runner;
+  global $container;
+  $runner = $container->get('runner');
 
   if (substr($absolute_path_to_dir, 0, 1) !== '/') {
     throw new \InvalidArgumentException(sprintf('To add a directory, it must begin with a "/"; "%s" does not.', $absolute_path_to_dir));
@@ -109,7 +112,8 @@ function add_directory(string $absolute_path_to_dir) {
  * @deprecated This needs to be renamed, i.e. "listen", "create_plugin".
  */
 function add_test_option(string $name, array $callbacks) {
-  global $runner;
+  global $container;
+  $runner = $container->get('runner');
   $runner->addTestOption($name, $callbacks);
 }
 
@@ -129,12 +133,14 @@ function add_test_option(string $name, array $callbacks) {
  * @link https://symfony.com/doc/current/event_dispatcher.html
  */
 function respond_to($event, callable $callback) {
-  global $runner;
+  global $container;
   if (!is_array($event)) {
     $event = [$event, 0];
   }
   list($event, $priority) = $event;
-  $runner->getDispatcher()->addListener($event, $callback, $priority);
+  $container->get('runner')
+    ->getDispatcher()
+    ->addListener($event, $callback, $priority);
 }
 
 /**
@@ -147,9 +153,10 @@ function respond_to($event, callable $callback) {
  * @throws \AKlump\CheckPages\Exceptions\SuiteFailedException|\AKlump\CheckPages\Exceptions\TestFailedException
  */
 function run_suite(string $path_to_suite, array $suite_config = []): void {
-  global $runner;
+  global $container;
+  $runner = $container->get('runner');
 
-  // Process a glob string if present, relative to the --dir or runner.php dir.
+  // Process a glob string if present.
   if (strstr($path_to_suite, '*') !== FALSE) {
 
     if (strstr($path_to_suite, '/') !== FALSE) {
@@ -158,9 +165,20 @@ function run_suite(string $path_to_suite, array $suite_config = []): void {
       $runner->addResolveDirectory($directory);
     }
 
-    $suites = array_filter(glob($runner->getPathToSuites() . '/' . $path_to_suite), function ($path) {
-      return preg_match('/\.yml$/', $path);
-    });
+    $suites = [];
+    foreach ($runner->getResolveDirectories() as $resolve_directory) {
+      $pattern = $resolve_directory . '/' . $path_to_suite;
+      $matches = glob($pattern);
+      if ($matches) {
+        $suites = array_filter($matches, function ($path) {
+          return preg_match('/\.yml$/', $path);
+        });
+        break;
+      }
+    }
+    if (count($suites) === 0) {
+      throw new StopRunnerException(sprintf('The glob "%s" returned no files.', $pattern));
+    }
 
     $suites = $runner->filterSuites($suites);
   }
@@ -200,7 +218,8 @@ function with_extras(string $extras_filename, array $config) {
  * @throws \AKlump\CheckPages\Exceptions\StopRunnerException If the mixin cannot be found.
  */
 function add_mixin(string $mixin, array $config = []) {
-  global $runner;
+  global $container;
+  $runner = $container->get('runner');
   try {
     $require_path = $runner->resolveFile("$mixin.php");
   }
@@ -242,8 +261,8 @@ function add_mixin(string $mixin, array $config = []) {
  * @return void
  */
 function add_shorthand(string $parameter_name, callable $callback) {
-  global $runner;
-  $runner->addTestOption($parameter_name, [
+  global $container;
+  $container->get('runner')->addTestOption($parameter_name, [
     'onLoadSuite' => function (SuiteEventInterface $event) use ($callback, $parameter_name) {
       foreach ($event->getSuite()->getTests() as $test) {
         $test_config = $test->getConfig();

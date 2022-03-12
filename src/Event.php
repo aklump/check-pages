@@ -12,6 +12,8 @@ namespace AKlump\CheckPages;
  */
 final class Event {
 
+  const RUNNER_CONFIG_LOADED = 'runner.config_loaded';
+
   const SUITE_LOADED = 'suite.loaded';
 
   const TEST_CREATED = 'test.created';
@@ -29,5 +31,7 @@ final class Event {
   const TEST_FINISHED = 'test.finished';
 
   const SUITE_FINISHED = 'suite.finished';
+
+  const RUNNER_FINISHED = 'runner.finished';
 
 }

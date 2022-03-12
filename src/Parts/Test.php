@@ -4,7 +4,11 @@ namespace AKlump\CheckPages\Parts;
 
 class Test implements \JsonSerializable {
 
-  const IS_COMPLETE = 'c';
+  const PASSED = 'P';
+
+  const FAILED = 'F';
+
+  const IS_COMPLETE = 'C';
 
   protected $results = [];
 

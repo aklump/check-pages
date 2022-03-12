@@ -33,7 +33,8 @@
         "symfony\/expression-language": "^5.4",
         "symfony/event-dispatcher": "^5.4",
         "symfony/dependency-injection": "^5.4",
-        "symfony/config": "^5.4"
+        "symfony/config": "^5.4",
+        "symfony/console": "^5.4"
     },
     "version": "0.15.2",
     "bin": [

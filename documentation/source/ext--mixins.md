@@ -50,6 +50,8 @@ Another way to extend _Check Pages_ is to use the `add_mixin()` function. This m
     ```
 5. The runner instance `\AKlump\CheckPages\Parts\Runner` is available as `$runner`.
 6. You may use any of the _runner_functions.inc_ as you might otherwise do in a runner file.
+7. By convention, you may create an class named for the mixin in your file if necessary.
+8. You should add the namespace `AKlump\CheckPages\Mixins` to your mixin file.
 
 ## Output
 
