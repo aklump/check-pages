@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Continuing and Retesting</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--retest">
+<header>
+  <div class="pager"><a href="cli.html" class="prev cli">&laquo;Command Line Runner</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="phpstorm.html" class="next phpstorm">PhpStorm Integration&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Continuing and Retesting</h1>
+  
+
+<p><strong>These features only work when file storage is enabled.</strong></p>
+
+<h2>The Continue Option</h2>
+
+<p>If you have lots of suites, and you happen to interrupt the runner after you've completed a portion, you may want to continue, rather than start over. This sets up the scenario where you will use the <code>--continue</code> option.</p>
+
+<p>It works by skipping all the suites before the one that was interrupted, and beings with that suite's first test. It means some of the tests in the suite will be repeated, that is, it doesn't continue with the last test, but the last suite.</p>
+
+<h2>The Retest Option</h2>
+
+<p>If you have just run a bunch of suites, and had only a few failures, which you think you've fixed, you will want to use the <code>--retest</code> option.</p>
+
+<p>This works by re-running any suite, which had one or more test failures. Yes, the entire suite is retested, not just the failing test in the suite.</p>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="cli.html" class="prev cli">&laquo;Command Line Runner</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="phpstorm.html" class="next phpstorm">PhpStorm Integration&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 12 Mar 2022 20:44:58 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

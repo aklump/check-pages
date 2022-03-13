@@ -14,7 +14,7 @@ define('ROOT', $argv[7]);
 require_once ROOT . '/vendor/autoload.php';
 
 $compiler = new PluginsCompiler(
-  new PluginsManager(new Runner(ROOT), ROOT . '/plugins'),
+  new PluginsManager(new Runner(ROOT, new \Symfony\Component\Console\Input\ArrayInput([]), new Symfony\Component\Console\Output\NullOutput()), ROOT . '/plugins'),
   ROOT . '/schema.test.json',
   ROOT . '/' . Runner::SCHEMA_VISIT . '.json',
   ROOT . '/example'

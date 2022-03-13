@@ -337,6 +337,12 @@
                 {
                     "required": [
                         "dom",
+                        "set"
+                    ]
+                },
+                {
+                    "required": [
+                        "dom",
                         "contains"
                     ]
                 },
@@ -522,6 +528,12 @@
                 {
                     "required": [
                         "header",
+                        "set"
+                    ]
+                },
+                {
+                    "required": [
+                        "header",
                         "is not"
                     ]
                 },
@@ -548,6 +560,9 @@
             "properties": {
                 "header": {
                     "$ref": "#/definitions/header_selector"
+                },
+                "set": {
+                    "$ref": "#/definitions/set"
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"

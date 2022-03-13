@@ -155,6 +155,10 @@ class Runner {
    */
   private $pathToFiles;
 
+  private $input;
+
+  private $output;
+
   /**
    * @var \Symfony\Component\EventDispatcher\EventDispatcher
    */
@@ -203,14 +207,15 @@ class Runner {
   public function getDispatcher(): EventDispatcher {
     if (empty($this->dispatcher)) {
       $this->dispatcher = new EventDispatcher();
-
       global $container;
-      $serviceIds = $container->findTaggedServiceIds('event_subscriber');
-      foreach ($serviceIds as $serviceId => $tags) {
-        $listeners = $container->get($serviceId)->getSubscribedEvents();
-        foreach ($listeners as $listener_info) {
-          list ($name, $listener) = $listener_info;
-          $this->dispatcher->addListener($name, $listener);
+      if ($container) {
+        $serviceIds = $container->findTaggedServiceIds('event_subscriber');
+        foreach ($serviceIds as $serviceId => $tags) {
+          $listeners = $container->get($serviceId)->getSubscribedEvents();
+          foreach ($listeners as $listener_info) {
+            list ($name, $listener) = $listener_info;
+            $this->dispatcher->addListener($name, $listener);
+          }
         }
       }
     }
@@ -551,6 +556,7 @@ class Runner {
     unset($suite_config);
 
     $this->suite = $suite->setGroup(basename(dirname($path_to_suite)));
+    $this->validateSuiteConfigAgainstSchema($suite);
 
     $ignored_suite_paths = array_filter(array_map(function ($suite_to_ignore) {
       try {
@@ -678,7 +684,6 @@ class Runner {
       // Create the failure output files.
       if (!$result['pass']) {
         if (!empty($url)) {
-          $this->writeToFile('urls', [$url]);
           $failure_log = [$url];
         }
         foreach ($this->debug as $item) {
@@ -1010,11 +1015,11 @@ class Runner {
   /**
    * Validate a configuration array against the configuration schema.
    *
-   * @param array $config
+   * @param \AKlump\CheckPages\Parts\Suite $suite
    *
    * @throws \Exception
    */
-  protected function validateConfig(Suite $suite) {
+  protected function validateSuiteConfigAgainstSchema(Suite $suite) {
     // Convert to objects.
     $config = json_decode(json_encode($suite->getConfig()));
     $validator = new Validator();
