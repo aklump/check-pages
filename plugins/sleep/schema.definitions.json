@@ -1,5 +1,5 @@
 {
-    "wait_selector": {
+    "sleep_selector": {
         "description": "A number of seconds to pause execution",
         "type": "integer",
         "pattern": "^\\d+$",

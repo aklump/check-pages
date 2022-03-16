@@ -745,6 +745,15 @@
                 }
             }
         },
+        "sleep_selector": {
+            "description": "A number of seconds to pause execution",
+            "type": "integer",
+            "pattern": "^\\d+$",
+            "examples": [
+                1,
+                30
+            ]
+        },
         "style_property": {
             "type": "string",
             "pattern": ".+"
@@ -1210,6 +1219,25 @@
                 "properties": {
                     "import": {
                         "$ref": "#/definitions/import_selector"
+                    },
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    }
+                }
+            },
+            {
+                "type": "object",
+                "oneOf": [
+                    {
+                        "required": [
+                            "sleep"
+                        ]
+                    }
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "sleep": {
+                        "$ref": "#/definitions/sleep_selector"
                     },
                     "why": {
                         "$ref": "#/definitions/why"

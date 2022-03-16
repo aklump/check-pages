@@ -6,6 +6,7 @@ use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\SerializationTrait;
+use AKlump\CheckPages\GuzzleDriver;
 
 /**
  * Implements the Request plugin.

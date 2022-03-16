@@ -10,5 +10,6 @@ run_suite('import');
 run_suite('javascript');
 run_suite('json_schema');
 run_suite('request');
+run_suite('sleep');
 run_suite('style');
 run_suite('xpath');
