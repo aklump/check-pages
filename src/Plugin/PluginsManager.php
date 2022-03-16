@@ -90,7 +90,7 @@ final class PluginsManager {
           'id' => $id,
           'path' => $filepath,
           'autoload' => $filepath . "/$filename.php",
-          'classname' => 'AKlump\\CheckPages\\' . $filename,
+          'classname' => '\\AKlump\\CheckPages\\Plugin\\' . $filename,
         ];
       }
     }
@@ -141,7 +141,7 @@ final class PluginsManager {
    * @throws \RuntimeException
    *   If the class cannot be instantiated.
    */
-  private function getPluginInstance(string $plugin_id): PluginInterface {
+  public function getPluginInstance(string $plugin_id): PluginInterface {
     $plugins = $this->getAllPlugins();
     foreach ($plugins as $plugin) {
       if ($plugin['id'] === $plugin_id) {
@@ -273,19 +273,19 @@ final class PluginsManager {
       $this->defaultEventHandler($event, 'onLoadSuite');
     });
 
-//    // Discover plugin methods using \AKlump\CheckPages\Event constants.
-//    $events = new \ReflectionClass(Event::CLASS);
-//    foreach ($events->getConstants() as $method => $event_name) {
-//      $method = 'on' . Strings::upperCamel(strtolower($method));
-//      foreach ($this->getAllPlugins() as $data) {
-//        $plugin_instance = $this->getPluginInstance($data['id']);
-//        if (method_exists($plugin_instance, $method)) {
-//          $dispatcher->addListener($event_name, function ($event) use ($method, $plugin_instance) {
-//            $plugin_instance->$method($event);
-//          });
-//        }
-//      }
-//    }
+    //    // Discover plugin methods using \AKlump\CheckPages\Event constants.
+    //    $events = new \ReflectionClass(Event::CLASS);
+    //    foreach ($events->getConstants() as $method => $event_name) {
+    //      $method = 'on' . Strings::upperCamel(strtolower($method));
+    //      foreach ($this->getAllPlugins() as $data) {
+    //        $plugin_instance = $this->getPluginInstance($data['id']);
+    //        if (method_exists($plugin_instance, $method)) {
+    //          $dispatcher->addListener($event_name, function ($event) use ($method, $plugin_instance) {
+    //            $plugin_instance->$method($event);
+    //          });
+    //        }
+    //      }
+    //    }
 
     $dispatcher->addListener(Event::TEST_CREATED, function (TestEventInterface $event) {
       $config = $event->getTest()->getConfig();

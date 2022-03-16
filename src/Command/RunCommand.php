@@ -103,7 +103,7 @@ class RunCommand extends Command {
     }
     catch (\Exception $exception) {
 
-      if ($runner && $runner->getOutputMode() === Runner::OUTPUT_DEBUG) {
+      if (isset($runner) && $runner->getOutputMode() === Runner::OUTPUT_DEBUG) {
         $runner->echoMessages();
         echo PHP_EOL;
       }

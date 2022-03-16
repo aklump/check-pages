@@ -38,7 +38,7 @@ try {
   $mixin = new PhpStormHttpMixin($output_dir, $config);
 }
 catch (UnresolvablePathException $exception) {
-  throw new StopRunnerException(sprintf('The output directory "%s" cannot be resolved; please create it manually.', $config['output']));
+  throw new StopRunnerException(sprintf('The output directory "%s" cannot be resolved; please ensure it exists and try again.', $config['output']));
 }
 
 if (!is_writable($output_dir)) {

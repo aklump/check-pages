@@ -1,0 +1,16 @@
+-
+  visit: /test_subject.php
+  find:
+    -
+      dom: body
+      set: time
+-
+  sleep: 3
+-
+  visit: /test_subject.php
+  find:
+    -
+      dom: body
+      set: time2
+    -
+      eval: ${time2} >= ${time} + 3

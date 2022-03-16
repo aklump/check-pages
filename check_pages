@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 global $container;
 $container = new ContainerBuilder();
 $loader = new YamlFileLoader($container, new FileLocator(ROOT));
-$loader->load('services.yml');
+$loader->load('services.DO_NOT_EDIT.yml');
 
 
 $application = new Application();

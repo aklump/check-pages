@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\CheckPages;
+namespace AKlump\CheckPages\Plugin;
 
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Event\DriverEventInterface;
@@ -8,7 +8,8 @@ use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\TestOptionFailed;
 use AKlump\CheckPages\Parts\Runner;
-use AKlump\CheckPages\Plugin\Plugin;
+use AKlump\CheckPages\Assert;
+use AKlump\CheckPages\SerializationTrait;
 
 /**
  * Implements the Options plugin.

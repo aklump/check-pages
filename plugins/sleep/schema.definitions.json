@@ -1,0 +1,11 @@
+{
+    "sleep_selector": {
+        "description": "A number of seconds to pause execution",
+        "type": "integer",
+        "pattern": "^\\d+$",
+        "examples": [
+            1,
+            30
+        ]
+    }
+}

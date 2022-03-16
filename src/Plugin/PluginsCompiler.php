@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages\Plugin;
 
 use AKlump\LoftLib\Code\Strings;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Yaml\Yaml;
 
 final class PluginsCompiler {
@@ -48,9 +49,15 @@ final class PluginsCompiler {
     PluginsManager $plugins_manager,
     string $master_schema_path,
     string $generated_schema_path,
+    string $master_services_path,
+    string $generated_services_path,
     string $examples_path
   ) {
     $this->pluginsManager = $plugins_manager;
+
+    $this->masterServicesPath = $master_services_path;
+    $this->generatedServicesPath = $generated_services_path;
+    $this->services = Yaml::parseFile($this->masterServicesPath);
 
     $this->masterSchemaPath = $master_schema_path;
     $this->schema = ['readyOnly' => TRUE] + $this->loadJson($master_schema_path);
@@ -83,6 +90,7 @@ final class PluginsCompiler {
       }
     }
     $this->createTestRunnerPhpFile($plugins);
+    $this->generateServicesFile();
   }
 
   private function createTestRunnerPhpFile($plugins) {
@@ -116,6 +124,20 @@ final class PluginsCompiler {
   private function compilePlugin(array &$plugin) {
     $this->compilePluginSchema($plugin['id'], $plugin['path']);
     $plugin['has_tests'] = $this->handleTests($plugin['id'], $plugin['path']);
+
+    // Create a service if an event subscriber.
+    $instance = $this->pluginsManager->getPluginInstance($plugin['id']);
+    if ($instance instanceof EventSubscriberInterface) {
+      $plugin_services = [
+        'services' => [
+          $plugin['id'] . '.plugin' => [
+            'class' => '\\' . ltrim($plugin['classname'], '\\'),
+            'tags' => [['name' => 'event_subscriber']],
+          ],
+        ],
+      ];
+      $this->services = array_merge_recursive($this->services, $plugin_services);
+    }
   }
 
   private function ensureDir($filepath) {
@@ -239,6 +261,15 @@ final class PluginsCompiler {
     $result = file_put_contents($filepath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     if (!$result) {
       throw new \RuntimeException(sprintf('Could not save %s', $filepath));
+    }
+
+    return $this;
+  }
+
+  private function generateServicesFile() {
+    $result = file_put_contents($this->generatedServicesPath, Yaml::dump($this->services, 4));
+    if (!$result) {
+      throw new \RuntimeException(sprintf('Could not save %s', $this->generatedServicesPath));
     }
 
     return $this;

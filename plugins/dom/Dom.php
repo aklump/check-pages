@@ -1,8 +1,9 @@
 <?php
 
-namespace AKlump\CheckPages;
+namespace AKlump\CheckPages\Plugin;
 
-use AKlump\CheckPages\Plugin\Plugin;
+use AKlump\CheckPages\Assert;
+use AKlump\CheckPages\SerializationTrait;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
