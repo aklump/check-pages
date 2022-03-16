@@ -1,6 +1,2 @@
-<html>
-<head></head>
-<body>
-<?= $_SERVER['REQUEST_TIME'] ?>
-</body>
-</html>
+<?php
+header('X-timestamp: ' . $_SERVER['REQUEST_TIME']);

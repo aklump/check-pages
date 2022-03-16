@@ -2,15 +2,18 @@
   visit: /test_subject.php
   find:
     -
-      dom: body
+      header: X-timestamp
       set: time
+
 -
+  why: Wait three seconds to ensure REQUEST_TIME increases.
   sleep: 3
+
 -
   visit: /test_subject.php
   find:
     -
-      dom: body
+      header: X-timestamp
       set: time2
     -
       eval: ${time2} >= ${time} + 3
