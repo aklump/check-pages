@@ -10,7 +10,7 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * Implements the Imports plugin.
  */
-final class Import extends Plugin {
+final class Import extends LegacyPlugin {
 
   public function onLoadSuite(SuiteEventInterface $event) {
     $suite = $event->getSuite();

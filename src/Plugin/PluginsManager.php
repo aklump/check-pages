@@ -122,7 +122,7 @@ final class PluginsManager {
         // plugin should handle the assert.  We will allow more than one plugin
         // to handle an assert, if it's schema matches.
         $instance = $this->getPluginInstance($plugin['id']);
-        if ($instance instanceof PluginInterface) {
+        if ($instance instanceof LegacyPluginInterface) {
           $instance->handleAssert($assert, $needle, $response);
         }
       }
@@ -135,13 +135,13 @@ final class PluginsManager {
    * @param string $plugin_id
    *   The plugin ID.
    *
-   * @return \AKlump\CheckPages\Plugin\PluginInterface
+   * @return \AKlump\CheckPages\Plugin\LegacyPluginInterface|\Symfony\Component\EventDispatcher\EventSubscriberInterface
    *   A plugin instance.
    *
    * @throws \RuntimeException
    *   If the class cannot be instantiated.
    */
-  public function getPluginInstance(string $plugin_id): PluginInterface {
+  public function getPluginInstance(string $plugin_id) {
     $plugins = $this->getAllPlugins();
     foreach ($plugins as $plugin) {
       if ($plugin['id'] === $plugin_id) {
@@ -206,6 +206,7 @@ final class PluginsManager {
 
     foreach ($all_plugins as $plugin) {
       $instance = $this->getPluginInstance($plugin['id']);
+      if (!$instance instanceof LegacyPluginInterface)  continue;
       $applies = $instance->applies($config);
       if ($applies) {
         $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
@@ -226,7 +227,7 @@ final class PluginsManager {
           // This means that this plugin's schema matches $assert_config, therefore this
           // plugin should handle the assert.  We will allow more than one plugin
           // to handle an assert, if it's schema matches.
-          $applies = $validator->isValid() && $instance instanceof PluginInterface;
+          $applies = $validator->isValid() && $instance instanceof LegacyPluginInterface;
           if ($applies) {
             $this->assertionPlugins[$index][$plugin['id']] = $plugin + ['instance' => $instance];
             $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
@@ -257,7 +258,9 @@ final class PluginsManager {
   public function defaultEventHandler($event, $method) {
     foreach ($this->getAllPlugins() as $plugin) {
       $instance = $this->getPluginInstance($plugin['id']);
-      $instance->$method($event);
+      if ($instance instanceof LegacyPluginInterface) {
+        $instance->$method($event);
+      }
     }
   }
 
@@ -291,7 +294,7 @@ final class PluginsManager {
       $config = $event->getTest()->getConfig();
       foreach ($this->getAllPlugins() as $plugin) {
         $instance = $this->getPluginInstance($plugin['id']);
-        if ($instance->applies($config)) {
+        if ($instance instanceof LegacyPluginInterface && $instance->applies($config)) {
           return $instance->onBeforeTest($event);
         }
       }

@@ -9,7 +9,7 @@ use AKlump\CheckPages\Event;
 /**
  * Implements the Sleep plugin.
  */
-final class Sleep extends Plugin implements EventSubscriberInterface {
+final class Sleep implements EventSubscriberInterface {
 
   public static function getSubscribedEvents() {
     return [

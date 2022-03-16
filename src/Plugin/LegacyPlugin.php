@@ -9,7 +9,7 @@ use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Parts\Runner;
 
-abstract class Plugin implements PluginInterface {
+abstract class LegacyPlugin implements LegacyPluginInterface {
 
   /**
    * @var \AKlump\CheckPages\Parts\Runner

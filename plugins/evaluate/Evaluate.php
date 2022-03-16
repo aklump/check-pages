@@ -11,7 +11,7 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 /**
  * Implements the Evaluate plugin.
  */
-final class Evaluate extends Plugin {
+final class Evaluate extends LegacyPlugin {
 
   const SEARCH_TYPE = 'evaluate';
 

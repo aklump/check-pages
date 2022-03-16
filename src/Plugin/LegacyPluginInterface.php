@@ -8,13 +8,13 @@ use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 
 /**
- * Interface PluginInterface.
+ * Interface LegacyPluginInterface.
  *
  * Give this to plugin classes that can handle assertions.
  *
  * @package AKlump\CheckPages
  */
-interface PluginInterface {
+interface LegacyPluginInterface {
 
   /**
    * @param array $config

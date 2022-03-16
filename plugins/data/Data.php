@@ -10,7 +10,7 @@ use MidwestE\ObjectPath;
 /**
  * Implements the Data plugin.
  */
-final class Data extends Plugin {
+final class Data extends LegacyPlugin {
 
   use SerializationTrait;
 

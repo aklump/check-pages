@@ -102,7 +102,7 @@ function add_directory(string $absolute_path_to_dir) {
  *   The name of the test option, which will be used as the key in each test
  *   YAML array.
  * @param array $callbacks
- *   An array keyed by the method from \AKlump\CheckPages\Plugin\PluginInterface
+ *   An array keyed by the method from \AKlump\CheckPages\Plugin\LegacyPluginInterface
  *   which should trigger the callback, the value is a callback that will
  *   receive the arguments provided in the test suite yaml file as the value of
  *   $name + the arguments of the given method + an array of contextual info,

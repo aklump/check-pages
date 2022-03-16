@@ -9,7 +9,7 @@ use Symfony\Component\DomCrawler\Crawler;
 /**
  * Implements the Dom plugin.
  */
-final class Dom extends Plugin {
+final class Dom extends LegacyPlugin {
 
   const SEARCH_TYPE = 'dom';
 

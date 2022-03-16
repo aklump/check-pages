@@ -10,7 +10,7 @@ use Symfony\Component\DomCrawler\Crawler;
 /**
  * Implements the Xpath plugin.
  */
-final class Xpath extends Plugin {
+final class Xpath extends LegacyPlugin {
 
   const SEARCH_TYPE = 'xpath';
 

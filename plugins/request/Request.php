@@ -10,7 +10,7 @@ use AKlump\CheckPages\SerializationTrait;
 /**
  * Implements the Request plugin.
  */
-final class Request extends Plugin {
+final class Request extends LegacyPlugin {
 
   /**
    * Captures the test config to share across methods.

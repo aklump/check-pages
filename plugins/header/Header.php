@@ -10,7 +10,7 @@ use AKlump\CheckPages\SerializationTrait;
 /**
  * Implements the Header plugin.
  */
-final class Header extends Plugin {
+final class Header extends LegacyPlugin {
 
   const SEARCH_TYPE = 'header';
 

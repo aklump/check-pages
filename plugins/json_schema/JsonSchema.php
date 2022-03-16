@@ -12,7 +12,7 @@ use MidwestE\ObjectPath;
 /**
  * Implements the Json Schema plugin.
  */
-final class JsonSchema extends Plugin {
+final class JsonSchema extends LegacyPlugin {
 
   use SerializationTrait;
 

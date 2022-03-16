@@ -14,7 +14,7 @@ use AKlump\CheckPages\SerializationTrait;
 /**
  * Implements the Options plugin.
  */
-final class Options extends Plugin {
+final class Options extends LegacyPlugin {
 
   const SEARCH_TYPE = 'options';
 

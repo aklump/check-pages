@@ -11,7 +11,7 @@ use AKlump\CheckPages\SerializationTrait;
 /**
  * Implements the style plugin.
  */
-class Style extends Plugin {
+class Style extends LegacyPlugin {
 
   const SEARCH_TYPE = 'style';
 

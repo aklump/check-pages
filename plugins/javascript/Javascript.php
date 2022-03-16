@@ -11,7 +11,7 @@ use AKlump\CheckPages\SerializationTrait;
 /**
  * Implements the javascript plugin.
  */
-final class Javascript extends Plugin {
+final class Javascript extends LegacyPlugin {
 
   const SEARCH_TYPE = 'javascript';
 
