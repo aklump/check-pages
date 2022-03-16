@@ -1,12 +1,12 @@
 {
     "type": "object",
     "required": [
-        "sleep"
+        "wait"
     ],
     "additionalProperties": false,
     "properties": {
-        "sleep": {
-            "$ref": "#/definitions/sleep_selector"
+        "wait": {
+            "$ref": "#/definitions/wait_selector"
         },
         "why": {
             "$ref": "#/definitions/why"

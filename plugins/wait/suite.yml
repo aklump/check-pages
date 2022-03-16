@@ -5,7 +5,7 @@
       dom: body
       set: time
 -
-  sleep: 3
+  wait: 3
 -
   visit: /test_subject.php
   find:
