@@ -11,9 +11,12 @@ use AKlump\CheckPages\Event;
  */
 final class Sleep implements EventSubscriberInterface {
 
+  /**
+   * {@inheritdoc}
+   */
   public static function getSubscribedEvents() {
     return [
-      [Event::TEST_CREATED, [self::class, 'doSleep']],
+      Event::TEST_CREATED => [self::class, 'doSleep'],
     ];
   }
 

@@ -21,8 +21,8 @@ final class Retest implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      [Event::RUNNER_CONFIG_LOADED, [self::class, 'configureSuitesToIgnore']],
-      [Event::TEST_FINISHED, [self::class, 'writeTestResult']],
+      Event::RUNNER_CONFIG_LOADED => [self::class, 'configureSuitesToIgnore'],
+      Event::TEST_FINISHED => [self::class, 'writeTestResult'],
     ];
   }
 
