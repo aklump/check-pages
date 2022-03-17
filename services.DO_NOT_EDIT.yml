@@ -1,4 +1,8 @@
 services:
+    feedback:
+        class: \AKlump\CheckPages\Output\Feedback
+        tags:
+            - { name: event_subscriber }
     retest:
         class: \AKlump\CheckPages\Service\Retest
         tags:
