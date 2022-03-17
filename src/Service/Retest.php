@@ -90,7 +90,7 @@ final class Retest implements EventSubscriberInterface {
 
   public static function writeTestResult(DriverEvent $event) {
     $tracking_path = self::getTrackingFilePath($event->getTest()->getRunner());
-    if (!$tracking_path) {
+    if (!$tracking_path || !file_exists($tracking_path)) {
       return;
     }
     $test = $event->getTest();
