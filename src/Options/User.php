@@ -90,6 +90,7 @@ class User implements UserInterface, \JsonSerializable {
       'uid' => $this->id(),
       'name' => $this->getAccountName(),
       'pass' => $this->getPassword(),
+      'mail' => $this->getEmail(),
     ];
   }
 }

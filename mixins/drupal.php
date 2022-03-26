@@ -55,7 +55,10 @@ $_get_session = function (string $username, Runner $runner) use ($config) {
     if (!array_key_exists('users', $config)) {
       throw new \InvalidArgumentException('You must provide a filepath to the users list as "users".');
     }
-    echo "🔐";
+
+    if ($runner->getOutput()->isVerbose()) {
+      echo "🔐";
+    }
 
     // Load our non-version username/password index.
     $path_to_users_list = $runner->resolveFile($config['users']);
@@ -67,11 +70,15 @@ $_get_session = function (string $username, Runner $runner) use ($config) {
 
     $user = $auth->getUser($username);
     $auth->login($user);
+    $account = $user->jsonSerialize();
+    if (empty($account['uid'])) {
+      throw new \RuntimeException(sprintf('Could not determine user ID for %s', $username));
+    }
 
     $sessions[$username] = [
       'cookie' => $auth->getSessionCookie(),
       'expires' => $auth->getSessionExpires(),
-      'account' => $user->jsonSerialize(),
+      'account' => $account,
       'csrf_token' => $auth->getCsrfToken(),
     ];
     $runner->getStorage()->set('drupal.sessions', $sessions);
@@ -87,6 +94,7 @@ add_test_option('user', [
     $event->getTest()->getSuite()->variables()
       ->setItem('user.id', $session['account']['uid'])
       ->setItem('user.uid', $session['account']['uid'])
+      ->setItem('user.mail', $session['account']['mail'])
       ->setItem('user.name', $session['account']['name'])
       ->setItem('user.pass', $session['account']['pass'])
       ->setItem('user.csrf', $session['csrf_token']);

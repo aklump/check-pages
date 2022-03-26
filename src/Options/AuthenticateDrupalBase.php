@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Options;
 
 use AKlump\CheckPages\GuzzleDriver;
 use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Exception\ConnectException;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Yaml\Yaml;
 
@@ -147,6 +148,84 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     $this->sessionName = $session_cookie['Name'];
     $this->sessionValue = $session_cookie['Value'];
     $this->sessionExpires = $session_cookie['Expires'];
+
+    $id = $this->requestUserId($user);
+    if ($id) {
+      $user->setId($id);
+    }
+
+    $mail = $this->requestUserEmail($user);
+    if ($mail) {
+      $user->setEmail($mail);
+    }
+  }
+
+  /**
+   * Perform one or more requests to obtain the user ID.
+   *
+   * @param \AKlump\CheckPages\Options\UserInterface $user
+   *
+   * @return int
+   *   The User ID if it can be deteremine.
+   *
+   * @see \AKlump\CheckPages\Options\AuthenticateDrupalBase::login()
+   */
+  protected function requestUserId(UserInterface $user): int {
+    $parts = parse_url($this->loginUrl);
+    $url = $parts['scheme'] . '://' . $parts['host'] . '/user';
+    try {
+      $guzzle = new GuzzleDriver();
+      $response = $guzzle
+        ->setUrl($url)
+        ->setHeader('Cookie', $this->getSessionCookie())
+        ->request();
+      $location = explode('/', $response->getLocation());
+      $uid = array_pop($location);
+      if (is_numeric($uid)) {
+        return intval($uid);
+      }
+    }
+    catch (ConnectException $exception) {
+      return 0;
+    }
+  }
+
+  /**
+   * Perform one or more requests to obtain the user email.
+   *
+   * @param \AKlump\CheckPages\Options\UserInterface $user
+   *
+   * @return string
+   *   The users email if available.
+   *
+   * @see \AKlump\CheckPages\Options\AuthenticateDrupalBase::login()
+   */
+  protected function requestUserEmail(UserInterface $user): string {
+    $uid = $user->id();
+    if (!$uid) {
+      return '';
+    }
+    $parts = parse_url($this->loginUrl);
+    $url = $parts['scheme'] . '://' . $parts['host'] . "/user/$uid/edit";
+    try {
+      $guzzle = new GuzzleDriver();
+      $response = $guzzle
+        ->setUrl($url)
+        ->setHeader('Cookie', $this->getSessionCookie())
+        ->request()
+        ->getResponse();
+      $body = strval($response->getBody());
+      $crawler = new Crawler($body);
+      $email_input = $crawler->filter('input[name="mail"]')->getNode(0);
+      if ($email_input) {
+        $mail = $email_input->getAttribute('value');
+      }
+    }
+    catch (ConnectException $exception) {
+      $mail = '';
+    }
+
+    return $mail ?? '';
   }
 
   /**

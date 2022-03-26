@@ -101,3 +101,17 @@ This example will use the `drupal8` built-in authentication provider. _Note: for
      set: adminUid
      is: ${user.id}
    ```
+
+## CSRF Tokens
+
+The token `${user.csrf}` is created automatically when you use `user`, and can be used as shown below:
+
+```yaml
+-
+  user: site_test.admin
+  url: /cp-api/jobs
+  request:
+    method: POST
+    headers:
+      X-Csrf-token: ${user.csrf}
+```
