@@ -40,6 +40,9 @@ trait SerializationTrait {
    */
   protected function deserialize(string $serial, string $type) {
     switch (strtolower($type)) {
+      case 'text/html':
+        return $serial;
+
       case 'json':
       case 'application/json':
         return json_decode($serial);

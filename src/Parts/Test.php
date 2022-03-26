@@ -66,6 +66,12 @@ class Test implements \JsonSerializable {
   }
 
   public function setConfig(array $config): self {
+    // Normalize config keys.
+    $keys = array_map(function ($key) {
+      return $key === 'visit' ? 'url' : $key;
+    }, array_keys($config));
+    $config = array_combine($keys, $config);
+
     $this->config = $config;
 
     return $this;

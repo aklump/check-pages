@@ -623,8 +623,8 @@ class Runner {
     // Add the tests to the suite in prep for the plugin hook...
     $suite_yaml = file_get_contents($path_to_suite);
     $data = Yaml::parse($suite_yaml);
-    foreach (array_values($data) as $test_index => $config) {
-      $suite->addTest($test_index, $config);
+    foreach ($data as $config) {
+      $suite->addTest($config);
     }
 
     $this->dispatcher->dispatch(new SuiteEvent($suite), Event::SUITE_LOADED);
@@ -634,7 +634,6 @@ class Runner {
     $data = Yaml::parse($suite_yaml, YAML::PARSE_OBJECT_FOR_MAP);
     $this->validateSuiteYaml($data, static::SCHEMA_VISIT . '.json');
 
-    $quiet_mode = $this->getOutputMode() === self::OUTPUT_QUIET;
     if (!$this->debugging && empty($this->printed['base_url'])) {
       echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->getConfig()['base_url'])) . PHP_EOL;
       $this->printed['base_url'] = TRUE;
@@ -643,7 +642,7 @@ class Runner {
 
     $this->debug = [];
     $failed_tests = 0;
-    $has_multiple_methods = count($suite->getHttpMethods()) > 1;
+
     foreach ($suite->getTests() as $test_index => $test) {
       $config = $test->getConfig();
 

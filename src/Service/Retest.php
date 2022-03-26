@@ -83,7 +83,7 @@ final class Retest implements EventSubscriberInterface {
     if ($suites_to_ignore) {
       $config = $event->getRunner()->getConfig();
       $config['suites_to_ignore'] = array_merge($config['suites_to_ignore'], array_values($suites_to_ignore));
-      $config['suites_to_ignore'] = array_diff($config['suites_to_ignore'], array_values($suites_to_run));
+      $config['suites_to_ignore'] = array_values(array_diff($config['suites_to_ignore'], array_values($suites_to_run)));
       $event->getRunner()->setConfig($config);
     }
   }

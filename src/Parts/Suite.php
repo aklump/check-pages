@@ -11,6 +11,8 @@ class Suite implements PartInterface, \JsonSerializable {
    */
   protected $tests = [];
 
+  protected $autoIncrementTestId = 0;
+
   protected $runner;
 
   protected $id;
@@ -78,15 +80,8 @@ class Suite implements PartInterface, \JsonSerializable {
     return array_unique($methods);
   }
 
-  public function addTest($test_index, array $config): self {
-
-    // Normalize config keys.
-    $keys = array_map(function ($key) {
-      return $key === 'visit' ? 'url' : $key;
-    }, array_keys($config));
-    $config = array_combine($keys, $config);
-    $id = strval($test_index);
-    $this->tests[$id] = new Test($id, $config, $this);
+  public function addTest(array $config): self {
+    $this->tests[] = new Test(++$this->autoIncrementTestId, $config, $this);
 
     return $this;
   }
