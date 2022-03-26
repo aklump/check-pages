@@ -101,9 +101,16 @@ add_test_option('user', [
   },
 
   'onBeforeRequest' => function ($username, DriverEventInterface $event, $context) use ($_get_session) {
+    /** @var Runner $runner */
     $runner = $context['runner'];
+
     if ($runner->getOutputMode() !== Runner::OUTPUT_QUIET) {
-      echo Color::wrap('green', sprintf('(👤 %s) ', $username));
+      if ($runner->getOutput()->isVerbose()) {
+        echo Color::wrap('light gray', sprintf('👤%s ', $username));
+      }
+      else {
+        echo '👤';
+      }
     }
     $session = $_get_session($username, $runner);
     $event->getDriver()->setHeader('Cookie', $session['cookie']);

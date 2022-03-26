@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Output;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Bash\Color;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -60,7 +61,12 @@ class Feedback implements EventSubscriberInterface {
     }
 
     if ($config['js'] ?? FALSE) {
-      echo "☕ ";
+
+      // TODO Change to getOutput()
+      if ($runner->getOutputMode() !== Runner::OUTPUT_QUIET) {
+        echo "☕";
+      }
+
     }
   }
 
