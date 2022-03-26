@@ -4,6 +4,11 @@
  * Controller file for the request plugin example.
  */
 
+if (!in_array($_SERVER['REQUEST_METHOD'], ['POST', 'GET', 'PUT'])) {
+  header('HTTP/1.0 405 Method Not Allowed');
+  exit();
+}
+
 $output = [];
 $headers = array_map('strtolower', getallheaders());
 $output[] = "method: " . $_SERVER['REQUEST_METHOD'];

@@ -1,28 +1,50 @@
 {
+    "http_method": {
+        "type": "string",
+        "enum": [
+            "delete",
+            "get",
+            "head",
+            "options",
+            "patch",
+            "post",
+            "put",
+            "trace",
+            "DELETE",
+            "GET",
+            "HEAD",
+            "OPTIONS",
+            "PATCH",
+            "POST",
+            "PUT",
+            "TRACE"
+        ]
+    },
     "request": {
         "type": "object",
         "additionalProperties": false,
+        "oneOf": [
+            {
+                "required": [
+                    "method"
+                ]
+            },
+            {
+                "required": [
+                    "methods"
+                ]
+            }
+        ],
         "properties": {
             "method": {
-                "type": "string",
-                "enum": [
-                    "delete",
-                    "get",
-                    "head",
-                    "options",
-                    "patch",
-                    "post",
-                    "put",
-                    "trace",
-                    "DELETE",
-                    "GET",
-                    "HEAD",
-                    "OPTIONS",
-                    "PATCH",
-                    "POST",
-                    "PUT",
-                    "TRACE"
-                ]
+                "$ref": "#/definitions/http_method"
+            },
+            "methods": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                    "$ref": "#/definitions/http_method"
+                }
             },
             "headers": {
                 "type": "object",

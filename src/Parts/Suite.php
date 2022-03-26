@@ -94,6 +94,39 @@ class Suite implements PartInterface, \JsonSerializable {
     return $this;
   }
 
+  /**
+   * Replace a single test with multiple.
+   *
+   * This can be used for one to many shorthand type test configs.  This will
+   * re-index all tests, meaning the test IDs will change.
+   *
+   * @param \AKlump\CheckPages\Parts\Test $test
+   * @param array $test_configs
+   *   This must be an indexed array.  Each item is an array of test config.
+   *
+   * @return void
+   */
+  public function replaceTestWithMultiple(Test $test, array $test_configs) {
+    if (empty($test_configs)) {
+      throw new \InvalidArgumentException('$test_configs cannot be empty');
+    }
+    if (!is_numeric(key($test_configs))) {
+      throw new \InvalidArgumentException(sprintf('%s: $test_configs must have numeric keys. %s', __METHOD__, json_encode($test_configs)));
+    }
+    foreach ($this->tests as $offset => $current_test) {
+      if ($current_test->id() == $test->id()) {
+        break;
+      }
+      $offset = NULL;
+    }
+    if (!is_null($offset)) {
+      $tests = array_map(function ($config) {
+        return new Test(++$this->autoIncrementTestId, $config, $this);
+      }, $test_configs);
+      array_splice($this->tests, $offset, 1, $tests);
+    }
+  }
+
   public function getTests(): array {
     return $this->tests;
   }

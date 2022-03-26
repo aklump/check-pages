@@ -3,9 +3,8 @@
 namespace AKlump\CheckPages\Plugin;
 
 use AKlump\CheckPages\Event\DriverEventInterface;
+use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\Assert;
-use AKlump\CheckPages\SerializationTrait;
 use AKlump\CheckPages\GuzzleDriver;
 
 /**
@@ -66,6 +65,42 @@ final class Request extends LegacyPlugin {
     $driver
       ->setBody($this->request['body'])
       ->setMethod($this->request['method']);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * Expand request.methods into multiple tests.
+   */
+  public function onLoadSuite(SuiteEventInterface $event) {
+    $suite = $event->getSuite();
+    $items = [];
+    foreach ($suite->getTests() as $test) {
+      $config = $test->getConfig();
+      if (isset($config['request']['methods'])) {
+        $replacements = [];
+        foreach ($config['request']['methods'] as $method) {
+
+          // Create a variable that can be interpolated.
+          $replacements[] = [
+            'set' => 'request.method',
+            'is' => $method,
+          ];
+
+          // Create the HTTP method request.
+          $replacement = $config;
+          $replacement['request']['method'] = $method;
+          unset($replacement['request']['methods']);
+          $replacements[] = $replacement;
+        }
+        $items[] = [$test, $replacements];
+      }
+    }
+
+    foreach ($items as $item) {
+      list($test, $replacements) = $item;
+      $suite->replaceTestWithMultiple($test, $replacements);
+    }
   }
 
 }

@@ -1,5 +1,13 @@
-- why: Assert post with content-type header and body works as expected.
-  visit: /plugins/request.php
+-
+  why: Assert ${request.method} returns 405
+  visit: /test_subject.php
+  request:
+    methods: [ PATCH, DELETE, HEAD, OPTIONS, TRACE ]
+  expect: 405
+
+-
+  why: Assert post with content-type header and body works as expected.
+  visit: /test_subject.php
   request:
     method: post
     headers:
@@ -10,15 +18,18 @@
     - 'content-type: application/json'
     - '{"foo":"bar"}'
 
-- visit: /plugins/request.php
+-
+  visit: /test_subject.php
   request:
+    method: GET
     body: 'lorem ipsum'
   find:
     - 'GET'
     - 'lorem ipsum'
 
-- why: Assert put with multiple headers and body works as expected.
-  visit: /plugins/request.php
+-
+  why: Assert put with multiple headers and body works as expected.
+  visit: /test_subject.php
   request:
     method: PUT
     headers:
