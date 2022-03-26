@@ -8,7 +8,7 @@
   import: headings
 ```
 
-> Since imports are effectively cut and paste, they allow for no configuration. If you need something like a function, look to [shorthand](@shorthand), [options](@options) or [plugins](@plugins).
+> Imports can only be configured via interpolation (see below). Other configurable options to consider are: [shorthand](@shorthand), [options](@options) or [plugins](@plugins).
 
 ## Explained
 
@@ -55,3 +55,23 @@ Can be moved to a file called _imports/_headings.yml_ and those repeated section
 * The extension is optional and when excluded, is assumed as _.yml_.
 * A single import line in your test (one YAML array element) maps to one or many tests in the import file. That is to say, a single import can include one test, or several tests.
 * If you use `why` as a sibling to `import`, that is only for your test reading, it will not be printed when the test is run. So think of it as answering the question of "Why use this import?", if you use it.
+* Imports cannot recursively import other imports at this time.
+
+## Configure Imports with Interpolation
+
+```yaml
+# file: suite.yml
+-
+  why: Set `id` which is used in our import file to build the URL.
+  set: baz
+  is: 123
+
+-
+  import: imports/setup_timesheet
+```
+
+```yaml
+# file: imports/_setup_timesheet.yml
+-
+  url: /foo/bar/${baz}
+```
