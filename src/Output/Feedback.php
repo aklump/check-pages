@@ -19,7 +19,7 @@ class Feedback implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      Event::TEST_CREATED => [self::class, 'testCreated'],
+      Event::REQUEST_CREATED => [self::class, 'testCreated'],
       Event::TEST_FINISHED => [self::class, 'testFinished'],
     ];
   }

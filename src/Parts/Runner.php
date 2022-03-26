@@ -673,55 +673,8 @@ class Runner {
         continue;
       }
 
-      $method = $has_multiple_methods ? $test->getHttpMethod() : '';
-
-      // Print the URL before we run the test so it appears before the user has to wait.
-      $url = $this->debugging ? $this->url($config['url']) : $config['url'];
-
-      if (!$quiet_mode) {
-        echo PHP_EOL;
-      }
-      echo '🔎 ';
-      if (!empty($config['why'])) {
-        echo Color::wrap('blue', $config['why']) . ' ';
-        if (!$quiet_mode) {
-          echo PHP_EOL;
-        }
-      }
-      if (!$quiet_mode || empty($config['why'])) {
-        echo Color::wrap('blue', ltrim("$method $url ", ' '));
-      }
-
-      if ($config['js'] ?? FALSE) {
-        echo "☕ ";
-      }
       $test->setConfig($config);
       $result = $this->runTest($test);
-
-      // This icon will affix itself to the URL after the test.
-      $icon = $result['pass'] ? '👍' : '🚫';
-      echo "$icon" . PHP_EOL;
-
-      // Create the failure output files.
-      if (!$result['pass']) {
-        if (!empty($url)) {
-          $failure_log = [$url];
-        }
-        foreach ($this->debug as $item) {
-          if ('error' === $item['level']) {
-            $failure_log[] = $item['data'];
-          }
-        }
-        $failure_log[] = PHP_EOL;
-        $this->writeToFile('failures', $failure_log);
-
-        FailedTestMarkdown::output("{$suite->id()}{$test_index}", $test);
-      }
-
-      if ($this->debugging && $this->debug) {
-        $this->echoMessages();
-        echo PHP_EOL;
-      }
 
       // Decide if we should stop the runner or not.
       if (!$result['pass']) {
@@ -855,7 +808,8 @@ class Runner {
       }
     }
 
-    if (empty($config['find']) && $this->debugging) {
+    if (empty($config['find']) && $this->debugging && $this->getOutput()
+        ->isVerbose()) {
       $this->debug('├── This test has no assertions.');
     }
     $assertions = $config['find'];
@@ -1297,6 +1251,14 @@ class Runner {
       $this->writeToFile($name, ['', '', date('r'), str_repeat('-', 80), '']);
       fclose($handle);
     }
+  }
+
+  /**
+   * @return array
+   * @deprecated Do not use.
+   */
+  public function getDebugArray(): array {
+    return $this->debug;
   }
 
 }
