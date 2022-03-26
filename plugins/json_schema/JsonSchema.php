@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Plugin;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Assert;
+use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\SerializationTrait;
 use JsonSchema\Validator;
 use MidwestE\ObjectPath;
@@ -50,7 +51,13 @@ final class JsonSchema extends LegacyPlugin {
 
       // Resolve paths and load all our JSON schemas.
       if (is_array($assertion) && array_key_exists(self::SEARCH_TYPE, $assertion)) {
-        $path_to_schema = $this->runner->resolveFile($assertion['schema']);
+        try {
+          $path_to_schema = $this->runner->resolveFile($assertion['schema']);
+        }
+        catch (UnresolvablePathException $exception) {
+          $message = sprintf('Cannot resolve to schema file: "%s".', $assertion['schema']);
+          throw new UnresolvablePathException($assertion['schema'], $message);
+        }
         $this->jsonSchemas[$assert_id] = file_get_contents($path_to_schema);
       }
     }

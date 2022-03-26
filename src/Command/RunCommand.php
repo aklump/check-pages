@@ -26,10 +26,12 @@ class RunCommand extends Command {
       //      ->addOption('quiet', NULL, InputOption::VALUE_NONE, 'Operate in quiet mode.')
       ->addOption('show-request-headers', NULL, InputOption::VALUE_NONE, 'Display request headers.')
       ->addOption('show-request', NULL, InputOption::VALUE_NONE, 'Display request body.')
-      ->addOption('show-headers', NULL, InputOption::VALUE_NONE, 'Display response headers.')
+
+      // Using "I" to match the curl binary.
+      ->addOption('show-headers', 'I', InputOption::VALUE_NONE, 'Display response headers.')
       ->addOption('show-response', NULL, InputOption::VALUE_NONE, 'Display response body.')
-      ->addOption('filter', NULL, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Indicate a subset of one or more suites to run.')
-      ->addOption('group', NULL, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Indicate the group(s) to filter by; suites having other groups will be ignored.')
+      ->addOption('filter', 'f', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Indicate a subset of one or more suites to run.')
+      ->addOption('group', 'g', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Indicate the group(s) to filter by; suites having other groups will be ignored.')
       ->addOption('retest', NULL, InputOption::VALUE_NONE, 'Execute runner skipping any suite that previously passed, retested only the failed suites.')
       ->addOption('continue', NULL, InputOption::VALUE_NONE, 'Execute runner beginning with the most recently executed suite, inclusive.');
   }
@@ -86,7 +88,7 @@ class RunCommand extends Command {
         }
       }
       if ($input->getOption('group')) {
-        $groups = array_filter($input->getOption('groups'));
+        $groups = array_filter($input->getOption('group'));
         foreach ($groups as $filter) {
           $runner->addGroupFilter($filter);
         }
