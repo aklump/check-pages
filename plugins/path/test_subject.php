@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Controller for the data plugin.
+ * Controller for the path plugin.
  */
 
 switch ($_GET['op'] ?? '') {

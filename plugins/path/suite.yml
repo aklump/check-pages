@@ -32,6 +32,7 @@
 -
   visit: /test_subject.php?op=items
   request:
+    method: get
     headers:
       accept: text/yaml
   find:
@@ -58,7 +59,7 @@
 -
   visit: /test_subject.php
   request:
-    method: get
+    method: GET
     headers:
       accept: application/json
   find:
@@ -89,7 +90,7 @@
 -
   visit: /test_subject.php
   request:
-    method: get
+    method: GET
     headers:
       accept: application/json
   find:
@@ -101,6 +102,7 @@
 -
   visit: /test_subject.php
   request:
+    method: GET
     headers:
       accept: application/xml
   find:
@@ -112,6 +114,7 @@
 -
   visit: /test_subject.php
   request:
+    method: GET
     headers:
       accept: text/yaml
   find:

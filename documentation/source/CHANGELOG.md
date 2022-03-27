@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- `request.method` is now required; previously it could be omitted and would be assumed GET.
+- Renamed _data_ plugin to _path_ plugin.
 - Swithed to Symfony console.
 - `./check_pages` became `./check_pages run` (added `run` as a required argument).
 - BREAKING CHANGE! `drupal8` and `drupal7` mixins changed to a single `drupal`.

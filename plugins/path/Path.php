@@ -8,9 +8,9 @@ use AKlump\CheckPages\SerializationTrait;
 use MidwestE\ObjectPath;
 
 /**
- * Implements the Data plugin.
+ * Implements the Path plugin.
  */
-final class Data extends LegacyPlugin {
+final class Path extends LegacyPlugin {
 
   use SerializationTrait;
 
