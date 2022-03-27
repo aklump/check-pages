@@ -41,6 +41,8 @@
 <h3>Changed</h3>
 
 <ul>
+<li><code>request.method</code> is now required; previously it could be omitted and would be assumed GET.</li>
+<li>Renamed <em>data</em> plugin to <em>path</em> plugin.</li>
 <li>Swithed to Symfony console.</li>
 <li><code>./check_pages</code> became <code>./check_pages run</code> (added <code>run</code> as a required argument).</li>
 <li>BREAKING CHANGE! <code>drupal8</code> and <code>drupal7</code> mixins changed to a single <code>drupal</code>.</li>
@@ -58,6 +60,8 @@ style: display
 <h3>Added</h3>
 
 <ul>
+<li>The concept of groups.</li>
+<li>The group (--group, -g) filter</li>
 <li>The import feature.</li>
 <li>The authentication for Drupal now adds the following variables automatically: <code>${user.uid}, ${user.id}, ${user.name}, ${user.pass}</code> for the authenticated user. That means you can use these in subsequent tests, even if not authenticating said test.</li>
 <li><code>--show-request</code> and <code>--show-response</code>.</li>
@@ -281,7 +285,7 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
 <footer>
   <div class="pager"><a href="xdebug.html" class="prev xdebug">&laquo;Debugging While Running Tests</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cli.html" class="next cli">Command Line Runner&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 26 Mar 2022 19:08:44 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 26 Mar 2022 21:56:53 -0700</p>
   </div>
 </footer>
 

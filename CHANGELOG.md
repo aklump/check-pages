@@ -16,6 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- `request.method` is now required; previously it could be omitted and would be assumed GET.
+- Renamed _data_ plugin to _path_ plugin.
 - Swithed to Symfony console.
 - `./check_pages` became `./check_pages run` (added `run` as a required argument).
 - BREAKING CHANGE! `drupal8` and `drupal7` mixins changed to a single `drupal`.
@@ -32,6 +34,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- The concept of groups.
+- The group (--group, -g) filter
 - The import feature.
 - The authentication for Drupal now adds the following variables automatically: `${user.uid}, ${user.id}, ${user.name}, ${user.pass}` for the authenticated user. That means you can use these in subsequent tests, even if not authenticating said test.
 - `--show-request` and `--show-response`.

@@ -32,6 +32,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- The concept of groups.
+- The group (--group, -g) filter
 - The import feature.
 - The authentication for Drupal now adds the following variables automatically: `${user.uid}, ${user.id}, ${user.name}, ${user.pass}` for the authenticated user. That means you can use these in subsequent tests, even if not authenticating said test.
 - `--show-request` and `--show-response`.

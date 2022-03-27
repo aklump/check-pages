@@ -30,7 +30,7 @@
 
 <p>That's it.</p>
 
-<p>You can use the <code>--group=GROUP ID</code> to filter by group.</p>
+<p>You can use the <code>--group=&lt;GROUP_ID&gt;</code> to filter by group.</p>
 
 <p>Given this example structure...</p>
 
@@ -47,6 +47,15 @@
         ├── contact.yml
         ├── footer.yml
         └── homepage.yml
+</code></pre>
+
+<p>Setup the runner like this:</p>
+
+<pre><code class="php">&lt;?php
+add_directory(__DIR__ . '/suites');
+run_suite('admin/*');
+run_suite('api/*');
+run_suite('web_ui/*');
 </code></pre>
 
 <p>You are able to use these CLI arguments:</p>
@@ -72,7 +81,7 @@
 <footer>
   <div class="pager"><a href="services.html" class="prev services">&laquo;Service Classes</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="deep--custom_dirs.html" class="next custom_dirs">How To Use A Custom Directory For Suite Files&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 26 Mar 2022 19:08:55 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 26 Mar 2022 21:57:07 -0700</p>
   </div>
 </footer>
 
