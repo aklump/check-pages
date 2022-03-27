@@ -885,6 +885,11 @@ class Runner {
     'yaml',
   ]
   ) {
+    if (substr($path, 0, 1) === '/' && file_exists($path)) {
+      $resolved_path = dirname($path);
+
+      return $path;
+    }
 
     // If $path has an extension it will trump $extensions.
     $ext = pathinfo($path, PATHINFO_EXTENSION);
