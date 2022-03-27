@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Responding to Events</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--respond_to">
+<header>
+  <div class="pager"><a href="ext--plugins.html" class="prev ext--plugins">&laquo;Plugins</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="ext--imports.html">Extending</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Event Responders</h1>
+  
+
+<p>To see all events look to <code>\AKlump\CheckPages\Event</code>.</p>
+
+<h2>Writing a Dynamic Import</h2>
+
+<p>In this example a "shorthand" is built that can expand to multiple tests.</p>
+
+<pre><code class="php">respond_to(\AKlump\CheckPages\Event::SUITE_LOADED, function (\AKlump\CheckPages\Event\SuiteEventInterface $event) {
+  $suite = $event-&gt;getSuite();
+  foreach ($suite-&gt;getTests() as $test) {
+    $config = $test-&gt;getConfig();
+
+    // Look for the shorthand: "http.methods_not_allowed".  Remember this runs
+    // before the configuration is validated, so shorthand is free to take any
+    // form, and doesn't have to match the schema.
+    if (isset($config['http']['methods_not_allowed'])) {
+
+
+      // Now that we've found it, we will replace the "test" with the multiple
+      // tests that we generate in array_map().
+      $suite-&gt;replaceTestWithMultiple($test, array_map(function ($method) use ($config) {
+
+        // This is a single, expanded-from-shorthand test configuration.
+        return [
+          'why' =&gt; sprintf('Assert %s returns 405: Method Not Allowed', $method),
+          'url' =&gt; $config['url'],
+          'request' =&gt; ['method' =&gt; $method],
+          'expect' =&gt; 405,
+        ];
+      }, $config['http']['methods_not_allowed']));
+    }
+  }
+});
+</code></pre>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="ext--plugins.html" class="prev ext--plugins">&laquo;Plugins</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 26 Mar 2022 19:08:52 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

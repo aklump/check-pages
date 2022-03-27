@@ -9,7 +9,7 @@
 
 <body class="page--plugin_import">
 <header>
-  <div class="pager"><a href="demo--evaluate.html" class="prev demo--evaluate">&laquo;Evaluate</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--request.html" class="next plugin_request">Request&raquo;</a></div></header>
+  <div class="pager"><a href="demo--evaluate.html" class="prev demo--evaluate">&laquo;Evaluate</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--request.html" class="next plugin_request">Making Requests Other Than GET&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -34,7 +34,7 @@
 </code></pre>
 
 <blockquote>
-  <p>Since imports are effectively cut and paste, they allow for no configuration. If you need something like a function, look to <a href="ext--shorthand.html">shorthand</a>, <a href="ext--add_test_option.html">options</a> or <a href="ext--plugins.html">plugins</a>.</p>
+  <p>Imports can only be configured via interpolation (see below). Other configurable options to consider are: <a href="ext--shorthand.html">shorthand</a>, <a href="ext--add_test_option.html">options</a> or <a href="ext--plugins.html">plugins</a>.</p>
 </blockquote>
 
 <h2>Explained</h2>
@@ -81,7 +81,25 @@
 <li>The extension is optional and when excluded, is assumed as <em>.yml</em>.</li>
 <li>A single import line in your test (one YAML array element) maps to one or many tests in the import file. That is to say, a single import can include one test, or several tests.</li>
 <li>If you use <code>why</code> as a sibling to <code>import</code>, that is only for your test reading, it will not be printed when the test is run. So think of it as answering the question of "Why use this import?", if you use it.</li>
+<li>Imports cannot recursively import other imports at this time.</li>
 </ul>
+
+<h2>Configure Imports with Interpolation</h2>
+
+<pre><code class="yaml"># file: suite.yml
+-
+  why: Set `id` which is used in our import file to build the URL.
+  set: baz
+  is: 123
+
+-
+  import: imports/setup_timesheet
+</code></pre>
+
+<pre><code class="yaml"># file: imports/_setup_timesheet.yml
+-
+  url: /foo/bar/${baz}
+</code></pre>
 
 <h2>Example Tests</h2>
 
@@ -109,9 +127,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="demo--evaluate.html" class="prev demo--evaluate">&laquo;Evaluate</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--request.html" class="next plugin_request">Request&raquo;</a></div>  
+  <div class="pager"><a href="demo--evaluate.html" class="prev demo--evaluate">&laquo;Evaluate</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--request.html" class="next plugin_request">Making Requests Other Than GET&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Wed, 16 Mar 2022 14:04:15 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 26 Mar 2022 19:08:49 -0700</p>
   </div>
 </footer>
 

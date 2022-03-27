@@ -118,6 +118,19 @@ extras:
 </code></pre></li>
 </ol>
 
+<h2>CSRF Tokens</h2>
+
+<p>The token <code>${user.csrf}</code> is created automatically when you use <code>user</code>, and can be used as shown below:</p>
+
+<pre><code class="yaml">-
+  user: site_test.admin
+  url: /cp-api/jobs
+  request:
+    method: POST
+    headers:
+      X-Csrf-token: ${user.csrf}
+</code></pre>
+
 </section>
 
 <div class="search__results">
@@ -127,7 +140,7 @@ extras:
 <footer>
   <div class="pager"><a href="why.html" class="prev why">&laquo;Using `why` For Better Clarity</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="file_output.html" class="next files">File Output&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Wed, 16 Mar 2022 14:04:09 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 26 Mar 2022 19:08:45 -0700</p>
   </div>
 </footer>
 

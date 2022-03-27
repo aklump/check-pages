@@ -28,10 +28,74 @@
 
 <h2>Drupal 8</h2>
 
-<ul>
-<li>The honeypot module can cause problems.</li>
-<li></li>
-</ul>
+<p>The following is how you can test the contact form:</p>
+
+<pre><code class="yaml">-
+  why: Gather form info for next test.
+  visit: /contact
+  find:
+    -
+      why: Capture form build ID to use in next POST test.
+      dom: '.contact-form [name="form_build_id"]'
+      attribute: value
+      set: formBuildId
+    -
+      why: Capture form ID to use in next POST test.
+      dom: '.contact-form [name="form_id"]'
+      attribute: value
+      set: formId
+    -
+      why: Capture submit button value to use in next POST test.
+      dom: '.contact-form [name="op"]'
+      attribute: value
+      set: op
+    -
+      why: Capture honeypot_time to use in next POST test.
+      dom: '.contact-form [name="honeypot_time"]'
+      attribute: value
+      set: honeypotTime
+
+-
+  why: Prevent honeypot module from invalidating submission.
+  sleep: 3
+
+-
+  why: Assert contact form stays on /contact after successful submission.
+  visit: /contact
+  request:
+    method: POST
+    headers:
+      Content-Type: application/x-www-form-urlencoded
+    body: form_id=${formId}&amp;form_build_id=${formBuildId}&amp;op=${op}&amp;honeypot_time=${honeypotTime}&amp;name=Alpha&amp;mail=alpha@foo.com&amp;message[0][value]=lorem%20ipsum
+  find:
+    -
+      dom: 'meta[property="og:url"]'
+      attribute: content
+      matches: /\/contact$/
+    -
+      why: Assert no form messages were triggered.
+      dom: .message[data-level="error"]
+      count: 0
+
+</code></pre>
+
+<h2>Proposed Shorthand</h2>
+
+<p>Not yet developed.</p>
+
+<pre><code class="yaml">-
+  url: /contact
+  form:
+    -
+      name: name
+      value: Alpha
+    -
+      name: mail
+      value: alpha@foo.com
+    -
+      name: message[0][value]
+      value: lorem ipsum
+</code></pre>
 
 </section>
 
@@ -42,7 +106,7 @@
 <footer>
   <div class="pager"><a href="demo--data.html" class="prev demo--data">&laquo;The Path Plugin is for Testing Structured Content</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="index.html" class="next index">Index&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Wed, 16 Mar 2022 14:04:21 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 26 Mar 2022 19:08:55 -0700</p>
   </div>
 </footer>
 

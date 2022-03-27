@@ -38,6 +38,7 @@
 └── suites
     ├── admin
     │   └── status.yml
+    │   ├── scenario1.yml
     ├── api
     │   ├── crud.yml
     │   ├── scenario1.yml
@@ -52,7 +53,14 @@
 
 <pre><code class="shell">--group=admin
 --group=api
---group=web_ui
+
+# As well as via alias...
+-g web_ui
+</code></pre>
+
+<p>Notice that two groups (admin, api) have scenarios with the same name (scenario1.yml). This is possible, but would require the use of both <code>--group</code> and <code>--filter</code> to run only one, as you might conclude:</p>
+
+<pre><code class="shell">run runner.php -g admin -f scenario1
 </code></pre>
 
 </section>
@@ -64,7 +72,7 @@
 <footer>
   <div class="pager"><a href="services.html" class="prev services">&laquo;Service Classes</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="deep--custom_dirs.html" class="next custom_dirs">How To Use A Custom Directory For Suite Files&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Wed, 16 Mar 2022 14:04:22 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 26 Mar 2022 19:08:55 -0700</p>
   </div>
 </footer>
 

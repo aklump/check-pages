@@ -53,9 +53,6 @@
                                 "$ref": "#/definitions/page_match"
                             },
                             {
-                                "$ref": "#/definitions/data"
-                            },
-                            {
                                 "$ref": "#/definitions/dom"
                             },
                             {
@@ -69,6 +66,9 @@
                             },
                             {
                                 "$ref": "#/definitions/json_schema"
+                            },
+                            {
+                                "$ref": "#/definitions/path"
                             },
                             {
                                 "$ref": "#/definitions/style"
@@ -218,106 +218,6 @@
                 },
                 "matches": {
                     "$ref": "#/definitions/matches"
-                }
-            }
-        },
-        "path_selector": {
-            "type": [
-                "string",
-                "number"
-            ],
-            "examples": [
-                "",
-                0,
-                "foo",
-                "foo.bar",
-                "foo.bar.0"
-            ]
-        },
-        "data": {
-            "title": "Data Plugin Assertion",
-            "type": "object",
-            "anyOf": [
-                {
-                    "required": [
-                        "path",
-                        "set"
-                    ]
-                },
-                {
-                    "required": [
-                        "path",
-                        "contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "path",
-                        "not contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "path",
-                        "is"
-                    ]
-                },
-                {
-                    "required": [
-                        "path",
-                        "is not"
-                    ]
-                },
-                {
-                    "required": [
-                        "path",
-                        "matches"
-                    ]
-                },
-                {
-                    "required": [
-                        "path",
-                        "not matches"
-                    ]
-                },
-                {
-                    "required": [
-                        "path",
-                        "count"
-                    ]
-                }
-            ],
-            "additionalProperties": false,
-            "properties": {
-                "set": {
-                    "$ref": "#/definitions/set"
-                },
-                "path": {
-                    "$ref": "#/definitions/path_selector"
-                },
-                "contains": {
-                    "$ref": "#/definitions/contains"
-                },
-                "not contains": {
-                    "$ref": "#/definitions/not_contains"
-                },
-                "is": {
-                    "$ref": "#/definitions/equals"
-                },
-                "is not": {
-                    "$ref": "#/definitions/equals"
-                },
-                "matches": {
-                    "$ref": "#/definitions/matches"
-                },
-                "not matches": {
-                    "$ref": "#/definitions/matches"
-                },
-                "count": {
-                    "$ref": "#/definitions/count"
-                },
-                "why": {
-                    "$ref": "#/definitions/why"
                 }
             }
         },
@@ -709,30 +609,152 @@
             ],
             "additionalProperties": false
         },
+        "path_selector": {
+            "type": [
+                "string",
+                "number"
+            ],
+            "examples": [
+                "",
+                0,
+                "foo",
+                "foo.bar",
+                "foo.bar.0"
+            ]
+        },
+        "path": {
+            "title": "Path Plugin Assertion",
+            "type": "object",
+            "anyOf": [
+                {
+                    "required": [
+                        "path",
+                        "set"
+                    ]
+                },
+                {
+                    "required": [
+                        "path",
+                        "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "path",
+                        "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "path",
+                        "is"
+                    ]
+                },
+                {
+                    "required": [
+                        "path",
+                        "is not"
+                    ]
+                },
+                {
+                    "required": [
+                        "path",
+                        "matches"
+                    ]
+                },
+                {
+                    "required": [
+                        "path",
+                        "not matches"
+                    ]
+                },
+                {
+                    "required": [
+                        "path",
+                        "count"
+                    ]
+                }
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "set": {
+                    "$ref": "#/definitions/set"
+                },
+                "path": {
+                    "$ref": "#/definitions/path_selector"
+                },
+                "contains": {
+                    "$ref": "#/definitions/contains"
+                },
+                "not contains": {
+                    "$ref": "#/definitions/not_contains"
+                },
+                "is": {
+                    "$ref": "#/definitions/equals"
+                },
+                "is not": {
+                    "$ref": "#/definitions/equals"
+                },
+                "matches": {
+                    "$ref": "#/definitions/matches"
+                },
+                "not matches": {
+                    "$ref": "#/definitions/matches"
+                },
+                "count": {
+                    "$ref": "#/definitions/count"
+                },
+                "why": {
+                    "$ref": "#/definitions/why"
+                }
+            }
+        },
+        "http_method": {
+            "type": "string",
+            "enum": [
+                "delete",
+                "get",
+                "head",
+                "options",
+                "patch",
+                "post",
+                "put",
+                "trace",
+                "DELETE",
+                "GET",
+                "HEAD",
+                "OPTIONS",
+                "PATCH",
+                "POST",
+                "PUT",
+                "TRACE"
+            ]
+        },
         "request": {
             "type": "object",
             "additionalProperties": false,
+            "oneOf": [
+                {
+                    "required": [
+                        "method"
+                    ]
+                },
+                {
+                    "required": [
+                        "methods"
+                    ]
+                }
+            ],
             "properties": {
                 "method": {
-                    "type": "string",
-                    "enum": [
-                        "delete",
-                        "get",
-                        "head",
-                        "options",
-                        "patch",
-                        "post",
-                        "put",
-                        "trace",
-                        "DELETE",
-                        "GET",
-                        "HEAD",
-                        "OPTIONS",
-                        "PATCH",
-                        "POST",
-                        "PUT",
-                        "TRACE"
-                    ]
+                    "$ref": "#/definitions/http_method"
+                },
+                "methods": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": {
+                        "$ref": "#/definitions/http_method"
+                    }
                 },
                 "headers": {
                     "type": "object",

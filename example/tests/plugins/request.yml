@@ -1,4 +1,15 @@
 -
+    why: 'Assert ${request.method} returns 405'
+    visit: /plugins/request.php
+    request:
+        methods:
+            - PATCH
+            - DELETE
+            - HEAD
+            - OPTIONS
+            - TRACE
+    expect: 405
+-
     why: 'Assert post with content-type header and body works as expected.'
     visit: /plugins/request.php
     request:
@@ -13,6 +24,7 @@
 -
     visit: /plugins/request.php
     request:
+        method: GET
         body: 'lorem ipsum'
     find:
         - GET

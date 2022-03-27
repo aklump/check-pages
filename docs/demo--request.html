@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>Request</title>
+  <title>Making Requests Other Than GET</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
 </head>
@@ -23,13 +23,27 @@
   </section>
 
 <section>
-  <h1>Request</h1>
+  <h1>Making Requests Other Than GET</h1>
   
+
+<h2>Multiple Verbs</h2>
+
+<p>Use <code>methods</code> to request against the same endpoint using the same configuration, varying on method. This can be handly for testing REST APIs against 403 responses.</p>
+
+<p>Notice how you can use <code>${request.method}</code> to interpolate.</p>
 
 <h2>Example Tests</h2>
 
-<pre><code class="yaml">- why: Assert post with content-type header and body works as expected.
-  visit: /plugins/request.php
+<pre><code class="yaml">-
+  why: Assert ${request.method} returns 405
+  visit: /test_subject.php
+  request:
+    methods: [ PATCH, DELETE, HEAD, OPTIONS, TRACE ]
+  expect: 405
+
+-
+  why: Assert post with content-type header and body works as expected.
+  visit: /test_subject.php
   request:
     method: post
     headers:
@@ -40,15 +54,18 @@
     - 'content-type: application/json'
     - '{"foo":"bar"}'
 
-- visit: /plugins/request.php
+-
+  visit: /test_subject.php
   request:
+    method: GET
     body: 'lorem ipsum'
   find:
     - 'GET'
     - 'lorem ipsum'
 
-- why: Assert put with multiple headers and body works as expected.
-  visit: /plugins/request.php
+-
+  why: Assert put with multiple headers and body works as expected.
+  visit: /test_subject.php
   request:
     method: PUT
     headers:
@@ -75,7 +92,7 @@
 <footer>
   <div class="pager"><a href="demo--import.html" class="prev demo--import">&laquo;Imports (Code Reuse with Partials)</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--sleep.html" class="next plugin_sleep">Sleep: Adding a Delay&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Wed, 16 Mar 2022 14:04:17 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 26 Mar 2022 19:08:50 -0700</p>
   </div>
 </footer>
 
