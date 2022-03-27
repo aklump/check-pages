@@ -13,6 +13,8 @@ add_mixin('mixins/foo', [
   "color" => "blue",
 ]);
 
+run_suite('group1/*');
+run_suite('group2/*');
 run_suite('suite');
 run_suite('attributes');
 run_suite('suite_dev_only');

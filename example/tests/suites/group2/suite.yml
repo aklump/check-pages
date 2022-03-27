@@ -1,0 +1,7 @@
+-
+  why: Assert a same-named suite in a different group can be filter targeted.
+  visit: /
+  find:
+    -
+      dom: .block-title
+      count: ">1"

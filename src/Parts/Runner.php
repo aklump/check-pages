@@ -15,7 +15,6 @@ use AKlump\CheckPages\Exceptions\SuiteFailedException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\GuzzleDriver;
-use AKlump\CheckPages\Output\FailedTestMarkdown;
 use AKlump\CheckPages\Output\SourceCodeOutput;
 use AKlump\CheckPages\Plugin\PluginsManager;
 use AKlump\CheckPages\RequestDriverInterface;
@@ -50,7 +49,23 @@ class Runner {
 
   protected $outputMode;
 
-  protected $totalTestCount = 0;
+  protected $totalTestsRun = 0;
+
+  /**
+   * @return int
+   */
+  public function getTotalTestsRun(): int {
+    return $this->totalTestsRun;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTotalSuitesRun(): int {
+    return $this->totalSuitesRun;
+  }
+
+  private $totalSuitesRun = 0;
 
   protected $failedTestCount = 0;
 
@@ -61,18 +76,11 @@ class Runner {
   protected $schema;
 
   /**
-   * Holds a true state only when the filter is set and after a suite matching
-   * the filter is used.  If a filter is set and all suites are run and this is
-   * still false, it means that the filter was for a suite that was not
-   * registered in the runner.
+   * Keys are filter types; values are arrays of filter values for that type.
    *
-   * @var bool
+   * @var array
    */
-  protected $filterApplied = FALSE;
-
   protected $filters = [];
-
-  protected $groupFilters = [];
 
   /**
    * @var array
@@ -147,6 +155,16 @@ class Runner {
    * @var \AKlump\CheckPages\Parts\Suite
    */
   protected $suite;
+
+  /**
+   * Holds a true state only when any filter is set and after a suite matching
+   * the filter is used.  If a filter is set and all suites are run and this is
+   * still FALSE, it means that the filter was for a suite that was not
+   * registered in the runner.
+   *
+   * @var bool
+   */
+  private $filtersWereApplied = FALSE;
 
   /**
    * Cache of discovered filepath.
@@ -337,25 +355,6 @@ class Runner {
   }
 
   /**
-   * Set the suite filter.
-   *
-   * All other suites will be ignored when set.
-   *
-   * @param string $filter
-   *   The suite id to filter by.
-   *
-   * @return \AKlump\CheckPages\Parts\Runner
-   *   Self for chaining.
-   *
-   * @deprecated Use \AKlump\CheckPages\Parts\Runner::addSuiteFilter().
-   */
-  public function setSuiteFilter(string $filter): Runner {
-    $this->filters = [$filter];
-
-    return $this;
-  }
-
-  /**
    * Add a suite name to filter against.
    *
    * You may call this more than once to have more than one suite.
@@ -365,47 +364,79 @@ class Runner {
    *
    * @return $this
    */
-  public function addSuiteFilter(string $filter): Runner {
-    if (strstr($filter, ',')) {
-      throw new \InvalidArgumentException(sprintf('$filter may not contain a comma; the value %s is invalid.', $filter));
-    }
+  public function addSuiteIdFilter(string $filter): Runner {
     $pathinfo = pathinfo($filter);
     if (!empty($pathinfo['extension'])) {
       throw new \InvalidArgumentException(sprintf('Omit the file extension for filter values; use "%s" not "%s".', $pathinfo['filename'], $pathinfo['basename']));
     }
-    $this->filters[] = $filter;
+    $this->addFilterByType('id', $filter);
 
     return $this;
   }
 
-  public function addGroupFilter(string $filter): Runner {
-    if (strstr($filter, ',')) {
-      throw new \InvalidArgumentException(sprintf('$filter may not contain a comma; the value %s is invalid.', $filter));
-    }
-    $this->groupFilters[] = $filter;
+  public function addSuiteGroupFilter(string $filter): Runner {
+    $this->addFilterByType('group', $filter);
 
     return $this;
   }
 
   /**
-   * Reduce an array of suites by the applied filter(s), if any.
+   * Add a filter by type and value.
    *
-   * @param array $suites
-   *   An array of suite names.
+   * @param string $type
+   *   E.g. one of 'suite', 'group'.
+   * @param string $value
    *
-   * @return array
-   *   Only those that match applied filters.
+   * @return void
    */
-  public function filterSuites(array $suites): array {
-    if (!$this->filters) {
+  private function addFilterByType(string $type, string $value) {
+    if (strstr($value, ',')) {
+      throw new \InvalidArgumentException(sprintf('$value may not contain a comma; the value %s is invalid.', $value));
+    }
+    if (!isset($this->filters[$type]) || !in_array($value, $this->filters[$type])) {
+      $this->filters[$type][] = $value;
+    }
+  }
+
+  /**
+   * Apply all filter types on an array of suites.
+   *
+   * @param \AKlump\CheckPages\Parts\Suite[]
+   *   An array of suites to be filtered by all active filters.
+   *
+   * @return \AKlump\CheckPages\Parts\Suite[]
+   *   Any suites that match all filters; if no filters, then all suites.
+   */
+  private function applyFilters(array $suites): array {
+    if (!count($this->filters)) {
       return $suites;
     }
+    $filtered_values = array_filter($suites, function (Suite $suite) {
+      foreach ($this->filters as $type => $values) {
+        foreach ($values as $value) {
+          switch ($type) {
+            case 'group':
+              if ($value != $suite->getGroup()) {
+                return FALSE;
+              }
+              break;
 
-    $suites = array_map(function ($suite) {
-      return pathinfo($suite, PATHINFO_FILENAME);
-    }, $suites);
+            case 'id':
+              if ($value != $suite->id()) {
+                return FALSE;
+              }
+              break;
+          }
+        }
+      }
 
-    return array_values(array_intersect($suites, $this->filters));
+      return TRUE;
+    });
+    if (count($filtered_values)) {
+      $this->filtersWereApplied = TRUE;
+    }
+
+    return $filtered_values;
   }
 
   public function getTestOptions(): array {
@@ -524,21 +555,19 @@ class Runner {
   public function executeRunner() {
     try {
       $runner_path = $this->getRunnerPath();
+
       $filter_message = '';
-      if ($this->groupFilters) {
-        $filter_message .= sprintf(' (using group filter(s) "%s")', implode(', ', $this->groupFilters));
+      if (count($this->filters)) {
+        $filter_message = '?' . urldecode(http_build_query($this->filters));
+        $filter_message = preg_replace('/\[\d+\]/', '[]', $filter_message);
       }
-      if ($this->filters) {
-        $filter_message .= sprintf(' (using suite filter(s) "%s")', implode(', ', $this->filters));
-      }
-      echo Color::wrap('blue', sprintf('Testing started with "%s"%s', basename($runner_path), $filter_message)) . PHP_EOL;
+      echo Color::wrap('blue', sprintf('Testing started with "%s%s"', basename($runner_path), $filter_message)) . PHP_EOL;
       require $runner_path;
 
-      if ($this->filters && !$this->filterApplied) {
-        $code = array_map(function ($filter) {
-          return sprintf("`run_suite('%s');`", $filter);
-        }, $this->filters);
-        throw new \RuntimeException(sprintf("The filter(s) were not applied; have you added %s to %s?", implode(', ', $code), $runner_path));
+      if (count($this->filters) > 0 && !$this->filtersWereApplied) {
+        if ($this->getOutput()->isDebug()) {
+          throw new \RuntimeException(sprintf('There are no suites in %s that match at least one of your filters.  This can happen if you have not added `run_suite()` with a path to the intended suite(s).', basename($runner_path)));
+        }
       }
 
     }
@@ -551,7 +580,7 @@ class Runner {
       ->dispatch(new RunnerEvent($this), Event::RUNNER_FINISHED);
 
     if ($this->failedTestCount) {
-      throw new \RuntimeException(sprintf("Testing complete with %d out of %d tests failing.", $this->failedTestCount, $this->totalTestCount));
+      throw new \RuntimeException(sprintf("Testing complete with %d out of %d tests failing.", $this->failedTestCount, $this->totalTestsRun));
     }
   }
 
@@ -593,19 +622,8 @@ class Runner {
       }
     }, $suite->getConfig()['suites_to_ignore'] ?? []));
 
-    if ($this->filters) {
-      $filters = array_map([$this, 'resolveFile'], $this->filters);
-      if (!in_array($path_to_suite, $filters)) {
-        return;
-      }
-    }
-
-    if ($this->groupFilters) {
-      if (!in_array($suite->getGroup(), $this->groupFilters)) {
-        $this->fail(sprintf('Suite "%s" has the group "%s", which is not in the group filter.', $suite->id(), $suite->getGroup()));
-
-        return;
-      }
+    if (!$this->applyFilters([$this->suite])) {
+      return;
     }
 
     if (in_array($path_to_suite, $ignored_suite_paths)) {
@@ -614,10 +632,6 @@ class Runner {
         ->writeln($message, OutputInterface::VERBOSITY_VERY_VERBOSE);
 
       return;
-    }
-
-    if ($this->filters) {
-      $this->filterApplied = TRUE;
     }
 
     // Add the tests to the suite in prep for the plugin hook...
@@ -638,12 +652,12 @@ class Runner {
       echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->getConfig()['base_url'])) . PHP_EOL;
       $this->printed['base_url'] = TRUE;
     }
-    echo PHP_EOL . '⏱  ' . Color::wrap('white on blue', strtoupper(sprintf('Running "%s" suite...', $suite->id()))) . PHP_EOL;
+    echo PHP_EOL . '⏱  ' . Color::wrap('white on blue', strtoupper(sprintf('Running "%s%s" suite...', ltrim($suite->getGroup() . '/', '/'), $suite->id()))) . PHP_EOL;
 
     $this->debug = [];
     $failed_tests = 0;
 
-    foreach ($suite->getTests() as $test_index => $test) {
+    foreach ($suite->getTests() as $test) {
       $config = $test->getConfig();
 
       $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_CREATED);
@@ -738,7 +752,7 @@ class Runner {
       return boolval($state);
     };
 
-    $this->totalTestCount++;
+    $this->totalTestsRun++;
 
     if ($config['js'] ?? FALSE) {
       try {
@@ -853,6 +867,8 @@ class Runner {
    * Resolve a path.
    *
    * @param string $path
+   *   This can be a resolvable path or an absolute path; if it's an absolute
+   *   path, it will simply be returned.
    * @param string &$resolved_path
    *   This variable will be set with the parents used to resolve $path.
    * @param array $extensions
@@ -1179,7 +1195,7 @@ class Runner {
   public function getPathToFilesDirectory(): string {
     if (NULL === $this->pathToFiles) {
       if (empty($this->getConfig()['files'])) {
-        if ($this->debugging) {
+        if ($this->getOutput()->isDebug()) {
           $this->debug('├── To enable file output you must set a value for "files" in your config.');
         }
         $this->pathToFiles = '';

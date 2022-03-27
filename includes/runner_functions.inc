@@ -179,15 +179,12 @@ function run_suite(string $path_to_suite, array $suite_config = []): void {
     if (count($suites) === 0) {
       throw new StopRunnerException(sprintf('The glob "%s" returned no files.', $pattern));
     }
-
-    $suites = $runner->filterSuites($suites);
   }
   else {
     $suites = [$path_to_suite];
   }
 
   foreach ($suites as $suite) {
-    $suite = pathinfo($suite, PATHINFO_FILENAME);
     $runner->runSuite($suite, $suite_config);
   }
 }

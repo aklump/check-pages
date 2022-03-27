@@ -6,7 +6,7 @@ This is done by placing one or more suites into a folder. The name of the folder
 
 That's it.
 
-You can use the `--group=GROUP ID` to filter by group.
+You can use the `--group=<GROUP_ID>` to filter by group.
 
 Given this example structure...
 
@@ -15,6 +15,7 @@ Given this example structure...
 └── suites
     ├── admin
     │   └── status.yml
+    │   ├── scenario1.yml
     ├── api
     │   ├── crud.yml
     │   ├── scenario1.yml
@@ -25,10 +26,28 @@ Given this example structure...
         └── homepage.yml
 ```
 
+Setup the runner like this:
+
+```php
+<?php
+add_directory(__DIR__ . '/suites');
+run_suite('admin/*');
+run_suite('api/*');
+run_suite('web_ui/*');
+```
+
 You are able to use these CLI arguments:
 
 ```shell
 --group=admin
 --group=api
---group=web_ui
+
+# As well as via alias...
+-g web_ui
+```
+
+Notice that two groups (admin, api) have scenarios with the same name (scenario1.yml). This is possible, but would require the use of both `--group` and `--filter` to run only one, as you might conclude:
+
+```shell
+run runner.php -g admin -f scenario1
 ```

@@ -84,13 +84,13 @@ class RunCommand extends Command {
       if ($input->getOption('filter')) {
         $filters = array_filter($input->getOption('filter'));
         foreach ($filters as $filter) {
-          $runner->addSuiteFilter($filter);
+          $runner->addSuiteIdFilter($filter);
         }
       }
       if ($input->getOption('group')) {
         $groups = array_filter($input->getOption('group'));
         foreach ($groups as $filter) {
-          $runner->addGroupFilter($filter);
+          $runner->addSuiteGroupFilter($filter);
         }
       }
 
@@ -99,7 +99,13 @@ class RunCommand extends Command {
       echo PHP_EOL;
       echo '🏁 ' . Color::wrap('light gray', $timer->getCurrent()) . PHP_EOL;
 
-      echo Color::wrap('white on green', sprintf('Testing completed successfully in %s.', $timer->getElapsed())) . PHP_EOL . PHP_EOL;
+      if (!$runner->getTotalTestsRun()) {
+        echo Color::wrap('yellow', 'No tests were run.');
+      }
+      else {
+        echo Color::wrap('white on green', sprintf('Testing completed successfully in %s.', $timer->getElapsed()));
+      }
+      echo PHP_EOL . PHP_EOL;
 
       return Command::SUCCESS;
     }
