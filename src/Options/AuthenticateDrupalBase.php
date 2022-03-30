@@ -188,6 +188,8 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     catch (ConnectException $exception) {
       return 0;
     }
+
+    return 0;
   }
 
   /**
