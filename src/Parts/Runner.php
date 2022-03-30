@@ -51,22 +51,6 @@ class Runner {
 
   protected $totalTestsRun = 0;
 
-  /**
-   * @return int
-   */
-  public function getTotalTestsRun(): int {
-    return $this->totalTestsRun;
-  }
-
-  /**
-   * @return int
-   */
-  public function getTotalSuitesRun(): int {
-    return $this->totalSuitesRun;
-  }
-
-  private $totalSuitesRun = 0;
-
   protected $failedTestCount = 0;
 
   protected $failedSuiteCount = 0;
@@ -203,6 +187,13 @@ class Runner {
       $this->schema = json_decode(file_get_contents($schema_path), TRUE);
     }
     $this->pluginsManager->setSchema($this->schema);
+  }
+
+  /**
+   * @return int
+   */
+  public function getTotalTestsRun(): int {
+    return $this->totalTestsRun;
   }
 
   public function getInput(): InputInterface {
@@ -977,8 +968,6 @@ class Runner {
   protected function validateSuiteYaml($data, string $schema_basename): array {
 
     // Do not validate $data properties that have been added using add_test_option().
-
-
     $path_to_schema = $this->rootDir . '/' . $schema_basename;
     $schema = json_decode(file_get_contents($path_to_schema));
 
@@ -994,14 +983,21 @@ class Runner {
     $validator = new Validator();
     $validator->validate($data, $schema);
     if (!$validator->isValid()) {
-      $message = [
-        sprintf('Syntax error in suite schema "%s"', $schema_basename),
-        NULL,
-      ];
-      foreach ($validator->getErrors() as $error) {
-        $message[] = sprintf("[%s] %s", $error['property'], $error['message']);
+
+      if ($this->getOutput()->isDebug()) {
+        echo Color::wrap('white on red', "Test Configuration:") . PHP_EOL;
+        echo Color::wrap('light gray', json_encode($data, JSON_PRETTY_PRINT)) . PHP_EOL;
+        echo PHP_EOL;
+        echo Color::wrap('white on red', "Schema Path:") . PHP_EOL;
+        echo Color::wrap('light gray', $path_to_schema) . PHP_EOL;
+        echo PHP_EOL;
+        echo Color::wrap('white on red', "Schema Validation Errors:") . PHP_EOL;
+        foreach ($validator->getErrors() as $error) {
+          echo Color::wrap('light gray', sprintf("[%s] %s", $error['property'], $error['message'])) . PHP_EOL;
+        }
       }
-      throw new \RuntimeException(implode(PHP_EOL, $message));
+
+      throw new \RuntimeException(sprintf('The test does not match schema "%s". Use -vvv for more info.', $schema_basename));
     }
 
     // Convert to arrays, we only needed objects for the validation.
