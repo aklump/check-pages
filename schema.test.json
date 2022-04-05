@@ -226,6 +226,8 @@
                     },
                     "is": {
                         "type": [
+                            "null",
+                            "array",
                             "string",
                             "number"
                         ]
