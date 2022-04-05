@@ -9,7 +9,8 @@
         "psr-4": {
             "AKlump\\CheckPages\\": "src\/",
             "AKlump\\CheckPages\\Plugin\\": [
-                "plugins/sleep/"
+                "plugins/sleep/",
+                "plugins/loop/"
             ]
         }
     },

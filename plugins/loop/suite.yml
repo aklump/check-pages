@@ -1,0 +1,56 @@
+-
+  loop: 1...3
+
+-
+  why: $loop[${loop.index}]=${loop.value}
+  visit: /test_subject.html
+  find:
+    -
+      dom: h${loop.value}
+      count: ${loop.value}
+
+-
+  end loop:
+
+-
+  loop:
+    h1: Lorem
+    h2: Ipsum
+    h3: Dolar
+-
+  why: $loop.${loop.property} = ${loop.value}
+  visit: /test_subject.html
+  find:
+    -
+      dom: ${loop.property}
+      text: ${loop.value}
+
+-
+  end loop:
+
+-
+  loop:
+    - blockquote
+    - p
+    - span
+-
+  why: $loop[${loop.index}]=${loop.value}
+  visit: /test_subject.html
+  find:
+    -
+      dom: ${loop.value}
+      count: ${loop.index0}
+
+-
+  end loop:
+
+-
+  loop: 4x
+
+-
+  why: $loop[${loop.index}]=${loop.value}
+  set: value${loop.index}
+  is: ${loop.value}
+
+-
+  end loop:
