@@ -40,6 +40,13 @@ final class Variables implements \Countable {
 
     if (!is_array($value)) {
 
+      // We can only interpolate in strings, because otherwise they would not
+      // contain the ${}, also the interpolation casts to a string, so we want
+      // to avoid variable type change by accident.
+      if (!is_string($value)) {
+        return $value;
+      }
+
       // Create a per-recursion set of values.  This should not be a class
       // variable because it should only persist for the duration of a single
       // call, and it's child recursions.
