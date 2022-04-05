@@ -15,6 +15,7 @@ use AKlump\CheckPages\Exceptions\SuiteFailedException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\GuzzleDriver;
+use AKlump\CheckPages\Output\Debugging;
 use AKlump\CheckPages\Output\SourceCodeOutput;
 use AKlump\CheckPages\Plugin\PluginsManager;
 use AKlump\CheckPages\RequestDriverInterface;
@@ -141,6 +142,11 @@ class Runner {
   protected $suite;
 
   /**
+   * @var \AKlump\CheckPages\Output\Debugging
+   */
+  protected $debugger;
+
+  /**
    * Holds a true state only when any filter is set and after a suite matching
    * the filter is used.  If a filter is set and all suites are run and this is
    * still FALSE, it means that the filter was for a suite that was not
@@ -176,6 +182,7 @@ class Runner {
   public function __construct(string $root_dir, InputInterface $input, OutputInterface $output) {
     $this->input = $input;
     $this->output = $output;
+    $this->debugger = new Debugging($output);
 
     $this->rootDir = $root_dir;
     $this->addResolveDirectory($this->rootDir);
@@ -675,6 +682,7 @@ class Runner {
       // variable or authenticating.  Without a URL, there are no assertions and
       // no reason to continue in this current iteration flow.
       if (empty($config['url'])) {
+        $this->debugger->echoYaml($config);
         continue;
       }
 
@@ -733,6 +741,14 @@ class Runner {
     $test->setConfig($config);
     $this->dispatcher->dispatch(new TestEvent($test), Event::DRIVER_CREATED);
     $config = $test->getConfig();
+
+    $debug = $config;
+    $debug['find'] = '';
+    $this->debugger->echoYaml($debug, 0, function ($yaml) {
+      // To make the output cleaner we need to remove the printed '' since find
+      // is really an array, whose elements are yet to be printed.
+      return str_replace("find: ''", 'find:', $yaml);
+    });
 
     $test_passed = function (bool $result = NULL): bool {
       static $state;
@@ -819,6 +835,8 @@ class Runner {
     }
     $assertions = $config['find'];
     $id = 0;
+
+    $this->debugger->lineBreak();
     while ($definition = array_shift($assertions)) {
       if (is_scalar($definition)) {
         $definition = [Assert::ASSERT_CONTAINS => $definition];
@@ -1045,6 +1063,9 @@ class Runner {
   protected function doFindAssert(Test $test, string $id, array $definition, RequestDriverInterface $driver): Assert {
     $response = $driver->getResponse();
     $definition = $this->getSuite()->variables()->interpolate($definition);
+
+    $this->debugger->echoYaml($definition, 2);
+
     $assert = new Assert($definition, $id);
     $assert
       ->setSearch(Assert::SEARCH_ALL)
