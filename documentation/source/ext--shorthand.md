@@ -60,3 +60,29 @@ add_shorthand('item.delete', function ($config, $test) {
   $test->setConfig($config);
 });
 ```
+
+## An Example with Multiple Replacement Tests
+
+```php
+add_shorthand('fakeFactory', function ($config, \AKlump\CheckPages\Parts\Test $test) use ($runner) {
+  $shorthand = $config['fakeFactory'];
+  assert(is_array($shorthand));
+  $path = $runner->resolveFile($shorthand['schema']);
+  $faker = new Faker($path);
+  $data = $faker->jsonSerialize();
+
+  foreach (($shorthand['values'] ?? []) as $key => $value) {
+    $data[$key] = $value;
+  }
+
+  $config['is'] = json_encode($data);
+
+  $test_configs = [];
+  $test_configs[] = $config;
+  $test_configs[] = [
+    'set' => $config['set'] . '.validationSchema',
+    'is' => json_encode($faker->getValidationSchema()),
+  ];
+  $test->getSuite()->replaceTestWithMultiple($test, $test_configs);
+});
+```
