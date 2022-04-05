@@ -51,14 +51,20 @@ final class JsonSchema extends LegacyPlugin {
 
       // Resolve paths and load all our JSON schemas.
       if (is_array($assertion) && array_key_exists(self::SEARCH_TYPE, $assertion)) {
-        try {
-          $path_to_schema = $this->runner->resolveFile($assertion['schema']);
+        $is_json = substr(ltrim($assertion['schema']), 0, 1) === '{';
+        if ($is_json) {
+          $this->jsonSchemas[$assert_id] = $assertion['schema'];
         }
-        catch (UnresolvablePathException $exception) {
-          $message = sprintf('Cannot resolve to schema file: "%s".', $assertion['schema']);
-          throw new UnresolvablePathException($assertion['schema'], $message);
+        else {
+          try {
+            $path_to_schema = $this->runner->resolveFile($assertion['schema']);
+          }
+          catch (UnresolvablePathException $exception) {
+            $message = sprintf('Cannot resolve to schema file: "%s".', $assertion['schema']);
+            throw new UnresolvablePathException($assertion['schema'], $message);
+          }
+          $this->jsonSchemas[$assert_id] = file_get_contents($path_to_schema);
         }
-        $this->jsonSchemas[$assert_id] = file_get_contents($path_to_schema);
       }
     }
   }

@@ -1,10 +1,11 @@
 {
     "json_schema_selector": {
         "type": "string",
-        "pattern": ".+\\.json$",
+        "pattern": ".+\\.json$|^{.+}$",
         "examples": [
             "schemas/object.json",
-            "foo.json"
+            "foo.json",
+            "{\"type\":\"array\"}"
         ]
     }
 }

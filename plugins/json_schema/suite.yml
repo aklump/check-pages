@@ -10,8 +10,14 @@
   visit: /test_subject.json
   find:
     -
-      path: lorem.ipsum
       schema: plugins/json_schema/is_array.json
+      path: lorem.ipsum
+-
+  visit: /test_subject.json
+  find:
+    -
+      schema: '{"type":"array"}'
+      path: lorem.ipsum
 -
   visit: /test_subject.json
   find:
