@@ -1,5 +1,16 @@
 -
-  loop: 1...3
+  loop: 4x
+
+-
+  why: $loop[${loop.index}] = ${loop.value}
+  set: value${loop.index}
+  is: ${loop.value}
+
+-
+  end loop:
+
+-
+  loop: 2...4
 
 -
   why: $loop[${loop.index}] = ${loop.value}
@@ -40,17 +51,6 @@
     -
       dom: ${loop.value}
       count: ${loop.index0}
-
--
-  end loop:
-
--
-  loop: 4x
-
--
-  why: $loop[${loop.index}] = ${loop.value}
-  set: value${loop.index}
-  is: ${loop.value}
 
 -
   end loop:
