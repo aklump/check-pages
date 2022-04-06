@@ -7,6 +7,10 @@ services:
         class: \AKlump\CheckPages\Service\Retest
         tags:
             - { name: event_subscriber }
+    loop.plugin:
+        class: \AKlump\CheckPages\Plugin\Loop
+        tags:
+            - { name: event_subscriber }
     sleep.plugin:
         class: \AKlump\CheckPages\Plugin\Sleep
         tags:

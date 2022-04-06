@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Loops</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--plugin_loop">
+<header>
+  <div class="pager"><a href="demo--import.html" class="prev demo--import">&laquo;Imports (Code Reuse with Partials)</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--request.html" class="next plugin_request">Making Requests Other Than GET&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2.html">Usage and Examples</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Loops</h1>
+  
+
+<h2>Variables</h2>
+
+<p>The following loop variables are available. They are only available to be interpolated in tests within the loop.</p>
+
+<h3>Arrays</h3>
+
+<ol>
+<li><code>loop.length</code> <em>int</em> The number of iterations.</li>
+<li><code>loop.last</code> <em>boolean</em> <code>true</code> If the last item in the loop.</li>
+<li><code>loop.index</code> <em>int</em> 1-based index</li>
+<li><code>loop.index0</code> <em>int</em> 0-based index</li>
+<li><code>loop.value</code> <em>mixed</em> Current value</li>
+</ol>
+
+<h3>Maps/Objects</h3>
+
+<ol>
+<li><code>loop.length</code></li>
+<li><code>loop.last</code></li>
+<li><code>loop.property</code></li>
+<li><code>loop.value</code></li>
+</ol>
+
+<h2>Example Tests</h2>
+
+<pre><code class="yaml">-
+  loop: 1...3
+
+-
+  why: $loop[${loop.index}]=${loop.value}
+  visit: /test_subject.html
+  find:
+    -
+      dom: h${loop.value}
+      count: ${loop.value}
+
+-
+  end loop:
+
+-
+  loop:
+    h1: Lorem
+    h2: Ipsum
+    h3: Dolar
+-
+  why: $loop.${loop.property} = ${loop.value}
+  visit: /test_subject.html
+  find:
+    -
+      dom: ${loop.property}
+      text: ${loop.value}
+
+-
+  end loop:
+
+-
+  loop:
+    - blockquote
+    - p
+    - span
+-
+  why: $loop[${loop.index}]=${loop.value}
+  visit: /test_subject.html
+  find:
+    -
+      dom: ${loop.value}
+      count: ${loop.index0}
+
+-
+  end loop:
+
+-
+  loop: 4x
+
+-
+  why: $loop[${loop.index}]=${loop.value}
+  set: value${loop.index}
+  is: ${loop.value}
+
+-
+  end loop:
+
+</code></pre>
+
+<p><em>Provided by the loop plugin.</em></p>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="demo--import.html" class="prev demo--import">&laquo;Imports (Code Reuse with Partials)</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--request.html" class="next plugin_request">Making Requests Other Than GET&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Tue, 05 Apr 2022 20:06:42 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
