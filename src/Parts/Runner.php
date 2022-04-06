@@ -668,11 +668,9 @@ class Runner {
 
       if (count($suite->variables())) {
         foreach (array_keys($config) as $key) {
-          // We must not interpolate `find` at this time, that will take place
-          // inside of the doFindAssert method.  That is because variables
-          // can be set on every assert.  However the rest of the config should
-          // be interpolated, such as will affect the URL.
-          if ($key !== 'find' && $key !== 'set') {
+
+          // We don't let interpolation on variable names.
+          if ($key !== 'set') {
             $config[$key] = $suite->variables()->interpolate($config[$key]);
           }
         }
