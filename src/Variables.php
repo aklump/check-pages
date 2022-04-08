@@ -10,7 +10,17 @@ final class Variables implements \Countable {
   private $values = [];
 
   public function setItem(string $key, $value): self {
-    $this->values[$key] = $value;
+    if (is_scalar($value)) {
+      $this->values[$key] = $value;
+
+      return $this;
+    }
+    foreach ($value as $k => $v) {
+      if (is_numeric($k)) {
+        $this->setItem($key . "[$k]", $v);
+      }
+      $this->setItem($key . ".$k", $v);
+    }
 
     return $this;
   }
@@ -56,8 +66,17 @@ final class Variables implements \Countable {
         }, array_keys($this->values));
       }
       foreach ($this->values as $k => $v) {
-        $value = str_replace('${' . $k . '}', $v, $value);
+        $interpolated = str_replace('${' . $k . '}', $v, $value);
+        if ($value != $interpolated) {
+          if (strcmp($interpolated, $v) === 0) {
+            $value = $v;
+          }
+          else {
+            $value = $interpolated;
+          }
+        }
       }
+
       return $value;
     }
     foreach ($value as &$v) {

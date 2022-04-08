@@ -18,16 +18,16 @@
   find:
     -
       dom: h${loop.value}
-      count: ${loop.value}
+      count: ${loop.index}
 
 -
   end loop:
 
 -
   loop:
-    h1: Lorem
-    h2: Ipsum
-    h3: Dolar
+    h2: Lorem
+    h3: Ipsum
+    h4: Dolar
 -
   why: $loop.${loop.property} = ${loop.value}
   visit: /test_subject.html
@@ -45,12 +45,52 @@
     - p
     - span
 -
-  why: $loop[${loop.index}] = ${loop.value}
+  why: Demonstrate loop array interpolation ($loop[${loop.index}] = ${loop.value})
   visit: /test_subject.html
   find:
     -
       dom: ${loop.value}
       count: ${loop.index0}
+
+-
+  end loop:
+
+-
+  loop:
+    - [ 200, Welcome to the Loop Page ]
+    - [ 200, Lorem ]
+
+-
+  why: 'Demonstrate loop array w/arrays interpolation #${loop.index}.'
+  visit: /test_subject.html
+  expect: ${loop.value[0]}
+  find:
+    -
+      why: Assert the page title is correct (using dot syntax).
+      dom: h${loop.index}
+      text: ${loop.value.1}
+
+-
+  end loop:
+
+-
+  loop:
+    -
+      code: 200
+      title: Welcome to the Loop Page
+    -
+      code: 200
+      title: Lorem
+
+-
+  why: 'Demonstrate loop array w/objects interpolation #${loop.index}.'
+  visit: /test_subject.html
+  expect: ${loop.value.code}
+  find:
+    -
+      why: Assert the page title is correct.
+      dom: h${loop.index}
+      text: ${loop.value.title}
 
 -
   end loop:
