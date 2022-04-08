@@ -57,7 +57,7 @@ final class Retest implements EventSubscriberInterface {
     $suites_to_run = [];
     $fp = fopen($tracking_path, 'r');
     while (($data = fgetcsv($fp))) {
-      list($suite_id, , $result) = $data;
+      list(, $suite_id, , $result) = $data;
       if ($input->getOption('continue')) {
         $suites_to_ignore[$suite_id] = $suite_id;
       }
@@ -99,10 +99,11 @@ final class Retest implements EventSubscriberInterface {
     $written = FALSE;
     $pointer = ftell($fh);
     while (($data = fgetcsv($fh))) {
-      list($suite_id, $test_id) = $data;
+      list(, $suite_id, $test_id) = $data;
       if ($suite_id === $test->getSuite()->id() && $test_id === $test->id()) {
         fseek($fh, $pointer);
         fputcsv($fh, [
+          $test->getSuite()->getGroup(),
           $suite_id,
           $test_id,
           $test->hasFailed() ? Test::FAILED : Test::PASSED,
@@ -114,6 +115,7 @@ final class Retest implements EventSubscriberInterface {
     }
     if (!$written) {
       fputcsv($fh, [
+        $test->getSuite()->getGroup(),
         $test->getSuite()->id(),
         $test->id(),
         $test->hasFailed() ? Test::FAILED : Test::PASSED,
