@@ -60,6 +60,7 @@
 <li><code>matches</code> may also be <code>false</code>; it may be omitted and defaults to <code>true</code>.</li>
 <li>Notice the usage of a second schema to use as a NOT match, in this case <em>schemas/array.json</em>.</li>
 <li>The <code>content-type</code> header will be used to decode the response body.</li>
+<li><code>schema</code> should be resolvable filepath, or a JSON string representing a schema.</li>
 </ol>
 
 <h2>Testing Only a Portion of the Response</h2>
@@ -79,14 +80,14 @@
    }
 }
 </code></pre></li>
-<li><p>You can apply a schema to the array at <code>ipsum</code>. Provide the schema subject using dot notation as <code>path</code>, in this case <code>lorem.ipsum</code>.</p>
+<li><p>You can apply a schema to the array at <code>ipsum</code>. Provide the schema subject using dot notation as <code>path</code>, in this case <code>lorem.ipsum</code>. Also notice that <code>schema</code> can be a JSON string, and doesn't have to reference a filepath.</p>
 
 <pre><code class="yaml"># file: suite.yml
 -
  visit: /api/2/thing/99
  find:
    -
-     schema: schemas/array.json
+     schema: '{"type":"array"}'
      path: lorem.ipsum
 </code></pre></li>
 </ol>
@@ -105,8 +106,14 @@
   visit: /test_subject.json
   find:
     -
-      path: lorem.ipsum
       schema: plugins/json_schema/is_array.json
+      path: lorem.ipsum
+-
+  visit: /test_subject.json
+  find:
+    -
+      schema: '{"type":"array"}'
+      path: lorem.ipsum
 -
   visit: /test_subject.json
   find:
@@ -133,7 +140,7 @@
 <footer>
   <div class="pager"><a href="demo--sleep.html" class="prev demo--sleep">&laquo;Sleep: Adding a Delay</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--header.html" class="next plugin_header">Testing Response Headers&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 26 Mar 2022 21:57:00 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Thu, 07 Apr 2022 19:42:52 -0700</p>
   </div>
 </footer>
 

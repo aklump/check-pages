@@ -81,6 +81,31 @@ add_shorthand('item.delete', function ($config, $test) {
 });
 </code></pre>
 
+<h2>An Example with Multiple Replacement Tests</h2>
+
+<pre><code class="php">add_shorthand('fake factory', function ($config, \AKlump\CheckPages\Parts\Test $test) use ($runner) {
+  $shorthand = $config['fake factory'];
+  assert(is_array($shorthand));
+  $path = $runner-&gt;resolveFile($shorthand['schema']);
+  $faker = new Faker($path);
+  $data = $faker-&gt;jsonSerialize();
+
+  foreach (($shorthand['values'] ?? []) as $key =&gt; $value) {
+    $data[$key] = $value;
+  }
+
+  $config['is'] = json_encode($data);
+
+  $test_configs = [];
+  $test_configs[] = $config;
+  $test_configs[] = [
+    'set' =&gt; $config['set'] . '.validationSchema',
+    'is' =&gt; json_encode($faker-&gt;getValidationSchema()),
+  ];
+  $test-&gt;getSuite()-&gt;replaceTestWithMultiple($test, $test_configs);
+});
+</code></pre>
+
 </section>
 
 <div class="search__results">
@@ -90,7 +115,7 @@ add_shorthand('item.delete', function ($config, $test) {
 <footer>
   <div class="pager"><a href="ext--imports.html" class="prev ext--imports">&laquo;Imports</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--add_test_option.html" class="next options">Options&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 26 Mar 2022 21:57:05 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Thu, 07 Apr 2022 19:43:02 -0700</p>
   </div>
 </footer>
 

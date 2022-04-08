@@ -8,6 +8,7 @@ run_suite('header');
 run_suite('import');
 run_suite('javascript');
 run_suite('json_schema');
+run_suite('loop');
 run_suite('path');
 run_suite('request');
 run_suite('sleep');
