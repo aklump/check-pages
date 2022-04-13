@@ -61,11 +61,17 @@ function config_get($config_path) {
   $runner = $container->get('runner');
   try {
     $o = new ObjectPath($runner->getConfig());
+    if (!$o->exists($config_path)) {
+      if (strstr($config_path, $o->getDelimiter()) === FALSE) {
+        throw new \RuntimeException(sprintf('No data at path "%s". Are you using the correct path delimiter "%s"?', $config_path, $o->getDelimiter()));
+      }
+      throw new \RuntimeException(sprintf('The configuration %s does not exist.', $config_path));
+    }
 
     return $o->get($config_path);
   }
   catch (\Exception $exception) {
-    throw new RuntimeException(sprintf("%s\nCheck your configuration file: %s", $exception->getMessage(), $runner->getPathToConfig()), $exception->getCode(), $exception);
+    throw new RuntimeException(sprintf("%s\nCheck your configuration file: %s", $exception->getMessage(), $runner->getLoadedConfigPath()), $exception->getCode(), $exception);
   }
 }
 

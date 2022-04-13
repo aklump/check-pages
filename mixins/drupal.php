@@ -61,6 +61,9 @@ $_get_session = function (string $username, Runner $runner) use ($config) {
     }
 
     // Load our non-version username/password index.
+    if (empty($config['users'])) {
+      throw new \RuntimeException('Missing value for "users" in the drupal mixin.');
+    }
     $path_to_users_list = $runner->resolveFile($config['users']);
     $login_url = $config['login_url'] ?? '/user/login';
     $absolute_login_url = $runner->url($login_url);

@@ -311,11 +311,20 @@ class Runner {
     return $this->outputMode;
   }
 
+  /**
+   * @return string
+   *   The path to the currently loaded config.
+   */
+  public function getLoadedConfigPath(): string {
+    return $this->configPath;
+  }
+
   public function loadConfig(string $resolve_config_path) {
     $config_path = $this->resolveFile($resolve_config_path);
     $config = Yaml::parseFile($config_path);
     if ($config) {
       $this->setConfig($config);
+      $this->configPath = $config_path;
       $this->getDispatcher()
         ->dispatch(new RunnerEvent($this), Event::RUNNER_CONFIG_LOADED);
     }
@@ -762,7 +771,7 @@ class Runner {
     if ($config['js'] ?? FALSE) {
       try {
         if (empty($this->getConfig()['chrome'])) {
-          throw new \InvalidArgumentException(sprintf("Javascript testing is unavailable due to missing path to Chrome binary.  Add \"chrome\" in file %s.", $this->resolveFile($this->configPath)));
+          throw new \InvalidArgumentException(sprintf("Javascript testing is unavailable due to missing path to Chrome binary.  Add \"chrome\" in file %s.", $this->getLoadedConfigPath()));
         }
         $driver = new ChromeDriver($this->getConfig()['chrome']);
       }
