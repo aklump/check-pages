@@ -27,7 +27,7 @@ final class Import extends LegacyPlugin {
         $this->suite->replaceTestWithMultiple($test, $insert_code);
       }
 
-      else {
+      elseif (!empty($config['find'])) {
         $mutated = [];
         foreach ($config['find'] as $assertion) {
 
