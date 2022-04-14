@@ -56,6 +56,10 @@ class Runner {
 
   protected $failedSuiteCount = 0;
 
+  protected $totalAssertions = 0;
+
+  protected $failedAssertionCount = 0;
+
   protected $storage;
 
   protected $schema;
@@ -201,6 +205,34 @@ class Runner {
    */
   public function getTotalTestsRun(): int {
     return $this->totalTestsRun;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTotalPassingTestsRun(): int {
+    return $this->totalTestsRun - $this->failedTestCount;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTotalFailedTests(): int {
+    return $this->failedTestCount;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTotalFailedAssertions(): int {
+    return $this->failedAssertionCount;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTotalAssertionsRun(): int {
+    return $this->totalAssertions;
   }
 
   public function getInput(): InputInterface {
@@ -569,6 +601,7 @@ class Runner {
         $filter_message = preg_replace('/\[\d+\]/', '[]', $filter_message);
       }
       echo Color::wrap('blue', sprintf('Testing started with "%s%s"', basename($runner_path), $filter_message)) . PHP_EOL;
+
       require $runner_path;
 
       if (count($this->filters) > 0 && !$this->filtersWereApplied) {
@@ -587,7 +620,7 @@ class Runner {
       ->dispatch(new RunnerEvent($this), Event::RUNNER_FINISHED);
 
     if ($this->failedTestCount) {
-      throw new \RuntimeException(sprintf("Testing complete with %d out of %d tests failing.", $this->failedTestCount, $this->totalTestsRun));
+      throw new \RuntimeException();
     }
   }
 
@@ -643,6 +676,12 @@ class Runner {
 
     // Add the tests to the suite in prep for the plugin hook...
     $suite_yaml = file_get_contents($path_to_suite);
+
+    // If a suite file is empty, then just ignore it.  It's probably a stub file.
+    if (empty(trim($suite_yaml))) {
+      return;
+    }
+
     $data = Yaml::parse($suite_yaml);
     foreach ($data as $config) {
       $suite->addTest($config);
@@ -716,7 +755,7 @@ class Runner {
     }
   }
 
-  public function echoMessages() {
+  public function getMessageOutput(): string {
     $color_map = [
       'error' => 'red',
       'info' => 'blue',
@@ -726,8 +765,9 @@ class Runner {
     $messages = array_map(function ($item) use ($color_map) {
       return Color::wrap($color_map[$item['level']], $item['data']);
     }, $this->debug);
-    echo implode(PHP_EOL, $messages);
+    $output = implode(PHP_EOL, $messages);
     $this->debug = [];
+    return $output;
   }
 
   /**
@@ -1132,6 +1172,11 @@ class Runner {
     }
 
     $this->dispatcher->dispatch(new AssertEvent($assert, $test, $driver), Event::ASSERT_FINISHED);
+
+    $this->totalAssertions++;
+    if (!$assert->getResult()) {
+      $this->failedAssertionCount++;
+    }
 
     return $assert;
   }

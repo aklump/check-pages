@@ -25,6 +25,22 @@ class Feedback implements EventSubscriberInterface {
     ];
   }
 
+  public static function getLabel(\AKlump\CheckPages\Parts\Test $test): string {
+    $config = $test->getConfig();
+    if (!empty($config['why'])) {
+      return $config['why'];
+    }
+    $runner = $test->getRunner();
+    $output = $runner->getOutput();
+    $is_verbose = $output->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE;
+    $suite = $test->getSuite();
+    $has_multiple_methods = count($suite->getHttpMethods()) > 1;
+    $method = $has_multiple_methods ? $test->getHttpMethod() : '';
+    $url = !$is_verbose ? $config['url'] : $runner->url($config['url']);
+
+    return ltrim("$method $url ", ' ');
+  }
+
   /**
    * Write output before the test has begun.
    *
@@ -46,19 +62,8 @@ class Feedback implements EventSubscriberInterface {
     $is_verbose = $output->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE;
 
     echo '🔎 ';
-    if (!empty($config['why'])) {
-      echo Color::wrap('blue', $config['why']) . ' ';
-      if ($is_verbose) {
-        echo PHP_EOL;
-      }
-    }
-    if ($is_verbose || empty($config['why'])) {
-      $suite = $test->getSuite();
-      $has_multiple_methods = count($suite->getHttpMethods()) > 1;
-      $method = $has_multiple_methods ? $test->getHttpMethod() : '';
-      $url = !$is_verbose ? $config['url'] : $runner->url($config['url']);
-      echo Color::wrap('blue', ltrim("$method $url ", ' '));
-    }
+    echo Color::wrap('blue', static::getLabel($test));
+    echo $is_verbose ? PHP_EOL : ' ';
 
     if ($config['js'] ?? FALSE) {
 
@@ -86,7 +91,22 @@ class Feedback implements EventSubscriberInterface {
       return;
     }
 
-    echo !$test->hasFailed() ? '👍' : '🚫';
+    if (!$test->hasFailed()) {
+      echo '👍';
+    }
+    else {
+
+      // When in normal mode, it's hard to see what failed, so we will add a
+      // highlighted line here to be seen.  When verbose the assertions are
+      // displayed, so it's not an issue there.
+      if ($output->getVerbosity() === OutputInterface::VERBOSITY_NORMAL) {
+        echo PHP_EOL;
+        echo '🚫 ' . Color::wrap('white on red', static::getLabel($test));
+      }
+      else {
+        echo '🚫';
+      }
+    }
 
     // Create the failure output files.
     if ($test->hasFailed()) {
@@ -108,7 +128,7 @@ class Feedback implements EventSubscriberInterface {
     $is_verbose = $output->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE;
     if ($is_verbose && $runner->getDebugArray()) {
       echo PHP_EOL;
-      $runner->echoMessages();
+      echo $runner->getMessageOutput();
       echo PHP_EOL;
     }
 

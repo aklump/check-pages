@@ -98,13 +98,7 @@ class RunCommand extends Command {
 
       echo PHP_EOL;
       echo '🏁 ' . Color::wrap('light gray', $timer->getCurrent()) . PHP_EOL;
-
-      if (!$runner->getTotalTestsRun()) {
-        echo Color::wrap('yellow', 'No tests were run.');
-      }
-      else {
-        echo Color::wrap('white on green', sprintf('Testing completed successfully in %s.', $timer->getElapsed()));
-      }
+      $this->outputResults($runner, $timer);
       echo PHP_EOL . PHP_EOL;
 
       return Command::SUCCESS;
@@ -112,8 +106,11 @@ class RunCommand extends Command {
     catch (\Exception $exception) {
 
       if (isset($runner) && $runner->getOutputMode() === Runner::OUTPUT_DEBUG) {
-        $runner->echoMessages();
-        echo PHP_EOL;
+        $output = $runner->getMessageOutput();
+        if (trim($output)) {
+          echo $output;
+          echo PHP_EOL;
+        }
       }
 
       echo PHP_EOL;
@@ -121,11 +118,53 @@ class RunCommand extends Command {
 
       // Shift the first line so only that is red, in case we want to dump a
       // pretty-print JSON variable.
-      $lines = explode(PHP_EOL, $exception->getMessage());
-      echo Color::wrap('white on red', array_shift($lines)) . PHP_EOL;
-      echo implode(PHP_EOL, $lines) . PHP_EOL . PHP_EOL;
+      $message = trim($exception->getMessage());
+      if ($message) {
+        $lines = explode(PHP_EOL, $message);
+        echo Color::wrap('white on red', array_shift($lines)) . PHP_EOL;
+        echo implode(PHP_EOL, $lines) . PHP_EOL . PHP_EOL;
+      }
+
+      if (isset($runner)) {
+        $this->outputResults($runner, $timer);
+      }
 
       return Command::FAILURE;
     }
+  }
+
+  private function outputResults(Runner $runner, Timer $timer) {
+    $total_test_count = $runner->getTotalTestsRun();
+    if (0 === $total_test_count) {
+      echo Color::wrap('yellow', 'No tests were run.');
+
+      return;
+    }
+    $total_assertion_count = $runner->getTotalAssertionsRun();
+    $passed_test_count = $runner->getTotalPassingTestsRun();
+    $percentage = intval(100 * $passed_test_count / $total_test_count);
+    echo sprintf("%d / %d (%d%%)", $passed_test_count, $total_test_count, $percentage) . PHP_EOL . PHP_EOL;
+    echo sprintf("Time: %s", $timer->getElapsed()) . PHP_EOL . PHP_EOL;
+
+    if (100 === $percentage) {
+      echo Color::wrap('white on green', sprintf("OK (%d test%s, %d assertion%s)",
+          $total_test_count,
+          $total_test_count === 1 ? '' : 's',
+          $total_assertion_count,
+          $total_assertion_count === 1 ? '' : 's'
+        ));
+    }
+    else {
+      // Sometimes a test fails without an assertion failing, e.g. the HTTP response code.
+      $failed_count = max($runner->getTotalFailedTests(), $runner->getTotalFailedAssertions());
+
+      echo Color::wrap('white on red', sprintf("FAILURES!\nTests: %d, Assertions: %d, Failures: %d",
+          $total_test_count,
+          $total_assertion_count,
+          $failed_count
+        ));
+    }
+
+    echo PHP_EOL . PHP_EOL;
   }
 }
