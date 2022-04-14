@@ -2,8 +2,7 @@
 
 namespace AKlump\CheckPages\Plugin;
 
-use AKlump\CheckPages\Assert;
-use AKlump\CheckPages\SerializationTrait;
+use AKlump\CheckPages\Event\AssertEventInterface;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -16,7 +15,7 @@ final class Dom extends LegacyPlugin {
   /**
    * {@inheritdoc}
    */
-  public function onBeforeAssert(\AKlump\CheckPages\Event\AssertEventInterface $event) {
+  public function onBeforeAssert(AssertEventInterface $event) {
     $assert = $event->getAssert();
     $search_value = $assert->{self::SEARCH_TYPE};
     $assert->setSearch(self::SEARCH_TYPE, $search_value);

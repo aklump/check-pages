@@ -36,7 +36,8 @@ done
 if [[ "$tests_dir" ]]; then
   ! mkdir -p "$tests_dir" && echo "Could not create $tests_dir" && exit 1
   rsync -aq "$APP_ROOT/init_scaffold/" "$PWD/$tests_dir"
-  echo "/files/*" >> "$PWD/$tests_dir/.gitignore"
+  echo "files" >> "$PWD/$tests_dir/.gitignore"
+  echo "users*" >> "$PWD/$tests_dir/.gitignore"
   echo -e "$(tput setaf 2)Test directory \"$tests_dir\" creating with test scaffolding.$(tput sgr0)"
 else
   echo "Skipped. You may execute $0, when you are ready."

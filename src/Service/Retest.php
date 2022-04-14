@@ -57,7 +57,8 @@ final class Retest implements EventSubscriberInterface {
     $suites_to_run = [];
     $fp = fopen($tracking_path, 'r');
     while (($data = fgetcsv($fp))) {
-      list(, $suite_id, , $result) = $data;
+      $suite_id = $data[1] ?? NULL;
+      $result = $data[3] ?? NULL;
       if ($input->getOption('continue')) {
         $suites_to_ignore[$suite_id] = $suite_id;
       }
