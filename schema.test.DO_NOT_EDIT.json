@@ -62,6 +62,9 @@
                                 "$ref": "#/definitions/header"
                             },
                             {
+                                "$ref": "#/definitions/import"
+                            },
+                            {
                                 "$ref": "#/definitions/javascript"
                             },
                             {
@@ -497,6 +500,22 @@
                 "imports/create_cycle"
             ]
         },
+        "import": {
+            "title": "Import Plugin Assertion",
+            "type": "object",
+            "required": [
+                "import"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "import": {
+                    "$ref": "#/definitions/import_selector"
+                },
+                "why": {
+                    "$ref": "#/definitions/why"
+                }
+            }
+        },
         "js_eval": {
             "type": "string",
             "pattern": ".+",
@@ -903,39 +922,12 @@
                 {
                     "required": [
                         "xpath",
-                        "count"
+                        "set"
                     ]
                 },
                 {
                     "required": [
                         "xpath",
-                        "attribute",
-                        "count"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "text"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
-                        "text"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "contains"
-                    ]
-                },
-                {
-                    "required": [
-                        "xpath",
-                        "attribute",
                         "contains"
                     ]
                 },
@@ -943,6 +935,13 @@
                     "required": [
                         "xpath",
                         "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "contains"
                     ]
                 },
                 {
@@ -989,11 +988,40 @@
                         "xpath",
                         "attribute",
                         "matches"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "count"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "count"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "text"
+                    ]
+                },
+                {
+                    "required": [
+                        "xpath",
+                        "attribute",
+                        "text"
                     ]
                 }
             ],
             "additionalProperties": false,
             "properties": {
+                "set": {
+                    "$ref": "#/definitions/set"
+                },
                 "xpath": {
                     "$ref": "#/definitions/xpath_selector"
                 },

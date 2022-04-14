@@ -1,0 +1,8 @@
+-
+  why: Assert button is present
+  dom: button
+  text: alpha
+-
+  why: Assert button is present using xpath
+  xpath: //button
+  count: 1
