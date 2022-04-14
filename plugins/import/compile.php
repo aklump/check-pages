@@ -6,18 +6,20 @@
 $source = "$plugin_dir/imports";
 $destination = "$compile_dir/tests/imports";
 
-if (!is_dir($destination)) {
-  mkdir($destination, 0777, TRUE);
-}
-copy("$source/_headings.yml", "$destination/_headings.yml");
-copy("$source/_links.yml", "$destination/_links.yml");
-copy("$source/_find.yml", "$destination/_find.yml");
 
-foreach ([
-           "$destination/_headings.yml",
-           "$destination/_links.yml",
-           "$destination/_find.yml",
-         ] as $path) {
+$relative_paths = [
+  "_headings.yml",
+  "_links.yml",
+  "find/_button.yml",
+];
+foreach ($relative_paths as $relative_path) {
+  $path = "$destination/$relative_path";
+  $dir = dirname($path);
+  if (!is_dir($dir)) {
+    mkdir($dir, 0777, TRUE);
+  }
+  copy("$source/$relative_path", $path);
+
   if (!file_exists($path)) {
     return FALSE;
   }

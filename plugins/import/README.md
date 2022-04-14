@@ -7,14 +7,14 @@
 
 # Here is an example of a test import
 -
-  import: headings
+  import: imports/headings
 
 # Here is an example of an assertion import
 -
   visit: /foo.html
   find:
     -
-      import: sections
+      import: imports/find/sections
 ```
 
 > Imports can only be configured via interpolation (see below). Other configurable options for reusable code to consider are: [shorthand](@shorthand), [options](@options) or [plugins](@plugins).
@@ -65,6 +65,7 @@ Can be moved to a file called _imports/_headings.yml_ and those repeated section
 * A single import line in your test (one YAML array element) maps to one or many tests in the import file. That is to say, a single import can include one test, or several tests.
 * If you use `why` as a sibling to `import`, that is only for your test reading, it will not be printed when the test is run. So think of it as answering the question of "Why use this import?", if you use it.
 * You may use an import to substitute _tests_ or _assertions_; see the examples below.
+* It's good practice to put your find imports in a subfolder _find_ as it's easier to reason about.
 * Imports cannot recursively import other imports at this time.
 
 ## Configure Imports with Interpolation

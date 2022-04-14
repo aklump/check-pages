@@ -23,4 +23,4 @@
       count: 1
     -
       why: Repeat the above using an assertion import.
-      import: imports/find
+      import: imports/find/button
