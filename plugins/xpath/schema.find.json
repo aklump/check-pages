@@ -4,39 +4,12 @@
         {
             "required": [
                 "xpath",
-                "count"
+                "set"
             ]
         },
         {
             "required": [
                 "xpath",
-                "attribute",
-                "count"
-            ]
-        },
-        {
-            "required": [
-                "xpath",
-                "text"
-            ]
-        },
-        {
-            "required": [
-                "xpath",
-                "attribute",
-                "text"
-            ]
-        },
-        {
-            "required": [
-                "xpath",
-                "contains"
-            ]
-        },
-        {
-            "required": [
-                "xpath",
-                "attribute",
                 "contains"
             ]
         },
@@ -44,6 +17,13 @@
             "required": [
                 "xpath",
                 "not contains"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "attribute",
+                "contains"
             ]
         },
         {
@@ -90,11 +70,40 @@
                 "xpath",
                 "attribute",
                 "matches"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "count"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "attribute",
+                "count"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "text"
+            ]
+        },
+        {
+            "required": [
+                "xpath",
+                "attribute",
+                "text"
             ]
         }
     ],
     "additionalProperties": false,
     "properties": {
+        "set": {
+            "$ref": "#/definitions/set"
+        },
         "xpath": {
             "$ref": "#/definitions/xpath_selector"
         },
