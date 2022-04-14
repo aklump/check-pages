@@ -1010,6 +1010,9 @@ class Runner {
     if (!$validator->isValid()) {
 
       if ($this->getOutput()->isDebug()) {
+        echo Color::wrap('white on red', "Suite Group\\ID:") . PHP_EOL;
+        echo Color::wrap('light gray', strval($this->getSuite())) . PHP_EOL;
+        echo PHP_EOL;
         echo Color::wrap('white on red', "Test Configuration:") . PHP_EOL;
         echo Color::wrap('light gray', json_encode($data, JSON_PRETTY_PRINT)) . PHP_EOL;
         echo PHP_EOL;

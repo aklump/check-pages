@@ -155,4 +155,8 @@ class Suite implements PartInterface, \JsonSerializable {
     return $data;
   }
 
+  public function __toString() {
+    return $this->getGroup() . '\\' . $this->id();
+  }
+
 }
