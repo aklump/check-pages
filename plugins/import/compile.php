@@ -11,10 +11,12 @@ if (!is_dir($destination)) {
 }
 copy("$source/_headings.yml", "$destination/_headings.yml");
 copy("$source/_links.yml", "$destination/_links.yml");
+copy("$source/_find.yml", "$destination/_find.yml");
 
 foreach ([
            "$destination/_headings.yml",
            "$destination/_links.yml",
+           "$destination/_find.yml",
          ] as $path) {
   if (!file_exists($path)) {
     return FALSE;

@@ -10,3 +10,17 @@
 -
   import: imports/_links.yml
   why: Verify the underscore works.
+-
+  visit: /test_subject.html
+  find:
+    -
+      why: Assert button is present
+      dom: button
+      text: alpha
+    -
+      why: Assert button is present using xpath
+      xpath: //button
+      count: 1
+    -
+      why: Repeat the above using an assertion import.
+      import: imports/find

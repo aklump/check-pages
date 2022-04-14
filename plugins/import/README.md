@@ -4,11 +4,20 @@
 
 ```yaml
 # file: suite.yml
+
+# Here is an example of a test import
 -
   import: headings
+
+# Here is an example of an assertion import
+-
+  visit: /foo.html
+  find:
+    -
+      import: sections
 ```
 
-> Imports can only be configured via interpolation (see below). Other configurable options to consider are: [shorthand](@shorthand), [options](@options) or [plugins](@plugins).
+> Imports can only be configured via interpolation (see below). Other configurable options for reusable code to consider are: [shorthand](@shorthand), [options](@options) or [plugins](@plugins).
 
 ## Explained
 
@@ -50,11 +59,12 @@ Can be moved to a file called _imports/_headings.yml_ and those repeated section
 
 ## Key Points
 
-* The location is up to you, _imports_ directory is given as an example. The value of `import` must be resolvable.
+* Where you save import files is up to you, _imports_ directory is given as an example. The value of `import` must be a resolvable path.
 * The leading underscore is optional, and like SASS partials it is ignored by the parser. You may use it or not, that is to say _\_headings.yml_ and _headings.yml_ are seen as the same import file.
 * The extension is optional and when excluded, is assumed as _.yml_.
 * A single import line in your test (one YAML array element) maps to one or many tests in the import file. That is to say, a single import can include one test, or several tests.
 * If you use `why` as a sibling to `import`, that is only for your test reading, it will not be printed when the test is run. So think of it as answering the question of "Why use this import?", if you use it.
+* You may use an import to substitute _tests_ or _assertions_; see the examples below.
 * Imports cannot recursively import other imports at this time.
 
 ## Configure Imports with Interpolation
