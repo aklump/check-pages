@@ -20,8 +20,9 @@ chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 # Use this as a list of suites that will be skipped/ignored when you are using
 # this configuration file.  For example if you have a suite that can only be run
 # on your live environment, then in your config.dev.yml and config.stage.yml
-# files you can list said suite so it will not be run.  It should be the same
-# value (the filename) as provided to run_suite(), e.g.
-# run_suite('never_run_this_suite');
+# files you can list said suite so it will not be run.  List the filename of the
+# suite, or when using groups to differentiate suites of different groups, use
+# the group/suite as shown below.
 suites_to_ignore:
   - suite_dev_only
+  - group1/alpha

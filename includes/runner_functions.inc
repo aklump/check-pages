@@ -183,7 +183,7 @@ function run_suite(string $path_to_suite, array $suite_config = []): void {
       }
     }
     if (count($suites) === 0) {
-      throw new StopRunnerException(sprintf('The glob "%s" returned no files.', $pattern));
+      throw new StopRunnerException(sprintf('The glob "%s" returned no files.', $path_to_suite));
     }
   }
   else {
@@ -191,6 +191,17 @@ function run_suite(string $path_to_suite, array $suite_config = []): void {
   }
 
   foreach ($suites as $suite) {
+
+    // This is a little redundant, but we make sure it's in there.  It will be
+    // de-duped by Runner, so no problem calling multiple times.
+    $runner->addResolveDirectory(dirname($suite));
+
+    // We also have to make sure the directory above the (group) directory is a
+    // resolve directory so we can resolve by group/suite and not just suite.
+    // If we did not do this, then you could not resolve with a value of
+    // "group/suite".
+    $runner->addResolveDirectory(dirname(dirname($suite)));
+
     $runner->runSuite($suite, $suite_config);
   }
 }
