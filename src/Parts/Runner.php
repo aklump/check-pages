@@ -77,11 +77,6 @@ class Runner {
   protected $resolvePaths = [];
 
   /**
-   * @var string
-   */
-  protected $pathToSuites = '';
-
-  /**
    * @var array
    */
   protected $printed = [];
@@ -190,7 +185,9 @@ class Runner {
 
     $this->rootDir = $root_dir;
     $this->addResolveDirectory($this->rootDir);
-    $this->addResolveDirectory($this->rootDir . '/tests');
+    if (is_dir($this->rootDir . '/tests')) {
+      $this->addResolveDirectory($this->rootDir . '/tests');
+    }
     $this->pluginsManager = new PluginsManager($this, $this->rootDir . '/plugins');
     $this->schema = [];
     $schema_path = $this->rootDir . '/' . static::SCHEMA_VISIT . '.json';
@@ -539,32 +536,6 @@ class Runner {
 
   public function getResolveDirectories(): array {
     return $this->resolvePaths;
-  }
-
-  /**
-   * @param string $path
-   *   This directory will be used for resolving globs.
-   *
-   * @return \AKlump\CheckPages\Parts\Runner
-   *   Self for chaining.
-   */
-  public function setPathToSuites(string $path): self {
-    if (!is_dir($path)) {
-      throw new \InvalidArgumentException("The suites directory \"$path\" does not exist.");
-    }
-    $this->pathToSuites = rtrim($path, '/');
-
-    return $this;
-  }
-
-  /**
-   * Get directory to the test suites.
-   *
-   * @return string
-   *   Path to the suites directory.
-   */
-  public function getPathToSuites(): string {
-    return $this->pathToSuites;
   }
 
   /**

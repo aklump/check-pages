@@ -61,7 +61,7 @@ class RunCommand extends Command {
           throw new \InvalidArgumentException("The runner file: \"$path_to_runner\" does not exist.");
         }
         $runner_dir = dirname($realpath_to_runner);
-        $runner->addResolveDirectory($runner_dir)->setPathToSuites($runner_dir);
+        $runner->addResolveDirectory($runner_dir);
       }
 
       $dir = $input->getOption('dir');
@@ -72,7 +72,7 @@ class RunCommand extends Command {
         }
 
         // This path to suites needs to overwrite that from runner directory above.
-        $runner->addResolveDirectory($dir)->setPathToSuites($dir);
+        $runner->addResolveDirectory($dir);
       }
 
       if (!$runner->getRunnerPath()) {

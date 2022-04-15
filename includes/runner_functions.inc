@@ -92,11 +92,11 @@ function add_directory(string $absolute_path_to_dir) {
   if (substr($absolute_path_to_dir, 0, 1) !== '/') {
     throw new \InvalidArgumentException(sprintf('To add a directory, it must begin with a "/"; "%s" does not.', $absolute_path_to_dir));
   }
-  $path = rtrim(realpath($absolute_path_to_dir), '/');
-  if (!$path || !is_dir($path)) {
+  $directory = rtrim(realpath($absolute_path_to_dir), '/');
+  if (!$directory || !is_dir($directory)) {
     throw new \InvalidArgumentException("\"$absolute_path_to_dir\" must be an existing directory.");
   }
-  $runner->addResolveDirectory($path);
+  $runner->addResolveDirectory($directory);
 }
 
 /**
@@ -153,8 +153,8 @@ function respond_to($event, callable $callback) {
  * Point to a test suite file to run.
  *
  * @param string $path_to_suite
- *   This can be a resolvable path or a glob pattern that will be resolved using
- *   the getPathToSuites() directory, e.g. '*', or 'user*'.
+ *   This can be a resolvable path or a glob pattern, e.g. 'group/suite',
+ *   'group/*', 'suite'.
  *
  * @throws \AKlump\CheckPages\Exceptions\SuiteFailedException|\AKlump\CheckPages\Exceptions\TestFailedException
  */
