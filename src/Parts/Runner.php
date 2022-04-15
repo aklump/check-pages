@@ -1174,7 +1174,7 @@ class Runner {
    * @param string $message
    *   The debug message.
    */
-  protected function info(string $message) {
+  public function info(string $message) {
     $this->debug[] = ['data' => $message, 'level' => 'info'];
   }
 

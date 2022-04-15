@@ -49,13 +49,16 @@ final class SourceCodeOutput {
   public function requestOutput(DriverEventInterface $event) {
     $driver = $event->getDriver();
     $output = [];
-    if ($this->runner->getInput()->getOption('show-request-headers')) {
+    $input = $this->runner->getInput();
+    $show_headers = $input->getOption('request') || $input->getOption('req-headers');
+    $show_body = $input->getOption('request') || $input->getOption('req');
+    if ($show_headers) {
       $headers = $this->flattenHeaders($driver->getHeaders());
       if (!empty($headers)) {
         $output[] = $headers;
       }
     }
-    if ($this->runner->getInput()->getOption('show-request')) {
+    if ($show_body) {
       $body = trim(strval($driver));
       if ($body) {
         $output[] = $body;
@@ -63,7 +66,7 @@ final class SourceCodeOutput {
     }
     if ($output) {
       $output = trim(implode(PHP_EOL, $output));
-      $this->runner->debug($output);
+      $this->runner->info($output);
     }
   }
 
@@ -78,11 +81,13 @@ final class SourceCodeOutput {
 
     $color = $event->getTest()->hasFailed() ? 'red' : 'green';
     $request_division = Color::wrap($color, "├── RESPONSE");
-
+    $input = $this->runner->getInput();
+    $show_headers = $input->getOption('response') || $input->getOption('headers');
+    $show_body = $input->getOption('response') || $input->getOption('res');
     $output = [];
     $response = $event->getDriver()->getResponse();
 
-    if ($this->runner->getInput()->getOption('show-headers')) {
+    if ($show_headers) {
       $headers = sprintf('%s/%s %d %s',
           strtoupper(parse_url($event->getTest()
             ->getAbsoluteUrl(), PHP_URL_SCHEME)),
@@ -96,7 +101,7 @@ final class SourceCodeOutput {
       }
     }
 
-    if ($this->runner->getInput()->getOption('show-response')) {
+    if ($show_body) {
       $body = $response->getBody();
       if (!empty($body)) {
 
@@ -121,7 +126,7 @@ final class SourceCodeOutput {
         $this->runner->fail($output);
       }
       else {
-        $this->runner->debug($output);
+        $this->runner->info($output);
       }
     }
   }

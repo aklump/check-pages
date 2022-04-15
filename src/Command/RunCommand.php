@@ -24,12 +24,14 @@ class RunCommand extends Command {
       ->addOption('dir', NULL, InputOption::VALUE_REQUIRED, 'An existing directory where the suite files are located.')
       ->addOption('config', NULL, InputOption::VALUE_REQUIRED, 'The filename of the configuration to use; extension not required.')
       //      ->addOption('quiet', NULL, InputOption::VALUE_NONE, 'Operate in quiet mode.')
-      ->addOption('show-request-headers', NULL, InputOption::VALUE_NONE, 'Display request headers.')
-      ->addOption('show-request', NULL, InputOption::VALUE_NONE, 'Display request body.')
+      ->addOption('request', NULL, InputOption::VALUE_NONE, 'Display request headers and body.')
+      ->addOption('req-headers', NULL, InputOption::VALUE_NONE, 'Display request headers only.')
+      ->addOption('req', NULL, InputOption::VALUE_NONE, 'Display request body only.')
 
       // Using "I" to match the curl binary.
-      ->addOption('show-headers', 'I', InputOption::VALUE_NONE, 'Display response headers.')
-      ->addOption('show-response', NULL, InputOption::VALUE_NONE, 'Display response body.')
+      ->addOption('response', NULL, InputOption::VALUE_NONE, 'Display response headers and body.')
+      ->addOption('headers', 'I', InputOption::VALUE_NONE, 'Display response headers.')
+      ->addOption('res', NULL, InputOption::VALUE_NONE, 'Display response body.')
       ->addOption('filter', 'f', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Indicate a subset of one or more suites to run.')
       ->addOption('group', 'g', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Indicate the group(s) to filter by; suites having other groups will be ignored.')
       ->addOption('retest', NULL, InputOption::VALUE_NONE, 'Execute runner skipping any suite that previously passed, retested only the failed suites.')
