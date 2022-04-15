@@ -134,9 +134,11 @@ class RunCommand extends Command {
   }
 
   private function outputResults(Runner $runner, Timer $timer) {
+    $footer = PHP_EOL . PHP_EOL;
     $total_test_count = $runner->getTotalTestsRun();
     if (0 === $total_test_count) {
       echo Color::wrap('yellow', 'No tests were run.');
+      echo $footer;
 
       return;
     }
@@ -148,23 +150,24 @@ class RunCommand extends Command {
 
     if (100 === $percentage) {
       echo Color::wrap('white on green', sprintf("OK (%d test%s, %d assertion%s)",
-          $total_test_count,
-          $total_test_count === 1 ? '' : 's',
-          $total_assertion_count,
-          $total_assertion_count === 1 ? '' : 's'
-        ));
+        $total_test_count,
+        $total_test_count === 1 ? '' : 's',
+        $total_assertion_count,
+        $total_assertion_count === 1 ? '' : 's'
+      ));
+      echo $footer;
     }
     else {
       // Sometimes a test fails without an assertion failing, e.g. the HTTP response code.
       $failed_count = max($runner->getTotalFailedTests(), $runner->getTotalFailedAssertions());
 
       echo Color::wrap('white on red', sprintf("FAILURES!\nTests: %d, Assertions: %d, Failures: %d",
-          $total_test_count,
-          $total_assertion_count,
-          $failed_count
-        ));
+        $total_test_count,
+        $total_assertion_count,
+        $failed_count
+      ));
+      echo $footer;
     }
-
-    echo PHP_EOL . PHP_EOL;
   }
+
 }

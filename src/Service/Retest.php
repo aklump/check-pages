@@ -57,17 +57,20 @@ final class Retest implements EventSubscriberInterface {
     $suites_to_run = [];
     $fp = fopen($tracking_path, 'r');
     while (($data = fgetcsv($fp))) {
-      $suite_id = $data[1] ?? NULL;
+      $id = [];
+      $id[] = $data[0] ?? NULL;
+      $id[] = $data[1] ?? NULL;
+      $id = implode('/', array_filter($id));
       $result = $data[3] ?? NULL;
       if ($input->getOption('continue')) {
-        $suites_to_ignore[$suite_id] = $suite_id;
+        $suites_to_ignore[$id] = $id;
       }
       elseif ($input->getOption('retest')) {
         if ($result === Test::PASSED) {
-          $suites_to_ignore[$suite_id] = $suite_id;
+          $suites_to_ignore[$id] = $id;
         }
         elseif ($result == Test::FAILED) {
-          $suites_to_run[$suite_id] = $suite_id;
+          $suites_to_run[$id] = $id;
         }
       }
     }

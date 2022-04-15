@@ -10,7 +10,7 @@ final class Variables implements \Countable {
   private $values = [];
 
   public function setItem(string $key, $value): self {
-    if (is_scalar($value)) {
+    if (is_null($value) || is_scalar($value)) {
       $this->values[$key] = $value;
 
       return $this;
