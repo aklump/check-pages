@@ -27,7 +27,7 @@ final class Sleep implements EventSubscriberInterface {
     }
 
     if ($sleep_seconds) {
-      echo sprintf("⏱  Sleep for %s second(s).", $sleep_seconds) . PHP_EOL;
+      echo sprintf("   Sleep for %s second(s).", $sleep_seconds) . PHP_EOL;
       sleep($sleep_seconds);
     }
   }

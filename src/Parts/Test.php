@@ -21,6 +21,30 @@ class Test implements \JsonSerializable {
   }
 
   /**
+   * Get the description of the test.
+   *
+   * This may be the test's `why` or a combination of method and url, depending
+   * upon context.
+   *
+   * @return string
+   *   The test description.
+   */
+  public function getDescription(): string {
+    $config = $this->getConfig();
+    $description = trim($config['why'] ?? '');
+
+    if (!$description) {
+      $url = $this->getRelativeUrl();
+      $method = $this->getHttpMethod();
+      $has_multiple_methods = count($this->getSuite()->getHttpMethods()) > 1;
+      $method = $has_multiple_methods ? $method : '';
+      $description = ltrim("$method $url", ' ');
+    }
+
+    return $description;
+  }
+
+  /**
    * @param bool $failed
    *
    * @return

@@ -636,6 +636,8 @@ class Runner {
    *
    */
   public function runSuite(string $path_to_suite, array $suite_config = []) {
+    $is_verbose = $this->getOutput()
+        ->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE;
     $resolved_path = '';
     $path_to_suite = $this->resolveFile($path_to_suite, $resolved_path);
     $suite_id = pathinfo(substr($path_to_suite, strlen($resolved_path) + 1), PATHINFO_FILENAME);
@@ -698,7 +700,10 @@ class Runner {
       echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->getConfig()['base_url'])) . PHP_EOL;
       $this->printed['base_url'] = TRUE;
     }
-    echo PHP_EOL . '⏱  ' . Color::wrap('white on blue', strtoupper(sprintf('Running "%s%s" suite...', ltrim($suite->getGroup() . '/', '/'), $suite->id()))) . PHP_EOL;
+    echo PHP_EOL . Color::wrap('white on blue', strtoupper(sprintf('   Running "%s%s" suite...', ltrim($suite->getGroup() . '/', '/'), $suite->id()))) . PHP_EOL;
+    if ($is_verbose) {
+      echo PHP_EOL;
+    }
 
     $this->debug = [];
     $failed_tests = 0;
@@ -767,6 +772,7 @@ class Runner {
     }, $this->debug);
     $output = implode(PHP_EOL, $messages);
     $this->debug = [];
+
     return $output;
   }
 
