@@ -62,9 +62,37 @@ final class Request extends LegacyPlugin {
         $driver->setHeader($key, $value);
       }
     }
+
     $driver
-      ->setBody($this->request['body'])
+      ->setBody($this->getEncodedBody())
       ->setMethod($this->request['method']);
+  }
+
+  private function getEncodedBody() {
+    $body = $this->request['body'];
+    if (!$body || is_scalar($body)) {
+      return $body;
+    }
+
+    $content_type = 'application/x-www-form-urlencoded';
+    foreach ($this->request['headers'] as $header => $value) {
+      if (strcasecmp('content-type', $header) === 0) {
+        $content_type = $value;
+        break;
+      }
+    }
+
+    switch ($content_type) {
+      case 'application/json':
+        $body = json_encode($body);
+        break;
+
+      default:
+        $body = http_build_query($body);
+        break;
+    }
+
+    return strval($body);
   }
 
   /**

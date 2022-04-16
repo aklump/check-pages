@@ -19,6 +19,20 @@
     - '{"foo":"bar"}'
 
 -
+  why: Assert post encodes body object correctly.
+  visit: /test_subject.php
+  request:
+    method: post
+    headers:
+      content-type: application/json
+    body:
+      foo: bar
+  find:
+    - 'POST'
+    - 'content-type: application/json'
+    - '{"foo":"bar"}'
+
+-
   visit: /test_subject.php
   request:
     method: GET
