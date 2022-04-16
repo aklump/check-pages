@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Plugin Scaffold</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--code--plugin">
+<header>
+  <div class="pager"><a href="config--suites_to_ignore.html" class="prev config--suites_to_ignore">&laquo;Ignore Suites</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="forms--drupal.html" class="next forms--drupal">Testing Forms&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="code--plugin.html">Code</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Plugin Scaffold</h1>
+  
+
+<h2>New Version Compatible with the Legacy Plugin</h2>
+
+<ol>
+<li><p>Add to <em>composer.json</em>.</p>
+
+<pre><code class="json">{
+    "psr-4": {
+        "AKlump\\CheckPages\\Plugin\\": [
+            "plugins/foo/"
+        ]
+    }
+}
+</code></pre></li>
+<li><p>Use this as starting point.</p>
+
+<pre><code class="php">&lt;?php
+
+namespace AKlump\CheckPages\Plugin;
+
+/**
+ * Implements the Json Schema plugin.
+ */
+final class Foo implements \Symfony\Component\EventDispatcher\EventSubscriberInterface {
+
+  /**
+   * @var \AKlump\CheckPages\Parts\Runner
+   */
+  protected $runner;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getSubscribedEvents() {
+    return [
+      \AKlump\CheckPages\Event::ASSERT_CREATED =&gt; [
+        function (\AKlump\CheckPages\Event\AssertEventInterface $event) { 
+
+          // TODO Some logic to see if you should really instantiate.
+          $should_apply = boolval($event-&gt;getAssert()-&gt;baz);
+
+          if ($should_apply) {
+            $obj = new self();
+
+            return $obj-&gt;prepareAssertion($event);
+          }
+        },
+      ],
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function eventHandler(AssertEventInterface $event) {
+    $this-&gt;runner = $event-&gt;getTest()-&gt;getRunner();
+    $event-&gt;getAssert()-&gt;setToStringOverride([$this, 'onAssertToString']);
+
+    // TODO Handle the event
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function onAssertToString(string $stringified, \AKlump\CheckPages\Assert $assert): string {
+
+    // TODO Modify $stringified as necessary.
+
+    return $stringified;
+  }
+
+}
+
+</code></pre></li>
+</ol>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="config--suites_to_ignore.html" class="prev config--suites_to_ignore">&laquo;Ignore Suites</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="forms--drupal.html" class="next forms--drupal">Testing Forms&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Fri, 15 Apr 2022 22:45:38 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
