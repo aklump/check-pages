@@ -93,7 +93,7 @@ class Runner {
    *
    * @var array
    */
-  protected $debug = [];
+  protected $messages = [];
 
   /**
    * @var \AKlump\LoftLib\Bash\Bash
@@ -640,7 +640,7 @@ class Runner {
     }
 
     if (in_array($path_to_suite, $ignored_suite_paths)) {
-      $message = Color::wrap('blue', '😴 ' . sprintf('Ignoring "%s" suite...', $suite->id()));
+      $message = Color::wrap('blue', '😴 ' . sprintf('Skipping "%s".', $suite));
       $this->getOutput()
         ->writeln($message, OutputInterface::VERBOSITY_VERY_VERBOSE);
 
@@ -676,7 +676,7 @@ class Runner {
       echo PHP_EOL;
     }
 
-    $this->debug = [];
+    $this->messages = [];
     $failed_tests = 0;
 
     foreach ($suite->getTests() as $test) {
@@ -740,9 +740,9 @@ class Runner {
     ];
     $messages = array_map(function ($item) use ($color_map) {
       return Color::wrap($color_map[$item['level']], $item['data']);
-    }, $this->debug);
+    }, $this->messages);
     $output = implode(PHP_EOL, $messages);
-    $this->debug = [];
+    $this->messages = [];
 
     return $output;
   }
@@ -880,7 +880,7 @@ class Runner {
       $this->fail('└── Test failed.');
     }
 
-    $test->setResults($this->debug);
+    $test->setResults($this->messages);
 
     if ($test_passed()) {
       $test->setPassed();
@@ -1165,7 +1165,7 @@ class Runner {
    *   The debug message.
    */
   public function debug(string $message) {
-    $this->debug[] = ['data' => $message, 'level' => 'debug'];
+    $this->messages[] = ['data' => $message, 'level' => 'debug'];
   }
 
   /**
@@ -1175,7 +1175,7 @@ class Runner {
    *   The debug message.
    */
   public function info(string $message) {
-    $this->debug[] = ['data' => $message, 'level' => 'info'];
+    $this->messages[] = ['data' => $message, 'level' => 'info'];
   }
 
   /**
@@ -1184,7 +1184,7 @@ class Runner {
    * @param string $message
    */
   public function fail(string $message) {
-    $this->debug[] = ['data' => $message, 'level' => 'error'];
+    $this->messages[] = ['data' => $message, 'level' => 'error'];
   }
 
   /**
@@ -1193,7 +1193,7 @@ class Runner {
    * @param string $message
    */
   protected function failReason(string $message) {
-    $this->debug[] = [
+    $this->messages[] = [
       'data' => $message,
       'level' => 'error',
       'tags' => ['todo'],
@@ -1207,7 +1207,7 @@ class Runner {
    *   The message.
    */
   protected function pass(string $message) {
-    $this->debug[] = ['data' => $message, 'level' => 'success'];
+    $this->messages[] = ['data' => $message, 'level' => 'success'];
   }
 
   /**
@@ -1325,10 +1325,9 @@ class Runner {
 
   /**
    * @return array
-   * @deprecated Do not use.
    */
-  public function getDebugArray(): array {
-    return $this->debug;
+  public function getMessages(): array {
+    return $this->messages;
   }
 
 }

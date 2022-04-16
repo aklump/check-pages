@@ -98,7 +98,7 @@ class Feedback implements EventSubscriberInterface {
       if (!empty($url)) {
         $failure_log = [$url];
       }
-      foreach ($runner->getDebugArray() as $item) {
+      foreach ($runner->getMessages() as $item) {
         if ('error' === $item['level']) {
           $failure_log[] = $item['data'];
         }
@@ -110,8 +110,8 @@ class Feedback implements EventSubscriberInterface {
       FailedTestMarkdown::output("{$suite->id()}{$test->id()}", $test);
     }
 
-    $is_verbose = $output->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE;
-    if ($is_verbose && $runner->getDebugArray()) {
+//    $is_verbose = $output->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE;
+    if ($runner->getMessages()) {
       echo PHP_EOL;
       echo $runner->getMessageOutput();
       echo PHP_EOL;
