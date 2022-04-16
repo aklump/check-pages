@@ -128,29 +128,39 @@ class RunCommand extends Command {
       }
 
       if (isset($runner)) {
-        $this->outputResults($runner, $timer);
+        $this->outputResults($runner, $timer, $exception);
       }
 
       return Command::FAILURE;
     }
   }
 
-  private function outputResults(Runner $runner, Timer $timer) {
+  private function outputResults(Runner $runner, Timer $timer, \Exception $exception = NULL) {
     $footer = PHP_EOL . PHP_EOL;
     $total_test_count = $runner->getTotalTestsRun();
-    if (0 === $total_test_count) {
+
+    if (!$exception && 0 === $total_test_count) {
       echo Color::wrap('yellow', 'No tests were run.');
       echo $footer;
 
       return;
     }
-    $total_assertion_count = $runner->getTotalAssertionsRun();
-    $passed_test_count = $runner->getTotalPassingTestsRun();
-    $percentage = intval(100 * $passed_test_count / $total_test_count);
-    echo sprintf("%d / %d (%d%%)", $passed_test_count, $total_test_count, $percentage) . PHP_EOL . PHP_EOL;
+
+    // Percentage
+    $percentage = NULL;
+    if (!$exception) {
+      $passed_test_count = $runner->getTotalPassingTestsRun();
+      $percentage = intval(100 * $passed_test_count / $total_test_count);
+      echo sprintf("%d / %d (%d%%)", $passed_test_count, $total_test_count, $percentage) . PHP_EOL . PHP_EOL;
+    }
+
+    // Time
     echo sprintf("Time: %s", $timer->getElapsed()) . PHP_EOL . PHP_EOL;
 
-    if (100 === $percentage) {
+    // Message
+    $total_assertion_count = $runner->getTotalAssertionsRun();
+    $ok = !$exception || 100 === $percentage;
+    if ($ok) {
       echo Color::wrap('white on green', sprintf("OK (%d test%s, %d assertion%s)",
         $total_test_count,
         $total_test_count === 1 ? '' : 's',
@@ -162,6 +172,9 @@ class RunCommand extends Command {
     else {
       // Sometimes a test fails without an assertion failing, e.g. the HTTP response code.
       $failed_count = max($runner->getTotalFailedTests(), $runner->getTotalFailedAssertions());
+      if ($exception) {
+        ++$failed_count;
+      }
 
       echo Color::wrap('white on red', sprintf("FAILURES!\nTests: %d, Assertions: %d, Failures: %d",
         $total_test_count,
@@ -170,6 +183,7 @@ class RunCommand extends Command {
       ));
       echo $footer;
     }
+
   }
 
 }
