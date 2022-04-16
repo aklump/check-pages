@@ -10,7 +10,8 @@
             "AKlump\\CheckPages\\": "src\/",
             "AKlump\\CheckPages\\Plugin\\": [
                 "plugins/sleep/",
-                "plugins/loop/"
+                "plugins/loop/",
+                "plugins/json_schema/"
             ]
         }
     },
