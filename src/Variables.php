@@ -79,8 +79,10 @@ final class Variables implements \Countable {
 
       return $value;
     }
-    foreach ($value as &$v) {
-      $v = $this->{$self_method}($v, $context);
+    foreach ($value as $k => $v) {
+      unset($value[$k]);
+      $k = $this->{$self_method}($k, $context);
+      $value[$k] = $this->{$self_method}($v, $context);
     }
 
     return $value;

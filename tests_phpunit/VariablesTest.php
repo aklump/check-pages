@@ -9,6 +9,15 @@ use PHPUnit\Framework\TestCase;
  */
 final class VariablesTest extends TestCase {
 
+  public function testInterpolateInArrayKeys() {
+    $var = new Variables();
+    $var->setItem('key', 'foo');
+    $var->setItem('value', 'bar');
+    $subject = ['${key}' => '${value}'];
+    $subject = $var->interpolate($subject);
+    $this->assertSame(['foo' => 'bar'], $subject);
+  }
+
   public function testStrangeBugWithZeroIndexInterpolation() {
     $var = new Variables();
     $var->setItem('loop.index0', 0);
