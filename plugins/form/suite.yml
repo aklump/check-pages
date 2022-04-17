@@ -59,6 +59,16 @@
         value: Rachel
 
 -
+  why: Demonstrate textfield default value is submitted.
+  url: /test_subject.php
+  form:
+    dom: .drupal-form
+  find:
+    -
+      dom: .messages
+      is: $5.99
+
+-
   why: Demonstrate how a Drupal form can be submitted w/hidden fields.
   url: /test_subject.php
   form:
