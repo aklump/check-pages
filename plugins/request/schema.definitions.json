@@ -1,23 +1,31 @@
 {
     "http_method": {
-        "type": "string",
-        "enum": [
-            "delete",
-            "get",
-            "head",
-            "options",
-            "patch",
-            "post",
-            "put",
-            "trace",
-            "DELETE",
-            "GET",
-            "HEAD",
-            "OPTIONS",
-            "PATCH",
-            "POST",
-            "PUT",
-            "TRACE"
+        "oneOf": [
+            {
+                "type": "string",
+                "pattern": "^\\${"
+            },
+            {
+                "type": "string",
+                "enum": [
+                    "delete",
+                    "get",
+                    "head",
+                    "options",
+                    "patch",
+                    "post",
+                    "put",
+                    "trace",
+                    "DELETE",
+                    "GET",
+                    "HEAD",
+                    "OPTIONS",
+                    "PATCH",
+                    "POST",
+                    "PUT",
+                    "TRACE"
+                ]
+            }
         ]
     },
     "request": {
