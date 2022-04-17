@@ -841,13 +841,13 @@ class Runner {
       $this->pass('├── HTTP ' . $http_response_code);
     }
     else {
-      $this->failReason(sprintf("├── Expected HTTP %s, got %d", $config['expect'] ?? '2xx', $http_response_code));
+      $this->failReason(sprintf("├── Expected HTTP %s, got %d", $test->getConfig()['expect'] ?? '2xx', $http_response_code));
     }
 
     // Test the location if asked.
-    $expected_location = $config['location'] ?? '';
+    $expected_location = $test->getConfig()['location'] ?? '';
     if (empty($expected_location)) {
-      $expected_location = $config['redirect'] ?? '';
+      $expected_location = $test->getConfig()['redirect'] ?? '';
     }
     if ($http_location && $expected_location) {
       $location_test = $http_location === $this->url($expected_location);
@@ -857,11 +857,11 @@ class Runner {
       }
     }
 
-    if (empty($config['find']) && $this->debugging && $this->getOutput()
+    if (empty($test->getConfig()['find']) && $this->debugging && $this->getOutput()
         ->isVerbose()) {
       $this->debug('├── This test has no assertions.');
     }
-    $assertions = $config['find'];
+    $assertions = $test->getConfig()['find'];
     $id = 0;
 
     $this->debugger->lineBreak();
