@@ -1,0 +1,49 @@
+{
+    "form_selector": {
+        "type": "object",
+        "required": [
+            "dom"
+        ],
+        "properties": {
+            "dom": {
+                "$ref": "#/definitions/dom_selector"
+            },
+            "input": {
+                "type": "array",
+                "items": {
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "value"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "why": {
+                                    "$ref": "#/definitions/why"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": [
+                                        "string",
+                                        "number"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "submit": {
+                "$ref": "#/definitions/dom_selector"
+            }
+        }
+    }
+
+}

@@ -1,0 +1,22 @@
+{
+    "type": "object",
+    "required": [
+        "url",
+        "form"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "why": {
+            "$ref": "#/definitions/why"
+        },
+        "url": {
+            "$ref": "#/definitions/url"
+        },
+        "form": {
+            "$ref": "#/definitions/form_selector"
+        },
+        "find": {
+            "$ref": "#/definitions/find"
+        }
+    }
+}

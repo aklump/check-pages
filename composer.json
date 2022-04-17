@@ -11,7 +11,8 @@
             "AKlump\\CheckPages\\Plugin\\": [
                 "plugins/sleep/",
                 "plugins/loop/",
-                "plugins/json_schema/"
+                "plugins/json_schema/",
+                "plugins/form/"
             ]
         }
     },
