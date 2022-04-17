@@ -26,6 +26,10 @@
   <h1>Making Requests Other Than GET</h1>
   
 
+<h2>Automatic Body Encoding</h2>
+
+<p>When the body is not a scalar or null, it will be encoded based on the content type. The assumed content type is <code>application/x-www-form-urlencoded</code></p>
+
 <h2>Multiple Verbs</h2>
 
 <p>Use <code>methods</code> to request against the same endpoint using the same configuration, varying on method. This can be handly for testing REST APIs against 403 responses.</p>
@@ -49,6 +53,20 @@
     headers:
       content-type: application/json
     body: '{"foo":"bar"}'
+  find:
+    - 'POST'
+    - 'content-type: application/json'
+    - '{"foo":"bar"}'
+
+-
+  why: Assert post encodes body object correctly.
+  visit: /test_subject.php
+  request:
+    method: post
+    headers:
+      content-type: application/json
+    body:
+      foo: bar
   find:
     - 'POST'
     - 'content-type: application/json'
@@ -92,7 +110,7 @@
 <footer>
   <div class="pager"><a href="demo--loop.html" class="prev demo--loop">&laquo;Loops</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--sleep.html" class="next plugin_sleep">Sleep: Adding a Delay&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Fri, 15 Apr 2022 22:45:50 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 16 Apr 2022 17:54:09 -0700</p>
   </div>
 </footer>
 

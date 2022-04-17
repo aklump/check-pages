@@ -399,6 +399,52 @@
                 }
             }
         },
+        "form_selector": {
+            "type": "object",
+            "required": [
+                "dom"
+            ],
+            "properties": {
+                "dom": {
+                    "$ref": "#/definitions/dom_selector"
+                },
+                "input": {
+                    "type": "array",
+                    "items": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "object",
+                                "required": [
+                                    "name",
+                                    "value"
+                                ],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "why": {
+                                        "$ref": "#/definitions/why"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "value": {
+                                        "type": [
+                                            "string",
+                                            "number"
+                                        ]
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                "submit": {
+                    "$ref": "#/definitions/dom_selector"
+                }
+            }
+        },
         "header_selector": {
             "type": "string",
             "pattern": ".+",
@@ -730,24 +776,32 @@
             }
         },
         "http_method": {
-            "type": "string",
-            "enum": [
-                "delete",
-                "get",
-                "head",
-                "options",
-                "patch",
-                "post",
-                "put",
-                "trace",
-                "DELETE",
-                "GET",
-                "HEAD",
-                "OPTIONS",
-                "PATCH",
-                "POST",
-                "PUT",
-                "TRACE"
+            "oneOf": [
+                {
+                    "type": "string",
+                    "pattern": "^\\${"
+                },
+                {
+                    "type": "string",
+                    "enum": [
+                        "delete",
+                        "get",
+                        "head",
+                        "options",
+                        "patch",
+                        "post",
+                        "put",
+                        "trace",
+                        "DELETE",
+                        "GET",
+                        "HEAD",
+                        "OPTIONS",
+                        "PATCH",
+                        "POST",
+                        "PUT",
+                        "TRACE"
+                    ]
+                }
             ]
         },
         "request": {
@@ -783,7 +837,11 @@
                     }
                 },
                 "body": {
-                    "type": "string"
+                    "type": [
+                        "string",
+                        "object",
+                        "array"
+                    ]
                 }
             }
         },
@@ -1260,6 +1318,28 @@
                     },
                     "expect": {
                         "$ref": "#/definitions/expect"
+                    },
+                    "find": {
+                        "$ref": "#/definitions/find"
+                    }
+                }
+            },
+            {
+                "type": "object",
+                "required": [
+                    "url",
+                    "form"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
+                    "url": {
+                        "$ref": "#/definitions/url"
+                    },
+                    "form": {
+                        "$ref": "#/definitions/form_selector"
                     },
                     "find": {
                         "$ref": "#/definitions/find"

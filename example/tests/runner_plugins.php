@@ -4,6 +4,7 @@ add_directory(__DIR__ . '/plugins');
 load_config('config/local');
 run_suite('dom');
 run_suite('evaluate');
+run_suite('form');
 run_suite('header');
 run_suite('import');
 run_suite('javascript');

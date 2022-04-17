@@ -1,0 +1,74 @@
+-
+    why: 'Demonstrate the simplest Form plugin syntax.'
+    url: /plugins/form.php
+    form:
+        dom: .form-a
+    find:
+        -
+            dom: .messages
+            text: 'Form A'
+-
+    why: 'Demonstrate using the submit property to choose the button.'
+    url: /plugins/form.php
+    form:
+        dom: .form-b
+        submit: .form-save
+    find:
+        -
+            dom: .messages
+            text: Save
+-
+    why: 'Demonstrate using the submit property to choose a different button.'
+    url: /plugins/form.php
+    form:
+        dom: .form-b
+        submit: .form-delete
+    find:
+        -
+            dom: .messages
+            text: Delete
+-
+    why: 'Demonstrate using input to include existing form values.'
+    url: /plugins/form.php
+    form:
+        dom: .form-b
+        input:
+            - message
+    find:
+        -
+            dom: .messages
+            text: 'Form B'
+-
+    why: 'Demonstrate posting values.'
+    url: /plugins/form.php
+    form:
+        dom: .form-b
+        input:
+            -
+                name: message
+                value: Extra
+            -
+                name: first_name
+                value: Frank
+    find:
+        -
+            dom: .messages
+            text: Extra
+-
+    why: 'Demonstrate how to work with a Drupal form.'
+    url: /plugins/form.php
+    form:
+        dom: .drupal-form
+        input:
+            - form_id
+            - form_build_id
+            - form_token
+            -
+                name: 'field_amount[0][value]'
+                value: $19.99
+        submit: '#edit-submit'
+    find:
+        -
+            why: 'Assert the new value $19.99 is received by the form handler.'
+            dom: .messages
+            is: $19.99

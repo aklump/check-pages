@@ -22,6 +22,19 @@
         - 'content-type: application/json'
         - '{"foo":"bar"}'
 -
+    why: 'Assert post encodes body object correctly.'
+    visit: /plugins/request.php
+    request:
+        method: post
+        headers:
+            content-type: application/json
+        body:
+            foo: bar
+    find:
+        - POST
+        - 'content-type: application/json'
+        - '{"foo":"bar"}'
+-
     visit: /plugins/request.php
     request:
         method: GET
