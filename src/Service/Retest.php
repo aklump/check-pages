@@ -103,8 +103,12 @@ final class Retest implements EventSubscriberInterface {
     $written = FALSE;
     $pointer = ftell($fh);
     while (($data = fgetcsv($fh))) {
-      list(, $suite_id, $test_id) = $data;
-      if ($suite_id === $test->getSuite()->id() && $test_id === $test->id()) {
+      $group = $data[0] ?? NULL;
+      $suite_id = $data[1] ?? NULL;
+      $test_id = $data[2] ?? NULL;
+      if ($group === $test->getSuite()
+          ->getGroup() && $suite_id === $test->getSuite()
+          ->id() && $test_id === $test->id()) {
         fseek($fh, $pointer);
         fputcsv($fh, [
           $test->getSuite()->getGroup(),
