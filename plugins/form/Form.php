@@ -86,12 +86,7 @@ final class Form implements EventSubscriberInterface {
 
           // The form action may or may not be the same URL.
           $action = $form->getNode(0)->getAttribute('action');
-          if ($action) {
-            $action = $test->getRunner()->url($action);
-          }
-          else {
-            $action = $config['url'];
-          }
+          $action = $action ?: $config['url'];
           $variables->setItem('formAction', $action);
 
           // The form method.

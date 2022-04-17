@@ -80,6 +80,12 @@ final class PluginsCompiler {
     $plugins = $this->pluginsManager->getAllPlugins();
     foreach ($plugins as &$plugin) {
       $this->compilePlugin($plugin);
+    }
+    $this->createTestRunnerPhpFile($plugins);
+    $this->generateServicesFile();
+
+    // This has to come last so plugins may affect the compile files.
+    foreach ($plugins as &$plugin) {
       if (file_exists($plugin['path'] . '/compile.php')) {
         $plugin_dir = $plugin['path'];
         $compile_dir = $this->examplesPath;
@@ -89,8 +95,6 @@ final class PluginsCompiler {
         }
       }
     }
-    $this->createTestRunnerPhpFile($plugins);
-    $this->generateServicesFile();
   }
 
   private function createTestRunnerPhpFile($plugins) {

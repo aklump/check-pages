@@ -36,6 +36,11 @@ if (isset($_POST['op'])) {
   <input type="submit" class="form-delete" name="message" value="Delete Was Used to Submit">
 </form>
 
+<form class="form-c" action="/thank_you.php" method="post">
+  <input type="text" name="first_name" value=""/>
+  <button type="submit">Submit</button>
+</form>
+
 <form class="drupal-form" method="post">
   <input type="hidden" name="form_id" value="drupal_form"/>
   <input type="hidden" name="form_build_id" value="form-GCz0YacA8dPFAKxjqF41M0rUJgoM8VbyN8RNTG48GxQ"/ >

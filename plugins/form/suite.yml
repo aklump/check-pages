@@ -1,5 +1,5 @@
 -
-  why: Demonstrate the simplest Form plugin syntax.
+  why: An example to load the page and submit the form.
   url: /test_subject.php
   form:
     dom: .form-a
@@ -9,7 +9,7 @@
       text: Form A Was Submitted
 
 -
-  why: Demonstrate using the submit property to choose the button.
+  why: Demonstrate using the "submit" to indicate which of several submit buttons.
   url: /test_subject.php
   form:
     dom: .form-b
@@ -20,7 +20,7 @@
       text: Save Was Used to Submit
 
 -
-  why: Demonstrate using the submit property to choose a different button.
+  why: Demonstrate using the "submit" again, with a different button.
   url: /test_subject.php
   form:
     dom: .form-b
@@ -31,7 +31,7 @@
       text: Delete Was Used to Submit
 
 -
-  why: Demonstrate posting values.
+  why: Demonstrate submitting values to the form.
   url: /test_subject.php
   form:
     dom: .form-b
@@ -47,6 +47,16 @@
     -
       dom: .messages
       text: A Little Extra Message
+
+-
+  why: Demonstrate a form that has an action to another URL.
+  url: /test_subject.php
+  form:
+    dom: .form-c
+    input:
+      -
+        name: first_name
+        value: Rachel
 
 -
   why: Demonstrate how a Drupal form can be submitted w/hidden fields.
