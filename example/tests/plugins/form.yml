@@ -6,7 +6,7 @@
     find:
         -
             dom: .messages
-            text: 'Form A'
+            text: 'Form A Was Submitted'
 -
     why: 'Demonstrate using the submit property to choose the button.'
     url: /plugins/form.php
@@ -16,7 +16,7 @@
     find:
         -
             dom: .messages
-            text: Save
+            text: 'Save Was Used to Submit'
 -
     why: 'Demonstrate using the submit property to choose a different button.'
     url: /plugins/form.php
@@ -26,7 +26,7 @@
     find:
         -
             dom: .messages
-            text: Delete
+            text: 'Delete Was Used to Submit'
 -
     why: 'Demonstrate using input to include existing form values.'
     url: /plugins/form.php
@@ -46,14 +46,15 @@
         input:
             -
                 name: message
-                value: Extra
+                value: 'An Little Extra Message'
             -
+                why: 'This is not in the form, but it can still be provided without a test error.'
                 name: first_name
                 value: Frank
     find:
         -
             dom: .messages
-            text: Extra
+            text: 'An Little Extra Message'
 -
     why: 'Demonstrate how to work with a Drupal form.'
     url: /plugins/form.php
