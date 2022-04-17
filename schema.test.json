@@ -14,7 +14,7 @@
                 "/foo?do=re",
                 "${someUrl}"
             ],
-            "pattern": "^/|http|\\$"
+            "pattern": "^/|http|\\${"
         },
         "js": {
             "type": "boolean",

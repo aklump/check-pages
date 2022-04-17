@@ -54,14 +54,20 @@
                 name: first_name
                 value: Rachel
 -
+    why: 'Demonstrate textfield default value is submitted.'
+    url: /plugins/form.php
+    form:
+        dom: .drupal-form
+    find:
+        -
+            dom: .messages
+            is: $5.99
+-
     why: 'Demonstrate how a Drupal form can be submitted w/hidden fields.'
     url: /plugins/form.php
     form:
         dom: .drupal-form
         input:
-            - form_id
-            - form_build_id
-            - form_token
             -
                 name: 'field_amount[0][value]'
                 value: $19.99

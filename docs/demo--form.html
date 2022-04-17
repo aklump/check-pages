@@ -101,6 +101,16 @@
         value: Rachel
 
 -
+  why: Demonstrate textfield default value is submitted.
+  url: /test_subject.php
+  form:
+    dom: .drupal-form
+  find:
+    -
+      dom: .messages
+      is: $5.99
+
+-
   why: Demonstrate how a Drupal form can be submitted w/hidden fields.
   url: /test_subject.php
   form:
@@ -132,7 +142,7 @@
 <footer>
   <div class="pager"><a href="demo--json_schema.html" class="prev demo--json_schema">&laquo;Testing APIs with JSON Schema</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--header.html" class="next plugin_header">Testing Response Headers&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 16 Apr 2022 23:59:48 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 17 Apr 2022 00:06:16 -0700</p>
   </div>
 </footer>
 
