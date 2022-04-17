@@ -81,7 +81,12 @@ class Test implements \JsonSerializable {
 
   /**
    * @param array $results
+   *   Each element of the array is an array with the keys: data, level.
+   *
+   * @return
    *   Self for chaining.
+   *
+   * @see \AKlump\CheckPages\Parts\Runner::info()
    */
   public function setResults(array $results): self {
     $this->results = $results;

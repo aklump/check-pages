@@ -6,7 +6,7 @@
   find:
     -
       dom: .messages
-      text: Form A
+      text: Form A Was Submitted
 
 -
   why: Demonstrate using the submit property to choose the button.
@@ -17,7 +17,7 @@
   find:
     -
       dom: .messages
-      text: Save
+      text: Save Was Used to Submit
 
 -
   why: Demonstrate using the submit property to choose a different button.
@@ -28,19 +28,7 @@
   find:
     -
       dom: .messages
-      text: Delete
-
--
-  why: Demonstrate using input to include existing form values.
-  url: /test_subject.php
-  form:
-    dom: .form-b
-    input:
-      - message
-  find:
-    -
-      dom: .messages
-      text: Form B
+      text: Delete Was Used to Submit
 
 -
   why: Demonstrate posting values.
@@ -50,28 +38,22 @@
     input:
       -
         name: message
-        value: Extra
+        value: A Little Extra Message
       -
+        why: This is not in the form, but it can still be provided without a test error.
         name: first_name
         value: Frank
   find:
     -
       dom: .messages
-      text: Extra
+      text: A Little Extra Message
 
 -
-  why: Demonstrate how to work with a Drupal form.
+  why: Demonstrate how a Drupal form can be submitted w/hidden fields.
   url: /test_subject.php
   form:
     dom: .drupal-form
     input:
-
-      # Drupal requires these hidden form values to be submitted to validate.
-      - form_id
-      - form_build_id
-      - form_token
-
-      # And here is where we are posting new information to the form.
       -
         name: field_amount[0][value]
         value: $19.99

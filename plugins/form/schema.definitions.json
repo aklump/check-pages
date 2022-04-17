@@ -11,33 +11,26 @@
             "input": {
                 "type": "array",
                 "items": {
-                    "oneOf": [
-                        {
+                    "type": "object",
+                    "required": [
+                        "name",
+                        "value"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "why": {
+                            "$ref": "#/definitions/why"
+                        },
+                        "name": {
                             "type": "string"
                         },
-                        {
-                            "type": "object",
-                            "required": [
-                                "name",
-                                "value"
-                            ],
-                            "additionalProperties": false,
-                            "properties": {
-                                "why": {
-                                    "$ref": "#/definitions/why"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "value": {
-                                    "type": [
-                                        "string",
-                                        "number"
-                                    ]
-                                }
-                            }
+                        "value": {
+                            "type": [
+                                "string",
+                                "number"
+                            ]
                         }
-                    ]
+                    }
                 }
             },
             "submit": {
@@ -45,5 +38,4 @@
             }
         }
     }
-
 }
