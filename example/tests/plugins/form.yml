@@ -1,5 +1,5 @@
 -
-    why: 'Demonstrate the simplest Form plugin syntax.'
+    why: 'An example to load the page and submit the form.'
     url: /plugins/form.php
     form:
         dom: .form-a
@@ -8,7 +8,7 @@
             dom: .messages
             text: 'Form A Was Submitted'
 -
-    why: 'Demonstrate using the submit property to choose the button.'
+    why: 'Demonstrate using the "submit" to indicate which of several submit buttons.'
     url: /plugins/form.php
     form:
         dom: .form-b
@@ -18,7 +18,7 @@
             dom: .messages
             text: 'Save Was Used to Submit'
 -
-    why: 'Demonstrate using the submit property to choose a different button.'
+    why: 'Demonstrate using the "submit" again, with a different button.'
     url: /plugins/form.php
     form:
         dom: .form-b
@@ -28,25 +28,14 @@
             dom: .messages
             text: 'Delete Was Used to Submit'
 -
-    why: 'Demonstrate using input to include existing form values.'
-    url: /plugins/form.php
-    form:
-        dom: .form-b
-        input:
-            - message
-    find:
-        -
-            dom: .messages
-            text: 'Form B'
--
-    why: 'Demonstrate posting values.'
+    why: 'Demonstrate submitting values to the form.'
     url: /plugins/form.php
     form:
         dom: .form-b
         input:
             -
                 name: message
-                value: 'An Little Extra Message'
+                value: 'A Little Extra Message'
             -
                 why: 'This is not in the form, but it can still be provided without a test error.'
                 name: first_name
@@ -54,9 +43,18 @@
     find:
         -
             dom: .messages
-            text: 'An Little Extra Message'
+            text: 'A Little Extra Message'
 -
-    why: 'Demonstrate how to work with a Drupal form.'
+    why: 'Demonstrate a form that has an action to another URL.'
+    url: /plugins/form.php
+    form:
+        dom: .form-c
+        input:
+            -
+                name: first_name
+                value: Rachel
+-
+    why: 'Demonstrate how a Drupal form can be submitted w/hidden fields.'
     url: /plugins/form.php
     form:
         dom: .drupal-form

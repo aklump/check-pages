@@ -41,7 +41,7 @@
 <h2>Example Tests</h2>
 
 <pre><code class="yaml">-
-  why: Demonstrate the simplest Form plugin syntax.
+  why: An example to load the page and submit the form.
   url: /test_subject.php
   form:
     dom: .form-a
@@ -51,7 +51,7 @@
       text: Form A Was Submitted
 
 -
-  why: Demonstrate using the submit property to choose the button.
+  why: Demonstrate using the "submit" to indicate which of several submit buttons.
   url: /test_subject.php
   form:
     dom: .form-b
@@ -62,7 +62,7 @@
       text: Save Was Used to Submit
 
 -
-  why: Demonstrate using the submit property to choose a different button.
+  why: Demonstrate using the "submit" again, with a different button.
   url: /test_subject.php
   form:
     dom: .form-b
@@ -73,14 +73,14 @@
       text: Delete Was Used to Submit
 
 -
-  why: Demonstrate posting values.
+  why: Demonstrate submitting values to the form.
   url: /test_subject.php
   form:
     dom: .form-b
     input:
       -
         name: message
-        value: An Little Extra Message
+        value: A Little Extra Message
       -
         why: This is not in the form, but it can still be provided without a test error.
         name: first_name
@@ -88,10 +88,20 @@
   find:
     -
       dom: .messages
-      text: An Little Extra Message
+      text: A Little Extra Message
 
 -
-  why: Demonstrate how to submit one value to a form with hidden fields.
+  why: Demonstrate a form that has an action to another URL.
+  url: /test_subject.php
+  form:
+    dom: .form-c
+    input:
+      -
+        name: first_name
+        value: Rachel
+
+-
+  why: Demonstrate how a Drupal form can be submitted w/hidden fields.
   url: /test_subject.php
   form:
     dom: .drupal-form
@@ -122,7 +132,7 @@
 <footer>
   <div class="pager"><a href="demo--json_schema.html" class="prev demo--json_schema">&laquo;Testing APIs with JSON Schema</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--header.html" class="next plugin_header">Testing Response Headers&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 16 Apr 2022 23:23:56 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sat, 16 Apr 2022 23:59:48 -0700</p>
   </div>
 </footer>
 
