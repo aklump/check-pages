@@ -86,6 +86,7 @@ class Feedback implements EventSubscriberInterface {
       // displayed, so it's not an issue there.
       if ($output->getVerbosity() === OutputInterface::VERBOSITY_NORMAL) {
         echo PHP_EOL;
+        echo Color::wrap('light gray', $test->getAbsoluteUrl()) . PHP_EOL;
         echo '🚫 ' . Color::wrap('white on red', $test->getDescription());
       }
       else {

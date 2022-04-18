@@ -68,13 +68,13 @@ class RunCommand extends Command {
 
       $dir = $input->getOption('dir');
       if ($dir) {
-        $dir = realpath($dir);
-        if (!is_dir($dir)) {
+        $resolved_dir = realpath($dir);
+        if (!is_dir($resolved_dir)) {
           throw new \InvalidArgumentException("\"$dir\" must be an existing directory.");
         }
 
         // This path to suites needs to overwrite that from runner directory above.
-        $runner->addResolveDirectory($dir);
+        $runner->addResolveDirectory($resolved_dir);
       }
 
       if (!$runner->getRunnerPath()) {
