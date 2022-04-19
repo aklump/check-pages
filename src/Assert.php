@@ -330,7 +330,7 @@ final class Assert {
 
         // If we are expecting a count of 0, then the fact that the node does
         // not exist is in fact, a pass.
-        if ($this->assertType === self::ASSERT_COUNT && empty($this->assertValue)) {
+        if (is_numeric($this->count) && intval($this->count) === 0) {
           $this->result = TRUE;
 
           return;
@@ -370,6 +370,16 @@ final class Assert {
       }
     }
 
+
+    // In order that count works correctly, all of these cases must add to
+    // $countable in whatever length is appropriate as $countable is the subject
+    // of the count assertion.  For example when nodes match by text, then those
+    // matches should be included in countable.
+    $countable = $haystack;
+
+    // We have to start with passing true and let the individual asserts fail an
+    // assertion.  This is important because of the count assertion logic, for
+    // one.
     $pass = NULL;
     switch ($this->assertType) {
       case self::ASSERT_CALLABLE:
@@ -388,6 +398,7 @@ final class Assert {
         break;
 
       case self::ASSERT_NOT_CONTAINS:
+        $countable = [];
         foreach ($haystack as $item) {
           $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
             $this->setNeedle($item_variation);
@@ -398,10 +409,14 @@ final class Assert {
             $this->reason = sprintf("The following is not supposed to be found:\n\n>>> %s\n\n", $this->assertValue);
             break;
           }
+          else {
+            $countable[] = $item;
+          }
         }
         break;
 
       case self::ASSERT_CONTAINS:
+        $countable = [];
         foreach ($haystack as $item) {
           $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
             $this->setNeedle($item_variation);
@@ -409,6 +424,7 @@ final class Assert {
             return strpos($item_variation, $this->assertValue) !== FALSE;
           });
           if ($pass) {
+            $countable[] = $item;
             break;
           }
         }
@@ -417,11 +433,8 @@ final class Assert {
         }
         break;
 
-      case self::ASSERT_COUNT:
-        $pass = $this->assertCount($this->assertValue, count($haystack));
-        break;
-
       case self::ASSERT_TEXT:
+        $countable = [];
         foreach ($haystack as $item) {
           $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
             $this->setNeedle($item_variation);
@@ -429,6 +442,7 @@ final class Assert {
             return $item_variation == $this->assertValue;
           });
           if ($pass) {
+            $countable[] = $item;
             break;
           }
         }
@@ -444,10 +458,12 @@ final class Assert {
         break;
 
       case self::ASSERT_EQUALS:
+        $countable = [];
         foreach ($haystack as $item) {
           $this->setNeedle($item);
           $pass = $item == $this->assertValue;
           if ($pass) {
+            $countable[] = $item;
             break;
           }
         }
@@ -458,11 +474,13 @@ final class Assert {
         break;
 
       case self::ASSERT_NOT_EQUALS:
+        $countable = [];
         $pass = empty($haystack);
         foreach ($haystack as $item) {
           $this->setNeedle($item);
           $pass = $item != $this->assertValue;
           if ($pass) {
+            $countable[] = $item;
             break;
           }
         }
@@ -473,6 +491,7 @@ final class Assert {
         break;
 
       case self::ASSERT_MATCHES:
+        $countable = [];
         foreach ($haystack as $item) {
           $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
             $this->setNeedle($item_variation);
@@ -480,6 +499,7 @@ final class Assert {
             return preg_match($this->assertValue, $item_variation);
           });
           if ($pass) {
+            $countable[] = $item;
             break;
           }
         }
@@ -489,6 +509,7 @@ final class Assert {
         break;
 
       case self::ASSERT_NOT_MATCHES:
+        $countable = [];
         $pass = empty($haystack);
         foreach ($haystack as $item) {
           $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
@@ -497,6 +518,7 @@ final class Assert {
             return !preg_match($this->assertValue, $item_variation);
           });
           if ($pass) {
+            $countable[] = $item;
             break;
           }
         }
@@ -504,6 +526,13 @@ final class Assert {
           $this->reason = sprintf("Value \"%s\" should not match RegEx \"%s\".", $item, $this->assertValue);
         }
         break;
+    }
+
+    if ($this->count) {
+      $pass = $pass && $this->assertCount($this->count, count($countable));
+    }
+    elseif (!$pass && is_numeric($this->count)) {
+      $pass = count($countable) === 0 && intval($this->count) === 0;
     }
 
     if (is_null($pass)) {
@@ -626,10 +655,6 @@ final class Assert {
       case static::ASSERT_CONTAINS:
         $modifier = $modifier ? ' in ' . trim($modifier) : '';
         $prefix = sprintf('Find "%s"%s', $this->assertValue, $modifier);
-        break;
-
-      case static::ASSERT_COUNT:
-        $prefix = 'Count elements';
         break;
     }
 
@@ -833,7 +858,6 @@ final class Assert {
     return [
       new Help(self::ASSERT_NOT_CONTAINS, 'Pass if the value is not found in the selection.', ['[token:123]']),
       new Help(self::ASSERT_CONTAINS, 'Pass if the value is found in the selection. Works with `attribute`.', ['foo']),
-      new Help(self::ASSERT_COUNT, 'Pass if equal to the number of items in the selection.', [2]),
       new Help(self::ASSERT_EQUALS, "Pass if the selection's markup is equal.  All numeric values, regardless of type are considered equal.  Works with `attribute`.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),
       new Help(self::ASSERT_NOT_EQUALS, "Pass if the selection's markup is not equal to the search value exactly.  All numeric values, regardless of type are considered an exact match.  Works with `attribute`.", ['<em>lorem <strong>ipsum dolar</strong> sit amet.</em>']),
       new Help(self::ASSERT_MATCHES, 'Applies a REGEX expression against the selection. Works with `attribute`.', ['/copyright\s+20\d{2}$/']),
