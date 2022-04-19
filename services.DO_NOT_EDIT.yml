@@ -7,6 +7,10 @@ services:
         class: \AKlump\CheckPages\Service\Retest
         tags:
             - { name: event_subscriber }
+    count.plugin:
+        class: \AKlump\CheckPages\Plugin\Count
+        tags:
+            - { name: event_subscriber }
     form.plugin:
         class: \AKlump\CheckPages\Plugin\Form
         tags:

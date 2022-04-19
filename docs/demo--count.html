@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Count Plugin</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--plugin_count">
+<header>
+  <div class="pager"><a href="demo--javascript2.html" class="prev demo--javascript2">&laquo;More Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--style.html" class="next plugin_style">CSS and Styles&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2.html">Usage and Examples</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Count Plugin</h1>
+  
+
+<p>This plugin is unique in that it provides no find schema. It relies on other plugins to add <code>count</code> to their find schemas.</p>
+
+<h2>Example Tests</h2>
+
+<pre><code class="yaml">-
+  why: Demonstrate the Count plugin syntax.
+  url: /test_subject.html
+  find:
+    -
+      dom: h1
+      count: 1
+    -
+      xpath: //h1
+      count: "1"
+    -
+      dom: h1
+      count: "&lt;2"
+    -
+      dom: h1
+      count: "&lt; 2"
+    -
+      dom: h5
+      count: 0
+    -
+      dom: li
+      count: "&gt;=5"
+    -
+      dom: li
+      count: "&gt;= 5"
+    -
+      dom: li.emotion
+      count: 2
+    -
+      dom: li
+      text: Fear
+      count: 1
+    -
+      dom: li
+      text: Morning
+      count: 0
+
+</code></pre>
+
+<p><em>Provided by the count plugin.</em></p>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="demo--javascript2.html" class="prev demo--javascript2">&laquo;More Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--style.html" class="next plugin_style">CSS and Styles&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Mon, 18 Apr 2022 22:18:57 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

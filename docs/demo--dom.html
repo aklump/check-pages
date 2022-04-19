@@ -32,6 +32,21 @@
   visit: /test_subject.php
   find:
     -
+      why: Make sure no forms appear on the homepage.
+      dom: form
+      count: 0
+
+    -
+      dom: '.block-title'
+      text: Latest Blog Post
+      count: 1
+
+    -
+      dom: '.block-title'
+      text: Not on the Page
+      count: 0
+
+    -
       dom: '#logo'
       attribute: title
       is: An SVG image
@@ -80,11 +95,6 @@
       count: 1
 
     -
-      why: Make sure no forms appear on the homepage.
-      dom: form
-      count: 0
-
-    -
       dom: '.block-title'
       text: Quick Start
 
@@ -92,9 +102,6 @@
       dom: '.block-title'
       text: Upcoming Events
 
-    -
-      dom: '.block-title'
-      text: Latest Blog Post
 
     -
       dom: '#footer #copyright'
@@ -123,7 +130,7 @@
 <footer>
   <div class="pager"><a href="demo--xpath.html" class="prev demo--xpath">&laquo;Demo  Xpath</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--evaluate.html" class="next plugin_evaluate">Evaluate&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 17 Apr 2022 00:06:16 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Mon, 18 Apr 2022 22:18:58 -0700</p>
   </div>
 </footer>
 
