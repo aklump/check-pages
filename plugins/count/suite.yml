@@ -6,6 +6,9 @@
       dom: h1
       count: 1
     -
+      dom: h1
+      count: "!= 16"
+    -
       xpath: //h1
       count: "1"
     -
@@ -34,3 +37,16 @@
       dom: li
       text: Morning
       count: 0
+-
+  set: maxItems
+  is: 5
+-
+  set: itemCount
+  is: 4
+-
+  why: Demonstrate the Count plugin with interpolation.
+  url: /test_subject.html
+  find:
+    -
+      dom: h1
+      count: ${maxItems} - ${itemCount}

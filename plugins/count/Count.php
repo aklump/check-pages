@@ -30,9 +30,12 @@ final class Count implements EventSubscriberInterface {
 
           $expected = $assert->count;
           $actual_count = count($assert->getHaystack());
-          if (is_numeric($expected)) {
+
+          // If we don't have a comparator then we need to add '=='.
+          if (!preg_match('/==|!=|<|>|<=|>=/', $expected)) {
             $expected = "== $expected";
           }
+
           $eval = new ExpressionLanguage();
           $expression = "$actual_count $expected";
           $pass = $eval->evaluate($expression);

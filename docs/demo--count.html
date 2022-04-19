@@ -28,6 +28,8 @@
 
 <p>This plugin is unique in that it provides no find schema. It relies on other plugins to add <code>count</code> to their find schemas.</p>
 
+<p>This uses <a href="https://symfony.com/doc/current/components/expression_language/syntax.html#arithmetic-operators">The Symfony Expression Language</a> under the hood.</p>
+
 <h2>Example Tests</h2>
 
 <pre><code class="yaml">-
@@ -37,6 +39,9 @@
     -
       dom: h1
       count: 1
+    -
+      dom: h1
+      count: "!= 16"
     -
       xpath: //h1
       count: "1"
@@ -67,6 +72,20 @@
       text: Morning
       count: 0
 
+-
+  set: maxItems
+  is: 5
+-
+  set: itemCount
+  is: 4
+-
+  why: Demonstrate the Count plugin with interpolation.
+  url: /test_subject.html
+  find:
+    -
+      dom: h1
+      count: ${maxItems} - ${itemCount}
+
 </code></pre>
 
 <p><em>Provided by the count plugin.</em></p>
@@ -80,7 +99,7 @@
 <footer>
   <div class="pager"><a href="demo--javascript2.html" class="prev demo--javascript2">&laquo;More Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--style.html" class="next plugin_style">CSS and Styles&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Mon, 18 Apr 2022 22:18:57 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Mon, 18 Apr 2022 22:32:58 -0700</p>
   </div>
 </footer>
 
