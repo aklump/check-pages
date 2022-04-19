@@ -37,6 +37,12 @@
       dom: li
       text: Morning
       count: 0
+    -
+      dom: '.sidebar a'
+      attribute: href
+      matches: /^\/story/
+      count: ">=2"
+
 -
   set: maxItems
   is: 5

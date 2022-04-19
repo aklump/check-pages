@@ -420,7 +420,6 @@ final class Assert {
           });
           if ($pass) {
             $countable[] = $item;
-            break;
           }
         }
         if (!$pass) {
@@ -438,7 +437,6 @@ final class Assert {
           });
           if ($pass) {
             $countable[] = $item;
-            break;
           }
         }
         if (!$pass) {
@@ -459,7 +457,6 @@ final class Assert {
           $pass = $item == $this->assertValue;
           if ($pass) {
             $countable[] = $item;
-            break;
           }
         }
         if (!$pass) {
@@ -476,7 +473,6 @@ final class Assert {
           $pass = $item != $this->assertValue;
           if ($pass) {
             $countable[] = $item;
-            break;
           }
         }
         if (!$pass) {
@@ -495,7 +491,6 @@ final class Assert {
           });
           if ($pass) {
             $countable[] = $item;
-            break;
           }
         }
         if (!$pass) {
@@ -514,7 +509,6 @@ final class Assert {
           });
           if ($pass) {
             $countable[] = $item;
-            break;
           }
         }
         if (!$pass) {
