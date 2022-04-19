@@ -96,6 +96,15 @@ final class Assert {
   private $toStringOverride;
 
   /**
+   * The string value of this object.
+   *
+   * If not manually set, it will be calculated.
+   *
+   * @var string
+   */
+  private $label = '';
+
+  /**
    * @var string
    */
   private $assertType;
@@ -157,6 +166,25 @@ final class Assert {
   public function __construct(array $definition, string $id) {
     $this->definition = $definition;
     $this->id = $id;
+  }
+
+  /**
+   * @return string
+   */
+  public function getLabel(): string {
+    return $this->label ?: strval($this);
+  }
+
+  /**
+   * @param string $label
+   *
+   * @return
+   *   Self for chaining.
+   */
+  public function setLabel(string $label): self {
+    $this->label = $label;
+
+    return $this;
   }
 
   public function getId(): string {
@@ -556,6 +584,9 @@ final class Assert {
    * {@inheritdoc}
    */
   public function __toString() {
+    if ($this->label) {
+      return $this->label;
+    }
     $prefix = '';
     $suffix = '';
     $modifier = '';
@@ -615,19 +646,35 @@ final class Assert {
       // TODO This won't work until autoloader is fixed for plugins.
       //      case Xpath::SEARCH_TYPE:
       case 'xpath':
-        $suffix = sprintf('after filtering by XPath "%s"', $this->searchValue);
+        if ($prefix) {
+          $suffix = sprintf('after filtering by XPath "%s"', $this->searchValue);
+        }
+        else {
+          $suffix = sprintf('Filter by XPath "%s"', $this->searchValue);
+        }
         break;
 
       // TODO This won't work until autoloader is fixed for plugins.
       //      case static::SEARCH_DOM:
       case 'dom':
-        $suffix = sprintf('after selecting with "%s"', $this->searchValue);
+        if ($prefix) {
+          $suffix = sprintf('after selecting with "%s"', $this->searchValue);
+        }
+        else {
+          $suffix = sprintf('Select with "%s"', $this->searchValue);
+        }
         break;
 
       case 'javascript':
         // TODO This won't work until autoloader is fixed for plugins.
         //      case Javascript::SEARCH_TYPE:
-        $suffix = sprintf('after JS evaluation of "%s"', $this->searchValue);
+
+        if ($prefix) {
+          $suffix = sprintf('after JS evaluation of "%s"', $this->searchValue);
+        }
+        else {
+          $suffix = sprintf('Evaluate JS code "%s"', $this->searchValue);
+        }
         break;
     }
 
