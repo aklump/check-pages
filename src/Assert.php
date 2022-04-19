@@ -395,17 +395,23 @@ final class Assert {
       case self::ASSERT_NOT_CONTAINS:
         $countable = [];
         foreach ($haystack as $item) {
-          $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
-            $this->setNeedle($item_variation);
+          $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            if (strpos($item_variation, $this->assertValue) === FALSE) {
+              $this->setNeedleIfNotSet($item_variation);
 
-            return strpos($item_variation, $this->assertValue) === FALSE;
+              return TRUE;
+            }
+
+            return FALSE;
           });
-          if (!$pass) {
-            $this->reason = sprintf("The following is not supposed to be found:\n\n>>> %s\n\n", $this->assertValue);
-            break;
+          if ($result) {
+            $countable[] = $item;
+            $pass = $pass || $result;
+
           }
           else {
-            $countable[] = $item;
+            $this->reason = sprintf("The following is not supposed to be found:\n\n>>> %s\n\n", $this->assertValue);
+            break;
           }
         }
         break;
@@ -413,13 +419,18 @@ final class Assert {
       case self::ASSERT_CONTAINS:
         $countable = [];
         foreach ($haystack as $item) {
-          $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
-            $this->setNeedle($item_variation);
+          $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            if (strpos($item_variation, $this->assertValue) !== FALSE) {
+              $this->setNeedleIfNotSet($item_variation);
 
-            return strpos($item_variation, $this->assertValue) !== FALSE;
+              return TRUE;
+            }
+
+            return FALSE;
           });
-          if ($pass) {
+          if ($result) {
             $countable[] = $item;
+            $pass = $pass || $result;
           }
         }
         if (!$pass) {
@@ -430,13 +441,18 @@ final class Assert {
       case self::ASSERT_TEXT:
         $countable = [];
         foreach ($haystack as $item) {
-          $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
-            $this->setNeedle($item_variation);
+          $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            if ($item_variation == $this->assertValue) {
+              $this->setNeedleIfNotSet($item_variation);
 
-            return $item_variation == $this->assertValue;
+              return TRUE;
+            }
+
+            return FALSE;
           });
-          if ($pass) {
+          if ($result) {
             $countable[] = $item;
+            $pass = $pass || $result;
           }
         }
         if (!$pass) {
@@ -446,17 +462,18 @@ final class Assert {
         break;
 
       case self::ASSERT_SETTER:
-        $this->setNeedle($haystack[0]);
+        $this->setNeedleIfNotSet($haystack[0]);
         $pass = TRUE;
         break;
 
       case self::ASSERT_EQUALS:
         $countable = [];
         foreach ($haystack as $item) {
-          $this->setNeedle($item);
-          $pass = $item == $this->assertValue;
-          if ($pass) {
+          $result = $item == $this->assertValue;
+          if ($result) {
+            $this->setNeedleIfNotSet($item);
             $countable[] = $item;
+            $pass = $pass || $result;
           }
         }
         if (!$pass) {
@@ -469,10 +486,11 @@ final class Assert {
         $countable = [];
         $pass = empty($haystack);
         foreach ($haystack as $item) {
-          $this->setNeedle($item);
-          $pass = $item != $this->assertValue;
-          if ($pass) {
+          $result = $item != $this->assertValue;
+          if ($result) {
+            $this->setNeedleIfNotSet($item);
             $countable[] = $item;
+            $pass = $pass || $result;
           }
         }
         if (!$pass) {
@@ -484,13 +502,19 @@ final class Assert {
       case self::ASSERT_MATCHES:
         $countable = [];
         foreach ($haystack as $item) {
-          $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
-            $this->setNeedle($item_variation);
+          $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            if (preg_match($this->assertValue, $item_variation)) {
+              $this->setNeedleIfNotSet($item_variation);
 
-            return preg_match($this->assertValue, $item_variation);
+              return TRUE;
+
+            }
+
+            return FALSE;
           });
-          if ($pass) {
+          if ($result) {
             $countable[] = $item;
+            $pass = $pass || $result;
           }
         }
         if (!$pass) {
@@ -502,13 +526,18 @@ final class Assert {
         $countable = [];
         $pass = empty($haystack);
         foreach ($haystack as $item) {
-          $pass = $this->applyCallbackWithVariations($item, function ($item_variation) {
-            $this->setNeedle($item_variation);
+          $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
+            if (!preg_match($this->assertValue, $item_variation)) {
+              $this->setNeedleIfNotSet($item_variation);
 
-            return !preg_match($this->assertValue, $item_variation);
+              return TRUE;
+            }
+
+            return FALSE;
           });
-          if ($pass) {
+          if ($result) {
             $countable[] = $item;
+            $pass = $pass || $result;
           }
         }
         if (!$pass) {
@@ -522,10 +551,27 @@ final class Assert {
   }
 
   /**
-   * Set the needle value.
+   * Set the needle value only if it's null.
    *
    * @param $value
-   *   The value of the needle
+   *   The value of the needle.
+   *
+   * @return $this
+   *   Self for chaining.
+   */
+  public function setNeedleIfNotSet($value): self {
+    if (is_null($this->getNeedle())) {
+      $this->setNeedle($value);
+    }
+
+    return $this;
+  }
+
+  /**
+   * Set the needle value regardless of current value.
+   *
+   * @param $value
+   *   The new needle value.
    *
    * @return $this
    *   Self for chaining.

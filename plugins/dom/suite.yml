@@ -2,6 +2,18 @@
   visit: /test_subject.php
   find:
     -
+      dom: nav a
+      attribute: href
+      is: /page2
+      set: url
+
+    -
+      eval: '"/page2" == "${url}"'
+    -
+      dom: nav a[href="${url}"]
+      text: Page 2
+
+    -
       why: Make sure no forms appear on the homepage.
       dom: form
       count: 0

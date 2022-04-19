@@ -38,5 +38,12 @@ $datetime = time();
 <div id="footer">
   <p id="copyright">Copyright &copy; 2000-<?php echo date('Y') ?> In the Loft Studios, PO Box 29294, Bellingham, WA</p>
 </div>
+
+<nav>
+  <a href="/page1">Page 1</a> |
+  <a href="/page2">Page 2</a> |
+  <a href="/page3">Page 3</a>
+</nav>
+
 </body>
 </html>
