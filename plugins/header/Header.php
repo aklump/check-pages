@@ -43,7 +43,9 @@ final class Header extends LegacyPlugin {
     $assert = $event->getAssert();
     $search_value = $assert->{self::SEARCH_TYPE};
     $assert->setSearch(self::SEARCH_TYPE, $search_value);
-    $assert->setHaystack($event->getDriver()->getResponse()->getHeader($search_value));
+    $assert->setHaystack($event->getDriver()
+      ->getResponse()
+      ->getHeader($search_value));
   }
 
   /**
@@ -65,11 +67,13 @@ final class Header extends LegacyPlugin {
       case Assert::ASSERT_NOT_EQUALS:
         return sprintf('Assert response header "%s" is not "%s".', $header, $value);
 
-      case Assert::ASSERT_COUNT:
-        return sprintf('Assert the number of "%s" response headers is %s.', $header, $value);
-
       case Assert::ASSERT_CONTAINS:
         return sprintf('Assert response header "%s" %s "%s".', $header, $type, $value);
+      default:
+        if (is_numeric($assert->count) || $assert->count) {
+          return sprintf('Count response headers with value "%s".', $header, $assert->count);
+        }
+        break;
     }
 
     return $stringified;

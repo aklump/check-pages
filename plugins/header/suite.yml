@@ -29,3 +29,6 @@
     -
       header: baz
       count: 0
+    -
+      header: content-type
+      count: 1

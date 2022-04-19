@@ -1124,8 +1124,8 @@ class Runner {
     }
 
     $this->dispatcher->dispatch(new AssertEvent($assert, $test, $driver), Event::ASSERT_CREATED);
-
     $assert->run();
+    $this->dispatcher->dispatch(new AssertEvent($assert, $test, $driver), Event::ASSERT_FINISHED);
 
     if ($assert->set) {
       $needle = $assert->getNeedle();
@@ -1152,7 +1152,6 @@ class Runner {
       $why && $this->pass("├── $why");
     }
 
-    $this->dispatcher->dispatch(new AssertEvent($assert, $test, $driver), Event::ASSERT_FINISHED);
 
     $this->totalAssertions++;
     if (!$assert->getResult()) {

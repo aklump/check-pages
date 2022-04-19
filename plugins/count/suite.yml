@@ -1,0 +1,36 @@
+-
+  why: Demonstrate the Count plugin syntax.
+  url: /test_subject.html
+  find:
+    -
+      dom: h1
+      count: 1
+    -
+      xpath: //h1
+      count: "1"
+    -
+      dom: h1
+      count: "<2"
+    -
+      dom: h1
+      count: "< 2"
+    -
+      dom: h5
+      count: 0
+    -
+      dom: li
+      count: ">=5"
+    -
+      dom: li
+      count: ">= 5"
+    -
+      dom: li.emotion
+      count: 2
+    -
+      dom: li
+      text: Fear
+      count: 1
+    -
+      dom: li
+      text: Morning
+      count: 0

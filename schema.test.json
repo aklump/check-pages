@@ -73,34 +73,6 @@
                 "class"
             ]
         },
-        "count": {
-            "oneOf": [
-                {
-                    "type": "integer",
-                    "examples": [
-                        1
-                    ]
-                },
-                {
-                    "type": "string",
-                    "pattern": "^\\d+$",
-                    "examples": [
-                        "10",
-                        "5"
-                    ]
-                },
-                {
-                    "type": "string",
-                    "pattern": "^(>|>=|<|<=)\\s*\\d+$",
-                    "examples": [
-                        ">= 10",
-                        "<= 10",
-                        "> 10",
-                        "< 5"
-                    ]
-                }
-            ]
-        },
         "not_contains": {
             "type": "string",
             "examples": [

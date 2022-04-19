@@ -317,29 +317,29 @@ final class Assert {
    * @see \AKlump\CheckPages\Assert::getReason()
    */
   public function run() {
+
+    // Do not allow this to run a second time.
     if (is_bool($this->result)) {
       return;
     }
+
+    // We have to start with passing true and let the individual asserts fail an
+    // assertion.  This is important because of the count assertion logic, for
+    // one.
+    $pass = TRUE;
 
     $haystack = $this->haystack;
 
     // The asserts run against an array, so if $haystack is a Crawler, it must
     // be converted to an array before the asserts are tested.
     if ($haystack instanceof Crawler) {
+
       if (!$haystack->getNode(0)) {
-
-        // If we are expecting a count of 0, then the fact that the node does
-        // not exist is in fact, a pass.
-        if (is_numeric($this->count) && intval($this->count) === 0) {
-          $this->result = TRUE;
-
-          return;
-        }
+        // It's possible that we're doing a count === 0, in which case this will
+        // not actually be a fail, and will be reversed during the count phase.
+        $haystack = [];
         $this->reason = sprintf('"%s" does not exist in the DOM.', $this->searchValue);
-
-        $this->result = FALSE;
-
-        return;
+        $pass = FALSE;
       }
 
       switch ($this->assertType) {
@@ -370,17 +370,12 @@ final class Assert {
       }
     }
 
-
     // In order that count works correctly, all of these cases must add to
     // $countable in whatever length is appropriate as $countable is the subject
     // of the count assertion.  For example when nodes match by text, then those
     // matches should be included in countable.
     $countable = $haystack;
 
-    // We have to start with passing true and let the individual asserts fail an
-    // assertion.  This is important because of the count assertion logic, for
-    // one.
-    $pass = NULL;
     switch ($this->assertType) {
       case self::ASSERT_CALLABLE:
         $callback = $this->assertValue;
@@ -528,24 +523,9 @@ final class Assert {
         break;
     }
 
-    if ($this->count) {
-      $pass = $pass && $this->assertCount($this->count, count($countable));
-    }
-    elseif (!$pass && is_numeric($this->count)) {
-      $pass = count($countable) === 0 && intval($this->count) === 0;
-    }
-
-    if (is_null($pass)) {
-      $this->reason = sprintf('Invalid assertion "%s".', $this->assertType);
-
-      $this->result = FALSE;
-
-      return;
-    }
-
+    $this->setHaystack($countable);
     $this->result = $pass;
   }
-
 
   /**
    * Set the needle value.
@@ -582,12 +562,12 @@ final class Assert {
   }
 
   /**
-   * Get the failure result.
+   * Get pass/fail status.
    *
-   * @return string
-   *   The result for failure.
+   * @return bool
+   *   True if passed; false if failed.
    */
-  public function getResult(): string {
+  public function getResult(): bool {
     return $this->result;
   }
 
@@ -710,62 +690,7 @@ final class Assert {
       $string = call_user_func($this->toStringOverride, $string, $this);
     }
 
-    return $string;
-  }
-
-  /**
-   * Helper function to process a count assertion.
-   *
-   * @param int|string $expected
-   *   This may be an integer or a string like ">= 1", et al.
-   * @param int $actual
-   *   The actual count.
-   *
-   * @return bool
-   *   True if the actual matches expected.
-   */
-  private function assertCount($expected, int $actual): bool {
-    if (is_numeric($expected)) {
-      $pass = $actual === intval($expected);
-      if (!$pass) {
-        $this->reason = sprintf('Actual count %d is not equal to the expected count of %d.', $actual, $expected);
-      }
-    }
-    else {
-      preg_match('/([><=]+)\s*(\d+)/', $expected, $matches);
-      list(, $comparator, $expected) = $matches;
-      switch ($comparator) {
-        case '>':
-          $pass = $actual > $expected;
-          if (!$pass) {
-            $this->reason = sprintf('Actual count %d was not > expected %d', $actual, $expected);
-          }
-          break;
-
-        case '>=':
-          $pass = $actual >= $expected;
-          if (!$pass) {
-            $this->reason = sprintf('Actual count %d was not >= expected %d', $actual, $expected);
-          }
-          break;
-
-        case '<':
-          $pass = $actual < $expected;
-          if (!$pass) {
-            $this->reason = sprintf('Actual count %d was not < expected %d', $actual, $expected);
-          }
-          break;
-
-        case '<=':
-          $pass = $actual <= $expected;
-          if (!$pass) {
-            $this->reason = sprintf('Actual count %d was not <= expected %d', $actual, $expected);
-          }
-          break;
-      }
-    }
-
-    return $pass;
+    return $string ?: sprintf('Assert: %s', json_encode($this->definition));
   }
 
   /**
