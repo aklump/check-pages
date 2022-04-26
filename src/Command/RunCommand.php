@@ -171,10 +171,7 @@ class RunCommand extends Command {
     }
     else {
       // Sometimes a test fails without an assertion failing, e.g. the HTTP response code.
-      $failed_count = max($runner->getTotalFailedTests(), $runner->getTotalFailedAssertions());
-      if ($exception) {
-        ++$failed_count;
-      }
+      $failed_count = max($runner->getTotalFailedTests(), $runner->getTotalFailedAssertions(), intval($exception));
 
       echo Color::wrap('white on red', sprintf("FAILURES!\nTests: %d, Assertions: %d, Failures: %d",
         $total_test_count,
