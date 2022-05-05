@@ -36,7 +36,7 @@ final class Retest implements EventSubscriberInterface {
         $option = $input->getOption('retest') ? '--retest' : '--continue';
         $event->getRunner()
           ->getOutput()
-          ->writeln(sprintf('<error>"%s" requires file storage to be enabled.</error>', $option));
+          ->writeln(sprintf('<error>"%s" requires file storage to be enabled.  See documentation for more info.</error>', $option, $tracking_path));
       }
 
       return;

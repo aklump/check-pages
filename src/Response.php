@@ -26,6 +26,9 @@ class Response implements ResponseInterface {
    * @param string $body
    * @param int $status_code
    * @param array $headers
+   *   An array of key values, each value may be a string or an array.  However,
+   *   be advised that a string may not contain any \n characters; rather it
+   *   should be split on \n as an array.
    */
   public function __construct(string $body, int $status_code, array $headers = []) {
     $this->body = $body;
