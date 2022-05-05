@@ -21,4 +21,15 @@ $application->setName('Check Pages by In the Loft Studios');
 $version = json_decode(file_get_contents(ROOT . '/composer.json'))->version ?? '';
 $application->setVersion($version);
 $application->add(new RunCommand());
+
+// Expose commands to plugins via events.
+foreach ($application->all() as $command) {
+  // TODO setup an event for plugins to add options to a command.
+  // @see \AKlump\CheckPages\Parts\Runner::getDispatcher()
+  $command_name = $command->getName();
+  if ('run' === $command_name) {
+    $command->addOption('debug', NULL, \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL);
+  }
+}
+
 $application->run();

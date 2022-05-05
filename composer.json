@@ -9,6 +9,7 @@
         "psr-4": {
             "AKlump\\CheckPages\\": "src\/",
             "AKlump\\CheckPages\\Plugin\\": [
+                "plugins/breakpoint/",
                 "plugins/count/",
                 "plugins/form/",
                 "plugins/json_schema/",
