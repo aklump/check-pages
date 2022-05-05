@@ -9,7 +9,7 @@
 
 <body class="page--plugin_count">
 <header>
-  <div class="pager"><a href="demo--javascript2.html" class="prev demo--javascript2">&laquo;More Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--style.html" class="next plugin_style">CSS and Styles&raquo;</a></div></header>
+  <div class="pager"><a href="demo--breakpoint.html" class="prev demo--breakpoint">&laquo;Breakpoint</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--style.html" class="next plugin_style">CSS and Styles&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -71,6 +71,11 @@
       dom: li
       text: Morning
       count: 0
+    -
+      dom: '.sidebar a'
+      attribute: href
+      matches: /^\/story/
+      count: "&gt;=2"
 
 -
   set: maxItems
@@ -97,9 +102,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="demo--javascript2.html" class="prev demo--javascript2">&laquo;More Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--style.html" class="next plugin_style">CSS and Styles&raquo;</a></div>  
+  <div class="pager"><a href="demo--breakpoint.html" class="prev demo--breakpoint">&laquo;Breakpoint</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--style.html" class="next plugin_style">CSS and Styles&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Mon, 18 Apr 2022 22:32:58 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Thu, 05 May 2022 12:12:10 -0700</p>
   </div>
 </footer>
 

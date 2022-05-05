@@ -196,6 +196,9 @@
                 }
             }
         },
+        "breakpoint_selector": {
+            "type": "null"
+        },
         "count": {
             "oneOf": [
                 {
@@ -1315,6 +1318,21 @@
                     },
                     "find": {
                         "$ref": "#/definitions/find"
+                    }
+                }
+            },
+            {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "breakpoint"
+                ],
+                "properties": {
+                    "breakpoint": {
+                        "$ref": "#/definitions/breakpoint_selector"
+                    },
+                    "why": {
+                        "$ref": "#/definitions/why"
                     }
                 }
             },

@@ -7,6 +7,10 @@ services:
         class: \AKlump\CheckPages\Service\Retest
         tags:
             - { name: event_subscriber }
+    breakpoint.plugin:
+        class: \AKlump\CheckPages\Plugin\Breakpoint
+        tags:
+            - { name: event_subscriber }
     count.plugin:
         class: \AKlump\CheckPages\Plugin\Count
         tags:

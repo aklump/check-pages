@@ -32,6 +32,18 @@
   visit: /test_subject.php
   find:
     -
+      dom: nav a
+      attribute: href
+      is: /page2
+      set: url
+
+    -
+      eval: '"/page2" == "${url}"'
+    -
+      dom: nav a[href="${url}"]
+      text: Page 2
+
+    -
       why: Make sure no forms appear on the homepage.
       dom: form
       count: 0
@@ -130,7 +142,7 @@
 <footer>
   <div class="pager"><a href="demo--xpath.html" class="prev demo--xpath">&laquo;Demo  Xpath</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--evaluate.html" class="next plugin_evaluate">Evaluate&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Mon, 18 Apr 2022 22:32:59 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Thu, 05 May 2022 12:12:10 -0700</p>
   </div>
 </footer>
 
