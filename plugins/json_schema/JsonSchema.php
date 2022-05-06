@@ -7,6 +7,8 @@ use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\SerializationTrait;
+use JsonSchema\Constraints\Factory;
+use JsonSchema\SchemaStorage;
 use JsonSchema\Validator;
 use MidwestE\ObjectPath;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -68,10 +70,17 @@ final class JsonSchema implements EventSubscriberInterface {
     $assert->setSearch(self::SEARCH_TYPE);
 
     $assert->setAssertion(Assert::ASSERT_CALLABLE, function ($assert) use ($response) {
-      $schema = $this->decodeSchemaValue($assert->schema);
+
       $expected = $assert->matches ?? TRUE;
+      list($uri, $schema) = $this->decodeSchemaValue($assert->schema);
+
+      // This is required to allow for relative path $ref.
+      // @link https://github.com/justinrainbow/json-schema#with-inline-references
+      $storage = new SchemaStorage();
+      $storage->addSchema($uri, $schema);
+      $validator = new Validator(new Factory($storage));
+
       foreach ($assert->getHaystack() as $data) {
-        $validator = new Validator();
         $validator->validate($data, $schema);
         if ($validator->isValid() !== $expected) {
           $message = ['Invalid configuration:'];
@@ -87,6 +96,16 @@ final class JsonSchema implements EventSubscriberInterface {
   }
 
 
+  private function validatePerSchema2($expected, $schema, $data) {
+    $validator = new \Opis\JsonSchema\Validator();
+    $result = $validator->validate($data, $schema);
+    if ($result->isValid() !== $expected) {
+      $message = ['Invalid configuration:'];
+      $message .= $result->error();
+      throw new \RuntimeException(implode(PHP_EOL, $message));
+    }
+  }
+
   /**
    * (Load) and decode a schema.
    *
@@ -100,11 +119,13 @@ final class JsonSchema implements EventSubscriberInterface {
     if (!isset($this->jsonSchemas[$cid])) {
       $is_json = substr(ltrim($schema_config_value), 0, 1) === '{';
       if ($is_json) {
+        $uri = SchemaStorage::INTERNAL_PROVIDED_SCHEMA_URI;
         $json = $schema_config_value;
       }
       else {
         try {
           $path_to_schema = $this->runner->resolveFile($schema_config_value);
+          $uri = 'file://' . $path_to_schema;
         }
         catch (UnresolvablePathException $exception) {
           $message = sprintf('Cannot resolve to schema file: "%s".', $schema_config_value);
@@ -122,7 +143,7 @@ final class JsonSchema implements EventSubscriberInterface {
       catch (\Exception $exception) {
         throw new \RuntimeException(sprintf('Cannot decode JSON schema from "%s".', $schema_config_value));
       }
-      $this->jsonSchemas[$cid] = $schema;
+      $this->jsonSchemas[$cid] = [$uri, $schema];
     }
 
     return $this->jsonSchemas[$cid];
