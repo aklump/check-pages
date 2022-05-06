@@ -20,12 +20,17 @@ final class Breakpoint implements EventSubscriberInterface {
       Event::TEST_CREATED => [
         function (TestEventInterface $event) {
           $config = $event->getTest()->getConfig();
+          //          $input = $event->getTest()
+          //            ->getSuite()
+          //            ->getRunner()
+          //            ->getInput();
+          $output = $event->getTest()
+            ->getSuite()
+            ->getRunner()
+            ->getOutput();
           $should_apply = array_key_exists('breakpoint', $config);
-          $should_apply = $should_apply && $event->getTest()
-              ->getSuite()
-              ->getRunner()
-              ->getInput()
-              ->getOption('debug');
+          //          $should_apply = $should_apply && ($output->isDebug() || $input->getOption('debug'));
+          $should_apply = $should_apply && $output->isDebug();
           if (!$should_apply) {
             return;
           }
