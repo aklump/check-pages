@@ -14,6 +14,7 @@ use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\SuiteFailedException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
+use AKlump\CheckPages\Files;
 use AKlump\CheckPages\GuzzleDriver;
 use AKlump\CheckPages\Output\Debugging;
 use AKlump\CheckPages\Output\SourceCodeOutput;
@@ -1229,6 +1230,10 @@ class Runner {
 
     $storage_name = NULL;
     $path_to_storage = $this->getPathToFilesDirectory() . '/storage/';
+
+    $files = new Files($this);
+    $path_to_storage = $files->prepareDirectory($path_to_storage);
+
     if (is_dir($path_to_storage)) {
       $storage_name = pathinfo($this->runner['name'], PATHINFO_FILENAME);
       $storage_name = rtrim($path_to_storage, '/') . "/$storage_name";
@@ -1295,11 +1300,6 @@ class Runner {
       return $this;
     }
     if (empty($this->writeToFileResources[$name])) {
-
-      if (!is_dir($path_to_files)) {
-        mkdir($path_to_files, 0775, TRUE);
-      }
-
       $path = [];
       $path[] = pathinfo($name, PATHINFO_FILENAME);
       $extension = pathinfo($name, PATHINFO_EXTENSION) ?? '';

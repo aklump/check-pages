@@ -34,15 +34,12 @@ if (empty($config['output'])) {
 }
 
 try {
-  $output_dir = $runner->resolve($config['output']);
+  $files = new \AKlump\CheckPages\Files($runner);
+  $output_dir = $files->prepareDirectory($config['output']);
   $mixin = new PhpStormHttpMixin($output_dir, $config);
 }
 catch (UnresolvablePathException $exception) {
   throw new StopRunnerException(sprintf('The output directory "%s" cannot be resolved; please ensure it exists and try again.', $config['output']));
-}
-
-if (!is_writable($output_dir)) {
-  throw new StopRunnerException(sprintf('The output directory "%s" is not writeable.  Please update it\'s permissions.', $output_dir));
 }
 
 respond_to(Event::SUITE_LOADED, function (SuiteEventInterface $event) use ($mixin) {
