@@ -19,7 +19,9 @@ final class Loop implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      Event::SUITE_LOADED => [self::class, 'expandLoops'],
+      // It's important that loop runs last over others because others may need
+      // to do things first, e.g., the "import" plugin.
+      Event::SUITE_LOADED => [[self::class, 'expandLoops'], -100],
     ];
   }
 

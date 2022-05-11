@@ -258,30 +258,24 @@ class Runner {
         $serviceIds = $container->findTaggedServiceIds('event_subscriber');
         foreach ($serviceIds as $serviceId => $tags) {
           $listeners = $container->get($serviceId)->getSubscribedEvents();
-          foreach ($listeners as $event_name => $callbacks) {
 
-            // Normalize to a set of callbacks.
-            if (!is_array($callbacks[0])) {
-              if (is_callable($callbacks)) {
-                $callbacks = [[$callbacks]];
-              }
-              else {
-                $callbacks = [$callbacks];
-              }
+          $listeners = array_map(function ($listener) {
+            $priority = 0;
+            if (is_numeric($listener[1])) {
+              $priority = $listener[1];
             }
+            if (is_callable($listener)) {
+              return [[$listener, $priority]];
+            }
+            elseif(is_callable($listener[0])) {
+              return [[$listener[0], $priority]];
+            }
+          }, $listeners);
+
+          foreach ($listeners as $event_name => $callbacks) {
             foreach ($callbacks as $callback_set) {
-              foreach ($callback_set as $callback) {
-                if (is_callable($callback)) {
-                  $this->dispatcher->addListener($event_name, $callback);
-                }
-                elseif (isset($callback[1]) && is_numeric($callback[1])) {
-                  list($callback, $priority) = $callback;
-                  $this->dispatcher->addListener($event_name, $callback, $priority);
-                }
-                else {
-                  throw new \RuntimeException(sprintf('Bad event subscriber in %s.', $serviceId));
-                }
-              }
+              list($callback, $priority) = $callback_set;
+              $this->dispatcher->addListener($event_name, $callback, $priority);
             }
           }
         }
