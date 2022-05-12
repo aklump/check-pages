@@ -16,7 +16,7 @@ require_once ROOT . '/vendor/autoload.php';
 
 $compiler = new PluginsCompiler(
   new PluginsManager(new Runner(ROOT, new ArrayInput([]), new Symfony\Component\Console\Output\NullOutput()), ROOT . '/plugins'),
-  ROOT . '/schema.test.json',
+  ROOT . '/schema.suite.json',
   ROOT . '/' . Runner::SCHEMA_VISIT . '.json',
   ROOT . '/services.yml',
   ROOT . '/services.DO_NOT_EDIT.yml',

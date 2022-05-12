@@ -1,10 +1,18 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Visit Schema",
+    "title": "Suite Schema",
+    "description": "Defines the schema for a single test suite.",
     "definitions": {
-        "set": {
-            "description": "The name of the variable to set.",
-            "type": "string"
+        "why": {
+            "type": "string",
+            "examples": [
+                "Assert the page title is present on the page."
+            ],
+            "pattern": ".+"
+        },
+        "extras": {
+            "type": "object",
+            "description": "An object for arbitrary data that can be stashed by plugins to be later read in the test flow."
         },
         "url": {
             "type": "string",
@@ -19,13 +27,6 @@
         "js": {
             "type": "boolean",
             "description": "Set this to true if you need javascript to run on the page."
-        },
-        "why": {
-            "type": "string",
-            "examples": [
-                "Assert the page title is present on the page."
-            ],
-            "pattern": ".+"
         },
         "find": {
             "oneOf": [
@@ -178,34 +179,11 @@
                 ],
                 "additionalProperties": false,
                 "properties": {
+                    "extras": {
+                        "$ref": "#/definitions/extras"
+                    },
                     "why": {
                         "$ref": "#/definitions/why"
-                    }
-                }
-            },
-            {
-                "required": [
-                    "set",
-                    "is"
-                ],
-                "additionalProperties": false,
-                "properties": {
-                    "why": {
-                        "$ref": "#/definitions/why"
-                    },
-                    "user": {
-                        "$ref": "#/definitions/user"
-                    },
-                    "set": {
-                        "$ref": "#/definitions/set"
-                    },
-                    "is": {
-                        "type": [
-                            "null",
-                            "array",
-                            "string",
-                            "number"
-                        ]
                     }
                 }
             },
@@ -215,6 +193,9 @@
                 ],
                 "additionalProperties": false,
                 "properties": {
+                    "extras": {
+                        "$ref": "#/definitions/extras"
+                    },
                     "why": {
                         "$ref": "#/definitions/why"
                     },
@@ -244,6 +225,9 @@
                 ],
                 "additionalProperties": false,
                 "properties": {
+                    "extras": {
+                        "$ref": "#/definitions/extras"
+                    },
                     "why": {
                         "$ref": "#/definitions/why"
                     },
@@ -273,6 +257,9 @@
                 ],
                 "additionalProperties": false,
                 "properties": {
+                    "extras": {
+                        "$ref": "#/definitions/extras"
+                    },
                     "why": {
                         "$ref": "#/definitions/why"
                     },
@@ -302,6 +289,9 @@
                 ],
                 "additionalProperties": false,
                 "properties": {
+                    "extras": {
+                        "$ref": "#/definitions/extras"
+                    },
                     "why": {
                         "$ref": "#/definitions/why"
                     },
@@ -332,6 +322,9 @@
                 ],
                 "additionalProperties": false,
                 "properties": {
+                    "extras": {
+                        "$ref": "#/definitions/extras"
+                    },
                     "why": {
                         "$ref": "#/definitions/why"
                     },
@@ -342,7 +335,7 @@
                         "$ref": "#/definitions/url"
                     },
                     "request": {
-                        "$ref": "#/definitions/request"
+                        "$ref": "#/definitions/request_request"
                     },
                     "expect": {
                         "$ref": "#/definitions/expect"
@@ -359,6 +352,9 @@
                 ],
                 "additionalProperties": false,
                 "properties": {
+                    "extras": {
+                        "$ref": "#/definitions/extras"
+                    },
                     "why": {
                         "$ref": "#/definitions/why"
                     },
@@ -369,7 +365,7 @@
                         "$ref": "#/definitions/url"
                     },
                     "request": {
-                        "$ref": "#/definitions/request"
+                        "$ref": "#/definitions/request_request"
                     },
                     "expect": {
                         "$ref": "#/definitions/expect"

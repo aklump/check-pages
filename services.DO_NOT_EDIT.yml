@@ -15,6 +15,10 @@ services:
         class: \AKlump\CheckPages\Plugin\Count
         tags:
             - { name: event_subscriber }
+    dom.plugin:
+        class: \AKlump\CheckPages\Plugin\Dom
+        tags:
+            - { name: event_subscriber }
     form.plugin:
         class: \AKlump\CheckPages\Plugin\Form
         tags:
@@ -29,5 +33,9 @@ services:
             - { name: event_subscriber }
     sleep.plugin:
         class: \AKlump\CheckPages\Plugin\Sleep
+        tags:
+            - { name: event_subscriber }
+    value.plugin:
+        class: \AKlump\CheckPages\Plugin\Value
         tags:
             - { name: event_subscriber }
