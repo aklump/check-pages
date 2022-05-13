@@ -20,6 +20,9 @@ $compiler = new PluginsCompiler(
   ROOT . '/' . Runner::SCHEMA_VISIT . '.json',
   ROOT . '/services.yml',
   ROOT . '/services.DO_NOT_EDIT.yml',
+  ROOT . '/composer.json',
   ROOT . '/example'
 );
 $compiler->compile();
+
+echo "You may need to run `composer dump` if autoloading has changed." . PHP_EOL;

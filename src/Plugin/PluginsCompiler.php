@@ -51,12 +51,14 @@ final class PluginsCompiler {
     string $generated_schema_path,
     string $master_services_path,
     string $generated_services_path,
+    string $composer_json_path,
     string $examples_path
   ) {
     $this->pluginsManager = $plugins_manager;
 
     $this->masterServicesPath = $master_services_path;
     $this->generatedServicesPath = $generated_services_path;
+    $this->composerJsonPath = $composer_json_path;
     $this->services = Yaml::parseFile($this->masterServicesPath);
 
     $this->masterSchemaPath = $master_schema_path;
@@ -83,6 +85,7 @@ final class PluginsCompiler {
     }
     $this->createTestRunnerPhpFile($plugins);
     $this->generateServicesFile();
+    $this->updateComposerJson();
 
     // This has to come last so plugins may affect the compile files.
     foreach ($plugins as &$plugin) {
@@ -193,6 +196,21 @@ final class PluginsCompiler {
     file_put_contents($this->examplesPath . "/tests/plugins/{$id}.yml", Yaml::dump($plugin_suite, 6));
 
     return TRUE;
+  }
+
+  /**
+   * Add autoloading to composer.json for plugins.
+   *
+   * @return void
+   */
+  private function updateComposerJson() {
+    $json = json_decode(file_get_contents($this->composerJsonPath), TRUE);
+    $json['autoload']['psr-4']['AKlump\CheckPages\Plugin\\'] = [];
+    $plugins = $this->pluginsManager->getAllPlugins();
+    foreach ($plugins as $plugin) {
+      $json['autoload']['psr-4']['AKlump\CheckPages\Plugin\\'][] = 'plugins/' . $plugin['id'] . '/';
+    }
+    file_put_contents($this->composerJsonPath, json_encode($json, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
   }
 
   /**
