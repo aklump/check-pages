@@ -43,7 +43,7 @@ use AKlump\CheckPages\Options\AuthenticateProviderFactory;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Bash\Color;
 
-$_get_session = function (string $username, Runner $runner) use ($config) {
+$_get_session = function (string $username, Runner $runner) use ($mixin_config) {
   $sessions = $runner->getStorage()->get('drupal.sessions');
 
   // Check for expiry and discard if passed.
@@ -52,7 +52,7 @@ $_get_session = function (string $username, Runner $runner) use ($config) {
   }
 
   if (empty($sessions[$username])) {
-    if (!array_key_exists('users', $config)) {
+    if (!array_key_exists('users', $mixin_config)) {
       throw new \InvalidArgumentException('You must provide a filepath to the users list as "users".');
     }
 
@@ -61,11 +61,11 @@ $_get_session = function (string $username, Runner $runner) use ($config) {
     }
 
     // Load our non-version username/password index.
-    if (empty($config['users'])) {
+    if (empty($mixin_config['users'])) {
       throw new \RuntimeException('Missing value for "users" in the drupal mixin.');
     }
-    $path_to_users_list = $runner->resolveFile($config['users']);
-    $login_url = $config['login_url'] ?? '/user/login';
+    $path_to_users_list = $runner->resolveFile($mixin_config['users']);
+    $login_url = $mixin_config['login_url'] ?? '/user/login';
     $absolute_login_url = $runner->url($login_url);
 
     $factory = new AuthenticateProviderFactory();

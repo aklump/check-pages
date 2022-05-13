@@ -226,12 +226,12 @@ function with_extras(string $extras_filename, array $config) {
  * @param string $extras_filename
  *   The filename without extension of the extras file.  This must be located
  *   adjacent to this file.
- * @param array $config
+ * @param array $mixin_config
  *   Optional, configuration to be passed to the extra.
  *
  * @throws \AKlump\CheckPages\Exceptions\StopRunnerException If the mixin cannot be found.
  */
-function add_mixin(string $mixin, array $config = []) {
+function add_mixin(string $mixin, array $mixin_config = []) {
   global $container;
   $runner = $container->get('runner');
   try {

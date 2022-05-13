@@ -17,12 +17,11 @@
 namespace AKlump\CheckPages\Mixins;
 
 use AKlump\CheckPages\Event;
-use AKlump\CheckPages\Event\AssertEventInterface;
-use AKlump\CheckPages\Event\DriverEvent;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
+use AKlump\CheckPages\Files;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\RequestDriverInterface;
@@ -30,26 +29,26 @@ use AKlump\CheckPages\RequestDriverInterface;
 //
 // Verify the output directory.
 //
-if (empty($config['output'])) {
+if (empty($mixin_config['output'])) {
   throw new StopRunnerException('Missing config value "output".  Please add the directory where .http files will be saved.');
 }
 
 try {
-  $files = new \AKlump\CheckPages\Files($runner);
-  $output_dir = $files->prepareDirectory($config['output']);
-  $mixin = new PhpStormHttpMixin($output_dir, $config);
+  $files = new Files($runner);
+  $output_dir = $files->prepareDirectory($mixin_config['output']);
+  $mixin = new PhpStormHttpMixin($output_dir, $mixin_config);
 }
 catch (UnresolvablePathException $exception) {
-  throw new StopRunnerException(sprintf('The output directory "%s" cannot be resolved; please ensure it exists and try again.', $config['output']));
+  throw new StopRunnerException(sprintf('The output directory "%s" cannot be resolved; please ensure it exists and try again.', $mixin_config['output']));
 }
 
 respond_to(Event::SUITE_LOADED, function (SuiteEventInterface $event) use ($mixin) {
   fclose(fopen($mixin->getFilepath($event->getSuite()), 'w'));
 });
 
-respond_to(Event::TEST_FINISHED, function (TestEventInterface $event) use ($mixin, $config) {
+respond_to(Event::TEST_FINISHED, function (TestEventInterface $event) use ($mixin, $mixin_config) {
   $did_pass = !$event->getTest()->hasFailed();
-  if ($did_pass && TRUE === ($config['exclude_passing'] ?? FALSE)) {
+  if ($did_pass && TRUE === ($mixin_config['exclude_passing'] ?? FALSE)) {
     return;
   }
 
@@ -84,8 +83,8 @@ final class PhpStormHttpMixin {
    */
   private $outputDir;
 
-  public function __construct(string $output_dir, array $config) {
-    $this->options = $config;
+  public function __construct(string $output_dir, array $mixin_config) {
+    $this->options = $mixin_config;
     $this->outputDir = $output_dir;
   }
 
