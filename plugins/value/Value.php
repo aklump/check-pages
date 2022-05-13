@@ -4,10 +4,8 @@ namespace AKlump\CheckPages\Plugin;
 
 use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Event;
-use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\Output\FeedbackInterface;
-use AKlump\CheckPages\Variables;
+use AKlump\CheckPages\Parts\SetTrait;
 use AKlump\LoftLib\Bash\Color;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -15,7 +13,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * Implements the Value plugin.
  */
-final class Value implements EventSubscriberInterface, PluginInterface {
+final class Value implements EventSubscriberInterface {
+
+  use SetTrait;
 
   /**
    * @var \AKlump\CheckPages\Parts\Runner
@@ -45,7 +45,7 @@ final class Value implements EventSubscriberInterface, PluginInterface {
           $assert = NULL;
           if (array_key_exists('set', $config)) {
             $obj = new self();
-            $obj->setValue(
+            $obj->setKeyValuePair(
               $test->getSuite()->variables(),
               $test,
               $config['set'],
@@ -89,43 +89,7 @@ final class Value implements EventSubscriberInterface, PluginInterface {
           }
         },
       ],
-
-      //
-      // Handle setting from an assertion.
-      //
-      Event::ASSERT_CREATED => [
-        function (AssertEventInterface $event) {
-          $assert = $event->getAssert();
-          $should_apply = boolval($assert->value);
-          if ($should_apply) {
-            $obj = new self();
-            if ($assert->set) {
-              $obj->setValue(
-                $event->getTest()->getSuite()->variables(),
-                $assert,
-                $assert->set,
-                $assert->value
-              );
-            }
-          }
-        },
-      ],
     ];
-  }
-
-  /**
-   * Handles the setting of a key/value pair.
-   *
-   * @param \AKlump\CheckPages\Variables $vars
-   * @param \AKlump\CheckPages\Output\FeedbackInterface $feedback
-   * @param string $key
-   * @param $value
-   *
-   * @return void
-   */
-  protected function setValue(Variables $vars, FeedbackInterface $feedback, string $key, $value) {
-    $vars->setItem($key, $value);
-    $feedback->writeln(Color::wrap('green', sprintf('├── ${%s} set to "%s"', $key, $value)), OutputInterface::VERBOSITY_VERY_VERBOSE);
   }
 
 }

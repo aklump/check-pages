@@ -35,6 +35,7 @@ use Symfony\Component\Yaml\Yaml;
 class Runner {
 
   use SerializationTrait;
+  use SetTrait;
 
   /**
    * The filename without extension or path.
@@ -1127,14 +1128,8 @@ class Runner {
     $this->dispatcher->dispatch(new AssertEvent($assert, $test, $driver), Event::ASSERT_FINISHED);
 
     if ($assert->set) {
-      $needle = $assert->getNeedle();
-      if (is_scalar($needle)) {
-        $this->pass(sprintf('├── ${%s} set as "%s".', $assert->set, $needle));
-      }
-      else {
-        $this->pass(sprintf('├── ${%s} set.', $assert->set));
-      }
-      $this->getSuite()->variables()->setItem($assert->set, $needle);
+      $this->setKeyValuePair($test->getSuite()
+        ->variables(), $assert, $assert->set, $assert->getNeedle());
     }
 
     $why = strval($assert);
