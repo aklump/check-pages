@@ -93,6 +93,9 @@ $_get_session = function (string $username, Runner $runner) use ($config) {
 add_test_option('user', [
 
   'onBeforeTest' => function ($username, TestEventInterface $event) use ($_get_session) {
+    if (empty($username)) {
+      return;
+    }
     $session = $_get_session($username, $event->getTest()->getRunner());
     $event->getTest()->getSuite()->variables()
       ->setItem('user.id', $session['account']['uid'])
@@ -104,6 +107,9 @@ add_test_option('user', [
   },
 
   'onBeforeRequest' => function ($username, DriverEventInterface $event, $context) use ($_get_session) {
+    if (empty($username)) {
+      return;
+    }
     /** @var Runner $runner */
     $runner = $context['runner'];
 

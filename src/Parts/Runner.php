@@ -41,7 +41,7 @@ class Runner {
    *
    * @var string
    */
-  const SCHEMA_VISIT = 'schema.test.DO_NOT_EDIT';
+  const SCHEMA_VISIT = 'schema.suite.DO_NOT_EDIT';
 
   const OUTPUT_NORMAL = 1;
 
@@ -261,13 +261,13 @@ class Runner {
 
           $listeners = array_map(function ($listener) {
             $priority = 0;
-            if (is_numeric($listener[1])) {
+            if (isset($listener[1]) && is_numeric($listener[1])) {
               $priority = $listener[1];
             }
             if (is_callable($listener)) {
               return [[$listener, $priority]];
             }
-            elseif(is_callable($listener[0])) {
+            elseif (is_callable($listener[0])) {
               return [[$listener[0], $priority]];
             }
           }, $listeners);
@@ -326,6 +326,8 @@ class Runner {
    * @see Runner::OUTPUT_QUIET
    * @see Runner::OUTPUT_NORMAL
    * @see Runner::OUTPUT_DEBUG
+   *
+   * @deprecated Use getOutput()->getVerbosity() instead.
    */
   public function getOutputMode(): int {
     if ($this->debugging) {
@@ -566,7 +568,8 @@ class Runner {
         $filter_message = '?' . urldecode(http_build_query($this->filters));
         $filter_message = preg_replace('/\[\d+\]/', '[]', $filter_message);
       }
-      echo Color::wrap('blue', sprintf('Testing started with "%s%s"', basename($runner_path), $filter_message)) . PHP_EOL;
+      $this->getOutput()
+        ->writeln(Color::wrap('blue', sprintf('Testing started with "%s%s"', basename($runner_path), $filter_message)));
 
       require $runner_path;
 
@@ -666,26 +669,27 @@ class Runner {
       echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->getConfig()['base_url'])) . PHP_EOL;
       $this->printed['base_url'] = TRUE;
     }
-    echo PHP_EOL . Color::wrap('white on blue', strtoupper(sprintf('   Running "%s%s" suite...', ltrim($suite->getGroup() . '/', '/'), $suite->id()))) . PHP_EOL;
-    if ($is_verbose) {
-      echo PHP_EOL;
+
+    $heading = sprintf('Running "%s%s" suite...', ltrim($suite->getGroup() . '/', '/'), $suite->id());
+    if ($this->getOutput()
+        ->getVerbosity() === OutputInterface::VERBOSITY_NORMAL) {
+      $this->getOutput()->writeln(Color::wrap('blue', '├── ' . $heading));
+    }
+    else {
+      $this->getOutput()
+        ->writeln(Color::wrap('white on blue', '   ' . strtoupper($heading)));
     }
 
     $this->messages = [];
     $failed_tests = 0;
 
     foreach ($suite->getTests() as $test) {
-      $config = $test->getConfig();
 
-      $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_CREATED);
-
-      if (isset($config['set'])) {
-        $config['is'] = $suite->variables()->interpolate($config['is']);
-        $test->setConfig($config);
-        $suite->variables()->setItem($config['set'], $config['is']);
-      }
-
+      //
+      // Interpolate the test as the variables may have changed.
+      //
       if (count($suite->variables())) {
+        $config = $test->getConfig();
         foreach (array_keys($config) as $key) {
 
           // We MUST NOT INTERPOLATE `find` at this time, that will take place
@@ -693,29 +697,31 @@ class Runner {
           // be set on every assert, and if you interpolate too soon, you may
           // replace with the incorrect values.  However the rest of the config
           // should be interpolated, such as will affect the URL.
-          if ($key !== 'find' && $key !== 'set') {
-            $config[$key] = $suite->variables()->interpolate($config[$key]);
+          if ($key !== 'find') {
+            $config[$key] = $suite->variables()
+              ->interpolate($config[$key]);
           }
         }
+        $test->setConfig($config);
       }
+      $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_CREATED);
 
-      // Without an URL, the test is doing something else, like setting a
-      // variable or authenticating.  Without a URL, there are no assertions and
-      // no reason to continue in this current iteration flow.
-      if (empty($config['url'])) {
-        $this->debugger->echoYaml($config);
-        continue;
+      // It's possible the test was already run during Event::TEST_CREATED, if
+      // that handle has set the results, then the test should be considered
+      // complete.
+      if (!$test->hasFailed() && !$test->hasPassed()) {
+        $this->runTest($test);
       }
-
-      $test->setConfig($config);
-      $result = $this->runTest($test);
 
       // Decide if we should stop the runner or not.
-      if (!$result['pass']) {
+      if ($test->hasFailed()) {
+
+        // TODO echo the reason here?
+
         $this->failedTestCount++;
         $failed_tests++;
         if ($this->getConfig()['stop_on_failed_test'] ?? FALSE) {
-          throw new TestFailedException($config);
+          throw new TestFailedException($test->getConfig());
         }
       }
     }
@@ -751,28 +757,17 @@ class Runner {
    *
    * @param array $config
    *
-   * @return array
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  protected function runTest(Test $test): array {
-    $config = $test->getConfig();
+  protected function runTest(Test $test): void {
     // Ensure find is an array so we don't have to check below in two places.
+    $config = $test->getConfig();
     if (empty($config['find']) || !is_array($config['find'])) {
       $config['find'] = empty($config['find']) ? [] : [$config['find']];
     }
-
     $test->setConfig($config);
-    $this->dispatcher->dispatch(new TestEvent($test), Event::DRIVER_CREATED);
-    $config = $test->getConfig();
 
-    $debug = $config;
-    $debug['find'] = '';
-    $this->debugger->echoYaml($debug, 0, function ($yaml) {
-      // To make the output cleaner we need to remove the printed '' since find
-      // is really an array, whose elements are yet to be printed.
-      return str_replace("find: ''", 'find:', $yaml);
-    });
-
+    $this->totalTestsRun++;
     $test_passed = function (bool $result = NULL): bool {
       static $state;
       if (!is_null($result)) {
@@ -782,94 +777,107 @@ class Runner {
       return boolval($state);
     };
 
-    $this->totalTestsRun++;
+    $is_http_test = !empty($config['url']);
+    if ($is_http_test) {
+      $this->dispatcher->dispatch(new TestEvent($test), Event::DRIVER_CREATED);
+      $config = $test->getConfig();
 
-    if ($config['js'] ?? FALSE) {
-      try {
-        if (empty($this->getConfig()['chrome'])) {
-          throw new \InvalidArgumentException(sprintf("Javascript testing is unavailable due to missing path to Chrome binary.  Add \"chrome\" in file %s.", $this->getLoadedConfigPath()));
+      $debug = $config;
+      $debug['find'] = '';
+      $this->debugger->echoYaml($debug, 0, function ($yaml) {
+        // To make the output cleaner we need to remove the printed '' since find
+        // is really an array, whose elements are yet to be printed.
+        return str_replace("find: ''", 'find:', $yaml);
+      });
+
+      if ($config['js'] ?? FALSE) {
+        try {
+          if (empty($this->getConfig()['chrome'])) {
+            throw new \InvalidArgumentException(sprintf("Javascript testing is unavailable due to missing path to Chrome binary.  Add \"chrome\" in file %s.", $this->getLoadedConfigPath()));
+          }
+          $driver = new ChromeDriver($this->getConfig()['chrome']);
         }
-        $driver = new ChromeDriver($this->getConfig()['chrome']);
+        catch (\Exception $exception) {
+          throw new TestFailedException($config, $exception);
+        }
       }
-      catch (\Exception $exception) {
-        throw new TestFailedException($config, $exception);
+      else {
+        $driver = new GuzzleDriver();
       }
+
+      $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
+
+      try {
+        $response = $driver
+          ->setUrl($this->url($test->getConfig()['url']))
+          ->request()
+          ->getResponse();
+      }
+      catch (ServerException $exception) {
+        $response = $exception->getResponse();
+      }
+
+      $http_location = NULL;
+
+      // If not specified, then any 2XX will pass.
+      $http_response_code = $response->getStatusCode();
+      if (empty($test->getConfig()['expect'])) {
+        $test_passed($http_response_code >= 200 && $http_response_code <= 299);
+      }
+      else {
+        if ($test->getConfig()['expect'] >= 300 && $test->getConfig()['expect'] <= 399) {
+          $http_location = $driver->getLocation();
+          $http_response_code = $driver->getRedirectCode();
+        }
+
+        $test_passed($http_response_code == $test->getConfig()['expect']);
+      }
+
+      if (!$test_passed()) {
+        $test->setFailed();
+      }
+      $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_FINISHED);
+
+      if ($test_passed()) {
+        $this->pass('├── HTTP ' . $http_response_code);
+      }
+      else {
+        $this->failReason(sprintf("├── Expected HTTP %s, got %d", $test->getConfig()['expect'] ?? '2xx', $http_response_code));
+      }
+
+      // Test the location if asked.
+      $expected_location = $test->getConfig()['location'] ?? '';
+      if (empty($expected_location)) {
+        $expected_location = $test->getConfig()['redirect'] ?? '';
+      }
+      if ($http_location && $expected_location) {
+        $location_test = $http_location === $this->url($expected_location);
+        $test_passed($location_test);
+        if (!$location_test) {
+          $this->failReason(sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $this->url($expected_location)));
+        }
+      }
+    }
+
+    $assertions = $test->getConfig()['find'] ?? [];
+    if (count($assertions) === 0) {
+      $test_passed(TRUE);
+      $test->writeln(Color::wrap('light gray', '├── This test has no assertions.'), OutputInterface::VERBOSITY_VERBOSE);
     }
     else {
-      $driver = new GuzzleDriver();
-    }
+      $id = 0;
+      $this->debugger->lineBreak();
+      while ($definition = array_shift($assertions)) {
+        if (is_scalar($definition)) {
+          $definition = [Assert::ASSERT_CONTAINS => $definition];
+        }
 
-    $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
+        $assert = $this->doFindAssert($test, strval($id), $definition, $driver);
 
-    try {
-      $response = $driver
-        ->setUrl($this->url($config['url']))
-        ->request()
-        ->getResponse();
-    }
-    catch (ServerException $exception) {
-      $response = $exception->getResponse();
-    }
+        $test_passed($assert->getResult());
 
-    $http_location = NULL;
-
-    // If not specified, then any 2XX will pass.
-    $http_response_code = $response->getStatusCode();
-    if (empty($config['expect'])) {
-      $test_passed($http_response_code >= 200 && $http_response_code <= 299);
-    }
-    else {
-      if ($config['expect'] >= 300 && $config['expect'] <= 399) {
-        $http_location = $driver->getLocation();
-        $http_response_code = $driver->getRedirectCode();
+        ++$id;
       }
-
-      $test_passed($http_response_code == $config['expect']);
-    }
-
-    if (!$test_passed()) {
-      $test->setFailed();
-    }
-    $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_FINISHED);
-
-    if ($test_passed()) {
-      $this->pass('├── HTTP ' . $http_response_code);
-    }
-    else {
-      $this->failReason(sprintf("├── Expected HTTP %s, got %d", $test->getConfig()['expect'] ?? '2xx', $http_response_code));
-    }
-
-    // Test the location if asked.
-    $expected_location = $test->getConfig()['location'] ?? '';
-    if (empty($expected_location)) {
-      $expected_location = $test->getConfig()['redirect'] ?? '';
-    }
-    if ($http_location && $expected_location) {
-      $location_test = $http_location === $this->url($expected_location);
-      $test_passed($location_test);
-      if (!$location_test) {
-        $this->failReason(sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $this->url($expected_location)));
-      }
-    }
-
-    if (empty($test->getConfig()['find']) && $this->debugging && $this->getOutput()
-        ->isVerbose()) {
-      $this->debug('├── This test has no assertions.');
-    }
-    $assertions = $test->getConfig()['find'];
-    $id = 0;
-
-    $this->debugger->lineBreak();
-    while ($definition = array_shift($assertions)) {
-      if (is_scalar($definition)) {
-        $definition = [Assert::ASSERT_CONTAINS => $definition];
-      }
-
-      $assert = $this->doFindAssert($test, strval($id), $definition, $driver);
-
-      $test_passed($assert->getResult());
-
-      ++$id;
     }
 
     if ($test_passed()) {
@@ -887,12 +895,8 @@ class Runner {
     else {
       $test->setFailed();
     }
-    $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::TEST_FINISHED);
 
-    return [
-      'pass' => $test_passed(),
-      'status' => $http_response_code,
-    ];
+    $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_FINISHED);
   }
 
   /**
@@ -1270,12 +1274,16 @@ class Runner {
   }
 
   public function getPathToRunnerFilesDirectory(): string {
+    $runner_files_path = '';
     $path_to_files = $this->getPathToFilesDirectory();
     if ($path_to_files) {
-      return $path_to_files . '/' . pathinfo($this->runner['name'], PATHINFO_FILENAME);
+      $runner_files_path = $path_to_files . '/' . pathinfo($this->runner['name'], PATHINFO_FILENAME);
+      if (!is_dir($runner_files_path)) {
+        mkdir($runner_files_path, 0775, TRUE);
+      }
     }
 
-    return '';
+    return $runner_files_path;
   }
 
   /**
@@ -1315,6 +1323,8 @@ class Runner {
     $resources = $this->writeToFileResources ?? [];
     foreach ($resources as $info) {
       list($handle, $name) = $info;
+
+      // TODO Put the date in the correct local timezone.
       $this->writeToFile($name, ['', '', date('r'), str_repeat('-', 80), '']);
       fclose($handle);
     }

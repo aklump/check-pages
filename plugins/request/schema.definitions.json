@@ -1,5 +1,5 @@
 {
-    "http_method": {
+    "request_method": {
         "oneOf": [
             {
                 "type": "string",
@@ -28,7 +28,7 @@
             }
         ]
     },
-    "request": {
+    "request_request": {
         "type": "object",
         "additionalProperties": false,
         "oneOf": [
@@ -45,13 +45,13 @@
         ],
         "properties": {
             "method": {
-                "$ref": "#/definitions/http_method"
+                "$ref": "#/definitions/request_method"
             },
             "methods": {
                 "type": "array",
                 "minItems": 2,
                 "items": {
-                    "$ref": "#/definitions/http_method"
+                    "$ref": "#/definitions/request_method"
                 }
             },
             "headers": {

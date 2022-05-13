@@ -4,7 +4,7 @@
 -
   why: $loop[${loop.index}] = ${loop.value}
   set: value${loop.index}
-  is: ${loop.value}
+  value: ${loop.value}
 
 -
   end loop:

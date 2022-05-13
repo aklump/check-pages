@@ -81,9 +81,13 @@
             ]
         },
         "contains": {
-            "type": "string",
+            "type": [
+                "string",
+                "number"
+            ],
             "examples": [
-                "My Front Page"
+                "My Front Page",
+                123
             ]
         },
         "text": {

@@ -12,8 +12,8 @@
       contains: Lorem ipsum dolor sit amet, consectetur adipiscing elit,
 
 -
+  value: About In the Loft Studios
   set: pageTitle
-  is: About In the Loft Studios
 
 -
   visit: /

@@ -1,12 +1,12 @@
 {
-    "form_selector": {
+    "form_form": {
         "type": "object",
         "required": [
             "dom"
         ],
         "properties": {
             "dom": {
-                "$ref": "#/definitions/dom_selector"
+                "$ref": "#/definitions/dom_dom"
             },
             "input": {
                 "type": "array",
@@ -34,7 +34,7 @@
                 }
             },
             "submit": {
-                "$ref": "#/definitions/dom_selector"
+                "$ref": "#/definitions/dom_dom"
             }
         }
     }

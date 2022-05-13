@@ -50,9 +50,6 @@
         },
         "end loop": {
             "type": "null"
-        },
-        "why": {
-            "$ref": "#/definitions/why"
         }
     }
 }

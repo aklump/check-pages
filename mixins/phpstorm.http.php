@@ -20,6 +20,7 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Event\DriverEvent;
 use AKlump\CheckPages\Event\SuiteEventInterface;
+use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Parts\Suite;
@@ -46,7 +47,7 @@ respond_to(Event::SUITE_LOADED, function (SuiteEventInterface $event) use ($mixi
   fclose(fopen($mixin->getFilepath($event->getSuite()), 'w'));
 });
 
-respond_to(Event::TEST_FINISHED, function (DriverEvent $event) use ($mixin, $config) {
+respond_to(Event::TEST_FINISHED, function (TestEventInterface $event) use ($mixin, $config) {
   $did_pass = !$event->getTest()->hasFailed();
   if ($did_pass && TRUE === ($config['exclude_passing'] ?? FALSE)) {
     return;
@@ -114,9 +115,24 @@ final class PhpStormHttpMixin {
     }
 
     if (!empty($config['request']['body'])) {
-      $export[] = PHP_EOL . $config['request']['body'];
+      $content_type = $driver->getHeaders()['content-type'] ?? 'application/x-www-form-urlencoded';
+      $export[] = PHP_EOL . $this->getStringBody($content_type, $config['request']['body']);
     }
 
     return implode(PHP_EOL, $export) . PHP_EOL . PHP_EOL;
+  }
+
+  private function getStringBody($content_type, $body) {
+    switch ($content_type) {
+      case 'application/json':
+        $body = json_encode($body);
+        break;
+
+      default:
+        $body = http_build_query($body);
+        break;
+    }
+
+    return strval($body);
   }
 }

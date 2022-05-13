@@ -14,7 +14,8 @@
                 "plugins/form/",
                 "plugins/json_schema/",
                 "plugins/loop/",
-                "plugins/sleep/"
+                "plugins/sleep/",
+                "plugins/value/"
             ]
         }
     },

@@ -3,97 +3,97 @@
     "anyOf": [
         {
             "required": [
-                "dom",
+                "xpath",
                 "set"
             ]
         },
         {
             "required": [
-                "dom",
+                "xpath",
                 "contains"
             ]
         },
         {
             "required": [
-                "dom",
+                "xpath",
                 "not contains"
             ]
         },
         {
             "required": [
-                "dom",
+                "xpath",
                 "attribute",
                 "contains"
             ]
         },
         {
             "required": [
-                "dom",
+                "xpath",
                 "attribute",
                 "not contains"
             ]
         },
         {
             "required": [
-                "dom",
+                "xpath",
                 "is"
             ]
         },
         {
             "required": [
-                "dom",
+                "xpath",
                 "is not"
             ]
         },
         {
             "required": [
-                "dom",
+                "xpath",
                 "attribute",
                 "is"
             ]
         },
         {
             "required": [
-                "dom",
+                "xpath",
                 "attribute",
                 "is not"
             ]
         },
         {
             "required": [
-                "dom",
+                "xpath",
                 "matches"
             ]
         },
         {
             "required": [
-                "dom",
+                "xpath",
                 "attribute",
                 "matches"
             ]
         },
         {
             "required": [
-                "dom",
+                "xpath",
                 "count"
             ]
         },
         {
             "required": [
-                "dom",
+                "xpath",
                 "attribute",
                 "count"
             ]
         },
         {
             "required": [
-                "dom",
+                "xpath",
                 "text"
             ]
         },
         {
             "required": [
-                "dom",
+                "xpath",
                 "attribute",
                 "text"
             ]
@@ -102,16 +102,16 @@
     "additionalProperties": false,
     "properties": {
         "set": {
-            "$ref": "#/definitions/set"
+            "$ref": "#/definitions/value_set"
         },
-        "dom": {
-            "$ref": "#/definitions/dom_selector"
+        "xpath": {
+            "$ref": "#/definitions/xpath_xpath"
         },
         "contains": {
             "$ref": "#/definitions/contains"
         },
         "not contains": {
-            "$ref": "#/definitions/not_contains"
+            "$ref": "#/definitions/contains"
         },
         "is": {
             "$ref": "#/definitions/equals"
@@ -123,7 +123,7 @@
             "$ref": "#/definitions/matches"
         },
         "count": {
-            "$ref": "#/definitions/count"
+            "$ref": "#/definitions/count_count"
         },
         "text": {
             "$ref": "#/definitions/text"

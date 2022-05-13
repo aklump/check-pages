@@ -1,5 +1,5 @@
 {
-    "header_selector": {
+    "header_header": {
         "type": "string",
         "pattern": ".+",
         "examples": [

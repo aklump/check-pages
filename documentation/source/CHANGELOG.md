@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- `Event::TEST_FINISHED` has changed from `\AKlump\CheckPages\Event\DriverEventInterface` to `\AKlump\CheckPages\Event\TestEventInterface`.
+- Changed `is/set` to `value/set`; replace `is:` with `value:`. See value plugin for details.
 - `request.method` is now required; previously it could be omitted and would be assumed GET.
 - Renamed _data_ plugin to _path_ plugin.
 - Swithed to Symfony console.

@@ -5,7 +5,6 @@ title: Plugins
 
 # Plugins: Full Customization
 
-
 ## How it Looks
 
 _How it looks is myriad and you must refer to the plugin code to determine how it's implemented when writing tests._
@@ -27,7 +26,7 @@ This is the most involved method of extending Check Pages, and offers the greate
        ├── FooBar.php
        ├── README.md
        ├── schema.definitions.json
-       ├── schema.find.json
+       ├── schema.assertion.json
        ├── schema.test.json
        ├── suite.yml
        └── test_subject.html
@@ -45,12 +44,12 @@ The plugin may provide schema with any of the following files:
 
 1. _my_plugin/schema.definitions.json_
 2. _my_plugin/schema.test.json_
-3. _my_plugin/schema.find.json_
+3. _my_plugin/schema.assertion.json_
 
-_(Inspect plugins to see how these are used. Here are some examples.)_
+_(Inspect plugins to see how these are used. Be aware that some properties are reserved and added automatically, i.e., `why`, `extra`; you should not add these in your plugin. Here are some examples.)_
 
 ```yaml
-# file: schema.find.json
+# file: schema.assertion.json
 ```
 
 ```json
@@ -61,7 +60,7 @@ _(Inspect plugins to see how these are used. Here are some examples.)_
     ],
     "properties": {
         "foo": {
-            "$ref": "#/definitions/dom_selector"
+            "$ref": "#/definitions/dom_dom"
         }
     },
     "additionalProperties": false
@@ -69,7 +68,7 @@ _(Inspect plugins to see how these are used. Here are some examples.)_
 ```
 
 ```yaml
-# file: schema.find.json
+# file: schema.assertion.json
 ```
 
 ```json

@@ -6,10 +6,7 @@
     "additionalProperties": false,
     "properties": {
         "import": {
-            "$ref": "#/definitions/import_selector"
-        },
-        "why": {
-            "$ref": "#/definitions/why"
+            "$ref": "#/definitions/import_import"
         }
     }
 }

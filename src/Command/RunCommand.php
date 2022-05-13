@@ -139,18 +139,18 @@ class RunCommand extends Command {
     $footer = PHP_EOL . PHP_EOL;
     $total_test_count = $runner->getTotalTestsRun();
 
-    if (!$exception && 0 === $total_test_count) {
-      echo Color::wrap('yellow', 'No tests were run.');
-      echo $footer;
-
-      return;
-    }
+    //    if (!$exception && 0 === $total_test_count) {
+    //      echo Color::wrap('yellow', 'No tests were run.');
+    //      echo $footer;
+    //
+    //      return;
+    //    }
 
     // Percentage
     $percentage = NULL;
     if (!$exception) {
       $passed_test_count = $runner->getTotalPassingTestsRun();
-      $percentage = intval(100 * $passed_test_count / $total_test_count);
+      $percentage = $total_test_count ? intval(100 * $passed_test_count / $total_test_count) : 100;
       echo sprintf("%d / %d (%d%%)", $passed_test_count, $total_test_count, $percentage) . PHP_EOL . PHP_EOL;
     }
 
@@ -171,7 +171,7 @@ class RunCommand extends Command {
     }
     else {
       // Sometimes a test fails without an assertion failing, e.g. the HTTP response code.
-      $failed_count = max($runner->getTotalFailedTests(), $runner->getTotalFailedAssertions(), intval($exception));
+      $failed_count = max($runner->getTotalFailedTests(), $runner->getTotalFailedAssertions(), intval(isset($exception)));
 
       echo Color::wrap('white on red', sprintf("FAILURES!\nTests: %d, Assertions: %d, Failures: %d",
         $total_test_count,

@@ -63,7 +63,7 @@ final class PluginsManager {
    * Set the master schema.
    *
    * @param array $schema
-   *   The master schema, e.g. "schema.test.json".
+   *   The master schema, e.g. "schema.suite.json".
    */
   public function setSchema(array $schema) {
     $this->schema = $schema;
@@ -206,7 +206,9 @@ final class PluginsManager {
 
     foreach ($all_plugins as $plugin) {
       $instance = $this->getPluginInstance($plugin['id']);
-      if (!$instance instanceof LegacyPluginInterface)  continue;
+      if (!$instance instanceof LegacyPluginInterface) {
+        continue;
+      }
       $applies = $instance->applies($config);
       if ($applies) {
         $this->testPlugins[$plugin['id']] = $plugin + ['instance' => $instance];
@@ -292,6 +294,21 @@ final class PluginsManager {
 
     $dispatcher->addListener(Event::TEST_CREATED, function (TestEventInterface $event) {
       $config = $event->getTest()->getConfig();
+
+      // It's possible this needs to be in another location.
+      if (isset($config['find'])) {
+        $find = $config['find'] ?? NULL;
+        unset($config['find']);
+      }
+      $config = $event->getTest()
+        ->getSuite()
+        ->variables()
+        ->interpolate($config);
+      if (isset($find)) {
+        $config['find'] = $find;
+      }
+      // END It's possible this needs to be in another location.
+
       foreach ($this->getAllPlugins() as $plugin) {
         $instance = $this->getPluginInstance($plugin['id']);
         if ($instance instanceof LegacyPluginInterface && $instance->applies($config)) {

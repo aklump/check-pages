@@ -1,83 +1,117 @@
 {
     "type": "object",
-    "additionalProperties": false,
     "anyOf": [
         {
             "required": [
                 "dom",
-                "style",
                 "set"
             ]
         },
         {
             "required": [
                 "dom",
-                "style",
                 "contains"
             ]
         },
         {
             "required": [
                 "dom",
-                "style",
                 "not contains"
             ]
         },
         {
             "required": [
                 "dom",
-                "style",
+                "attribute",
+                "contains"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "attribute",
+                "not contains"
+            ]
+        },
+        {
+            "required": [
+                "dom",
                 "is"
             ]
         },
         {
             "required": [
                 "dom",
-                "style",
                 "is not"
             ]
         },
         {
             "required": [
                 "dom",
-                "style",
+                "attribute",
+                "is"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "attribute",
+                "is not"
+            ]
+        },
+        {
+            "required": [
+                "dom",
                 "matches"
             ]
         },
         {
             "required": [
                 "dom",
-                "style",
-                "not matches"
+                "attribute",
+                "matches"
             ]
         },
         {
             "required": [
                 "dom",
-                "style",
                 "count"
             ]
         },
         {
             "required": [
                 "dom",
-                "style",
+                "attribute",
+                "count"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "text"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "attribute",
                 "text"
             ]
         }
     ],
+    "additionalProperties": false,
     "properties": {
         "set": {
-            "$ref": "#/definitions/set"
+            "$ref": "#/definitions/value_set"
         },
         "dom": {
-            "$ref": "#/definitions/dom_selector"
+            "$ref": "#/definitions/dom_dom"
         },
         "contains": {
             "$ref": "#/definitions/contains"
         },
         "not contains": {
-            "$ref": "#/definitions/not_contains"
+            "$ref": "#/definitions/contains"
         },
         "is": {
             "$ref": "#/definitions/equals"
@@ -88,17 +122,14 @@
         "matches": {
             "$ref": "#/definitions/matches"
         },
-        "not matches": {
-            "$ref": "#/definitions/matches"
-        },
         "count": {
-            "$ref": "#/definitions/count"
+            "$ref": "#/definitions/count_count"
         },
         "text": {
             "$ref": "#/definitions/text"
         },
-        "style": {
-            "$ref": "#/definitions/style_property"
+        "attribute": {
+            "$ref": "#/definitions/attribute"
         }
     }
 }

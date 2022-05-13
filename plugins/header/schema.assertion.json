@@ -1,68 +1,68 @@
 {
     "type": "object",
-    "anyOf": [
+    "oneOf": [
         {
             "required": [
-                "path",
-                "set"
-            ]
-        },
-        {
-            "required": [
-                "path",
+                "header",
                 "contains"
             ]
         },
         {
             "required": [
-                "path",
+                "header",
                 "not contains"
             ]
         },
         {
             "required": [
-                "path",
+                "header",
                 "is"
             ]
         },
         {
             "required": [
-                "path",
+                "header",
+                "set"
+            ]
+        },
+        {
+            "required": [
+                "header",
                 "is not"
             ]
         },
         {
             "required": [
-                "path",
+                "header",
                 "matches"
             ]
         },
         {
             "required": [
-                "path",
+                "header",
                 "not matches"
             ]
         },
         {
             "required": [
-                "path",
+                "header",
                 "count"
             ]
         }
     ],
     "additionalProperties": false,
     "properties": {
-        "set": {
-            "$ref": "#/definitions/set"
+        "header": {
+            "$ref": "#/definitions/header_header"
         },
-        "path": {
-            "$ref": "#/definitions/path_selector"
+        "set": {
+            "$ref": "#/definitions/value_set"
         },
         "contains": {
             "$ref": "#/definitions/contains"
         },
         "not contains": {
-            "$ref": "#/definitions/not_contains"
+            "$ref": "#/definitions/contains"
         },
         "is": {
             "$ref": "#/definitions/equals"
@@ -77,7 +77,7 @@
             "$ref": "#/definitions/matches"
         },
         "count": {
-            "$ref": "#/definitions/count"
+            "$ref": "#/definitions/count_count"
         }
     }
 }

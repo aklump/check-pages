@@ -185,7 +185,9 @@ final class ChromeDriver extends RequestDriver {
     $this->response = new Response(
       $page_contents,
       $this->evResponse->status,
-      $response_headers
+      array_map(function ($item) {
+        return explode("\n", $item);
+      }, $response_headers ?? [])
     );
 
     return $this;

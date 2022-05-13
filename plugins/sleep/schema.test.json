@@ -10,10 +10,7 @@
     "additionalProperties": false,
     "properties": {
         "sleep": {
-            "$ref": "#/definitions/sleep_selector"
-        },
-        "why": {
-            "$ref": "#/definitions/why"
+            "$ref": "#/definitions/sleep_sleep"
         }
     }
 }

@@ -29,3 +29,8 @@
     -
       why: Assert image has a tall aspect ratio.
       eval: ${height} > ${width}
+-
+  why: Demonstrate eval at the test level
+  eval: ${height} > ${width}
+-
+  eval: ${height} > ${width}

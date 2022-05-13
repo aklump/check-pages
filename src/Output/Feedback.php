@@ -20,6 +20,18 @@ class Feedback implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     return [
+      Event::TEST_CREATED => [
+        function (TestEventInterface $event) {
+          $test = $event->getTest();
+          $runner = $test->getRunner();
+          $output = $runner->getOutput();
+
+          if (!empty($test->getConfig()['why'])) {
+            $level = OutputInterface::VERBOSITY_VERBOSE;
+            $output->writeln(Color::wrap('green', '├── ' . $test->getConfig()['why']), $level);
+          }
+        },
+      ],
       Event::REQUEST_CREATED => [self::class, 'testCreated'],
       Event::TEST_FINISHED => [self::class, 'testFinished'],
     ];
@@ -63,11 +75,11 @@ class Feedback implements EventSubscriberInterface {
   /**
    * Write output after the test is finished.
    *
-   * @param \AKlump\CheckPages\Event\DriverEventInterface $event
+   * @param \AKlump\CheckPages\Event\TestEventInterface $event
    *
    * @return void
    */
-  public static function testFinished(DriverEventInterface $event) {
+  public static function testFinished(TestEventInterface $event) {
     $test = $event->getTest();
     $runner = $test->getRunner();
     $output = $runner->getOutput();
@@ -111,7 +123,7 @@ class Feedback implements EventSubscriberInterface {
       FailedTestMarkdown::output("{$suite->id()}{$test->id()}", $test);
     }
 
-//    $is_verbose = $output->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE;
+    //    $is_verbose = $output->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE;
     if ($runner->getMessages()) {
       echo PHP_EOL;
       echo $runner->getMessageOutput();

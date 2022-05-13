@@ -16,7 +16,7 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * @var string
    */
-  protected $url;
+  protected $url = '';
 
   /**
    * @var \Psr\Http\Message\ResponseInterface

@@ -64,8 +64,8 @@ add_shorthand('item.delete', function ($config, $test) {
 ## An Example with Multiple Replacement Tests
 
 ```php
-add_shorthand('fake factory', function ($config, \AKlump\CheckPages\Parts\Test $test) use ($runner) {
-  $shorthand = $config['fake factory'];
+add_shorthand('json_factory', function ($config, \AKlump\CheckPages\Parts\Test $test) use ($runner) {
+  $shorthand = $config['json_factory'];
   assert(is_array($shorthand));
   $path = $runner->resolveFile($shorthand['schema']);
   $faker = new Faker($path);

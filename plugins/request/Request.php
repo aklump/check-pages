@@ -111,8 +111,8 @@ final class Request extends LegacyPlugin {
 
           // Create a variable that can be interpolated.
           $replacements[] = [
+            'value' => $method,
             'set' => 'request.method',
-            'is' => $method,
           ];
 
           // Create the HTTP method request.

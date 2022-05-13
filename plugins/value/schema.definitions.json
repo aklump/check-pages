@@ -1,0 +1,15 @@
+{
+    "value_set": {
+        "description": "The name of the variable to set.",
+        "type": "string"
+    },
+    "value_value": {
+        "type": [
+            "string",
+            "number",
+            "null"
+        ],
+        "pattern": ".+",
+        "examples": []
+    }
+}

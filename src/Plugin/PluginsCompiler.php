@@ -166,12 +166,17 @@ final class PluginsCompiler {
     $subject = array_values(array_filter(scandir($path_to_plugin), function ($path) {
         return pathinfo($path, PATHINFO_FILENAME) === 'test_subject';
       }))[0] ?? NULL;
-    if (empty($subject)) {
+
+    $suite_relative_path_final = NULL;
+    if ($subject) {
+      $extension = pathinfo($subject, PATHINFO_EXTENSION);
+      $suite_relative_path_final = "plugins/$id.$extension";
+      copy("$path_to_plugin/$subject", $this->examplesPath . "/web/${suite_relative_path_final}");
+    }
+
+    if (!is_file($path_to_plugin . '/suite.yml')) {
       return FALSE;
     }
-    $extension = pathinfo($subject, PATHINFO_EXTENSION);
-    $suite_relative_path_final = "plugins/$id.$extension";
-    copy("$path_to_plugin/$subject", $this->examplesPath . "/web/${suite_relative_path_final}");
 
     // The test suite.
     $plugin_suite = Yaml::parseFile($path_to_plugin . '/suite.yml');
@@ -205,42 +210,36 @@ final class PluginsCompiler {
 
     $before = md5(json_encode($this->schema));
 
-    // The plugin MAY provide new #definitions.
-    $plugin_definitions_schema = $path_to_plugin . '/schema.definitions.json';
-    if (file_exists($plugin_definitions_schema)) {
-      $to_merge = $this->loadJson($plugin_definitions_schema);
-      $conflicting_keys = array_intersect_key($this->schema['definitions'], $to_merge);
+    // The plugin MAY provide new scheme definitions.
+    $definitions_schema = $path_to_plugin . '/schema.definitions.json';
+    if (file_exists($definitions_schema)) {
+      $definitions_schema = $this->loadJson($definitions_schema);
+      $conflicting_keys = array_intersect_key($this->schema['definitions'], $definitions_schema);
       if ($conflicting_keys) {
         throw new \RuntimeException(sprintf('The following definitions exist in the master schema and cannot be added by the plugin %s: %s', $id, implode(', ', $conflicting_keys)));
       }
-      $this->schema['definitions'] += $to_merge;
-    }
-    // The plugin MAY provide test-level definitions.
-    $plugin_test_schema = $path_to_plugin . '/schema.test.json';
-    if (file_exists($plugin_test_schema)) {
-      $to_merge = $this->loadJson($plugin_test_schema);
-      $this->schema["items"]["anyOf"][] = $to_merge;
+      $this->schema['definitions'] += $definitions_schema;
     }
 
-    // The plugin must provide the find schema.
-    $plugin_find_schema = $path_to_plugin . '/schema.find.json';
-    if (file_exists($plugin_find_schema)) {
+    // The plugin MAY provide test-level schema.
+    $test_schema = $path_to_plugin . '/schema.test.json';
+    if (file_exists($test_schema)) {
+      $test_schema = $this->loadJson($test_schema);
+      $test_schema = $this->handleGlobalSchemaProperties($test_schema);
+      $this->schema["items"]["anyOf"][] = $test_schema;
+    }
+
+    // The plugin must provide the assertion-level schema.
+    $assertion_schema = $path_to_plugin . '/schema.assertion.json';
+    if (file_exists($assertion_schema)) {
       $this->schema['definitions'][$id] = [
         'title' => Strings::title("$id Plugin Assertion"),
       ];
-      $schema_find = $this->loadJson($plugin_find_schema);
-
-      // This property should be present for all plugins, however a plugin can
-      // set this to false if it wants to block it.
-      if (empty($schema_find['properties']['why']) || FALSE !== $schema_find['properties']['why']) {
-        $schema_find['properties']['why'] = [
-          '$ref' => '#/definitions/why',
-        ];
-      }
-
-      $this->schema['definitions'][$id] += $schema_find;
+      $assertion_schema = $this->loadJson($assertion_schema);
+      $assertion_schema = $this->handleGlobalSchemaProperties($assertion_schema);
+      $this->schema['definitions'][$id] += $assertion_schema;
       $this->schema['definitions']['find']['oneOf'][1]['items']['oneOf'][] = [
-        '$ref' => "#/definitions/{$id}",
+        '$ref' => "#/definitions/$id",
       ];
     }
 
@@ -250,6 +249,39 @@ final class PluginsCompiler {
 
     // Update the schema in the plugins manager.
     $this->pluginsManager->setSchema($this->loadJson($this->generatedSchemaPath));
+  }
+
+  /**
+   * Add global vars to a plugin's schema.
+   *
+   * @param array $schema
+   *   The test or assertion schema defined by the plugin.
+   *
+   * @return array
+   *   The schema with globals set.
+   *
+   * @throws \RuntimeException If the plugin provides any globals.
+   */
+  private function handleGlobalSchemaProperties(array $schema) {
+    $globals = [
+      'why' => '#/definitions/why',
+      'extras' => '#/definitions/extras',
+    ];
+
+    $properties = [];
+    foreach ($globals as $property => $ref) {
+      if (isset($schema[$property])) {
+        throw new \RuntimeException(sprintf('Your plugin schema must not include "%s".', $property));
+      }
+      $properties[$property] = [
+        '$ref' => $ref,
+      ];
+    }
+
+    // Move globals to the top.
+    $schema['properties'] = $properties + $schema['properties'];
+
+    return $schema;
   }
 
   private function loadJson(string $filepath): array {

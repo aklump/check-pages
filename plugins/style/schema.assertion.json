@@ -1,0 +1,104 @@
+{
+    "type": "object",
+    "additionalProperties": false,
+    "anyOf": [
+        {
+            "required": [
+                "dom",
+                "style",
+                "set"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "style",
+                "contains"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "style",
+                "not contains"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "style",
+                "is"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "style",
+                "is not"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "style",
+                "matches"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "style",
+                "not matches"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "style",
+                "count"
+            ]
+        },
+        {
+            "required": [
+                "dom",
+                "style",
+                "text"
+            ]
+        }
+    ],
+    "properties": {
+        "set": {
+            "$ref": "#/definitions/value_set"
+        },
+        "dom": {
+            "$ref": "#/definitions/dom_dom"
+        },
+        "contains": {
+            "$ref": "#/definitions/contains"
+        },
+        "not contains": {
+            "$ref": "#/definitions/contains"
+        },
+        "is": {
+            "$ref": "#/definitions/equals"
+        },
+        "is not": {
+            "$ref": "#/definitions/equals"
+        },
+        "matches": {
+            "$ref": "#/definitions/matches"
+        },
+        "not matches": {
+            "$ref": "#/definitions/matches"
+        },
+        "count": {
+            "$ref": "#/definitions/count_count"
+        },
+        "text": {
+            "$ref": "#/definitions/text"
+        },
+        "style": {
+            "$ref": "#/definitions/style_style"
+        }
+    }
+}

@@ -6,14 +6,11 @@
     ],
     "additionalProperties": false,
     "properties": {
-        "why": {
-            "$ref": "#/definitions/why"
-        },
         "url": {
             "$ref": "#/definitions/url"
         },
         "form": {
-            "$ref": "#/definitions/form_selector"
+            "$ref": "#/definitions/form_form"
         },
         "find": {
             "$ref": "#/definitions/find"

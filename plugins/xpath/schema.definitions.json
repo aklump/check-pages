@@ -1,5 +1,5 @@
 {
-    "xpath_selector": {
+    "xpath_xpath": {
         "type": "string",
         "pattern": ".+",
         "examples": [

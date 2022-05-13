@@ -1,68 +1,68 @@
 {
     "type": "object",
-    "oneOf": [
+    "anyOf": [
         {
             "required": [
-                "header",
-                "contains"
-            ]
-        },
-        {
-            "required": [
-                "header",
-                "not contains"
-            ]
-        },
-        {
-            "required": [
-                "header",
-                "is"
-            ]
-        },
-        {
-            "required": [
-                "header",
+                "path",
                 "set"
             ]
         },
         {
             "required": [
-                "header",
+                "path",
+                "contains"
+            ]
+        },
+        {
+            "required": [
+                "path",
+                "not contains"
+            ]
+        },
+        {
+            "required": [
+                "path",
+                "is"
+            ]
+        },
+        {
+            "required": [
+                "path",
                 "is not"
             ]
         },
         {
             "required": [
-                "header",
+                "path",
                 "matches"
             ]
         },
         {
             "required": [
-                "header",
+                "path",
                 "not matches"
             ]
         },
         {
             "required": [
-                "header",
+                "path",
                 "count"
             ]
         }
     ],
     "additionalProperties": false,
     "properties": {
-        "header": {
-            "$ref": "#/definitions/header_selector"
-        },
         "set": {
-            "$ref": "#/definitions/set"
+            "$ref": "#/definitions/value_set"
+        },
+        "path": {
+            "$ref": "#/definitions/path_path"
         },
         "contains": {
             "$ref": "#/definitions/contains"
         },
         "not contains": {
-            "$ref": "#/definitions/not_contains"
+            "$ref": "#/definitions/contains"
         },
         "is": {
             "$ref": "#/definitions/equals"
@@ -77,7 +77,7 @@
             "$ref": "#/definitions/matches"
         },
         "count": {
-            "$ref": "#/definitions/count"
+            "$ref": "#/definitions/count_count"
         }
     }
 }

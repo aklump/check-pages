@@ -1,5 +1,5 @@
 {
-    "dom_selector": {
+    "dom_dom": {
         "type": "string",
         "pattern": ".+",
         "examples": [

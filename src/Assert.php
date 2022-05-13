@@ -2,12 +2,13 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Output\FeedbackInterface;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Handle the search and asserts.
  */
-final class Assert {
+final class Assert implements FeedbackInterface {
 
   /**
    * @var string
@@ -166,6 +167,29 @@ final class Assert {
   public function __construct(array $definition, string $id) {
     $this->definition = $definition;
     $this->id = $id;
+  }
+
+  /**
+   * Writes a message to the output and adds a newline at the end.
+   *
+   * @param string|iterable $messages The message as an iterable of strings or a single string
+   * @param int $options A bitmask of options (one of the OUTPUT or VERBOSITY constants), 0 is considered the same as self::OUTPUT_NORMAL | self::VERBOSITY_NORMAL
+   */
+  public function writeln($messages, int $options = 0) {
+    return $this->getRunner()->getOutput()->writeln($messages, $options);
+  }
+
+  /**
+   * Writes a message to the output.
+   *
+   * @param string|iterable $messages The message as an iterable of strings or a single string
+   * @param bool $newline Whether to add a newline
+   * @param int $options A bitmask of options (one of the OUTPUT or VERBOSITY constants), 0 is considered the same as self::OUTPUT_NORMAL | self::VERBOSITY_NORMAL
+   */
+  public function write($messages, bool $newline = FALSE, int $options = 0) {
+    return $this->getRunner()
+      ->getOutput()
+      ->write($messages, $newline, $options);
   }
 
   /**
@@ -341,32 +365,33 @@ final class Assert {
         $this->reason = sprintf('"%s" does not exist in the DOM.', $this->searchValue);
         $pass = FALSE;
       }
+      else {
+        switch ($this->assertType) {
+          case self::ASSERT_TEXT:
+            $haystack = $haystack->each(function ($node) {
+              return trim($node->text());
+            });
+            break;
 
-      switch ($this->assertType) {
-        case self::ASSERT_TEXT:
-          $haystack = $haystack->each(function ($node) {
-            return trim($node->text());
-          });
-          break;
+          case self::ASSERT_CONTAINS:
+          case self::ASSERT_NOT_CONTAINS:
+          case self::ASSERT_MATCHES:
+          case self::ASSERT_NOT_MATCHES:
+          case self::ASSERT_SETTER:
+          case self::ASSERT_EQUALS:
+          case self::ASSERT_NOT_EQUALS:
+            $haystack = $haystack->each(function ($node) {
+              if ($this->modifierType === self::MODIFIER_ATTRIBUTE) {
+                $value = $node->attr($this->modifierValue);
+              }
+              else {
+                $value = $node->html();
+              }
 
-        case self::ASSERT_CONTAINS:
-        case self::ASSERT_NOT_CONTAINS:
-        case self::ASSERT_MATCHES:
-        case self::ASSERT_NOT_MATCHES:
-        case self::ASSERT_SETTER:
-        case self::ASSERT_EQUALS:
-        case self::ASSERT_NOT_EQUALS:
-          $haystack = $haystack->each(function ($node) {
-            if ($this->modifierType === self::MODIFIER_ATTRIBUTE) {
-              $value = $node->attr($this->modifierValue);
-            }
-            else {
-              $value = $node->html();
-            }
-
-            return trim($value);
-          });
-          break;
+              return trim($value);
+            });
+            break;
+        }
       }
     }
 
@@ -378,8 +403,8 @@ final class Assert {
 
     switch ($this->assertType) {
       case self::ASSERT_CALLABLE:
-        $callback = $this->assertValue;
         try {
+          $callback = $this->assertValue;
           $pass = $callback($this);
           if (TRUE !== $pass) {
             trigger_error(sprintf('The assert type "%s" must return TRUE or throw an exception if the assertion failed.', $this->assertType));
@@ -393,6 +418,7 @@ final class Assert {
         break;
 
       case self::ASSERT_NOT_CONTAINS:
+        $pass = empty($haystack);
         $countable = [];
         foreach ($haystack as $item) {
           $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
@@ -417,10 +443,11 @@ final class Assert {
         break;
 
       case self::ASSERT_CONTAINS:
+        $pass = FALSE;
         $countable = [];
         foreach ($haystack as $item) {
           $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
-            if (strpos($item_variation, $this->assertValue) !== FALSE) {
+            if (strpos(strval($item_variation), strval($this->assertValue)) !== FALSE) {
               $this->setNeedleIfNotSet($item_variation);
 
               return TRUE;
@@ -434,11 +461,12 @@ final class Assert {
           }
         }
         if (!$pass) {
-          $this->reason = sprintf("Unable to find:\n\n>>> %s\n\n", $this->assertValue);
+          $this->reason = sprintf("Unable to find:\n\n> %s\n\n", $this->assertValue);
         }
         break;
 
       case self::ASSERT_TEXT:
+        $pass = FALSE;
         $countable = [];
         foreach ($haystack as $item) {
           $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
@@ -462,11 +490,12 @@ final class Assert {
         break;
 
       case self::ASSERT_SETTER:
-        $this->setNeedleIfNotSet($haystack[0]);
         $pass = TRUE;
+        $this->setNeedleIfNotSet($haystack[0] ?? NULL);
         break;
 
       case self::ASSERT_EQUALS:
+        $pass = FALSE;
         $countable = [];
         foreach ($haystack as $item) {
           $result = $item == $this->assertValue;
@@ -483,8 +512,8 @@ final class Assert {
         break;
 
       case self::ASSERT_NOT_EQUALS:
-        $countable = [];
         $pass = empty($haystack);
+        $countable = [];
         foreach ($haystack as $item) {
           $result = $item != $this->assertValue;
           if ($result) {
@@ -500,6 +529,7 @@ final class Assert {
         break;
 
       case self::ASSERT_MATCHES:
+        $pass = FALSE;
         $countable = [];
         foreach ($haystack as $item) {
           $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
@@ -507,7 +537,6 @@ final class Assert {
               $this->setNeedleIfNotSet($item_variation);
 
               return TRUE;
-
             }
 
             return FALSE;
@@ -523,8 +552,8 @@ final class Assert {
         break;
 
       case self::ASSERT_NOT_MATCHES:
-        $countable = [];
         $pass = empty($haystack);
+        $countable = [];
         foreach ($haystack as $item) {
           $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
             if (!preg_match($this->assertValue, $item_variation)) {
@@ -673,7 +702,7 @@ final class Assert {
         break;
 
       case static::ASSERT_CONTAINS:
-        $modifier = $modifier ? ' in ' . trim($modifier) : '';
+        $modifier = $modifier ? ' in ' . trim($modifier) : ' in value';
         $prefix = sprintf('Find "%s"%s', $this->assertValue, $modifier);
         break;
     }

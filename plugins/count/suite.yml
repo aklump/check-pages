@@ -45,10 +45,10 @@
 
 -
   set: maxItems
-  is: 5
+  value: 5
 -
   set: itemCount
-  is: 4
+  value: 4
 -
   why: Demonstrate the Count plugin with interpolation.
   url: /test_subject.html
