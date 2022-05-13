@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Plugin;
 use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Output\Feedback;
 use AKlump\CheckPages\Parts\SetTrait;
 use AKlump\LoftLib\Bash\Color;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,11 +17,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 final class Value implements EventSubscriberInterface {
 
   use SetTrait;
-
-  /**
-   * @var \AKlump\CheckPages\Parts\Runner
-   */
-  protected $runner;
 
   /**
    * {@inheritdoc}
@@ -45,12 +41,16 @@ final class Value implements EventSubscriberInterface {
           $assert = NULL;
           if (array_key_exists('set', $config)) {
             $obj = new self();
-            $obj->setKeyValuePair(
+            $message = $obj->setKeyValuePair(
               $test->getSuite()->variables(),
-              $test,
               $config['set'],
               $config['value']
             );
+            if ($test->getRunner()
+                ->getOutput()
+                ->getVerbosity() > OutputInterface::VERBOSITY_NORMAL) {
+              Feedback::updateTestStatus($message, TRUE);
+            }
             $test_result = TRUE;
           }
 
@@ -77,13 +77,15 @@ final class Value implements EventSubscriberInterface {
 
           if (is_bool($test_result)) {
             $test_result ? $test->setPassed() : $test->setFailed();
-            if ($assert) {
+            if ($assert && $test->getRunner()
+                ->getOutput()
+                ->getVerbosity() > OutputInterface::VERBOSITY_NORMAL) {
               if ($test_result) {
-                $test->writeln(Color::wrap('green', '├── ' . $assert), OutputInterface::VERBOSITY_VERY_VERBOSE);
+                Feedback::updateTestStatus($assert, TRUE);
               }
               else {
-                $test->writeln(Color::wrap('white on red', '├── ' . $assert));
-                $test->writeln(Color::wrap('red', $assert->getReason()));
+                Feedback::$testDetails->overwrite(Color::wrap('red', $assert->getReason()));
+                Feedback::updateTestStatus($assert, FALSE);
               }
             }
           }

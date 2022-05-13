@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Plugin;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Assert;
+use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\SerializationTrait;
 use JsonSchema\Constraints\Factory;
@@ -87,7 +88,7 @@ final class JsonSchema implements EventSubscriberInterface {
           foreach ($validator->getErrors() as $error) {
             $message[] = sprintf("[%s] %s", $error['property'], $error['message']);
           }
-          throw new \RuntimeException(implode(PHP_EOL, $message));
+          throw new TestFailedException($assert->getConfig(), implode(PHP_EOL, $message));
         }
       }
 

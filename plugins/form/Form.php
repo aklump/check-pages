@@ -14,11 +14,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 final class Form implements EventSubscriberInterface {
 
   /**
-   * @var \AKlump\CheckPages\Parts\Runner
-   */
-  protected $runner;
-
-  /**
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {

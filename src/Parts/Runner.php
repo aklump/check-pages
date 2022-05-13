@@ -17,6 +17,7 @@ use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files;
 use AKlump\CheckPages\GuzzleDriver;
 use AKlump\CheckPages\Output\Debugging;
+use AKlump\CheckPages\Output\Feedback;
 use AKlump\CheckPages\Output\SourceCodeOutput;
 use AKlump\CheckPages\Plugin\PluginsManager;
 use AKlump\CheckPages\RequestDriverInterface;
@@ -674,17 +675,26 @@ class Runner {
     $heading = sprintf('Running "%s%s" suite...', ltrim($suite->getGroup() . '/', '/'), $suite->id());
     if ($this->getOutput()
         ->getVerbosity() === OutputInterface::VERBOSITY_NORMAL) {
-      $this->getOutput()->writeln(Color::wrap('blue', '├── ' . $heading));
+      $this->getOutput()->writeln([Color::wrap('blue', '├── ' . $heading), '']);
     }
     else {
       $this->getOutput()
-        ->writeln(Color::wrap('white on blue', '   ' . strtoupper($heading)));
+        ->writeln([
+          Color::wrap('white on blue', '   ' . strtoupper($heading)),
+          '',
+        ]);
     }
 
     $this->messages = [];
     $failed_tests = 0;
 
     foreach ($suite->getTests() as $test) {
+
+      // This decides the render order.
+      Feedback::$testUrl = $this->getOutput()->section();
+      Feedback::$testTitle = $this->getOutput()->section();
+      Feedback::$testDetails = $this->getOutput()->section();
+      Feedback::$testResult = $this->getOutput()->section();
 
       //
       // Interpolate the test as the variables may have changed.
@@ -778,6 +788,7 @@ class Runner {
       return boolval($state);
     };
 
+    $driver = NULL;
     $is_http_test = !empty($config['url']);
     if ($is_http_test) {
       $this->dispatcher->dispatch(new TestEvent($test), Event::DRIVER_CREATED);
@@ -863,7 +874,7 @@ class Runner {
     $assertions = $test->getConfig()['find'] ?? [];
     if (count($assertions) === 0) {
       $test_passed(TRUE);
-      $test->writeln(Color::wrap('light gray', '├── This test has no assertions.'), OutputInterface::VERBOSITY_VERBOSE);
+      Feedback::$testDetails->write(Color::wrap('light gray', '├── This test has no assertions.'), OutputInterface::VERBOSITY_DEBUG);
     }
     else {
       $id = 0;
@@ -881,13 +892,6 @@ class Runner {
       }
     }
 
-    if ($test_passed()) {
-      $this->pass('└── Test passed.');
-    }
-    else {
-      $this->fail('└── Test failed.');
-    }
-
     $test->setResults($this->messages);
 
     if ($test_passed()) {
@@ -897,7 +901,7 @@ class Runner {
       $test->setFailed();
     }
 
-    $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_FINISHED);
+    $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::TEST_FINISHED);
   }
 
   /**
@@ -1128,8 +1132,13 @@ class Runner {
     $this->dispatcher->dispatch(new AssertEvent($assert, $test, $driver), Event::ASSERT_FINISHED);
 
     if ($assert->set) {
-      $this->setKeyValuePair($test->getSuite()
-        ->variables(), $assert, $assert->set, $assert->getNeedle());
+      $message = $this->setKeyValuePair($test->getSuite()
+        ->variables(), $assert->set, $assert->getNeedle());
+      if ($test->getRunner()
+          ->getOutput()
+          ->getVerbosity() > OutputInterface::VERBOSITY_VERY_VERBOSE) {
+        Feedback::$testDetails->write('├── ' . Color::wrap('green', $message));
+      }
     }
 
     $why = strval($assert);

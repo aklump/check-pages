@@ -2,13 +2,13 @@
 
 namespace AKlump\CheckPages;
 
-use AKlump\CheckPages\Output\FeedbackInterface;
+use AKlump\CheckPages\Exceptions\TestFailedException;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Handle the search and asserts.
  */
-final class Assert implements FeedbackInterface {
+final class Assert {
 
   /**
    * @var string
@@ -149,7 +149,7 @@ final class Assert implements FeedbackInterface {
    *
    * @var array
    */
-  private $definition = [];
+  private $config = [];
 
   /**
    * @var string
@@ -159,37 +159,14 @@ final class Assert implements FeedbackInterface {
   /**
    * Assert constructor.
    *
-   * @param array $definition
+   * @param array $config
    *   The raw assert key/value array.
    * @param string $id
    *   An arbitrary value to track this assert by outside consumers.
    */
-  public function __construct(array $definition, string $id) {
-    $this->definition = $definition;
+  public function __construct(array $config, string $id) {
+    $this->config = $config;
     $this->id = $id;
-  }
-
-  /**
-   * Writes a message to the output and adds a newline at the end.
-   *
-   * @param string|iterable $messages The message as an iterable of strings or a single string
-   * @param int $options A bitmask of options (one of the OUTPUT or VERBOSITY constants), 0 is considered the same as self::OUTPUT_NORMAL | self::VERBOSITY_NORMAL
-   */
-  public function writeln($messages, int $options = 0) {
-    return $this->getRunner()->getOutput()->writeln($messages, $options);
-  }
-
-  /**
-   * Writes a message to the output.
-   *
-   * @param string|iterable $messages The message as an iterable of strings or a single string
-   * @param bool $newline Whether to add a newline
-   * @param int $options A bitmask of options (one of the OUTPUT or VERBOSITY constants), 0 is considered the same as self::OUTPUT_NORMAL | self::VERBOSITY_NORMAL
-   */
-  public function write($messages, bool $newline = FALSE, int $options = 0) {
-    return $this->getRunner()
-      ->getOutput()
-      ->write($messages, $newline, $options);
   }
 
   /**
@@ -216,14 +193,22 @@ final class Assert implements FeedbackInterface {
   }
 
   /**
-   * Allow direct access to $this->definition, e.g. $this->style
+   * Allow direct access to $this->config, e.g. $this->style
    *
    * @param $key
    *
    * @return mixed|null
    */
   public function __get($key) {
-    return $this->definition[$key] ?? NULL;
+    return $this->config[$key] ?? NULL;
+  }
+
+  public function __isset($key) {
+    return array_key_exists($key, $this->config);
+  }
+
+  public function getConfig(): array {
+    return $this->config;
   }
 
   /**
@@ -407,11 +392,11 @@ final class Assert implements FeedbackInterface {
           $callback = $this->assertValue;
           $pass = $callback($this);
           if (TRUE !== $pass) {
-            trigger_error(sprintf('The assert type "%s" must return TRUE or throw an exception if the assertion failed.', $this->assertType));
+            trigger_error(sprintf('The assert type "%s" must return TRUE or throw \AKlump\CheckPages\Exceptions\TestFailedException if the assertion failed.', $this->assertType));
             $pass = FALSE;
           }
         }
-        catch (\Exception $exception) {
+        catch (TestFailedException $exception) {
           $pass = FALSE;
           $this->reason = $exception->getMessage();
         }
@@ -759,7 +744,7 @@ final class Assert implements FeedbackInterface {
       $string = call_user_func($this->toStringOverride, $string, $this);
     }
 
-    return $string ?: sprintf('Assert: %s', json_encode($this->definition));
+    return $string ?: sprintf('Assert: %s', json_encode($this->config));
   }
 
   /**
