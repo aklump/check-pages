@@ -1,9 +1,8 @@
-# CSS and Styles
+# Style Plugin: Assertions Against CSS
 
 ## Assert a DOM element is visible
 
-This example checks the CSS for both display and opacity properties to determine
-if the modal is visible based on CSS.
+This example checks the CSS for both display and opacity properties to determine if the modal is visible based on CSS.
 
 ```yaml
 find:

@@ -3,7 +3,7 @@ id: shorthand
 title: Shorthand
 -->
 
-# Shorthand: Simpler, Cleaner, and More Readible
+# Shorthand: Simpler, Cleaner, and More Readable
 
 ## How it Looks
 
@@ -42,13 +42,14 @@ Here's the runner implementation:
 ```php
 # file: runner.php
 
-add_shorthand('item.delete', function ($config, $test) {
-  assert(is_numeric($config['item.delete']));
+add_shorthand('item.delete', function ($shorthand, $test) {
+  assert(is_numeric($shorthand));
+  $config = $test->getConfig();
   $config['url'] = '/api/items';
   $config['request'] = [
     'method' => 'delete',
     'body' => json_encode([
-      'id' => $config['item.delete']
+      'id' => $shorthand
     ]),
   ];
   $config['find'] = $config['find'] ?? [];
@@ -56,7 +57,6 @@ add_shorthand('item.delete', function ($config, $test) {
     'path' => 'result',
     'is' => 'deleted',
   ];
-  unset($config['item.delete']);
   $test->setConfig($config);
 });
 ```
@@ -64,9 +64,9 @@ add_shorthand('item.delete', function ($config, $test) {
 ## An Example with Multiple Replacement Tests
 
 ```php
-add_shorthand('json_factory', function ($config, \AKlump\CheckPages\Parts\Test $test) use ($runner) {
-  $shorthand = $config['json_factory'];
+add_shorthand('json_factory', function ($shorthand, \AKlump\CheckPages\Parts\Test $test) use ($runner) {
   assert(is_array($shorthand));
+  $config = $test->getConfig();
   $path = $runner->resolveFile($shorthand['schema']);
   $faker = new Faker($path);
   $data = $faker->jsonSerialize();
@@ -84,5 +84,19 @@ add_shorthand('json_factory', function ($config, \AKlump\CheckPages\Parts\Test $
     'is' => json_encode($faker->getValidationSchema()),
   ];
   $test->getSuite()->replaceTestWithMultiple($test, $test_configs);
+});
+```
+
+## Preserve `$shorthand` for Later
+
+Follow this strategy if you need to keep the value of `$shorthand` in the test, for other event handlers or later processing of some sort. See [Stash](@stash) for more info.
+
+```php
+# file: runner.php
+
+add_shorthand('foo', function ($shorthand, $test) {
+  $config = $test->getConfig();
+  $config['extras']['foo'] = $shorthand;
+  $test->setConfig($config);
 });
 ```
