@@ -262,26 +262,31 @@ function add_mixin(string $mixin, array $mixin_config = []) {
  * Register a custom test parameter.
  *
  * This function can be used as syntatic sugar around more complete configs,
- * because it can be used to rewrite an alias, or shorthand--more readible test
+ * because it can be used to rewrite an alias, or shorthand--more readable test
  * config--into the necessary configuration needed to run the test.  A common
  * use-case is abstracting API calls.
  *
- * @param string $parameter_name
+ * @param string $test_parameter
+ *   The key that will be added to the test to indicate this shorthand should be
+ *   used called.
  * @param callable $callback
- *   Will receive ($test_config, $test) as it's arguments.  It should return void.
- *   If changing the test config, then it should call $test->setConfig() with
- *   the mutated $test_config.
+ *   Will receive ($shorthand_value, \AKlump\CheckPages\Parts\Test $test) as
+ *   arguments.  It should return void. If mutating the test config, then it
+ *   should call $test->setConfig() with the new config.  Or if it's expanding
+ *   one to many tests it should use $test->getSuite()->replaceTestWithMultiple().
  *
  * @return void
  */
-function add_shorthand(string $parameter_name, callable $callback) {
+function add_shorthand(string $test_parameter, callable $callback) {
   global $container;
-  $container->get('runner')->addTestOption($parameter_name, [
-    'onLoadSuite' => function (SuiteEventInterface $event) use ($callback, $parameter_name) {
+  $container->get('runner')->addTestOption($test_parameter, [
+    'onLoadSuite' => function (SuiteEventInterface $event) use ($callback, $test_parameter) {
       foreach ($event->getSuite()->getTests() as $test) {
         $test_config = $test->getConfig();
-        if (isset($test_config[$parameter_name])) {
-          $callback($test_config, $test);
+        if (isset($test_config[$test_parameter])) {
+          $shorthand = $test_config[$test_parameter];
+          unset($test_config[$test_parameter]);
+          $callback($shorthand, $test);
         }
       }
     },
