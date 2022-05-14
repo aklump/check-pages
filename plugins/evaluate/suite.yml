@@ -15,7 +15,7 @@
       why: Assert image has a landscape aspect ratio.
       eval: ${height} < ${width}
 -
-  why: Demonstrate how to assert an image's aspect ratio using `eval`.
+  why: Assert a different image this time.
   visit: /test_subject.html
   find:
     -

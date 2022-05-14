@@ -1,0 +1,16 @@
+{
+    "type": "object",
+    "oneOf": [
+        {
+            "required": [
+                "eval"
+            ]
+        }
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "eval": {
+            "$ref": "#/definitions/evaluate_eval"
+        }
+    }
+}
