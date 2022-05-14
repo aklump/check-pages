@@ -122,14 +122,16 @@ final class PhpStormHttpMixin {
   }
 
   private function getStringBody($content_type, $body) {
-    switch ($content_type) {
-      case 'application/json':
-        $body = json_encode($body);
-        break;
+    if (!is_string($body)) {
+      switch ($content_type) {
+        case 'application/json':
+          $body = json_encode($body);
+          break;
 
-      default:
-        $body = http_build_query($body);
-        break;
+        default:
+          $body = http_build_query($body);
+          break;
+      }
     }
 
     return strval($body);

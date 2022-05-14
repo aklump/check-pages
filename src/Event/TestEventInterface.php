@@ -2,8 +2,9 @@
 
 namespace AKlump\CheckPages\Event;
 
+use AKlump\CheckPages\Parts\Test;
+
 interface TestEventInterface {
 
-  public function getTest(): \AKlump\CheckPages\Parts\Test;
-
+  public function getTest(): Test;
 }

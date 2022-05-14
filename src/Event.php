@@ -18,9 +18,7 @@ final class Event {
 
   const TEST_CREATED = 'test.created';
 
-  const TEST_ICONS = 'test.icons';
-
-  const DRIVER_CREATED = 'driver.created';
+  const TEST_STARTED = 'test.started';
 
   const REQUEST_CREATED = 'request.created';
 

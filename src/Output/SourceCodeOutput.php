@@ -13,6 +13,12 @@ use AKlump\LoftLib\Bash\Color;
  */
 final class SourceCodeOutput {
 
+  const INDENT = '│   ';
+
+  const COLOR_REQUEST = 'green';
+
+  const COLOR_RESPONSE = 'yellow';
+
   use SerializationTrait;
 
   /**
@@ -26,7 +32,7 @@ final class SourceCodeOutput {
   public function __construct(Runner $runner) {
     $this->runner = $runner;
 
-    // TODO Implement the subscriber patter; I think it's in the symfony package.
+    // TODO Implement the subscriber pattern; I think it's in the symfony package.
     $this->runner->getDispatcher()
       ->addListener(Event::REQUEST_CREATED, [
         $this,
@@ -36,6 +42,11 @@ final class SourceCodeOutput {
       ->addListener(Event::REQUEST_FINISHED, [
         $this,
         'responseOutput',
+      ]);
+    $this->runner->getDispatcher()
+      ->addListener(Event::TEST_FINISHED, [
+        $this,
+        'handleTestResults',
       ]);
   }
 
@@ -48,25 +59,38 @@ final class SourceCodeOutput {
    */
   public function requestOutput(DriverEventInterface $event) {
     $driver = $event->getDriver();
-    $output = [];
-    $input = $this->runner->getInput();
+    $test = $event->getTest();
+    $input = $test->getRunner()->getInput();
+    $config = $test->getConfig();
+    $show_url = !empty($config['url']) && $test->getRunner()
+        ->getOutput()
+        ->isVerbose();
     $show_headers = $input->getOption('request') || $input->getOption('req-headers');
     $show_body = $input->getOption('request') || $input->getOption('req');
+
+    if ($show_url) {
+      $url = $this->indent($test->getHttpMethod() . ' ' . $test->getAbsoluteUrl());
+      Feedback::$requestUrl->overwrite(Color::wrap(Feedback::COLOR_PENDING, $url));
+    }
+
     if ($show_headers) {
       $headers = $this->flattenHeaders($driver->getHeaders());
-      if (!empty($headers)) {
-        $output[] = $headers;
+      if ($headers) {
+        $headers = $this->indent($headers);
+        Feedback::$requestHeaders->overwrite([
+          Color::wrap(SourceCodeOutput::COLOR_REQUEST, $headers),
+        ]);
       }
     }
     if ($show_body) {
       $body = trim(strval($driver));
       if ($body) {
-        $output[] = $body;
+        $body = $this->indent($body);
+        Feedback::$requestBody->overwrite([
+          Color::wrap(SourceCodeOutput::COLOR_REQUEST, $body),
+          $this->indent(''),
+        ]);
       }
-    }
-    if ($output) {
-      $output = trim(implode(PHP_EOL, $output));
-      $this->runner->info($output);
     }
   }
 
@@ -79,9 +103,10 @@ final class SourceCodeOutput {
    */
   public function responseOutput(DriverEventInterface $event) {
 
-    $color = $event->getTest()->hasFailed() ? 'red' : 'green';
+    $test = $event->getTest();
+    $color = $test->hasFailed() ? 'red' : 'green';
     $request_division = Color::wrap($color, "├── RESPONSE");
-    $input = $this->runner->getInput();
+    $input = $test->getRunner()->getInput();
     $show_headers = $input->getOption('response') || $input->getOption('headers');
     $show_body = $input->getOption('response') || $input->getOption('res');
     $output = [];
@@ -97,7 +122,7 @@ final class SourceCodeOutput {
         ) . PHP_EOL;
       $headers .= $this->flattenHeaders($response->getHeaders());
       if (!empty($headers)) {
-        $output[] = $request_division . PHP_EOL . $headers;
+        $output[] = $request_division . PHP_EOL . $this->indent($headers);
       }
     }
 
@@ -131,6 +156,51 @@ final class SourceCodeOutput {
     }
   }
 
+  /**
+   * Handle test results.
+   *
+   * When a test fails the full-request will be displayed, regardless of parameters.
+   *
+   * @param \AKlump\CheckPages\Event\DriverEventInterface $event
+   *
+   * @return void
+   */
+  public function handleTestResults(DriverEventInterface $event) {
+    $test = $event->getTest();
+    $driver = $event->getDriver();
+    $url = $test->getHttpMethod() . ' ' . $test->getAbsoluteUrl();
+    if ($test->hasFailed()) {
+      Feedback::$requestUrl->overwrite([
+        Color::wrap('red', $url),
+      ]);
+
+      $headers = $this->flattenHeaders($driver->getHeaders());
+      if ($headers) {
+        Feedback::$requestHeaders->overwrite([
+          Color::wrap('red', $headers),
+        ]);
+      }
+
+      $body = trim(strval($driver));
+      if ($body) {
+        Feedback::$requestBody->overwrite([
+          Color::wrap('red', $body),
+          '',
+        ]);
+      }
+    }
+    else {
+      if ($event->getTest()->getRunner()->getOutput()->isVeryVerbose()) {
+        Feedback::$requestUrl->overwrite([
+          Color::wrap('green', $this->indent($url)),
+        ]);
+      }
+      elseif ($event->getTest()->getRunner()->getOutput()->isVerbose()) {
+        Feedback::$requestUrl->clear();
+      }
+    }
+  }
+
   private function flattenHeaders($headers) {
     if (empty($headers)) {
       return '';
@@ -148,4 +218,9 @@ final class SourceCodeOutput {
     return implode(PHP_EOL, $output) . PHP_EOL;
   }
 
+  private function indent(string $string) {
+    return implode(PHP_EOL, array_map(function ($line) {
+      return self::INDENT . $line;
+    }, explode(PHP_EOL, $string)));
+  }
 }

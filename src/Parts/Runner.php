@@ -320,26 +320,6 @@ class Runner {
   }
 
   /**
-   * Get the output mode for echo consideration.
-   *
-   * @return int
-   *   The current output mode.
-   *
-   * @see Runner::OUTPUT_QUIET
-   * @see Runner::OUTPUT_NORMAL
-   * @see Runner::OUTPUT_DEBUG
-   *
-   * @deprecated Use getOutput()->getVerbosity() instead.
-   */
-  public function getOutputMode(): int {
-    if ($this->debugging) {
-      return self::OUTPUT_DEBUG;
-    }
-
-    return $this->outputMode;
-  }
-
-  /**
    * @return string
    *   The path to the currently loaded config.
    */
@@ -571,7 +551,7 @@ class Runner {
         $filter_message = preg_replace('/\[\d+\]/', '[]', $filter_message);
       }
       $this->getOutput()
-        ->writeln(Color::wrap('blue', sprintf('Testing started with "%s%s"', basename($runner_path), $filter_message)));
+        ->writeln(Color::wrap('blue', sprintf('Testing started with %s%s', basename($runner_path), $filter_message)));
 
       require $runner_path;
 
@@ -607,8 +587,6 @@ class Runner {
    *
    */
   public function runSuite(string $path_to_suite, array $suite_config = []) {
-    $is_verbose = $this->getOutput()
-        ->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE;
     $resolved_path = '';
     $path_to_suite = $this->resolveFile($path_to_suite, $resolved_path);
     $suite_id = pathinfo(substr($path_to_suite, strlen($resolved_path) + 1), PATHINFO_FILENAME);
@@ -639,10 +617,12 @@ class Runner {
       return;
     }
 
+    Feedback::$suiteTitle = $this->getOutput()->section();
+
     if (in_array($path_to_suite, $ignored_suite_paths)) {
       $message = Color::wrap('blue', '😴 ' . sprintf('Skipping "%s".', $suite));
       $this->getOutput()
-        ->writeln($message, OutputInterface::VERBOSITY_VERY_VERBOSE);
+        ->writeln($message, OutputInterface::VERBOSITY_DEBUG);
 
       return;
     }
@@ -672,18 +652,8 @@ class Runner {
       $this->printed['base_url'] = TRUE;
     }
 
-    $heading = sprintf('Running "%s%s" suite...', ltrim($suite->getGroup() . '/', '/'), $suite->id());
-    if ($this->getOutput()
-        ->getVerbosity() === OutputInterface::VERBOSITY_NORMAL) {
-      $this->getOutput()->writeln([Color::wrap('blue', '├── ' . $heading), '']);
-    }
-    else {
-      $this->getOutput()
-        ->writeln([
-          Color::wrap('white on blue', '   ' . strtoupper($heading)),
-          '',
-        ]);
-    }
+    $title = sprintf('Running %s%s suite...', ltrim($suite->getGroup() . '/', '/'), $suite->id());
+    Feedback::updateSuiteTitle($this->getOutput(), $title);
 
     $this->messages = [];
     $failed_tests = 0;
@@ -691,8 +661,12 @@ class Runner {
     foreach ($suite->getTests() as $test) {
 
       // This decides the render order.
-      Feedback::$testUrl = $this->getOutput()->section();
       Feedback::$testTitle = $this->getOutput()->section();
+      Feedback::$requestUrl = $this->getOutput()->section();
+      Feedback::$requestHeaders = $this->getOutput()->section();
+      Feedback::$requestBody = $this->getOutput()->section();
+      Feedback::$responseHeaders = $this->getOutput()->section();
+      Feedback::$responseBody = $this->getOutput()->section();
       Feedback::$testDetails = $this->getOutput()->section();
       Feedback::$testResult = $this->getOutput()->section();
 
@@ -737,6 +711,10 @@ class Runner {
       }
     }
 
+
+    $title = sprintf('%s suite', ltrim($suite->getGroup() . '/', '/') . $suite->id());
+    Feedback::updateSuiteTitle($this->getOutput(), $title, !boolval($failed_tests));
+
     $this->dispatcher->dispatch(new SuiteEvent($suite), Event::SUITE_FINISHED);
 
     if ($failed_tests) {
@@ -771,12 +749,15 @@ class Runner {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function runTest(Test $test): void {
+
     // Ensure find is an array so we don't have to check below in two places.
     $config = $test->getConfig();
     if (empty($config['find']) || !is_array($config['find'])) {
       $config['find'] = empty($config['find']) ? [] : [$config['find']];
     }
     $test->setConfig($config);
+
+    $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_STARTED);
 
     $this->totalTestsRun++;
     $test_passed = function (bool $result = NULL): bool {
@@ -788,10 +769,9 @@ class Runner {
       return boolval($state);
     };
 
-    $driver = NULL;
+    $driver = new GuzzleDriver();
     $is_http_test = !empty($config['url']);
     if ($is_http_test) {
-      $this->dispatcher->dispatch(new TestEvent($test), Event::DRIVER_CREATED);
       $config = $test->getConfig();
 
       $debug = $config;
@@ -812,9 +792,6 @@ class Runner {
         catch (\Exception $exception) {
           throw new TestFailedException($config, $exception);
         }
-      }
-      else {
-        $driver = new GuzzleDriver();
       }
 
       $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
@@ -874,7 +851,9 @@ class Runner {
     $assertions = $test->getConfig()['find'] ?? [];
     if (count($assertions) === 0) {
       $test_passed(TRUE);
-      Feedback::$testDetails->write(Color::wrap('light gray', '├── This test has no assertions.'), OutputInterface::VERBOSITY_DEBUG);
+      if ($this->getOutput()->isDebug()) {
+        Feedback::$testDetails->write(Color::wrap('light gray', '├── This test has no assertions.'));
+      }
     }
     else {
       $id = 0;
@@ -1134,9 +1113,7 @@ class Runner {
     if ($assert->set) {
       $message = $this->setKeyValuePair($test->getSuite()
         ->variables(), $assert->set, $assert->getNeedle());
-      if ($test->getRunner()
-          ->getOutput()
-          ->getVerbosity() > OutputInterface::VERBOSITY_VERY_VERBOSE) {
+      if ($test->getRunner()->getOutput()->isVeryVerbose()) {
         Feedback::$testDetails->write('├── ' . Color::wrap('green', $message));
       }
     }

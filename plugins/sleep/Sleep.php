@@ -28,18 +28,26 @@ final class Sleep implements EventSubscriberInterface {
           $test->setPassed();
           $sleep_seconds = intval($test->getConfig()['sleep']);
           $elapsed = 0;
-          $title = $test->getDescription();
-          if (empty($title)) {
-            $title = sprintf('Sleep for %s second(s)', $sleep_seconds);
+
+          $give_feedback = $test->getRunner()->getOutput()->isVerbose();
+          if ($give_feedback) {
+            $title = $test->getDescription();
+            if (empty($title)) {
+              $title = sprintf('Sleep for %s second(s)', $sleep_seconds);
+            }
+            // Provide a gutter before the 'zzz'.
+            $title .= ' ';
           }
-          // Provide a gutter before the 'zzz'.
-          $title .= ' ';
           while ($elapsed++ <= $sleep_seconds) {
-            Feedback::updateTestStatus($title, NULL, '😴 ');
+            if ($give_feedback) {
+              Feedback::updateTestStatus($title, NULL, '😴 ');
+              $title .= 'z';
+            }
             sleep(1);
-            $title .= 'z';
           }
-          Feedback::updateTestStatus(sprintf('%d second wait is over.', $sleep_seconds), TRUE);
+          if ($give_feedback) {
+            Feedback::updateTestStatus(sprintf('%d second wait is over.', $sleep_seconds), TRUE);
+          }
         },
       ],
     ];

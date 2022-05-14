@@ -317,7 +317,7 @@ final class PluginsManager {
       }
     });
 
-    $dispatcher->addListener(Event::DRIVER_CREATED, [
+    $dispatcher->addListener(Event::TEST_STARTED, [
       $this,
       'onBeforeDriver',
     ]);

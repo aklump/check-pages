@@ -40,10 +40,10 @@
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Options\AuthenticateProviderFactory;
-use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Bash\Color;
 
-$_get_session = function (string $username, Runner $runner) use ($mixin_config) {
+$_get_session = function (string $username, \AKlump\CheckPages\Parts\Test $test) use ($mixin_config) {
+  $runner = $test->getRunner();
   $sessions = $runner->getStorage()->get('drupal.sessions');
 
   // Check for expiry and discard if passed.
@@ -52,12 +52,9 @@ $_get_session = function (string $username, Runner $runner) use ($mixin_config) 
   }
 
   if (empty($sessions[$username])) {
+    $test->addBadge('🔐');
     if (!array_key_exists('users', $mixin_config)) {
       throw new \InvalidArgumentException('You must provide a filepath to the users list as "users".');
-    }
-
-    if ($runner->getOutput()->isVerbose()) {
-      echo "🔐";
     }
 
     // Load our non-version username/password index.
@@ -96,7 +93,9 @@ add_test_option('user', [
     if (empty($username)) {
       return;
     }
-    $session = $_get_session($username, $event->getTest()->getRunner());
+
+    // Add in user-based variables for later interpolation.
+    $session = $_get_session($username, $event->getTest());
     $event->getTest()->getSuite()->variables()
       ->setItem('user.id', $session['account']['uid'])
       ->setItem('user.uid', $session['account']['uid'])
@@ -106,22 +105,23 @@ add_test_option('user', [
       ->setItem('user.csrf', $session['csrf_token']);
   },
 
-  'onBeforeRequest' => function ($username, DriverEventInterface $event, $context) use ($_get_session) {
+  'onBeforeRequest' => function ($username, DriverEventInterface $event) use ($_get_session) {
     if (empty($username)) {
       return;
     }
-    /** @var Runner $runner */
-    $runner = $context['runner'];
 
-    if ($runner->getOutputMode() !== Runner::OUTPUT_QUIET) {
-      if ($runner->getOutput()->isVerbose()) {
-        echo Color::wrap('light gray', sprintf('👤%s ', $username));
-      }
-      else {
-        echo '👤';
-      }
+    // Add visual feedback that the request is authenticated.
+    $output = $event->getTest()->getRunner()->getOutput();
+    if ($output->isVeryVerbose()) {
+      $event->getTest()
+        ->addBadge(sprintf('👤%s ', Color::wrap('light gray', $username)));
     }
-    $session = $_get_session($username, $runner);
+    else {
+      $event->getTest()->addBadge('👤');
+    }
+
+    // Add the session cookie header to requests to make them authenticated.
+    $session = $_get_session($username, $event->getTest());
     $event->getDriver()->setHeader('Cookie', $session['cookie']);
   },
 

@@ -2,9 +2,7 @@
 
 namespace AKlump\CheckPages\Parts;
 
-use AKlump\CheckPages\Output\FeedbackInterface;
-
-class Test implements \JsonSerializable, FeedbackInterface {
+class Test implements \JsonSerializable {
 
   const PASSED = 'P';
 
@@ -14,35 +12,19 @@ class Test implements \JsonSerializable, FeedbackInterface {
 
   protected $results = [];
 
-  protected $failed = FALSE;
+  protected $badges = [];
+
+  /**
+   * If this is boolean, you can infer the test has been run.
+   *
+   * @var null|boolean
+   */
+  protected $failed = NULL;
 
   public function __construct(string $id, array $config, Suite $suite) {
     $this->suite = $suite;
     $this->id = $id;
     $this->setConfig($config);
-  }
-
-  /**
-   * Writes a message to the output and adds a newline at the end.
-   *
-   * @param string|iterable $messages The message as an iterable of strings or a single string
-   * @param int $options A bitmask of options (one of the OUTPUT or VERBOSITY constants), 0 is considered the same as self::OUTPUT_NORMAL | self::VERBOSITY_NORMAL
-   */
-  public function writeln($messages, int $options = 0) {
-    return $this->getRunner()->getOutput()->writeln($messages, $options);
-  }
-
-  /**
-   * Writes a message to the output.
-   *
-   * @param string|iterable $messages The message as an iterable of strings or a single string
-   * @param bool $newline Whether to add a newline
-   * @param int $options A bitmask of options (one of the OUTPUT or VERBOSITY constants), 0 is considered the same as self::OUTPUT_NORMAL | self::VERBOSITY_NORMAL
-   */
-  public function write($messages, bool $newline = FALSE, int $options = 0) {
-    return $this->getRunner()
-      ->getOutput()
-      ->write($messages, $newline, $options);
   }
 
   /**
@@ -66,7 +48,25 @@ class Test implements \JsonSerializable, FeedbackInterface {
       $description = ltrim("$method $url", ' ');
     }
 
-    return $description;
+    return $description . rtrim(' ' . (implode('', $this->badges)));
+  }
+
+  /**
+   * Add a badge to a test for distinguishing special cases.
+   *
+   * For example, authenticated, javascript, session-started, etc.
+   *
+   * @param string $badge
+   *   Usually an emoji, but may be combined with (colored) text as appropriate.
+   *
+   * @return $this
+   *   Self for chaining.
+   */
+  public function addBadge(string $badge) {
+    $this->badges[] = $badge;
+    $this->badges = array_unique($this->badges);
+
+    return $this;
   }
 
   /**
@@ -94,7 +94,7 @@ class Test implements \JsonSerializable, FeedbackInterface {
   }
 
   public function hasFailed(): bool {
-    return $this->failed;
+    return $this->failed === TRUE;
   }
 
   public function hasPassed(): bool {
