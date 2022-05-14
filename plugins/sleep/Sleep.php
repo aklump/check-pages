@@ -39,15 +39,15 @@ final class Sleep implements EventSubscriberInterface {
             $title .= ' ';
           }
           while ($elapsed++ <= $sleep_seconds) {
+            Feedback::updateTestStatus($test->getRunner()
+              ->getOutput(), $title, NULL, '😴 ');
             if ($give_feedback) {
-              Feedback::updateTestStatus($title, NULL, '😴 ');
               $title .= 'z';
             }
             sleep(1);
           }
-          if ($give_feedback) {
-            Feedback::updateTestStatus(sprintf('%d second wait is over.', $sleep_seconds), TRUE);
-          }
+          Feedback::updateTestStatus($test->getRunner()
+            ->getOutput(), sprintf('%d second wait is over.', $sleep_seconds), TRUE);
         },
       ],
     ];

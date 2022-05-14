@@ -8,7 +8,6 @@ use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Output\Feedback;
 use AKlump\CheckPages\Parts\SetTrait;
 use AKlump\LoftLib\Bash\Color;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -46,11 +45,8 @@ final class Value implements EventSubscriberInterface {
               $config['set'],
               $config['value']
             );
-            if ($test->getRunner()
-                ->getOutput()
-                ->getVerbosity() > OutputInterface::VERBOSITY_NORMAL) {
-              Feedback::updateTestStatus($message, TRUE);
-            }
+            Feedback::updateTestStatus($test->getRunner()
+              ->getOutput(), $message, TRUE);
             $test_result = TRUE;
           }
 
@@ -77,15 +73,15 @@ final class Value implements EventSubscriberInterface {
 
           if (is_bool($test_result)) {
             $test_result ? $test->setPassed() : $test->setFailed();
-            if ($assert && $test->getRunner()
-                ->getOutput()
-                ->getVerbosity() > OutputInterface::VERBOSITY_NORMAL) {
+            if ($assert) {
               if ($test_result) {
-                Feedback::updateTestStatus($assert, TRUE);
+                Feedback::updateTestStatus($test->getRunner()
+                  ->getOutput(), $assert, TRUE);
               }
               else {
                 Feedback::$testDetails->overwrite(Color::wrap('red', $assert->getReason()));
-                Feedback::updateTestStatus($assert, FALSE);
+                Feedback::updateTestStatus($test->getRunner()
+                  ->getOutput(), $assert, FALSE);
               }
             }
           }

@@ -88,7 +88,7 @@ class Feedback implements EventSubscriberInterface {
           if ($config['js'] ?? FALSE) {
             $test->addBadge('☕');
           }
-          self::updateTestStatus($test->getDescription());
+          self::updateTestStatus($event->getTest()->getRunner()->getOutput(), $test->getDescription());
         },
       ],
 
@@ -96,7 +96,12 @@ class Feedback implements EventSubscriberInterface {
         function (Event\DriverEventInterface $event) {
           $test = $event->getTest();
           if (self::shouldRespond($test) || $test->hasFailed()) {
-            self::updateTestStatus($test->getDescription(), $test->hasPassed());
+
+            // We override because in this case we want to display things
+            // regardless of the actual user-provided verbosity.
+            $override = clone $event->getTest()->getRunner()->getOutput();
+            $override->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+            self::updateTestStatus($override, $test->getDescription(), $test->hasPassed());
           }
           if (!self::shouldRespond($event->getTest())) {
             return;
@@ -184,7 +189,10 @@ class Feedback implements EventSubscriberInterface {
     }
   }
 
-  public static function updateTestStatus(string $title, $status = NULL, $icon = NULL) {
+  public static function updateTestStatus(OutputInterface $output, string $title, $status = NULL, $icon = NULL) {
+    if (!$output->isVerbose()) {
+      return;
+    }
     if (TRUE === $status) {
       self::$testTitle->overwrite(($icon ?? '👍  ') . Color::wrap('green', $title));
       self::$testResult->overwrite([Color::wrap('green', '└── Passed.'), '']);

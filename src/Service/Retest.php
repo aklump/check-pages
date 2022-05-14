@@ -2,9 +2,8 @@
 
 namespace AKlump\CheckPages\Service;
 
-use AKlump\CheckPages\Event\DriverEvent;
+use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\RunnerEventInterface;
-use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\LoftLib\Bash\Color;
@@ -93,7 +92,7 @@ final class Retest implements EventSubscriberInterface {
     }
   }
 
-  public static function writeTestResult(TestEventInterface $event) {
+  public static function writeTestResult(DriverEventInterface $event) {
     $tracking_path = self::getTrackingFilePath($event->getTest()->getRunner());
     if (!$tracking_path || !file_exists($tracking_path)) {
       return;
