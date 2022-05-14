@@ -47,7 +47,7 @@
    ├── FooBar.php
    ├── README.md
    ├── schema.definitions.json
-   ├── schema.find.json
+   ├── schema.assertion.json
    ├── schema.test.json
    ├── suite.yml
    └── test_subject.html
@@ -65,12 +65,12 @@ suite.yml_.</li>
 <ol>
 <li><em>my_plugin/schema.definitions.json</em></li>
 <li><em>my_plugin/schema.test.json</em></li>
-<li><em>my_plugin/schema.find.json</em></li>
+<li><em>my_plugin/schema.assertion.json</em></li>
 </ol>
 
-<p><em>(Inspect plugins to see how these are used. Here are some examples.)</em></p>
+<p><em>(Inspect plugins to see how these are used. Be aware that some properties are reserved and added automatically, i.e., <code>why</code>, <code>extra</code>; you should not add these in your plugin. Here are some examples.)</em></p>
 
-<pre><code class="yaml"># file: schema.find.json
+<pre><code class="yaml"># file: schema.assertion.json
 </code></pre>
 
 <pre><code class="json">{
@@ -80,14 +80,14 @@ suite.yml_.</li>
     ],
     "properties": {
         "foo": {
-            "$ref": "#/definitions/dom_selector"
+            "$ref": "#/definitions/dom_dom"
         }
     },
     "additionalProperties": false
 }
 </code></pre>
 
-<pre><code class="yaml"># file: schema.find.json
+<pre><code class="yaml"># file: schema.assertion.json
 </code></pre>
 
 <pre><code class="json">{
@@ -194,7 +194,7 @@ foreach ([
 <footer>
   <div class="pager"><a href="ext--mixins.html" class="prev ext--mixins">&laquo;Mixins</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--event-responders.html" class="next respond_to">Responding to Events&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Thu, 05 May 2022 12:12:19 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Fri, 13 May 2022 19:24:23 -0700</p>
   </div>
 </footer>
 

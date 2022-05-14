@@ -1,32 +1,38 @@
 -
-    visit: /plugins/json_schema.json
+    why: 'Demo how document.json can use $ref and $def.'
+    url: /plugins/json_schema.json
     find:
         -
-            schema: plugins/json_schema/is_object.json
+            schema: schemas/document.json
+-
+    url: /plugins/json_schema.json
+    find:
         -
-            schema: plugins/json_schema/is_array.json
+            schema: schemas/is_object.json
+        -
+            schema: schemas/is_array.json
             matches: false
 -
-    visit: /plugins/json_schema.json
+    url: /plugins/json_schema.json
     find:
         -
-            schema: plugins/json_schema/is_array.json
+            schema: schemas/is_array.json
             path: lorem.ipsum
 -
-    visit: /plugins/json_schema.json
+    url: /plugins/json_schema.json
     find:
         -
             schema: '{"type":"array"}'
             path: lorem.ipsum
 -
-    visit: /plugins/json_schema.json
+    url: /plugins/json_schema.json
     find:
         -
-            schema: plugins/json_schema/is_object.json
+            schema: schemas/is_object.json
             matches: true
         -
-            schema: plugins/json_schema/is_foo.json
+            schema: schemas/is_foo.json
             matches: true
         -
-            schema: plugins/json_schema/is_array.json
+            schema: schemas/is_array.json
             matches: false

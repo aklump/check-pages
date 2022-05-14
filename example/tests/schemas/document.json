@@ -1,0 +1,16 @@
+{
+    "$def": {
+        "string": {
+            "type": "string"
+        }
+    },
+    "type": "object",
+    "properties": {
+        "foo": {
+            "$ref": "#/$def/string"
+        },
+        "lorem": {
+            "$ref": "./is_object.json#"
+        }
+    }
+}

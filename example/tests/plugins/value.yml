@@ -1,0 +1,34 @@
+-
+    why: 'Demonstrate the Value Plugin syntax using "why".'
+    value: 'lorem ipsum dolar'
+    set: vars.string
+-
+    value: '${vars.string}'
+    is: 'lorem ipsum dolar'
+-
+    value: '${vars.string}'
+    'is not': 'foo bar'
+-
+    value: '${vars.string}'
+    contains: ipsum
+-
+    value: '${vars.string}'
+    'not contains': alpha
+-
+    value: '${vars.string}'
+    matches: /^lorem/
+-
+    value: '${vars.string}'
+    'not matches': '/\d{3}/'
+-
+    value: 123
+    set: vars.number
+-
+    value: '${vars.number}'
+    is: 123
+-
+    value: '${vars.number}'
+    contains: 23
+-
+    value: '${vars.number}'
+    matches: '/\d{3}/'

@@ -37,12 +37,17 @@
             dom: li
             text: Morning
             count: 0
+        -
+            dom: '.sidebar a'
+            attribute: href
+            matches: /^\/story/
+            count: '>=2'
 -
     set: maxItems
-    is: 5
+    value: 5
 -
     set: itemCount
-    is: 4
+    value: 4
 -
     why: 'Demonstrate the Count plugin with interpolation.'
     url: /plugins/count.html

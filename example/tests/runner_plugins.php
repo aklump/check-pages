@@ -16,4 +16,5 @@ run_suite('path');
 run_suite('request');
 run_suite('sleep');
 run_suite('style');
+run_suite('value');
 run_suite('xpath');

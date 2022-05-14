@@ -41,6 +41,10 @@
 <h3>Changed</h3>
 
 <ul>
+<li>The mixin config var has changed to <code>$mixin_config</code> instead of <code>$config</code>.</li>
+<li><code>add_shorthand()</code> callback arguments changed to ($shorthand, Test). Also you will no longer <code>unset()</code> the shorthand key because it's been removed from the test config.</li>
+<li><code>Event::TEST_FINISHED</code> has changed from <code>\AKlump\CheckPages\Event\DriverEventInterface</code> to <code>\AKlump\CheckPages\Event\TestEventInterface</code>.</li>
+<li>Changed <code>is/set</code> to <code>value/set</code>; replace <code>is:</code> with <code>value:</code>. See value plugin for details.</li>
 <li><code>request.method</code> is now required; previously it could be omitted and would be assumed GET.</li>
 <li>Renamed <em>data</em> plugin to <em>path</em> plugin.</li>
 <li>Swithed to Symfony console.</li>
@@ -285,7 +289,7 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
 <footer>
   <div class="pager"><a href="xdebug.html" class="prev xdebug">&laquo;Debugging While Running Tests</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cli.html" class="next cli">Command Line Runner&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Thu, 05 May 2022 12:12:05 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Fri, 13 May 2022 19:23:58 -0700</p>
   </div>
 </footer>
 

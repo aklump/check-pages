@@ -9,7 +9,7 @@
 
 <body class="page--plugin_json_schema">
 <header>
-  <div class="pager"><a href="demo--sleep.html" class="prev demo--sleep">&laquo;Sleep: Adding a Delay</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--form.html" class="next plugin_form">Testing Forms&raquo;</a></div></header>
+  <div class="pager"><a href="demo--style.html" class="prev demo--style">&laquo;Style Plugin: Assertions Against CSS</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--form.html" class="next plugin_form">Testing Forms&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -95,36 +95,43 @@
 <h2>Example Tests</h2>
 
 <pre><code class="yaml">-
-  visit: /test_subject.json
+  why: Demo how document.json can use $ref and $def.
+  url: /test_subject.json
   find:
     -
-      schema: plugins/json_schema/is_object.json
-    -
-      schema: plugins/json_schema/is_array.json
-      matches: false
+      schema: schemas/document.json
 -
-  visit: /test_subject.json
+  url: /test_subject.json
   find:
     -
-      schema: plugins/json_schema/is_array.json
+      schema: schemas/is_object.json
+    -
+      schema: schemas/is_array.json
+      matches: false
+
+-
+  url: /test_subject.json
+  find:
+    -
+      schema: schemas/is_array.json
       path: lorem.ipsum
 -
-  visit: /test_subject.json
+  url: /test_subject.json
   find:
     -
       schema: '{"type":"array"}'
       path: lorem.ipsum
 -
-  visit: /test_subject.json
+  url: /test_subject.json
   find:
     -
-      schema: plugins/json_schema/is_object.json
+      schema: schemas/is_object.json
       matches: true
     -
-      schema: plugins/json_schema/is_foo.json
+      schema: schemas/is_foo.json
       matches: true
     -
-      schema: plugins/json_schema/is_array.json
+      schema: schemas/is_array.json
       matches: false
 
 </code></pre>
@@ -138,9 +145,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="demo--sleep.html" class="prev demo--sleep">&laquo;Sleep: Adding a Delay</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--form.html" class="next plugin_form">Testing Forms&raquo;</a></div>  
+  <div class="pager"><a href="demo--style.html" class="prev demo--style">&laquo;Style Plugin: Assertions Against CSS</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--form.html" class="next plugin_form">Testing Forms&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Thu, 05 May 2022 12:12:14 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Fri, 13 May 2022 19:24:13 -0700</p>
   </div>
 </footer>
 

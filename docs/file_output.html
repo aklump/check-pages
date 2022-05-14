@@ -24,15 +24,19 @@
   <h1>File Output</h1>
   
 
+<p>File output is enabled in the runner configuration file. Two things are required to enable this feature:</p>
+
 <ol>
-<li>Create a writeable directory for file output.</li>
-<li>Add that path to <code>files</code> in your runner config.</li>
+<li>An existing, writeable directory</li>
+<li>An entry in the runner config with the location of the directory as a resolvable path.</li>
 </ol>
 
 <pre><code class="yaml">files: files/dev
 </code></pre>
 
-<p>Once this is configured and exists:</p>
+<p>Once you have this enabled, plugins may make use of this for file output during testing.</p>
+
+<h2>Core Usage</h2>
 
 <ul>
 <li>Each suite will create a subdirectory by it's filename.</li>
@@ -46,7 +50,7 @@
 
 <p>Try using <code>tail -f files/SUITE/urls.txt</code> during development.</p>
 
-<h2>Storing Sessions</h2>
+<h2>Browser Session Storage</h2>
 
 <p>Authentication can slow down your tests. To mitigate this you can create a writeable folder at <em>{config.files}/storage</em> and the session cookies will be written to disk the first time they are obtained from the test subject. After that, authentication will skip the login step and pull the session data from <em>files/storage</em>. Protect the contents of that directory because it contains credentials.</p>
 
@@ -61,7 +65,7 @@
 <footer>
   <div class="pager"><a href="authentication.html" class="prev authentication">&laquo;Authentication</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="xdebug.html" class="next xdebug">Debugging While Running Tests&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Thu, 05 May 2022 12:12:19 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Fri, 13 May 2022 19:24:24 -0700</p>
   </div>
 </footer>
 

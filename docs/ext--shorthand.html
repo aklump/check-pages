@@ -23,7 +23,7 @@
   </section>
 
 <section>
-  <h1>Shorthand: Simpler, Cleaner, and More Readible</h1>
+  <h1>Shorthand: Simpler, Cleaner, and More Readable</h1>
   
 
 <h2>How it Looks</h2>
@@ -62,13 +62,14 @@
 
 <pre><code class="php"># file: runner.php
 
-add_shorthand('item.delete', function ($config, $test) {
-  assert(is_numeric($config['item.delete']));
+add_shorthand('item.delete', function ($shorthand, $test) {
+  assert(is_numeric($shorthand));
+  $config = $test-&gt;getConfig();
   $config['url'] = '/api/items';
   $config['request'] = [
     'method' =&gt; 'delete',
     'body' =&gt; json_encode([
-      'id' =&gt; $config['item.delete']
+      'id' =&gt; $shorthand
     ]),
   ];
   $config['find'] = $config['find'] ?? [];
@@ -76,16 +77,15 @@ add_shorthand('item.delete', function ($config, $test) {
     'path' =&gt; 'result',
     'is' =&gt; 'deleted',
   ];
-  unset($config['item.delete']);
   $test-&gt;setConfig($config);
 });
 </code></pre>
 
 <h2>An Example with Multiple Replacement Tests</h2>
 
-<pre><code class="php">add_shorthand('fake factory', function ($config, \AKlump\CheckPages\Parts\Test $test) use ($runner) {
-  $shorthand = $config['fake factory'];
+<pre><code class="php">add_shorthand('json_factory', function ($shorthand, \AKlump\CheckPages\Parts\Test $test) use ($runner) {
   assert(is_array($shorthand));
+  $config = $test-&gt;getConfig();
   $path = $runner-&gt;resolveFile($shorthand['schema']);
   $faker = new Faker($path);
   $data = $faker-&gt;jsonSerialize();
@@ -106,6 +106,19 @@ add_shorthand('item.delete', function ($config, $test) {
 });
 </code></pre>
 
+<h2>Preserve <code>$shorthand</code> for Later</h2>
+
+<p>Follow this strategy if you need to keep the value of <code>$shorthand</code> in the test, for other event handlers or later processing of some sort. See <a href="stash.html">Stash</a> for more info.</p>
+
+<pre><code class="php"># file: runner.php
+
+add_shorthand('foo', function ($shorthand, $test) {
+  $config = $test-&gt;getConfig();
+  $config['extras']['foo'] = $shorthand;
+  $test-&gt;setConfig($config);
+});
+</code></pre>
+
 </section>
 
 <div class="search__results">
@@ -115,7 +128,7 @@ add_shorthand('item.delete', function ($config, $test) {
 <footer>
   <div class="pager"><a href="ext--imports.html" class="prev ext--imports">&laquo;Imports</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--add_test_option.html" class="next options">Options&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Thu, 05 May 2022 12:12:19 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Fri, 13 May 2022 19:24:24 -0700</p>
   </div>
 </footer>
 

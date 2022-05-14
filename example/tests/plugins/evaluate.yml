@@ -14,7 +14,7 @@
             why: 'Assert image has a landscape aspect ratio.'
             eval: '${height} < ${width}'
 -
-    why: 'Demonstrate how to assert an image''s aspect ratio using `eval`.'
+    why: 'Assert a different image this time.'
     visit: /plugins/evaluate.html
     find:
         -
@@ -28,3 +28,8 @@
         -
             why: 'Assert image has a tall aspect ratio.'
             eval: '${height} > ${width}'
+-
+    why: 'Demonstrate eval at the test level'
+    eval: '${height} > ${width}'
+-
+    eval: '${height} > ${width}'
