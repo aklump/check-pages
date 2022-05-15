@@ -10,6 +10,11 @@ class Test implements \JsonSerializable {
 
   const IS_COMPLETE = 'C';
 
+  /**
+   * @var string
+   */
+  protected $title = '';
+
   protected $results = [];
 
   protected $badges = [];
@@ -37,18 +42,33 @@ class Test implements \JsonSerializable {
    *   The test description.
    */
   public function getDescription(): string {
-    $config = $this->getConfig();
-    $description = trim($config['why'] ?? '');
-
-    if (!$description) {
-      $url = $this->getRelativeUrl();
-      $method = $this->getHttpMethod();
-      $has_multiple_methods = count($this->getSuite()->getHttpMethods()) > 1;
-      $method = $has_multiple_methods ? $method : '';
-      $description = ltrim("$method $url", ' ');
+    if (empty($this->title)) {
+      $config = $this->getConfig();
+      $this->title = trim($config['why'] ?? '');
+      if (!$this->title) {
+        $url = $this->getRelativeUrl();
+        $method = $this->getHttpMethod();
+        $has_multiple_methods = count($this->getSuite()->getHttpMethods()) > 1;
+        $method = $has_multiple_methods ? $method : '';
+        $this->title = ltrim("$method $url", ' ');
+      }
     }
 
-    return $description . rtrim(' ' . (implode('', $this->badges)));
+    return $this->title . rtrim(' ' . (implode('', $this->badges)));
+  }
+
+  /**
+   * @param string $title
+   *   An override to the calculated title.  Can be used by event handlers and plugins to influence ::getDescrption.
+   *
+   * @return \AKlump\CheckPages\Parts\Test
+   *
+   * @see \AKlump\CheckPages\Parts\Test::getDescription()
+   */
+  public function setTitle(string $title): Test {
+    $this->title = $title;
+
+    return $this;
   }
 
   /**

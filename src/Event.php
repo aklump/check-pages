@@ -30,6 +30,10 @@ final class Event {
 
   const TEST_FINISHED = 'test.finished';
 
+  const TEST_FAILED = 'test.failed';
+
+  const TEST_PASSED = 'test.passed';
+
   const SUITE_FINISHED = 'suite.finished';
 
   const RUNNER_FINISHED = 'runner.finished';

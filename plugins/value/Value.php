@@ -36,17 +36,15 @@ final class Value implements EventSubscriberInterface {
           }
 
           // Handle a test-level setter.
-          $test_result = NULL;
-          $assert = NULL;
+          $set_message = '';
           if (array_key_exists('set', $config)) {
             $obj = new self();
-            $message = $obj->setKeyValuePair(
+            $set_message = $obj->setKeyValuePair(
               $test->getSuite()->variables(),
               $config['set'],
               $config['value']
             );
-            Feedback::updateTestStatus($test->getRunner(), $message, TRUE);
-            $test_result = TRUE;
+            $test->setTitle($set_message)->setPassed();
           }
 
           // Handle a test-level assertion.
@@ -67,20 +65,8 @@ final class Value implements EventSubscriberInterface {
             $assert->setHaystack([$config['value']]);
             $assert->setAssertion($match[$type], $config[$type]);
             $assert->run();
-            $test_result = $assert->getResult();
-          }
-
-          if (is_bool($test_result)) {
-            $test_result ? $test->setPassed() : $test->setFailed();
-            if ($assert) {
-              if ($test_result) {
-                Feedback::updateTestStatus($test->getRunner(), $assert, TRUE);
-              }
-              else {
-                Feedback::$testDetails->overwrite(Color::wrap('red', $assert->getReason()));
-                Feedback::updateTestStatus($test->getRunner(), $assert, FALSE);
-              }
-            }
+            $test->setTitle(ltrim($set_message . '. ', '. ') . $assert);
+            $assert->getResult() ? $test->setPassed() : $test->setFailed();
           }
         },
       ],

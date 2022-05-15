@@ -698,6 +698,13 @@ class Runner {
         $this->runTest($test);
       }
 
+      if ($test->hasFailed()) {
+        $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_FAILED);
+      }
+      elseif ($test->hasPassed()) {
+        $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_PASSED);
+      }
+
       // Decide if we should stop the runner or not.
       if ($test->hasFailed()) {
 

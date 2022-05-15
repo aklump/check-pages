@@ -72,12 +72,6 @@ class Feedback implements EventSubscriberInterface {
    */
   public static $testResult;
 
-  public static function shouldRespond(Test $test): bool {
-    return $test->getRunner()
-      ->getOutput()
-      ->isVerbose();
-  }
-
   /**
    * @inheritDoc
    */
@@ -114,51 +108,66 @@ class Feedback implements EventSubscriberInterface {
         -1,
       ],
 
-      Event::TEST_FINISHED => [
-        function (Event\DriverEventInterface $event) {
+      Event::TEST_FAILED => [
+        function (TestEventInterface $event) {
           $test = $event->getTest();
-          if (self::shouldRespond($test) || $test->hasFailed()) {
+          $runner = $event->getTest()->getRunner();
+          $output = $runner->getOutput();
 
-            // We override because in this case we want to display things
-            // regardless of the actual user-provided verbosity.
-            $runner = $event->getTest()->getRunner();
-            $output = $runner->getOutput();
-            $stash = $output->getVerbosity();
-            $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
-            self::updateTestStatus($runner, $test->getDescription(), $test->hasPassed());
-            $output->setVerbosity($stash);
+          // We override the user-passed verbosity because in this case we want
+          // to display things regardless of the actual user-provided verbosity.
+          $stash = $output->getVerbosity();
+          $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+          self::updateTestStatus($runner, $test->getDescription(), $test->hasPassed());
+          $output->setVerbosity($stash);
+
+          if ($runner->getMessages()) {
+            self::$testDetails->write($runner->getMessageOutput());
           }
-          if (!self::shouldRespond($event->getTest())) {
-            return;
-          }
+
+          //
+          // TODO Move this to another place.
+          //
 
           // Create the failure output files.
-          // TODO Move this to another place.
-          if ($test->hasFailed()) {
-
-            if (!empty($url)) {
-              $failure_log = [$url];
-            }
-
-            $runner = $test->getRunner();
-            foreach ($runner->getMessages() as $item) {
-              if ('error' === $item['level']) {
-                $failure_log[] = $item['data'];
-              }
-            }
-            $failure_log[] = PHP_EOL;
-            $runner->writeToFile('failures', $failure_log);
-
-            $suite = $test->getSuite();
-            FailedTestMarkdown::output("{$suite->id()}{$test->id()}", $test);
+          $test = $event->test;
+          if (!empty($url)) {
+            $failure_log = [$url];
           }
 
+          $runner = $test->getRunner();
+          foreach ($runner->getMessages() as $item) {
+            if ('error' === $item['level']) {
+              $failure_log[] = $item['data'];
+            }
+          }
+          $failure_log[] = PHP_EOL;
+          $runner->writeToFile('failures', $failure_log);
+
+          $suite = $test->getSuite();
+          FailedTestMarkdown::output("{$suite->id()}{$test->id()}", $test);
+
+          //
+          // TODO End Move this to another place.
+          //
+
+        },
+      ],
+
+      Event::TEST_PASSED => [
+        function (TestEventInterface $event) {
+          $test = $event->getTest();
           $runner = $event->getTest()->getRunner();
-          if ($runner->getMessages()) {
-            self::$testDetails->write($runner->getMessageOutput(), OutputInterface::VERBOSITY_VERY_VERBOSE);
+          $output = $runner->getOutput();
+          if ($output->isVerbose()) {
+            self::updateTestStatus($runner, $test->getDescription(), TRUE);
+          }
+          if ($output->isVeryVerbose() && $runner->getMessages()) {
+            self::$testDetails->write($runner->getMessageOutput());
           }
         },
       ],
+
     ];
   }
 
@@ -180,13 +189,19 @@ class Feedback implements EventSubscriberInterface {
     // In compact mode, no test details should display.
     if ($compact_mode) {
       if (TRUE === $status) {
-        Feedback::$suiteTitle->overwrite(['👍 ' . Color::wrap('green', $title)]);
+        Feedback::$suiteTitle->overwrite([
+          '👍  ' . Color::wrap('green', $title),
+        ]);
       }
       elseif (FALSE === $status) {
-        Feedback::$suiteTitle->overwrite(['🚫 ' . Color::wrap('white on red', $title)]);
+        Feedback::$suiteTitle->overwrite([
+          '🚫  ' . Color::wrap('white on red', $title),
+        ]);
       }
       else {
-        Feedback::$suiteTitle->overwrite(['🔎 ' . Color::wrap(Feedback::COLOR_PENDING, $title)]);
+        Feedback::$suiteTitle->overwrite([
+          '🔎  ' . Color::wrap(Feedback::COLOR_PENDING, $title),
+        ]);
       }
     }
 
@@ -195,7 +210,7 @@ class Feedback implements EventSubscriberInterface {
       $title = '    ' . strtoupper($title) . ' ';
       if (TRUE === $status) {
         Feedback::$suiteTitle->overwrite([
-          Color::wrap('white on green', $title),
+          Color::wrap('wnhite on green', $title),
           '',
         ]);
       }
