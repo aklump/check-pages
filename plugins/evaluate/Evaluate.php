@@ -49,10 +49,10 @@ final class Evaluate implements EventSubscriberInterface {
 
           //          Feedback::$testDetails->write('', OutputInterface::VERBOSITY_VERBOSE);
           if ($test_result) {
-            Feedback::updateTestStatus($test->getRunner()->getOutput(), $assert, TRUE);
+            Feedback::updateTestStatus($test->getRunner(), $assert, TRUE);
           }
           else {
-            Feedback::updateTestStatus($test->getRunner()->getOutput(), $assert, FALSE);
+            Feedback::updateTestStatus($test->getRunner(), $assert, FALSE);
             Feedback::$testDetails->write(Color::wrap('red', '├── ' . $assert->getReason()));
           }
         },

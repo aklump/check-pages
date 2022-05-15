@@ -11,16 +11,15 @@ trait SerializationTrait {
   /**
    * Get content type from a response instance.
    *
-   * @param \AKlump\CheckPages\Response $response
-   *   A response instance.
+   * @param \Psr\Http\Message\ResponseInterface|\AKlump\CheckPages\RequestDriverInterface $payload
    *
    * @return string
    *   The lower-cased content type, e.g. 'application/json'
    */
-  protected function getContentType(ResponseInterface $response): string {
-    $type = $response->getHeader('content-type')[0] ?? NULL;
+  protected function getContentType($payload): string {
+    $type = $payload->getHeader('content-type')[0] ?? NULL;
     if (is_null($type)) {
-      throw new \RuntimeException('Response is missing "Content-type" header');
+      return 'application/x-www-form-urlencoded';
     }
     [$type] = explode(';', $type . ';');
 

@@ -5,19 +5,22 @@ namespace AKlump\CheckPages\Output;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\SerializationTrait;
 use AKlump\LoftLib\Bash\Color;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\ConsoleSectionOutput;
 
 /**
  * Handles output of headers, request and response.
  */
 final class SourceCodeOutput {
 
-  const INDENT = '│   ';
+  const INDENT = '    ';
 
-  const COLOR_REQUEST = 'green';
+  const COLOR_REQUEST = 'purple';
 
-  const COLOR_RESPONSE = 'yellow';
+  const COLOR_RESPONSE = 'black';
 
   use SerializationTrait;
 
@@ -62,35 +65,21 @@ final class SourceCodeOutput {
     $test = $event->getTest();
     $input = $test->getRunner()->getInput();
     $config = $test->getConfig();
-    $show_url = !empty($config['url']) && $test->getRunner()
-        ->getOutput()
-        ->isVerbose();
     $show_headers = $input->getOption('request') || $input->getOption('req-headers');
     $show_body = $input->getOption('request') || $input->getOption('req');
+    $show_url = $show_headers || $test->getRunner()->getOutput()->isVerbose();
 
-    if ($show_url) {
+    if (!empty($config['url']) && $show_url) {
       $url = $this->indent($test->getHttpMethod() . ' ' . $test->getAbsoluteUrl());
       Feedback::$requestUrl->overwrite(Color::wrap(Feedback::COLOR_PENDING, $url));
     }
 
     if ($show_headers) {
-      $headers = $this->flattenHeaders($driver->getHeaders());
-      if ($headers) {
-        $headers = $this->indent($headers);
-        Feedback::$requestHeaders->overwrite([
-          Color::wrap(SourceCodeOutput::COLOR_REQUEST, $headers),
-        ]);
-      }
+      $this->overwriteHeaders($input, Feedback::$requestHeaders, $driver->getHeaders(), self::COLOR_REQUEST);
     }
+
     if ($show_body) {
-      $body = trim(strval($driver));
-      if ($body) {
-        $body = $this->indent($body);
-        Feedback::$requestBody->overwrite([
-          Color::wrap(SourceCodeOutput::COLOR_REQUEST, $body),
-          $this->indent(''),
-        ]);
-      }
+      $this->overwriteBody($input, Feedback::$requestBody, strval($driver), $this->getContentType($driver), self::COLOR_REQUEST);
     }
   }
 
@@ -102,58 +91,79 @@ final class SourceCodeOutput {
    * @return void
    */
   public function responseOutput(DriverEventInterface $event) {
-
     $test = $event->getTest();
-    $color = $test->hasFailed() ? 'red' : 'green';
-    $request_division = Color::wrap($color, "├── RESPONSE");
     $input = $test->getRunner()->getInput();
     $show_headers = $input->getOption('response') || $input->getOption('headers');
     $show_body = $input->getOption('response') || $input->getOption('res');
-    $output = [];
     $response = $event->getDriver()->getResponse();
 
     if ($show_headers) {
-      $headers = sprintf('%s/%s %d %s',
-          strtoupper(parse_url($event->getTest()
-            ->getAbsoluteUrl(), PHP_URL_SCHEME)),
-          $response->getProtocolVersion(),
-          $response->getStatusCode(),
-          $response->getReasonPhrase()
-        ) . PHP_EOL;
-      $headers .= $this->flattenHeaders($response->getHeaders());
-      if (!empty($headers)) {
-        $output[] = $request_division . PHP_EOL . $this->indent($headers);
-      }
+      $this->overwriteHeaders($input, Feedback::$responseHeaders, $response->getHeaders(), self::COLOR_RESPONSE, $test, $response);
     }
 
     if ($show_body) {
-      $body = $response->getBody();
-      if (!empty($body)) {
+      $this->overwriteBody($input, Feedback::$responseBody, $response->getBody(), $this->getContentType($response), self::COLOR_RESPONSE);
+    }
+  }
 
-        // Try to make it more readable if we can.
-        $content_type = $this->getContentType($response);
-        if (strstr($content_type, 'json')) {
-          $body = $this->deserialize($body, $content_type);
-          $body = json_encode($body, JSON_PRETTY_PRINT);
-        }
-        if ($body) {
-          if (empty($output)) {
-            $output[] = $request_division . PHP_EOL;
-          }
-          $output[] = $body;
-        }
-      }
+  /**
+   * Overwrite headers with proper processing and formatting to a section.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\ConsoleSectionOutput $section
+   * @param array $headers
+   * @param string $color
+   *
+   * @return void
+   */
+  private function overwriteHeaders(InputInterface $input, ConsoleSectionOutput $section, array $headers, string $color, Test $test = NULL, $response = NULL) {
+    $headers = array_filter($headers);
+    if (empty($headers)) {
+      $section->clear();
+
+      return;
     }
 
-    if ($output) {
-      $output = trim(implode(PHP_EOL, $output));
-      if ($event->getTest()->hasFailed()) {
-        $this->runner->fail($output);
-      }
-      else {
-        $this->runner->info($output);
-      }
+    $line = '';
+    if ($response) {
+      $line .= $this->getResponseHttpStatusLine($test, $response) . PHP_EOL;
     }
+    $line .= $this->flattenHeaders($headers);
+    if ($line) {
+      $section->overwrite([
+        Color::wrap($color, $this->indent($this->truncate($input, $line))),
+        Color::wrap($color, $this->indent('')),
+      ]);
+    }
+  }
+
+  /**
+   * Overwrite body with proper processing and formatting to a section.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\ConsoleSectionOutput $section
+   * @param string $body
+   * @param string $content_type
+   * @param string $color
+   *
+   * @return void
+   */
+  private function overwriteBody(InputInterface $input, ConsoleSectionOutput $section, string $body, string $content_type, string $color) {
+    $body = $this->truncate($input, $body);
+    if (!$body) {
+      return;
+    }
+
+    // Try to make it more readable if we can.
+    $body = $this->deserialize($body, $content_type);
+    if (strstr($content_type, 'json')) {
+      $body = json_encode($body, JSON_PRETTY_PRINT);
+    }
+
+    $section->overwrite([
+      Color::wrap($color, $this->indent($body)),
+      Color::wrap($color, $this->indent('')),
+    ]);
   }
 
   /**
@@ -168,34 +178,45 @@ final class SourceCodeOutput {
   public function handleTestResults(DriverEventInterface $event) {
     $test = $event->getTest();
     $driver = $event->getDriver();
+    $input = $event->getTest()->getRunner()->getInput();
+    $output = $event->getTest()->getRunner()->getOutput();
     $url = $test->getHttpMethod() . ' ' . $test->getAbsoluteUrl();
+
+    $status = $this->getResponseHttpStatusLine($test, $driver->getResponse());
+
     if ($test->hasFailed()) {
       Feedback::$requestUrl->overwrite([
-        Color::wrap('red', $url),
+        Color::wrap('red', $this->indent($url)),
       ]);
 
-      $headers = $this->flattenHeaders($driver->getHeaders());
-      if ($headers) {
-        Feedback::$requestHeaders->overwrite([
-          Color::wrap('red', $headers),
-        ]);
-      }
+      Feedback::$testResult->overwrite([
+        Color::wrap('red', '└── ' . $status),
+        '',
+      ]);
 
-      $body = trim(strval($driver));
-      if ($body) {
-        Feedback::$requestBody->overwrite([
-          Color::wrap('red', $body),
-          '',
-        ]);
-      }
+      // REQUEST
+      $this->overwriteHeaders($input, Feedback::$requestHeaders, $driver->getHeaders(), 'red');
+      $this->overwriteBody($input, Feedback::$requestBody, strval($driver), $this->getContentType($driver), 'red');
+
+      // RESPONSE
+      $response = $event->getDriver()->getResponse();
+      $this->overwriteHeaders($input, Feedback::$responseHeaders, [], 'red', $test, $response);
+      $this->overwriteBody($input, Feedback::$responseBody, $response->getBody(), $this->getContentType($response), 'red');
     }
     else {
-      if ($event->getTest()->getRunner()->getOutput()->isVeryVerbose()) {
+
+      if ($output->isVeryVerbose()) {
         Feedback::$requestUrl->overwrite([
           Color::wrap('green', $this->indent($url)),
         ]);
+
+        // Keeping this at -vv because -v with "Passed" seems nice.
+        Feedback::$testResult->overwrite([
+          Color::wrap('green', '└── ' . $status),
+          '',
+        ]);
       }
-      elseif ($event->getTest()->getRunner()->getOutput()->isVerbose()) {
+      elseif ($output->isVerbose()) {
         Feedback::$requestUrl->clear();
       }
     }
@@ -222,5 +243,24 @@ final class SourceCodeOutput {
     return implode(PHP_EOL, array_map(function ($line) {
       return self::INDENT . $line;
     }, explode(PHP_EOL, $string)));
+  }
+
+  private function truncate(InputInterface $input, string $string): string {
+    $string = trim($string);
+    $length = $input->getOption('truncate');
+    if (strlen($string) > $length) {
+      return substr($string, 0, $length) . '...';
+    }
+
+    return $string;
+  }
+
+  private function getResponseHttpStatusLine(Test $test, \Psr\Http\Message\ResponseInterface $response) {
+    return sprintf('%s/%s %d %s',
+      strtoupper(parse_url($test->getAbsoluteUrl(), PHP_URL_SCHEME)),
+      $response->getProtocolVersion(),
+      $response->getStatusCode(),
+      $response->getReasonPhrase()
+    );
   }
 }

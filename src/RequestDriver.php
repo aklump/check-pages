@@ -90,6 +90,30 @@ abstract class RequestDriver implements RequestDriverInterface {
     return $this->headers ?? [];
   }
 
+  /**
+   * Retrieves a message header value by the given case-insensitive name.
+   *
+   * This method returns an array of all the header values of the given
+   * case-insensitive header name.
+   *
+   * If the header does not appear in the message, this method MUST return an
+   * empty array.
+   *
+   * @param string $name Case-insensitive header field name.
+   *
+   * @return string[] An array of string values as provided for the given
+   *    header. If the header does not appear in the message, this method MUST
+   *    return an empty array.
+   */
+  public function getHeader($name) {
+    $headers = array_change_key_case($this->getHeaders());
+    if (empty($headers['content-type'])) {
+      return [];
+    }
+
+    return [$headers['content-type']];
+  }
+
   public function __toString() {
     $string = [];
     if ($this->body) {

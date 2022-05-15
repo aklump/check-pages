@@ -29,9 +29,10 @@ class RunCommand extends Command {
       ->addOption('req', NULL, InputOption::VALUE_NONE, 'Display request body only.')
 
       // Using "I" to match the curl binary.
-      ->addOption('response', NULL, InputOption::VALUE_NONE, 'Display response headers and body.')
+      ->addOption('response', NULL, InputOption::VALUE_NONE, 'Display response headers and body. See --truncate.')
       ->addOption('headers', 'I', InputOption::VALUE_NONE, 'Display response headers.')
-      ->addOption('res', NULL, InputOption::VALUE_NONE, 'Display response body.')
+      ->addOption('res', NULL, InputOption::VALUE_NONE, 'Display response body. See --truncate.')
+      ->addOption('truncate', NULL, InputOption::VALUE_REQUIRED, 'Max characters to display in headers and bodies. Set to 0 for no limit.', 768)
       ->addOption('filter', 'f', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Indicate a subset of one or more suites to run.')
       ->addOption('group', 'g', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Indicate the group(s) to filter by; suites having other groups will be ignored.')
       ->addOption('retest', NULL, InputOption::VALUE_NONE, 'Execute runner skipping any suite that previously passed, retested only the failed suites.')
@@ -49,7 +50,7 @@ class RunCommand extends Command {
       $timezone = new \DateTimeZone(exec('date +%Z'));
       $timer = new Timer($timezone);
       $timer->start();
-      echo '🚩 ' . Color::wrap('light gray', $timer->getCurrent()) . PHP_EOL;
+      $output->writeln('🚩 ' . Color::wrap('light gray', $timer->getCurrent()), OutputInterface::VERBOSITY_VERY_VERBOSE);
 
       $runner = new Runner(ROOT, $input, $output);
       $container->set('runner', $runner);
@@ -98,8 +99,7 @@ class RunCommand extends Command {
 
       $runner->executeRunner();
 
-      echo PHP_EOL;
-      echo '🏁 ' . Color::wrap('light gray', $timer->getCurrent()) . PHP_EOL;
+      $this->writeTimer($output, $timer);
       $this->outputResults($runner, $timer);
       echo PHP_EOL . PHP_EOL;
 
@@ -115,8 +115,7 @@ class RunCommand extends Command {
         }
       }
 
-      echo PHP_EOL;
-      echo '🏁 ' . Color::wrap('light gray', $timer->getCurrent()) . PHP_EOL;
+      $this->writeTimer($output, $timer);
 
       // Shift the first line so only that is red, in case we want to dump a
       // pretty-print JSON variable.
@@ -136,7 +135,7 @@ class RunCommand extends Command {
   }
 
   private function outputResults(Runner $runner, Timer $timer, \Exception $exception = NULL) {
-    $footer = PHP_EOL . PHP_EOL;
+    $footer = PHP_EOL;
     $total_test_count = $runner->getTotalTestsRun();
 
     //    if (!$exception && 0 === $total_test_count) {
@@ -183,4 +182,9 @@ class RunCommand extends Command {
 
   }
 
+  private function writeTimer(OutputInterface $output, Timer $timer) {
+    $output->writeln([
+      '🏁 ' . Color::wrap('light gray', $timer->getCurrent()),
+    ], OutputInterface::VERBOSITY_VERY_VERBOSE);
+  }
 }

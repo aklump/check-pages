@@ -3,8 +3,8 @@
 namespace AKlump\CheckPages\Output;
 
 use AKlump\CheckPages\Event;
-use AKlump\CheckPages\Event\TestEvent;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\LoftLib\Bash\Color;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,52 +15,60 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class Feedback implements EventSubscriberInterface {
 
+
+  /**
+   * This must be a background color.
+   *
+   * @var string
+   */
+  const COLOR_WHY_ONLY = 'white on green';
+
   const COLOR_PENDING = 'purple';
 
   const COLOR_PENDING_BG = 'magenta';
 
   /**
-   * @var \Symfony\Component\Console\Output\OutputInterface
+   * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
    */
   public static $suiteTitle;
 
   /**
-   * @var \Symfony\Component\Console\Output\OutputInterface
+   * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
    */
   public static $requestUrl;
 
   /**
-   * @var \Symfony\Component\Console\Output\OutputInterface
+   * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
    */
   public static $requestHeaders;
 
   /**
-   * @var \Symfony\Component\Console\Output\OutputInterface
+   * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
    */
   public static $requestBody;
 
   /**
-   * @var \Symfony\Component\Console\Output\OutputInterface
+   * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
    */
   public static $responseHeaders;
 
   /**
-   * @var \Symfony\Component\Console\Output\OutputInterface
+   * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
    */
   public static $responseBody;
 
   /**
-   * @var \Symfony\Component\Console\Output\OutputInterface
+   * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
    */
   public static $testTitle;
 
   /**
-   * @var \Symfony\Component\Console\Output\OutputInterface
+   * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
    */
   public static $testDetails;
 
   /**
-   * @var \Symfony\Component\Console\Output\OutputInterface
+   * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
    */
   public static $testResult;
 
@@ -77,10 +85,6 @@ class Feedback implements EventSubscriberInterface {
     return [
       Event::TEST_CREATED => [
         function (TestEventInterface $event) {
-          if (!self::shouldRespond($event->getTest())) {
-            return;
-          }
-
           $test = $event->getTest();
           $config = $test->getConfig();
 
@@ -88,8 +92,26 @@ class Feedback implements EventSubscriberInterface {
           if ($config['js'] ?? FALSE) {
             $test->addBadge('☕');
           }
-          self::updateTestStatus($event->getTest()->getRunner()->getOutput(), $test->getDescription());
+
+          // If a "test" only contains a "why" then it will be seen as a header
+          // and not a test, we'll do it a little differently.
+          if (count($config) === 1 && !empty($config['why'])) {
+            if ($test->getRunner()->getOutput()->isVerbose()) {
+              $heading = '    ' . $test->getDescription() . ' ';
+              self::$testTitle->overwrite([
+                Color::wrap(self::COLOR_WHY_ONLY, $heading),
+                '',
+              ]);
+              self::$testResult->clear();
+              $test->setPassed();
+            }
+          }
+          else {
+            self::updateTestStatus($event->getTest()
+              ->getRunner(), $test->getDescription());
+          }
         },
+        -1,
       ],
 
       Event::TEST_FINISHED => [
@@ -99,9 +121,12 @@ class Feedback implements EventSubscriberInterface {
 
             // We override because in this case we want to display things
             // regardless of the actual user-provided verbosity.
-            $override = clone $event->getTest()->getRunner()->getOutput();
-            $override->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
-            self::updateTestStatus($override, $test->getDescription(), $test->hasPassed());
+            $runner = $event->getTest()->getRunner();
+            $output = $runner->getOutput();
+            $stash = $output->getVerbosity();
+            $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+            self::updateTestStatus($runner, $test->getDescription(), $test->hasPassed());
+            $output->setVerbosity($stash);
           }
           if (!self::shouldRespond($event->getTest())) {
             return;
@@ -189,8 +214,19 @@ class Feedback implements EventSubscriberInterface {
     }
   }
 
-  public static function updateTestStatus(OutputInterface $output, string $title, $status = NULL, $icon = NULL) {
-    if (!$output->isVerbose()) {
+  public static function updateTestStatus(Runner $runner, string $title, $status = NULL, $icon = NULL) {
+    $input = $runner->getInput();
+    $output = $runner->getOutput();
+
+    $should_show = $output->isVerbose();
+    $should_show = $should_show || $input->getOption('request');
+    $should_show = $should_show || $input->getOption('req-headers');
+    $should_show = $should_show || $input->getOption('req');
+    $should_show = $should_show || $input->getOption('response');
+    $should_show = $should_show || $input->getOption('headers');
+    $should_show = $should_show || $input->getOption('res');
+
+    if (!$should_show) {
       return;
     }
     if (TRUE === $status) {

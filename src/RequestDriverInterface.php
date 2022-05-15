@@ -68,6 +68,22 @@ interface RequestDriverInterface {
   public function getHeaders(): array;
 
   /**
+   * Retrieves a message header value by the given case-insensitive name.
+   *
+   * This method returns an array of all the header values of the given
+   * case-insensitive header name.
+   *
+   * If the header does not appear in the message, this method MUST return an
+   * empty array.
+   *
+   * @param string $name Case-insensitive header field name.
+   * @return string[] An array of string values as provided for the given
+   *    header. If the header does not appear in the message, this method MUST
+   *    return an empty array.
+   */
+  public function getHeader($name);
+
+  /**
    * Get the invalid certificate policy.
    *
    * @return bool

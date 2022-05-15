@@ -827,13 +827,6 @@ class Runner {
       }
       $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_FINISHED);
 
-      if ($test_passed()) {
-        $this->pass('├── HTTP ' . $http_response_code);
-      }
-      else {
-        $this->failReason(sprintf("├── Expected HTTP %s, got %d", $test->getConfig()['expect'] ?? '2xx', $http_response_code));
-      }
-
       // Test the location if asked.
       $expected_location = $test->getConfig()['location'] ?? '';
       if (empty($expected_location)) {

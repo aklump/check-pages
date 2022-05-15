@@ -45,8 +45,7 @@ final class Value implements EventSubscriberInterface {
               $config['set'],
               $config['value']
             );
-            Feedback::updateTestStatus($test->getRunner()
-              ->getOutput(), $message, TRUE);
+            Feedback::updateTestStatus($test->getRunner(), $message, TRUE);
             $test_result = TRUE;
           }
 
@@ -75,13 +74,11 @@ final class Value implements EventSubscriberInterface {
             $test_result ? $test->setPassed() : $test->setFailed();
             if ($assert) {
               if ($test_result) {
-                Feedback::updateTestStatus($test->getRunner()
-                  ->getOutput(), $assert, TRUE);
+                Feedback::updateTestStatus($test->getRunner(), $assert, TRUE);
               }
               else {
                 Feedback::$testDetails->overwrite(Color::wrap('red', $assert->getReason()));
-                Feedback::updateTestStatus($test->getRunner()
-                  ->getOutput(), $assert, FALSE);
+                Feedback::updateTestStatus($test->getRunner(), $assert, FALSE);
               }
             }
           }
