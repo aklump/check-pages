@@ -16,88 +16,97 @@ use AKlump\CheckPages\Event;
  */
 final class Retest implements EventSubscriberInterface {
 
+  private static $skipSuites;
+
   /**
-   * {@inheritdoc}
+   * @var \AKlump\CheckPages\Parts\Runner
    */
-  public static function getSubscribedEvents() {
-    return [
-      Event::RUNNER_CONFIG_LOADED => [self::class, 'configureSuitesToIgnore'],
-      Event::TEST_FINISHED => [self::class, 'writeTestResult'],
-    ];
+  private $runner;
+
+  public function setRunner(Runner $runner) {
+    $this->runner = $runner;
   }
 
-  public static function configureSuitesToIgnore(RunnerEventInterface $event) {
-    $input = $event->getRunner()->getInput();
-    $is_using = $input->getOption('retest') || $input->getOption('continue');
-
-    $tracking_path = self::getTrackingFilePath($event->getRunner());
-    if (!$tracking_path) {
+  /**
+   * Return the full filepath the the CSV file.
+   *
+   * @param \AKlump\CheckPages\Parts\Runner $runner
+   *
+   * @return string
+   */
+  public function getTrackingFilePath(): string {
+    $tracking_path = $this->runner->getPathToRunnerFilesDirectory();
+    if (empty($tracking_path)) {
+      $input = $this->runner->getInput();
+      $is_using = $input->getOption('retest') || $input->getOption('continue');
       if ($is_using) {
         $option = $input->getOption('retest') ? '--retest' : '--continue';
-        $event->getRunner()
-          ->getOutput()
+        $this->runner->getOutput()
           ->writeln(sprintf('<error>"%s" requires file storage to be enabled.  See documentation for more info.</error>', $option, $tracking_path));
       }
 
-      return;
+      return '';
     }
 
-    if (!$is_using) {
-
-      if (!$input->getOption('filter') && !$input->getOption('group')) {
-        // With no options, we need to set up a clean slate by truncated our
-        // tracking file.  That way continue will work correctly.
-        fclose(fopen($tracking_path, 'w'));
-      }
-
-      return;
-    }
-
-    $suites_to_ignore = [];
-    $suites_to_run = [];
-    $fp = fopen($tracking_path, 'r');
-    while (($data = fgetcsv($fp))) {
-      $id = [];
-      $id[] = $data[0] ?? NULL;
-      $id[] = $data[1] ?? NULL;
-      $id = implode('/', array_filter($id));
-      $result = $data[3] ?? NULL;
-      if ($input->getOption('continue')) {
-        $suites_to_ignore[$id] = $id;
-      }
-      elseif ($input->getOption('retest')) {
-        if ($result === Test::PASSED) {
-          $suites_to_ignore[$id] = $id;
-        }
-        elseif ($result == Test::FAILED) {
-          $suites_to_run[$id] = $id;
-        }
-      }
-    }
-    fclose($fp);
-
-    // We start with the last suite run, by repeating it.
-    if ($input->getOption('continue')) {
-      $start_with = array_pop($suites_to_ignore);
-      $event->getRunner()
-        ->getOutput()
-        ->writeln(Color::wrap('white on blue', sprintf('...continuing where we left off with suite "%s".', $start_with)), OutputInterface::VERBOSITY_VERBOSE);
-    }
-
-    if ($suites_to_ignore) {
-      $config = $event->getRunner()->getConfig();
-      $config['suites_to_ignore'] = array_merge($config['suites_to_ignore'], array_values($suites_to_ignore));
-      $config['suites_to_ignore'] = array_values(array_diff($config['suites_to_ignore'], array_values($suites_to_run)));
-      $event->getRunner()->setConfig($config);
-    }
+    return "$tracking_path/_results.csv";
   }
 
-  public static function writeTestResult(DriverEventInterface $event) {
-    $tracking_path = self::getTrackingFilePath($event->getTest()->getRunner());
+  /**
+   * Get an array of group/suite to ignore based on $runner context.
+   *
+   * @param \AKlump\CheckPages\Parts\Runner $runner
+   *
+   * @return array;
+   */
+  public function getSuitesToIgnore(): array {
+    $tracking_path = $this->getTrackingFilePath();
+    $list = [];
+    if (!$tracking_path) {
+      return $list;
+    }
+
+    $input = $this->runner->getInput();
+    $retesting = $input->getOption('retest');
+    $continuing = $input->getOption('continue');
+    if ((!$retesting && !$continuing) || !file_exists($tracking_path)) {
+      return $list;
+    }
+
+    $skip_if_continuing = [];
+    $suites = [];
+    $suites_with_failures = [];
+    $fp = fopen($tracking_path, 'r');
+    while (($data = fgetcsv($fp))) {
+      list($g, $s, , $result) = $data;
+      $cid = "$g/$s";
+      $suites[$cid] = $cid;
+      if (!in_array($cid, $skip_if_continuing)) {
+        $skip_if_continuing[] = $cid;
+      }
+      if (!$result && !in_array($cid, $suites_with_failures)) {
+        $suites_with_failures[] = $cid;
+      }
+    }
+
+    if ($retesting) {
+      $list = array_diff($suites, $suites_with_failures);
+    }
+    elseif ($continuing) {
+      // We may not have completed the final suite listed, therefor we will
+      // repeat it from the top.
+      array_pop($skip_if_continuing);
+
+      $list = $skip_if_continuing;
+    }
+
+    return array_values($list);
+  }
+
+  public function writeResults(Test $test) {
+    $tracking_path = $this->getTrackingFilePath();
     if (!$tracking_path || !file_exists($tracking_path)) {
       return;
     }
-    $test = $event->getTest();
 
     $fh = fopen($tracking_path, 'r+');
     $written = FALSE;
@@ -133,18 +142,51 @@ final class Retest implements EventSubscriberInterface {
   }
 
   /**
-   * Return the full filepath the the CSV file.
-   *
-   * @param \AKlump\CheckPages\Parts\Runner $runner
-   *
-   * @return string
+   * {@inheritdoc}
    */
-  private static function getTrackingFilePath(Runner $runner): string {
-    $tracking_path = $runner->getPathToRunnerFilesDirectory();
-    if (empty($tracking_path)) {
-      return '';
-    }
+  public static function getSubscribedEvents() {
+    return [
+      Event::RUNNER_CONFIG_LOADED => [
+        function (RunnerEventInterface $event) {
+          $obj = new self();
+          $obj->setRunner($event->getRunner());
 
-    return "$tracking_path/_results.csv";
+          self::$skipSuites = self::$skipSuites ?? $obj->getSuitesToIgnore();
+          if (self::$skipSuites) {
+            $config = $event->getRunner()->getConfig();
+            $config['suites_to_ignore'] = array_unique(array_merge($config['suites_to_ignore'], self::$skipSuites));
+            $event->getRunner()->setConfig($config);
+          }
+
+          $input = $event->getRunner()->getInput();
+
+          // Setup a clean slate if appropriate.
+          if (!$input->getOption('retest')
+            && !$input->getOption('continue')
+            && !$input->getOption('filter')
+            && !$input->getOption('group')) {
+            $tracking_path = $obj->getTrackingFilePath();
+            // With no options, we need to set up a clean slate by truncated our
+            // tracking file.  That way continue will work correctly.
+            fclose(fopen($tracking_path, 'w'));
+          }
+
+          // Handle messaging.
+          if ($input->getOption('continue')) {
+            $event->getRunner()
+              ->getOutput()
+              ->writeln(Color::wrap('white on blue', '...continuing with the first test of the last suite.'), OutputInterface::VERBOSITY_NORMAL);
+          }
+        },
+      ],
+      Event::TEST_FINISHED => [
+        function (DriverEventInterface $event) {
+          $obj = new self();
+          $obj->setRunner($event->getTest()->getRunner());
+          $obj->writeResults($event->getTest());
+        },
+      ],
+    ];
   }
+
 }

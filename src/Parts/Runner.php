@@ -594,11 +594,9 @@ class Runner {
     // The runner has config in YAML, which the suite uses by default, however
     // we allow per-suite overrides as well.
     $suite_config = array_merge($this->getConfig(), $suite_config);
-    $suite = new Suite($suite_id, $suite_config, $this);
+    $this->suite = new Suite($suite_id, $suite_config, $this);
     unset($suite_config);
-
-    $this->suite = $suite->setGroup(basename(dirname($path_to_suite)));
-    $this->validateSuiteConfigAgainstSchema($suite);
+    $this->suite->setGroup(basename(dirname($path_to_suite)));
 
     $ignored_suite_paths = array_filter(array_map(function ($suite_to_ignore) {
       try {
@@ -611,21 +609,24 @@ class Runner {
         // can't find it.  Return NULL, which will be filtered out.
         return NULL;
       }
-    }, $suite->getConfig()['suites_to_ignore'] ?? []));
+    }, $this->suite->getConfig()['suites_to_ignore'] ?? []));
 
     if (!$this->applyFilters([$this->suite])) {
       return;
     }
 
     Feedback::$suiteTitle = $this->getOutput()->section();
-
     if (in_array($path_to_suite, $ignored_suite_paths)) {
-      $message = Color::wrap('blue', '😴 ' . sprintf('Skipping "%s".', $suite));
-      $this->getOutput()
-        ->writeln($message, OutputInterface::VERBOSITY_DEBUG);
+      $status = NULL;
+      if ($this->getInput()->getOption('retest')) {
+        $status = TRUE;
+      }
+      Feedback::updateSuiteTitle($this->getOutput(), $this->suite, $status);
 
       return;
     }
+
+    $this->validateSuiteConfigAgainstSchema($this->suite);
 
     // Add the tests to the suite in prep for the plugin hook...
     $suite_yaml = file_get_contents($path_to_suite);
@@ -637,28 +638,28 @@ class Runner {
 
     $data = Yaml::parse($suite_yaml);
     foreach ($data as $config) {
-      $suite->addTest($config);
+      $this->suite->addTest($config);
     }
 
-    $this->dispatcher->dispatch(new SuiteEvent($suite), Event::SUITE_LOADED);
+    $this->dispatcher->dispatch(new SuiteEvent($this->suite), Event::SUITE_LOADED);
 
     // On return from the hook, we need to reparse to get format for validation.
-    $suite_yaml = Yaml::dump($suite->jsonSerialize());
+    $suite_yaml = Yaml::dump($this->suite->jsonSerialize());
     $data = Yaml::parse($suite_yaml, YAML::PARSE_OBJECT_FOR_MAP);
-    $this->validateSuiteYaml($data, static::SCHEMA_VISIT . '.json');
+    $this->validateSuiteYaml($path_to_suite, $data, static::SCHEMA_VISIT . '.json');
 
     if (!$this->debugging && empty($this->printed['base_url'])) {
       echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->getConfig()['base_url'])) . PHP_EOL;
       $this->printed['base_url'] = TRUE;
     }
 
-    $title = sprintf('Running %s%s suite...', ltrim($suite->getGroup() . '/', '/'), $suite->id());
+    $title = sprintf('Running %s%s suite...', ltrim($this->suite->getGroup() . '/', '/'), $this->suite->id());
     Feedback::updateSuiteTitle($this->getOutput(), $title);
 
     $this->messages = [];
     $failed_tests = 0;
 
-    foreach ($suite->getTests() as $test) {
+    foreach ($this->suite->getTests() as $test) {
 
       // This decides the render order.
       Feedback::$testTitle = $this->getOutput()->section();
@@ -673,7 +674,7 @@ class Runner {
       //
       // Interpolate the test as the variables may have changed.
       //
-      if (count($suite->variables())) {
+      if (count($this->suite->variables())) {
         $config = $test->getConfig();
         foreach (array_keys($config) as $key) {
 
@@ -683,7 +684,7 @@ class Runner {
           // replace with the incorrect values.  However the rest of the config
           // should be interpolated, such as will affect the URL.
           if ($key !== 'find') {
-            $config[$key] = $suite->variables()
+            $config[$key] = $this->suite->variables()
               ->interpolate($config[$key]);
           }
         }
@@ -719,15 +720,15 @@ class Runner {
     }
 
 
-    $title = sprintf('%s suite', ltrim($suite->getGroup() . '/', '/') . $suite->id());
+    $title = sprintf('%s suite', ltrim($this->suite->getGroup() . '/', '/') . $this->suite->id());
     Feedback::updateSuiteTitle($this->getOutput(), $title, !boolval($failed_tests));
 
-    $this->dispatcher->dispatch(new SuiteEvent($suite), Event::SUITE_FINISHED);
+    $this->dispatcher->dispatch(new SuiteEvent($this->suite), Event::SUITE_FINISHED);
 
     if ($failed_tests) {
       $this->failedSuiteCount++;
       if ($this->getConfig()['stop_on_failed_suite'] ?? FALSE) {
-        throw new SuiteFailedException($suite->id());
+        throw new SuiteFailedException($this->suite->id());
       }
     }
   }
@@ -994,7 +995,7 @@ class Runner {
    *
    * @return array
    */
-  protected function validateSuiteYaml($data, string $schema_basename): array {
+  protected function validateSuiteYaml(string $path_to_suite, $data, string $schema_basename): array {
 
     // Do not validate $data properties that have been added using add_test_option().
     $path_to_schema = $this->rootDir . '/' . $schema_basename;
@@ -1029,7 +1030,7 @@ class Runner {
         }
       }
 
-      throw new \RuntimeException(sprintf('The test does not match schema "%s". Use -vvv for more info.', $schema_basename));
+      throw new \RuntimeException(sprintf('The suite (%s) does not match schema "%s". Use -vvv for more info.', basename($path_to_suite), $schema_basename));
     }
 
     // Convert to arrays, we only needed objects for the validation.

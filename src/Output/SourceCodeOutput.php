@@ -248,7 +248,7 @@ final class SourceCodeOutput {
   private function truncate(InputInterface $input, string $string): string {
     $string = trim($string);
     $length = $input->getOption('truncate');
-    if (strlen($string) > $length) {
+    if ($length > 0 && strlen($string) > $length) {
       return substr($string, 0, $length) . '...';
     }
 
