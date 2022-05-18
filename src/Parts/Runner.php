@@ -426,32 +426,32 @@ class Runner {
     if (!count($this->filters)) {
       return $suites;
     }
-    $filtered_values = array_filter($suites, function (Suite $suite) {
-      foreach ($this->filters as $type => $values) {
-        foreach ($values as $value) {
-          switch ($type) {
-            case 'group':
-              if ($value != $suite->getGroup()) {
-                return FALSE;
-              }
-              break;
 
-            case 'id':
-              if ($value != $suite->id()) {
-                return FALSE;
-              }
-              break;
-          }
-        }
+    $id_filters = $this->filters['id'] ?? [];
+    $group_filters = $this->filters['group'] ?? [];
+    $does_match_group = function (Suite $suite) use ($group_filters) {
+      if (empty($group_filters)) {
+        return TRUE;
       }
 
-      return TRUE;
-    });
-    if (count($filtered_values)) {
-      $this->filtersWereApplied = TRUE;
-    }
+      return in_array($suite->getGroup(), $group_filters);
+    };
+    $does_match_id = function (Suite $suite) use ($id_filters) {
+      if (empty($id_filters)) {
+        return TRUE;
+      }
 
-    return $filtered_values;
+      return in_array($suite->id(), $id_filters);
+    };
+
+    return array_filter($suites, function (Suite $suite) use ($does_match_group, $does_match_id) {
+      $matched = $does_match_id($suite) && $does_match_group($suite);
+      if ($matched) {
+        $this->filtersWereApplied = TRUE;
+      }
+
+      return $matched;
+    });
   }
 
   public function getTestOptions(): array {
@@ -556,11 +556,14 @@ class Runner {
       require $runner_path;
 
       if (count($this->filters) > 0 && !$this->filtersWereApplied) {
-        if ($this->getOutput()->isDebug()) {
-          throw new \RuntimeException(sprintf('There are no suites in %s that match at least one of your filters.  This can happen if you have not added `run_suite()` with a path to the intended suite(s).', basename($runner_path)));
-        }
+        $this->getOutput()
+          ->writeln([
+            '',
+            Color::wrap('yellow', sprintf('There are no suites in %s that match at least one of your filters.', basename($runner_path))),
+            Color::wrap('yellow', 'This can happen if you have not added `run_suite()` with a path to the intended suite(s).'),
+            '',
+          ], OutputInterface::VERBOSITY_NORMAL);
       }
-
     }
     catch (StopRunnerException $exception) {
       $this->getDispatcher()
