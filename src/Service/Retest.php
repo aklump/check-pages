@@ -23,8 +23,10 @@ final class Retest implements EventSubscriberInterface {
    */
   private $runner;
 
-  public function setRunner(Runner $runner) {
+  public function setRunner(Runner $runner): self {
     $this->runner = $runner;
+
+    return $this;
   }
 
   /**
@@ -179,11 +181,20 @@ final class Retest implements EventSubscriberInterface {
           }
         },
       ],
-      Event::TEST_FINISHED => [
-        function (DriverEventInterface $event) {
+      Event::TEST_PASSED => [
+        function (Event\TestEventInterface $event) {
           $obj = new self();
-          $obj->setRunner($event->getTest()->getRunner());
-          $obj->writeResults($event->getTest());
+          $obj
+            ->setRunner($event->getTest()->getRunner())
+            ->writeResults($event->getTest());
+        },
+      ],
+      Event::TEST_FAILED => [
+        function (Event\TestEventInterface $event) {
+          $obj = new self();
+          $obj
+            ->setRunner($event->getTest()->getRunner())
+            ->writeResults($event->getTest());
         },
       ],
     ];
