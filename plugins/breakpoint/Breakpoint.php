@@ -4,7 +4,7 @@ namespace AKlump\CheckPages\Plugin;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\LoftLib\Bash\Color;
+use AKlump\CheckPages\Output\Feedback;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -19,20 +19,19 @@ final class Breakpoint implements EventSubscriberInterface {
     return [
       Event::TEST_CREATED => [
         function (TestEventInterface $event) {
-          $config = $event->getTest()->getConfig();
-          $output = $event->getTest()
-            ->getSuite()
-            ->getRunner()
-            ->getOutput();
-          $should_apply = array_key_exists('breakpoint', $config);
-          $should_apply = $should_apply && $output->isDebug();
+          $test = $event->getTest();
+          $config = $test->getConfig();
+          $output = $test->getRunner()->getOutput();
+          $is_breakpoint = array_key_exists('breakpoint', $config);
+          if ($is_breakpoint) {
+            $test->setPassed();
+          }
+          $should_apply = $is_breakpoint && $output->isDebug();
           if (!$should_apply) {
             return;
           }
 
-          $test = $event->getTest();
-          $test->setPassed();
-          $test->write('🛑 ' . Color::wrap('light gray', 'Press any key '));
+          Feedback::updateTestStatus($test->getRunner(), $test->getDescription(), NULL, '🛑 ', 'Press any key ');
 
           // @link https://www.sitepoint.com/howd-they-do-it-phpsnake-detecting-keypresses/
           // @link https://stackoverflow.com/a/15322457/3177610

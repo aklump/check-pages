@@ -90,6 +90,7 @@ class Feedback implements EventSubscriberInterface {
           // If a "test" only contains a "why" then it will be seen as a header
           // and not a test, we'll do it a little differently.
           if (count($config) === 1 && !empty($config['why'])) {
+            $test->setPassed();
             if ($test->getRunner()->getOutput()->isVerbose()) {
               $heading = '    ' . $test->getDescription() . ' ';
               self::$testTitle->overwrite([
@@ -97,7 +98,6 @@ class Feedback implements EventSubscriberInterface {
                 '',
               ]);
               self::$testResult->clear();
-              $test->setPassed();
             }
           }
           else {
@@ -130,7 +130,7 @@ class Feedback implements EventSubscriberInterface {
           //
 
           // Create the failure output files.
-          $test = $event->test;
+          $test = $event->getTest();
           if (!empty($url)) {
             $failure_log = [$url];
           }
@@ -210,7 +210,7 @@ class Feedback implements EventSubscriberInterface {
       $title = '    ' . strtoupper($title) . ' ';
       if (TRUE === $status) {
         Feedback::$suiteTitle->overwrite([
-          Color::wrap('wnhite on green', $title),
+          Color::wrap('white on green', $title),
           '',
         ]);
       }
@@ -229,7 +229,7 @@ class Feedback implements EventSubscriberInterface {
     }
   }
 
-  public static function updateTestStatus(Runner $runner, string $title, $status = NULL, $icon = NULL) {
+  public static function updateTestStatus(Runner $runner, string $title, $status = NULL, $icon = NULL, string $status_text = '') {
     $input = $runner->getInput();
     $output = $runner->getOutput();
 
@@ -246,16 +246,22 @@ class Feedback implements EventSubscriberInterface {
     }
     if (TRUE === $status) {
       self::$testTitle->overwrite(($icon ?? '👍  ') . Color::wrap('green', $title));
-      self::$testResult->overwrite([Color::wrap('green', '└── Passed.'), '']);
+      self::$testResult->overwrite([
+        Color::wrap('green', $status_text ?? '└── Passed.'),
+        '',
+      ]);
     }
     elseif (FALSE === $status) {
       self::$testTitle->overwrite(($icon ?? '🚫  ') . Color::wrap('white on red', $title));
-      self::$testResult->overwrite([Color::wrap('red', '└── Failed.'), '']);
+      self::$testResult->overwrite([
+        Color::wrap('red', $status_text ?? '└── Failed.'),
+        '',
+      ]);
     }
     else {
       self::$testTitle->overwrite(($icon ?? '🔎  ') . Color::wrap(Feedback::COLOR_PENDING, $title));
       self::$testResult->overwrite([
-        Color::wrap(Feedback::COLOR_PENDING, '└── Pending...'),
+        Color::wrap(Feedback::COLOR_PENDING, $status_text ?? '└── Pending...'),
         '',
       ]);
     }

@@ -108,9 +108,9 @@ class RunCommand extends Command {
     catch (\Exception $exception) {
 
       if (isset($runner) && $runner->getOutput()->isDebug()) {
-        $output = $runner->getMessageOutput();
-        if (trim($output)) {
-          echo $output;
+        $message = $runner->getMessageOutput();
+        if (trim($message)) {
+          echo $message;
           echo PHP_EOL;
         }
       }

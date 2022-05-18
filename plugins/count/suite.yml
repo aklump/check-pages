@@ -44,11 +44,11 @@
       count: ">=2"
 
 -
-  set: maxItems
   value: 5
+  set: maxItems
 -
-  set: itemCount
   value: 4
+  set: itemCount
 -
   why: Demonstrate the Count plugin with interpolation.
   url: /test_subject.html
