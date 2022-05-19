@@ -7,7 +7,7 @@ use AKlump\CheckPages\Parts\Test;
 /**
  * Writes a markdown file for failing tests.
  */
-final class FailedTestMarkdown implements ResultsToFileInterface {
+final class FailedTestMarkdown {
 
   /**
    * @var \AKlump\CheckPages\Parts\Test

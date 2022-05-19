@@ -130,22 +130,24 @@ class Feedback implements EventSubscriberInterface {
           //
 
           // Create the failure output files.
-          $test = $event->getTest();
-          if (!empty($url)) {
-            $failure_log = [$url];
-          }
-
-          $runner = $test->getRunner();
-          foreach ($runner->getMessages() as $item) {
-            if ('error' === $item['level']) {
-              $failure_log[] = $item['data'];
+          if (0) {
+            $test = $event->getTest();
+            if (!empty($url)) {
+              $failure_log = [$url];
             }
-          }
-          $failure_log[] = PHP_EOL;
-          $runner->writeToFile('failures', $failure_log);
 
-          $suite = $test->getSuite();
-          FailedTestMarkdown::output("{$suite->id()}{$test->id()}", $test);
+            $runner = $test->getRunner();
+            foreach ($runner->getMessages() as $item) {
+              if ('error' === $item['level']) {
+                $failure_log[] = $item['data'];
+              }
+            }
+            $failure_log[] = PHP_EOL;
+            $runner->writeToFile('failures', $failure_log);
+
+            $suite = $test->getSuite();
+            FailedTestMarkdown::output("{$suite->id()}{$test->id()}", $test);
+          }
 
           //
           // TODO End Move this to another place.
