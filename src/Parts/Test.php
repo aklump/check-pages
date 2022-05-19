@@ -215,4 +215,8 @@ class Test implements \JsonSerializable {
     return $this->getConfig();
   }
 
+  public function __toString() {
+    return $this->getSuite() . '\\' . $this->id();
+  }
+
 }

@@ -1276,12 +1276,12 @@ class Runner {
    *
    * @param string $name
    *   A root value to use when generating filenames.
-   * @param array $content
-   *   The content to write to the file.
+   * @param array $lines
+   *   The content to write to the file; elements are joined by \n.
    *
    * @return $this
    */
-  public function writeToFile(string $name, array $content, string $mode = 'a+'): self {
+  public function writeToFile(string $name, array $lines, string $mode = 'a+'): self {
     $path_to_files = $this->getPathToRunnerFilesDirectory();
     if (!$path_to_files) {
       return $this;
@@ -1296,7 +1296,7 @@ class Runner {
       $this->writeToFileResources[$name] = [$handle, $name, $path];
     }
     list($handle) = $this->writeToFileResources[$name];
-    fwrite($handle, implode(PHP_EOL, $content) . PHP_EOL);
+    fwrite($handle, implode(PHP_EOL, $lines) . PHP_EOL);
 
     return $this;
   }
@@ -1307,10 +1307,7 @@ class Runner {
   public function __destruct() {
     $resources = $this->writeToFileResources ?? [];
     foreach ($resources as $info) {
-      list($handle, $name) = $info;
-
-      // TODO Put the date in the correct local timezone.
-      $this->writeToFile($name, ['', '', date('r'), str_repeat('-', 80), '']);
+      list($handle) = $info;
       fclose($handle);
     }
   }

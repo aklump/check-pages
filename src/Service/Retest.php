@@ -85,7 +85,7 @@ final class Retest implements EventSubscriberInterface {
       if (!in_array($cid, $skip_if_continuing)) {
         $skip_if_continuing[] = $cid;
       }
-      if (!$result && !in_array($cid, $suites_with_failures)) {
+      if ($result !== Test::PASSED && !in_array($cid, $suites_with_failures)) {
         $suites_with_failures[] = $cid;
       }
     }

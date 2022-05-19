@@ -53,7 +53,8 @@
         "symfony/dependency-injection": "^5.4",
         "symfony/config": "^5.4",
         "symfony/console": "^5.4",
-        "justinrainbow/json-schema": "^5.2"
+        "justinrainbow/json-schema": "^5.2",
+        "ralouphie/mimey": "^2.1"
     },
     "version": "0.15.2",
     "bin": [

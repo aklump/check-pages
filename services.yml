@@ -1,4 +1,8 @@
 services:
+  response_files:
+    class: \AKlump\CheckPages\Output\SaveResponseToFile
+    tags:
+      - { name: event_subscriber }
   feedback:
     class: \AKlump\CheckPages\Output\Feedback
     tags:
