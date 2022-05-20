@@ -234,7 +234,7 @@ class Test implements \JsonSerializable {
    * @return $this
    *   Self for chaining.
    */
-  public function reiterpolate(): self {
+  public function reinterpolate(): self {
     $config = $this->getConfig();
     $uninterpolated_assertions = $config['find'];
     $config = $this->getSuite()->variables()->interpolate($config);

@@ -742,7 +742,7 @@ class Runner {
    */
   protected function runTest(Test $test): void {
     $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_STARTED);
-    $test->reiterpolate();
+    $test->reinterpolate();
 
     $this->totalTestsRun++;
     $test_passed = function (bool $result = NULL): bool {
@@ -779,7 +779,7 @@ class Runner {
       }
 
       $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
-      $test->reiterpolate();
+      $test->reinterpolate();
 
       try {
         $response = $driver
@@ -811,7 +811,7 @@ class Runner {
         $test->setFailed();
       }
       $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_FINISHED);
-      $test->reiterpolate();
+      $test->reinterpolate();
 
       // Test the location if asked.
       $expected_location = $test->getConfig()['location'] ?? '';
