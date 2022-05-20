@@ -226,20 +226,24 @@ class Test implements \JsonSerializable {
   }
 
   /**
-   * Interpolate values based on current suite variables, skipping assertions.
+   * Interpolate values based on current suite variables, skipping certain keys.
    *
-   * This is the correct way to apply interpolation to a test, as it prevents
-   * assertions from being affected.
+   * @param ... Optional.  One or more keys to interpolate.  Leave empty to
    *
    * @return $this
    *   Self for chaining.
    */
   public function interpolate(): self {
     $config = $this->getConfig();
-    $uninterpolated_assertions = $config['find'] ?? NULL;
+    $uninterpolated = [];
+    foreach (['find', 'url'] as $skip_key) {
+      if (array_key_exists($skip_key, $config)) {
+        $uninterpolated[$skip_key] = $config[$skip_key];
+      }
+    }
     $config = $this->getSuite()->variables()->interpolate($config);
-    if (!is_null($uninterpolated_assertions)) {
-      $config['find'] = $uninterpolated_assertions;
+    foreach (array_keys($uninterpolated) as $k) {
+      $config[$k] = $uninterpolated[$k];
     }
     $this->setConfig($config);
 

@@ -88,7 +88,6 @@ $_get_session = function (string $username, \AKlump\CheckPages\Parts\Test $test)
 };
 
 add_test_option('user', [
-
   'onBeforeTest' => function ($username, TestEventInterface $event) use ($_get_session) {
     if (empty($username)) {
       return;

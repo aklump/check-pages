@@ -778,6 +778,17 @@ class Runner {
         }
       }
 
+      // We now must interpolate the URL, at the very last minute.  All event
+      // handlers have until this point to set variables and modify the url for
+      // interpolation; after this, the URL is going to be interpolated and set.
+      // "url" is a  skipped key when we use Test::interpolate(), which is why
+      // we have to use long-hand here.
+      $config = $test->getConfig();
+      $config['url'] = $this->getSuite()
+        ->variables()
+        ->interpolate($config['url']);
+      $test->setConfig($config);
+
       $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
       $test->interpolate();
 

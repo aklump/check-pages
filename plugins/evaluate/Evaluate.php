@@ -30,7 +30,7 @@ final class Evaluate implements EventSubscriberInterface {
       Event::TEST_CREATED => [
         function (TestEventInterface $event) {
           $test = $event->getTest();
-          $config = $test->reinterpolate()->getConfig();
+          $config = $test->interpolate()->getConfig();
           $should_apply = array_key_exists('eval', $config);
           if (!$should_apply) {
             return;
