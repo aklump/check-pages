@@ -246,7 +246,7 @@ final class PluginsManager {
    * {@inheritdoc}
    */
   public function onAssertToString(string $stringified, Assert $assert): string {
-    $plugin_collection = $this->assertionPlugins[$assert->getId()] ?? [];
+    $plugin_collection = $this->assertionPlugins[$assert->id()] ?? [];
     foreach ($plugin_collection as $plugin) {
       $stringified = $plugin['instance']->{__FUNCTION__}($stringified, $assert);
     }
@@ -320,7 +320,7 @@ final class PluginsManager {
     $dispatcher->addListener(Event::ASSERT_CREATED, function (AssertEventInterface $event) {
       $assert = $event->getAssert();
       $assert->setToStringOverride([$this, 'onAssertToString']);
-      $plugin_collection = $this->assertionPlugins[$assert->getId()] ?? [];
+      $plugin_collection = $this->assertionPlugins[$assert->id()] ?? [];
       foreach ($plugin_collection as $plugin) {
         $plugin['instance']->onBeforeAssert($event);
       }

@@ -188,7 +188,7 @@ final class Assert {
     return $this;
   }
 
-  public function getId(): string {
+  public function id(): string {
     return $this->id;
   }
 
