@@ -114,7 +114,7 @@ final class PhpStormHttpMixin {
     }
 
     if (!empty($config['request']['body'])) {
-      $content_type = $driver->getHeaders()['content-type'] ?? 'application/x-www-form-urlencoded';
+      $content_type = $driver->getHeaders()['content-type'] ?? 'application/octet-stream';
       $export[] = PHP_EOL . $this->getStringBody($content_type, $config['request']['body']);
     }
 

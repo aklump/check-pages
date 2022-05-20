@@ -19,7 +19,8 @@ trait SerializationTrait {
   protected function getContentType($payload): string {
     $type = $payload->getHeader('content-type')[0] ?? NULL;
     if (is_null($type)) {
-      return 'application/x-www-form-urlencoded';
+      $guesser = new HttpContentTypeGuesser();
+      $type = $guesser->guessType($payload);
     }
     [$type] = explode(';', $type . ';');
 

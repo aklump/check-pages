@@ -106,7 +106,7 @@ abstract class RequestDriver implements RequestDriverInterface {
    *    return an empty array.
    */
   public function getHeader($name) {
-    $headers = array_change_key_case($this->getHeaders());
+    $headers = array_change_key_case($this->getHeaders(), CASE_LOWER);
     if (empty($headers['content-type'])) {
       return [];
     }

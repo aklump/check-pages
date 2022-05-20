@@ -74,7 +74,7 @@ final class Request extends LegacyPlugin {
       return $body;
     }
 
-    $content_type = 'application/x-www-form-urlencoded';
+    $content_type = 'application/octet-stream';
     foreach ($this->request['headers'] as $header => $value) {
       if (strcasecmp('content-type', $header) === 0) {
         $content_type = $value;

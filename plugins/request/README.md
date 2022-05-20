@@ -2,7 +2,7 @@
 
 ## Automatic Body Encoding
 
-When the body is not a scalar or null, it will be encoded based on the content type. The assumed content type is `application/x-www-form-urlencoded`
+When the body is not a scalar or null, it will be encoded based on the content type. The assumed content type is `application/octet-stream`
 
 ## Multiple Verbs
 
