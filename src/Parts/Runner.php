@@ -1107,7 +1107,7 @@ class Runner {
         $why = "{$definition['why']} $why";
       }
       $this->messages[] = [
-        'data' => sprintf('├── #%d %s', $assert->id(), $why),
+        'data' => sprintf('├── %s', $why),
         'level' => 'error',
       ];
       $reason = $assert->getReason();
@@ -1123,7 +1123,7 @@ class Runner {
       $why = $definition['why'] ?? $why;
       if ($why) {
         $this->messages[] = [
-          'data' => sprintf('├── #%d %s', $assert->id(), $why),
+          'data' => sprintf('├── %s', $why),
           'level' => 'success',
         ];
       }

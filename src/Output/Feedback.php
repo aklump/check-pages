@@ -118,7 +118,7 @@ class Feedback implements EventSubscriberInterface {
           // to display things regardless of the actual user-provided verbosity.
           $stash = $output->getVerbosity();
           $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
-          self::updateTestStatus($runner, $test->getDescription(), $test->hasPassed());
+          self::updateTestStatus($runner, sprintf('#%d: %s', $test->id(), $test->getDescription()), $test->hasPassed());
           $output->setVerbosity($stash);
 
           if ($runner->getMessages()) {
