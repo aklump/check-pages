@@ -15,6 +15,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 final class Loop implements EventSubscriberInterface {
 
   /**
+   * @var \AKlump\CheckPages\Parts\Test[]
+   */
+  private $tests = [];
+
+  /**
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
@@ -84,11 +89,6 @@ final class CurrentLoop {
    */
   private $count;
 
-  /**
-   * @var array
-   */
-  private $tests = [];
-
   public function __construct($definition) {
 
     // Expand string shorthand.
@@ -154,9 +154,7 @@ final class CurrentLoop {
       $variables->setItem('loop.last', $counter++ === $this->count);
 
       foreach ($this->tests as $test) {
-        $config = $test->getConfig();
-        $config = $variables->interpolate($config);
-        $iterations[] = $config;
+        $iterations[] = $test->reinterpolate()->getConfig();
       }
     }
 

@@ -674,25 +674,6 @@ class Runner {
       Feedback::$testDetails = $this->getOutput()->section();
       Feedback::$testResult = $this->getOutput()->section();
 
-      //
-      // Interpolate the test as the variables may have changed.
-      //
-      if (count($this->suite->variables())) {
-        $config = $test->getConfig();
-        foreach (array_keys($config) as $key) {
-
-          // We MUST NOT INTERPOLATE `find` at this time, that will take place
-          // inside of the doFindAssert method.  That is because variables can
-          // be set on every assert, and if you interpolate too soon, you may
-          // replace with the incorrect values.  However the rest of the config
-          // should be interpolated, such as will affect the URL.
-          if ($key !== 'find') {
-            $config[$key] = $this->suite->variables()
-              ->interpolate($config[$key]);
-          }
-        }
-        $test->setConfig($config);
-      }
       $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_CREATED);
 
       // It's possible the test was already run during Event::TEST_CREATED, if
@@ -760,15 +741,8 @@ class Runner {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function runTest(Test $test): void {
-
-    // Ensure find is an array so we don't have to check below in two places.
-    $config = $test->getConfig();
-    if (empty($config['find']) || !is_array($config['find'])) {
-      $config['find'] = empty($config['find']) ? [] : [$config['find']];
-    }
-    $test->setConfig($config);
-
     $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_STARTED);
+    $test->reiterpolate();
 
     $this->totalTestsRun++;
     $test_passed = function (bool $result = NULL): bool {
@@ -781,11 +755,10 @@ class Runner {
     };
 
     $driver = new GuzzleDriver();
-    $is_http_test = !empty($config['url']);
+    $is_http_test = !empty($test->getConfig()['url']);
     if ($is_http_test) {
-      $config = $test->getConfig();
 
-      $debug = $config;
+      $debug = $test->getConfig();
       $debug['find'] = '';
       $this->debugger->echoYaml($debug, 0, function ($yaml) {
         // To make the output cleaner we need to remove the printed '' since find
@@ -793,7 +766,7 @@ class Runner {
         return str_replace("find: ''", 'find:', $yaml);
       });
 
-      if ($config['js'] ?? FALSE) {
+      if ($test->getConfig()['js'] ?? FALSE) {
         try {
           if (empty($this->getConfig()['chrome'])) {
             throw new \InvalidArgumentException(sprintf("Javascript testing is unavailable due to missing path to Chrome binary.  Add \"chrome\" in file %s.", $this->getLoadedConfigPath()));
@@ -801,11 +774,12 @@ class Runner {
           $driver = new ChromeDriver($this->getConfig()['chrome']);
         }
         catch (\Exception $exception) {
-          throw new TestFailedException($config, $exception);
+          throw new TestFailedException($test->getConfig(), $exception);
         }
       }
 
       $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
+      $test->reiterpolate();
 
       try {
         $response = $driver
@@ -837,6 +811,7 @@ class Runner {
         $test->setFailed();
       }
       $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_FINISHED);
+      $test->reiterpolate();
 
       // Test the location if asked.
       $expected_location = $test->getConfig()['location'] ?? '';
@@ -1153,48 +1128,6 @@ class Runner {
    */
   public function debug(string $message) {
     $this->messages[] = ['data' => $message, 'level' => 'debug'];
-  }
-
-  /**
-   * Add an info message.
-   *
-   * @param string $message
-   *   The debug message.
-   */
-  public function info(string $message) {
-    $this->messages[] = ['data' => $message, 'level' => 'info'];
-  }
-
-  /**
-   * Add a failure reason.
-   *
-   * @param string $message
-   */
-  public function fail(string $message) {
-    $this->messages[] = ['data' => $message, 'level' => 'error'];
-  }
-
-  /**
-   * Add a failure reason.
-   *
-   * @param string $message
-   */
-  protected function failReason(string $message) {
-    $this->messages[] = [
-      'data' => $message,
-      'level' => 'error',
-      'tags' => ['todo'],
-    ];
-  }
-
-  /**
-   * Add a pass reason.
-   *
-   * @param string $message
-   *   The message.
-   */
-  protected function pass(string $message) {
-    $this->messages[] = ['data' => $message, 'level' => 'success'];
   }
 
   /**

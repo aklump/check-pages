@@ -144,6 +144,12 @@ class Test implements \JsonSerializable {
   }
 
   public function setConfig(array $config): self {
+
+    // Cast find to an array if needed.
+    if (isset($config['find']) && !is_array($config['find'])) {
+      $config['find'] = [$config['find']];
+    }
+
     // Normalize config keys.
     $keys = array_map(function ($key) {
       return $key === 'visit' ? 'url' : $key;
@@ -217,6 +223,25 @@ class Test implements \JsonSerializable {
 
   public function __toString() {
     return $this->getSuite() . '\\' . $this->id();
+  }
+
+  /**
+   * Interpolate values based on current suite variables, skipping assertions.
+   *
+   * This is the correct way to apply interpolation to a test, as it prevents
+   * assertions from being affected.
+   *
+   * @return $this
+   *   Self for chaining.
+   */
+  public function reiterpolate(): self {
+    $config = $this->getConfig();
+    $uninterpolated_assertions = $config['find'];
+    $config = $this->getSuite()->variables()->interpolate($config);
+    $config['find'] = $uninterpolated_assertions;
+    $this->setConfig($config);
+
+    return $this;
   }
 
 }
