@@ -822,7 +822,11 @@ class Runner {
         $location_test = $http_location === $this->url($expected_location);
         $test_passed($location_test);
         if (!$location_test) {
-          $this->failReason(sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $this->url($expected_location)));
+          $this->messages[] = [
+            'data' => sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $this->url($expected_location)),
+            'level' => 'error',
+            'tags' => ['todo'],
+          ];
         }
       }
     }
@@ -1102,13 +1106,27 @@ class Runner {
       if (!empty($definition['why'])) {
         $why = "{$definition['why']} $why";
       }
-      $why && $this->fail("├── $why");
+      $this->messages[] = [
+        'data' => sprintf('├── #%d %s', $assert->id(), $why),
+        'level' => 'error',
+      ];
       $reason = $assert->getReason();
-      $reason && $this->failReason("│   └── $reason");
+      if ($reason) {
+        $this->messages[] = [
+          'data' => "│   └── $reason",
+          'level' => 'error',
+          'tags' => ['todo'],
+        ];
+      }
     }
     else {
       $why = $definition['why'] ?? $why;
-      $why && $this->pass("├── $why");
+      if ($why) {
+        $this->messages[] = [
+          'data' => sprintf('├── #%d %s', $assert->id(), $why),
+          'level' => 'success',
+        ];
+      }
     }
 
 

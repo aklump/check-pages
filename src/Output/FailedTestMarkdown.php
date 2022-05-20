@@ -63,8 +63,7 @@ final class FailedTestMarkdown {
    */
   public static function output(string $output_filename, Test $test = NULL) {
     $obj = new static($output_filename, $test);
-
-    return $obj->fail($test->getResults());
+    $obj->fail($test->getResults());
   }
 
   /**
