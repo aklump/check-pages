@@ -12,6 +12,8 @@ use AKlump\CheckPages\GuzzleDriver;
  */
 final class Request extends LegacyPlugin {
 
+  use \AKlump\CheckPages\SerializationTrait;
+
   /**
    * Captures the test config to share across methods.
    *
@@ -82,17 +84,7 @@ final class Request extends LegacyPlugin {
       }
     }
 
-    switch ($content_type) {
-      case 'application/json':
-        $body = json_encode($body);
-        break;
-
-      default:
-        $body = http_build_query($body);
-        break;
-    }
-
-    return strval($body);
+    return $this->serialize($body, $content_type);
   }
 
   /**

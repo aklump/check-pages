@@ -54,7 +54,8 @@
         "symfony/config": "^5.4",
         "symfony/console": "^5.4",
         "justinrainbow/json-schema": "^5.2",
-        "ralouphie/mimey": "^2.1"
+        "ralouphie/mimey": "^2.1",
+        "shanethehat/pretty-xml": "^1.0"
     },
     "version": "0.15.2",
     "bin": [

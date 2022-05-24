@@ -9,6 +9,14 @@ use GuzzleHttp\Client;
  */
 abstract class RequestDriver implements RequestDriverInterface {
 
+  /**
+   * The total timeout of the request in seconds.
+   *
+   * @var int
+   * // TODO Make the timeout configurable.
+   */
+  const SERVER_TIMEOUT = 60;
+
   protected $method = 'GET';
 
   protected $body = '';

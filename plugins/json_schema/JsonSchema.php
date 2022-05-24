@@ -88,7 +88,7 @@ final class JsonSchema implements EventSubscriberInterface {
           foreach ($validator->getErrors() as $error) {
             $message[] = sprintf("[%s] %s", $error['property'], $error['message']);
           }
-          throw new TestFailedException($assert->getConfig(), implode(PHP_EOL, $message));
+          throw new TestFailedException($assert->getConfig(), new \Exception(implode(PHP_EOL, $message)));
         }
       }
 

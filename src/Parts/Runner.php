@@ -16,6 +16,7 @@ use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files;
 use AKlump\CheckPages\GuzzleDriver;
+use AKlump\CheckPages\Output\DebuggableInterface;
 use AKlump\CheckPages\Output\Debugging;
 use AKlump\CheckPages\Output\Feedback;
 use AKlump\CheckPages\Output\SourceCodeOutput;
@@ -33,7 +34,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Yaml\Yaml;
 
-class Runner {
+class Runner implements DebuggableInterface {
 
   use SerializationTrait;
   use SetTrait;
@@ -48,8 +49,6 @@ class Runner {
   const OUTPUT_NORMAL = 1;
 
   const OUTPUT_QUIET = 2;
-
-  const OUTPUT_DEBUG = 3;
 
   protected $outputMode;
 
@@ -1150,16 +1149,6 @@ class Runner {
   }
 
   /**
-   * Add a debug message.
-   *
-   * @param string $message
-   *   The debug message.
-   */
-  public function debug(string $message) {
-    $this->messages[] = ['data' => $message, 'level' => 'debug'];
-  }
-
-  /**
    * Get a runner storage instance.
    *
    * This should be used to share data across test suites, as it will persist
@@ -1184,9 +1173,7 @@ class Runner {
       $storage_name = rtrim($path_to_storage, '/') . "/$storage_name";
     }
     else {
-      if ($this->debugging) {
-        $this->debug(sprintf('├── To enable disk storage (i.e., sessions) create a writeable directory at %s.', $path_to_storage));
-      }
+      $this->debug('file_storage', [sprintf('To enable disk storage (i.e., sessions) create a writeable directory at %s.', $path_to_storage)]);
     }
     $this->storage = new Storage($storage_name);
 
@@ -1202,9 +1189,7 @@ class Runner {
   public function getPathToFilesDirectory(): string {
     if (NULL === $this->pathToFiles) {
       if (empty($this->getConfig()['files'])) {
-        if ($this->getOutput()->isDebug()) {
-          $this->debug('├── To enable file output you must set a value for "files" in your config.');
-        }
+        $this->debug('files', ['To enable file output you must set a value for "files" in your config.']);
         $this->pathToFiles = '';
       }
       else {
@@ -1234,16 +1219,38 @@ class Runner {
   }
 
   /**
+   * @param array $filenames
+   *   Relative paths (or globs) to be deleted.
+   *
+   * @return void
+   */
+  public function deleteFiles(array $filenames): void {
+    $path_to_files = $this->getPathToRunnerFilesDirectory();
+    if (!$path_to_files) {
+      return;
+    }
+    foreach ($filenames as $filename) {
+      $files = glob(rtrim($path_to_files, '/') . '/' . ltrim($filename, '/'));
+      foreach ($files as $file) {
+        if ($path_to_files && strstr($file, $path_to_files) !== FALSE) {
+          unlink($file);
+        }
+      }
+    }
+  }
+
+  /**
    * Send data to a file in the files directory if it exists.
    *
-   * @param string $name
-   *   A root value to use when generating filenames.
+   * @param string $filename
+   *   A filename (or path) relative to the files directory for the destination.
    * @param array $lines
    *   The content to write to the file; elements are joined by \n.
    *
-   * @return $this
+   * @return string The absolute filepath to the written file.
    */
-  public function writeToFile(string $name, array $lines, string $mode = 'a+'): self {
+  public function writeToFile(string $name, array $lines, string $mode = 'a+'
+  ): string {
     $path_to_files = $this->getPathToRunnerFilesDirectory();
     if (!$path_to_files) {
       return $this;
@@ -1254,13 +1261,25 @@ class Runner {
       $extension = pathinfo($name, PATHINFO_EXTENSION) ?? '';
       $extension = $extension ?: 'txt';
       $path = implode('-', $path) . ".$extension";
+
+      $dirname = dirname($name);
+      if ($dirname) {
+        $path = "$dirname/$path";
+        if (!is_dir($path_to_files . '/' . $dirname)) {
+          mkdir($path_to_files . '/' . $dirname, 0755, TRUE);
+        }
+      }
+
       $handle = fopen($path_to_files . '/' . $path, $mode);
-      $this->writeToFileResources[$name] = [$handle, $name, $path];
+      $this->writeToFileResources[$name] = [
+        $handle,
+        $path_to_files . '/' . $path,
+      ];
     }
-    list($handle) = $this->writeToFileResources[$name];
+    list($handle, $filepath) = $this->writeToFileResources[$name];
     fwrite($handle, implode(PHP_EOL, $lines) . PHP_EOL);
 
-    return $this;
+    return $filepath;
   }
 
   /**
@@ -1279,6 +1298,21 @@ class Runner {
    */
   public function getMessages(): array {
     return $this->messages;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function debug(string $id, array $messages): void {
+    $output = $this->getOutput();
+    if ($output->isDebug()) {
+      $output->writeln('🐞 ' . Color::wrap('light gray', $id));
+      $last = array_pop($messages);
+      $output->writeln(array_map(function ($line) {
+        return Color::wrap('light gray', '  ├── ') . $line;
+      }, $messages));
+      $output->writeln(Color::wrap('light gray', '  └── ') . $last);
+    }
   }
 
 }

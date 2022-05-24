@@ -107,6 +107,10 @@ final class PhpStormHttpMixin {
 
     $export = [];
     $export[] = '### ' . ($config['why'] ?? '');
+
+    // @link https://www.jetbrains.com/help/phpstorm/exploring-http-syntax.html#enable-disable-saving-cookies
+    $export[] = '// @no-cookie-jar';
+
     $export[] = sprintf('%s %s', strtoupper($config['request']['method'] ?? 'GET'), $url);
 
     foreach ($driver->getHeaders() as $key => $value) {

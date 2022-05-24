@@ -2,8 +2,8 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Output\DebuggableInterface;
 use Laminas\Xml2Json\Xml2Json;
-use \Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Yaml\Yaml;
 
 trait SerializationTrait {
@@ -27,7 +27,42 @@ trait SerializationTrait {
     return strtolower($type);
   }
 
+  protected function serialize($data, string $type): string {
+    switch (strtolower($type)) {
+      case 'text/html':
+      case 'xml':
+      case 'application/xml':
+        return $data;
+
+      case 'yaml':
+      case 'yml':
+      case 'application/x+yaml':
+      case 'application/x+yml':
+      case 'text/yml':
+      case 'text/yaml':
+        return Yaml::dump($data);
+
+      case 'application/x-www-form-urlencoded':
+        return http_build_query($data);
+
+      case 'json':
+      case 'application/json':
+        return json_encode($data);
+
+    }
+
+    //    if ($this instanceof DebuggableInterface) {
+    //      $this->debug('deserialize', [$serial]);
+    //    }
+
+    throw new \InvalidArgumentException(sprintf('Cannot serialize content of type "%s".', $type));
+  }
+
   /**
+   * Deserialize a string by content type.
+   *
+   * XML: numeric strings are automatically cast as numbers.
+   *
    * @param string $serial
    * @param string $content_type
    *
@@ -42,6 +77,11 @@ trait SerializationTrait {
     switch (strtolower($type)) {
       case 'text/html':
         return $serial;
+
+      case 'application/x-www-form-urlencoded':
+        parse_str($serial, $data);
+
+        return $data;
 
       case 'json':
       case 'application/json':
@@ -58,12 +98,20 @@ trait SerializationTrait {
       case 'xml':
       case 'application/xml':
         $serial = Xml2Json::fromXml($serial, TRUE);
+        if (!$serial) {
+          return NULL;
+        }
+        $data = json_decode($serial, TRUE);
+        // Remove the root node which is unique to XML.
+        $root_node_name = key($data);
+        $data = $data[$root_node_name];
+        $data = $this->typecastNumbers($data);
 
-        return json_decode($serial);
+        return json_decode(json_encode($data));
     }
 
-    if (method_exists($this, 'debug')) {
-      $this->debug($serial);
+    if ($this instanceof DebuggableInterface) {
+      $this->debug('deserialize', [$serial]);
     }
 
     throw new \InvalidArgumentException(sprintf('Cannot deserialize content of type "%s".', $type));
@@ -86,5 +134,16 @@ trait SerializationTrait {
     }
 
     return [$value];
+  }
+
+  protected function typecastNumbers($value) {
+    if (!is_array($value)) {
+      return is_numeric($value) ? $value * 1 : $value;
+    }
+    foreach ($value as $k => $v) {
+      $value[$k] = $this->typecastNumbers($v);
+    }
+
+    return $value;
   }
 }

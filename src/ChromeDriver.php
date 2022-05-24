@@ -85,8 +85,7 @@ final class ChromeDriver extends RequestDriver {
   public function request(): RequestDriverInterface {
 
     // Context creates deadline for operations.
-    // TODO Make the timeout configurable.
-    $this->ctx = Context::withTimeout(Context::background(), 30 /* seconds */);
+    $this->ctx = Context::withTimeout(Context::background(), static::SERVER_TIMEOUT);
 
     // Launcher starts chrome process ($instance)
     $launcher = new Launcher();

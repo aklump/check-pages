@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Output;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use Mimey\MimeTypes;
+use PrettyXml\Formatter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -17,14 +18,26 @@ final class SaveResponseToFile implements EventSubscriberInterface {
    *
    * @var string[]
    */
-  private static $mime_types = ['text/html'];
+  private static $mime_types = [
+    'text/html',
+    'application/json',
+    'application/xml',
+  ];
 
   /**
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
     return [
-      Event::REQUEST_FINISHED => [
+      Event::SUITE_LOADED => [
+        function (Event\SuiteEventInterface $event) {
+          $suite = $event->getSuite();
+          $suite->getRunner()->deleteFiles([
+            'response/' . str_replace('\\', '_', $suite) . '*',
+          ]);
+        },
+      ],
+      Event::TEST_FINISHED => [
         function (DriverEventInterface $event) {
           $content_type = $event->getDriver()
                             ->getResponse()
@@ -42,13 +55,37 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           $mimes = new MimeTypes();
 
           $test = $event->getTest();
-          $filepath = str_replace('\\', '_', $test);
-          $filepath .= '.' . $mimes->getExtension($mime_type);
+          $path = str_replace('\\', '_', $test);
+          $path .= '.' . $mimes->getExtension($mime_type);
 
           $content = $event->getDriver()->getResponse()->getBody();
-          $test->getRunner()->writeToFile($filepath, [$content], 'w+');
+          switch ($content_type) {
+            case 'application/xml':
+              $formatter = new Formatter();
+              $content = $formatter->format($content);
+              break;
+
+            case 'application/json':
+              $content = json_encode(json_decode($content), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+              break;
+          }
+          $filepath = $test->getRunner()
+            ->writeToFile('response/' . $path, [$content], 'w+');
+
+          if ($test->hasFailed() || $test->getSuite()
+              ->getRunner()
+              ->getOutput()
+              ->isVerbose()) {
+            Feedback::$responseBody->overwrite([
+              NULL,
+              '├── ' . $filepath,
+              NULL,
+            ]);
+          }
         },
+        -1,
       ],
     ];
   }
+
 }
