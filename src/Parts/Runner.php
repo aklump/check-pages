@@ -642,6 +642,7 @@ class Runner implements DebuggableInterface {
     foreach ($data as $config) {
       $this->suite->addTest($config);
     }
+    unset($config);
 
     $this->dispatcher->dispatch(new SuiteEvent($this->suite), Event::SUITE_LOADED);
 
@@ -787,6 +788,7 @@ class Runner implements DebuggableInterface {
         ->variables()
         ->interpolate($config['url']);
       $test->setConfig($config);
+      unset($config);
 
       $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
       $test->interpolate();
