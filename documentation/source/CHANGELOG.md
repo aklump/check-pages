@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- `end loop` is `end_loop`
+- the _drupal_ mixin no longer sets variables with `user.` as the base prefix, but instead uses the passed value of `user`, e.g. `user: foo` sets: `foo.id`, etc.
 - The mixin config var has changed to `$mixin_config` instead of `$config`.
 - `add_shorthand()` callback arguments changed to ($shorthand, Test). Also you will no longer `unset()` the shorthand key because it's been removed from the test config.
 - `Event::TEST_FINISHED` has changed from `\AKlump\CheckPages\Event\DriverEventInterface` to `\AKlump\CheckPages\Event\TestEventInterface`.

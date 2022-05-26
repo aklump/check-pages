@@ -51,9 +51,9 @@ final class Loop implements EventSubscriberInterface {
         }
         $suite->removeTest($test);
       }
-      elseif (array_key_exists('end loop', $test_config)) {
+      elseif (array_key_exists('end_loop', $test_config)) {
         if (!$current_loop) {
-          throw new BadSyntaxException('Invalid `end loop` found; no `loop` was found.', $suite);
+          throw new BadSyntaxException('Invalid `end_loop` found; no `loop` was found.', $suite);
         }
         $loop_tests = $current_loop->execute();
         $suite->replaceTestWithMultiple($test, $loop_tests);

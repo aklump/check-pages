@@ -7,7 +7,7 @@
   value: ${loop.value}
 
 -
-  end loop:
+  end_loop:
 
 -
   loop: 2...4
@@ -21,7 +21,7 @@
       count: ${loop.index}
 
 -
-  end loop:
+  end_loop:
 
 -
   loop:
@@ -37,7 +37,7 @@
       text: ${loop.value}
 
 -
-  end loop:
+  end_loop:
 
 -
   loop:
@@ -53,7 +53,7 @@
       count: ${loop.index0}
 
 -
-  end loop:
+  end_loop:
 
 -
   loop:
@@ -71,7 +71,7 @@
       text: ${loop.value.1}
 
 -
-  end loop:
+  end_loop:
 
 -
   loop:
@@ -93,4 +93,4 @@
       text: ${loop.value.title}
 
 -
-  end loop:
+  end_loop:

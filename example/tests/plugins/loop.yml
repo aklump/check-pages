@@ -5,7 +5,7 @@
     set: 'value${loop.index}'
     value: '${loop.value}'
 -
-    'end loop': null
+    end_loop: null
 -
     loop: 2...4
 -
@@ -16,7 +16,7 @@
             dom: 'h${loop.value}'
             count: '${loop.index}'
 -
-    'end loop': null
+    end_loop: null
 -
     loop:
         h2: Lorem
@@ -30,7 +30,7 @@
             dom: '${loop.property}'
             text: '${loop.value}'
 -
-    'end loop': null
+    end_loop: null
 -
     loop:
         - blockquote
@@ -44,7 +44,7 @@
             dom: '${loop.value}'
             count: '${loop.index0}'
 -
-    'end loop': null
+    end_loop: null
 -
     loop:
         -
@@ -63,7 +63,7 @@
             dom: 'h${loop.index}'
             text: '${loop.value.1}'
 -
-    'end loop': null
+    end_loop: null
 -
     loop:
         -
@@ -82,4 +82,4 @@
             dom: 'h${loop.index}'
             text: '${loop.value.title}'
 -
-    'end loop': null
+    end_loop: null
