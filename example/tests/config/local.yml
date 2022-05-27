@@ -26,3 +26,5 @@ chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 suites_to_ignore:
   - suite_dev_only
   - group1/alpha
+
+files: files/local
