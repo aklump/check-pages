@@ -102,9 +102,6 @@ trait SerializationTrait {
           return NULL;
         }
         $data = json_decode($serial, TRUE);
-        // Remove the root node which is unique to XML.
-        $root_node_name = key($data);
-        $data = $data[$root_node_name];
         $data = $this->typecastNumbers($data);
 
         return json_decode(json_encode($data));
