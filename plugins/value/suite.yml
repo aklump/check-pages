@@ -32,3 +32,26 @@
 -
   value: ${vars.number}
   matches: /\d{3}/
+
+-
+  url: /test_subject.html
+  find:
+    -
+      why: Assert we can perform an assertion "set".
+      value: Twilight
+      set: control
+    -
+      why: Assert we can interpolate on "value".
+      value: ${control}
+      set: control2
+
+-
+  why: Assert set values persist to the next test.
+  url: /test_subject.html
+  find:
+    -
+      dom: h1
+      is: ${control}
+    -
+      dom: h1
+      is: ${control2}

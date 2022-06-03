@@ -34,17 +34,20 @@ final class Value implements EventSubscriberInterface {
           if (!$should_apply) {
             return;
           }
+          $test->interpolate($config['value']);
 
           // Handle a test-level setter.
           $set_message = '';
           if (array_key_exists('set', $config)) {
+            $test->interpolate($config['set']);
             $obj = new self();
             $set_message = $obj->setKeyValuePair(
               $test->getSuite()->variables(),
               $config['set'],
               $config['value']
             );
-            $test->setTitle($set_message)->setPassed();
+            $title = $config['why'] ?? $set_message;
+            $test->setTitle($title)->setPassed();
           }
 
           // Handle a test-level assertion.
@@ -61,7 +64,7 @@ final class Value implements EventSubscriberInterface {
             $definition = [
               $type => $config['value'],
             ];
-            $assert = new Assert($definition, 'value');
+            $assert = new Assert('value', $definition, $test);
             $assert->setHaystack([$config['value']]);
             $assert->setAssertion($match[$type], $config[$type]);
             $assert->run();
@@ -69,6 +72,18 @@ final class Value implements EventSubscriberInterface {
             $assert->getResult() ? $test->setPassed() : $test->setFailed();
           }
         },
+        -10,
+      ],
+      Event::ASSERT_CREATED => [
+        function (Event\AssertEventInterface $event) {
+          $config = $event->getAssert()->getConfig();
+          $should_apply = array_key_exists('value', $config);
+          if (!$should_apply) {
+            return;
+          }
+          $event->getAssert()->setHaystack([$config['value']]);
+        },
+        -10,
       ],
     ];
   }
