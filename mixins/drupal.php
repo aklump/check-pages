@@ -28,15 +28,17 @@
  * 4. This will also provide the following replacement variables which you can
  * use to write dynamic suites and tests:
  *
- *    - ${user.id}
- *    - ${user.uid} (same as user.id)
- *    - ${user.name}
- *    - ${user.mail}
- *    - ${user.pass}
+ *    - ${USER.id}
+ *    - ${USER.uid} (same as user.id)
+ *    - ${USER.mail}
+ *    - ${USER.name}
+ *    - ${USER.pass}
+ *    - ${USER.csrf}
  *
- * For example you can write: visit: /user/{user.uid}/edit
+ * For example you can write: visit: /user/{foo.uid}/edit
  */
 
+use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Options\AuthenticateProviderFactory;
@@ -44,7 +46,11 @@ use AKlump\LoftLib\Bash\Color;
 
 $_get_session = function (string $username, \AKlump\CheckPages\Parts\Test $test) use ($mixin_config) {
   $runner = $test->getRunner();
-  $sessions = $runner->getStorage()->get('drupal.sessions');
+
+  static $sessions;
+  if (is_null($sessions)) {
+    $sessions = $runner->getStorage()->get('drupal.sessions');
+  }
 
   // Check for expiry and discard if passed.
   if (empty($sessions[$username]['expires']) || $sessions[$username]['expires'] < time()) {
@@ -94,8 +100,9 @@ add_test_option('user', [
     }
 
     // Add in user-based variables for later interpolation.
-    $session = $_get_session($username, $event->getTest());
-    $event->getTest()->getSuite()->variables()
+    $test = $event->getTest();
+    $session = $_get_session($username, $test);
+    $test->variables()
       ->setItem('user.id', $session['account']['uid'])
       ->setItem('user.uid', $session['account']['uid'])
       ->setItem('user.mail', $session['account']['mail'])
@@ -125,3 +132,15 @@ add_test_option('user', [
   },
 
 ]);
+
+/**
+ * Delete any sessions that were captured in Storage.  This is more reliable
+ * than keeping the sessions across runner executions and depending on the
+ * session expiry, which may lead to sessions that no longer exist on the
+ * remote, and subsequently annoying test failures.  The performance hit of this
+ * has been measured and is very small.  The reliability gain far exceeds the
+ * slight hit in performance.
+ */
+respond_to(Event::RUNNER_FINISHED, function () use ($runner) {
+  $runner->getStorage()->set('drupal.sessions', []);
+});
