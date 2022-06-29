@@ -36,6 +36,12 @@ final class Loop implements EventSubscriberInterface {
     $current_loop = NULL;
     foreach ($suite->getTests() as $test) {
       $test_config = $test->getConfig();
+
+      // Watch for "endloop" instead of "end_loop" as a closure.
+      if (array_key_exists('endloop', $test_config) && count($test_config) === 1 && is_null($test_config['endloop']) && $current_loop) {
+        throw new BadSyntaxException('Found "endloop", did you mean "end_loop"?');
+      }
+
       if (array_key_exists('loop', $test_config)) {
         if ($current_loop) {
           throw new BadSyntaxException('Loops may not be nested; you must end the first loop before starting a new one.', $suite);
