@@ -31,6 +31,7 @@ trait SerializationTrait {
     switch (strtolower($type)) {
       case 'text/html':
       case 'xml':
+      case 'application/rss+xml':
       case 'application/xml':
         return $data;
 
