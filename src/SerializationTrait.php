@@ -97,6 +97,7 @@ trait SerializationTrait {
 
       case 'xml':
       case 'application/xml':
+      case 'application/rss+xml':
         $serial = Xml2Json::fromXml($serial, TRUE);
         if (!$serial) {
           return NULL;
