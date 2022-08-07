@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Interpolation</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--interpolation">
+<header>
+  <div class="pager"><a href="retest.html" class="prev retest">&laquo;Continuing and Retesting</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="phpstorm.html" class="next phpstorm">PhpStorm Integration&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Interpolation</h1>
+  
+
+<h2>Rules for Test Interpolation</h2>
+
+<ul>
+<li>The timing of interpolation can be tricky.</li>
+<li>Since only plugins know what test keys they provide, they MUST handle interpolation on their own test keys.</li>
+<li>You should set variables on the test, which will persist only for that test. <code>\AKlump\CheckPages\Parts\Test::variables()</code></li>
+<li>You should set variables on suite, which will persist across tests. <code>\AKlump\CheckPages\Parts\Suite::variables</code></li>
+<li>You may also want to use a throw-away instance such as is done in <code>\AKlump\CheckPages\Plugin\LoopCurrentLoop::execute</code></li>
+<li>When a plugin interpolates test config, it should probably set the config so that the interpolated values are passed down the execution chain, e.g. taken from the Request plugin:
+<code>php
+function (TestEventInterface $event) {
+$test = $event-&gt;getTest();
+$this-&gt;config = $test-&gt;getConfig();
+$test-&gt;interpolate($this-&gt;config['request']);
+$test-&gt;setConfig($this-&gt;config);
+}</code></li>
+</ul>
+
+<h3>Example Implementations</h3>
+
+<ul>
+<li><code>\AKlump\CheckPages\Plugin\Value</code></li>
+<li><code>\AKlump\CheckPages\Plugin\Request</code></li>
+</ul>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="retest.html" class="prev retest">&laquo;Continuing and Retesting</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="phpstorm.html" class="next phpstorm">PhpStorm Integration&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Sun, 07 Aug 2022 16:25:03 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

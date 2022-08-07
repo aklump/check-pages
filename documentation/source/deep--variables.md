@@ -17,7 +17,7 @@ You create variables like this:
 ```yaml
 -
   set: title
-  is: 'Lorem Ipsum'
+  value: 'Lorem Ipsum'
 ```
 
 Which can be used like this:
@@ -25,7 +25,7 @@ Which can be used like this:
 ```yaml
 -
   set: title
-  is: 'Lorem Ipsum'
+  value: 'Lorem Ipsum'
 -
   visit: /foo.html
   find:
@@ -39,7 +39,7 @@ Which can be used like this:
 ```yaml
 -
   set: title
-  is: 'Lorem Ipsum'
+  value: 'Lorem Ipsum'
 -
   visit: /foo.html
   find:
@@ -87,7 +87,7 @@ The authentication plugin will create `${user.uid}`, however it will be overwrit
 -
   why: Reassign to authenticated user ID to variable fooUserId
   set: fooUserId
-  is: ${user.uid}
+  value: ${user.uid}
 
 -
   why: Assert the title of Foo's user page is correct.
