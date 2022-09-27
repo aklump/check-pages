@@ -1,41 +1,60 @@
 {
-    "form_form": {
-        "type": "object",
-        "required": [
-            "dom"
-        ],
-        "properties": {
-            "dom": {
-                "$ref": "#/definitions/dom_dom"
-            },
-            "input": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "required": [
-                        "name",
-                        "value"
-                    ],
-                    "additionalProperties": false,
-                    "properties": {
-                        "why": {
-                            "$ref": "#/definitions/why"
-                        },
-                        "name": {
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": [
-                                "string",
-                                "number"
-                            ]
-                        }
-                    }
+  "form_form": {
+    "type": "object",
+    "required": [
+      "dom"
+    ],
+    "properties": {
+      "dom": {
+        "$ref": "#/definitions/dom_dom"
+      },
+      "input": {
+        "type": "array",
+        "items": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": [
+                "import"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "why": {
+                  "$ref": "#/definitions/why"
+                },
+                "import": {
+                  "$ref": "#/definitions/import_import"
                 }
+              }
             },
-            "submit": {
-                "$ref": "#/definitions/dom_dom"
+            {
+              "type": "object",
+              "required": [
+                "name",
+                "value"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "why": {
+                  "$ref": "#/definitions/why"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                }
+              }
             }
+          ]
         }
+      },
+      "submit": {
+        "$ref": "#/definitions/dom_dom"
+      }
     }
+  }
 }

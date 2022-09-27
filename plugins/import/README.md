@@ -86,3 +86,24 @@ Can be moved to a file called _imports/_headings.yml_ and those repeated section
 -
   url: /foo/bar/${baz}
 ```
+
+## Usage by Other Plugins
+
+Use this pattern in other plugins to implement imports.
+
+```php
+$importer = new \AKlump\CheckPages\Plugin\Importer($test->getRunner());
+$importer->resolveImports($config['form']['input']);
+```
+
+In this example the form plugin allows the usage of imports, e.g.,
+
+```yaml
+-
+  url: /form.html
+  form:
+    dom: form
+    input:
+      -
+        import: imports/form_data
+```

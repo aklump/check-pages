@@ -88,6 +88,12 @@ final class Form implements EventSubscriberInterface {
           $method = $form->getNode(0)->getAttribute('method');
           $variables->setItem('formMethod', $method ?: 'post');
 
+          // We will allow imports on form.input.
+          if (isset($config['form']['input']) && is_array($config['form']['input'])) {
+            $importer = new Importer($test->getRunner());
+            $importer->resolveImports($config['form']['input']);
+          }
+
           // Load the inputs that come from the test config, first.
           $inputs = [];
           foreach (($config['form']['input'] ?? []) as $input) {
