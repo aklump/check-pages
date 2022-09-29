@@ -28,12 +28,11 @@
  * 4. This will also provide the following replacement variables which you can
  * use to write dynamic suites and tests:
  *
- *    - ${USER.id}
- *    - ${USER.uid} (same as user.id)
- *    - ${USER.mail}
- *    - ${USER.name}
- *    - ${USER.pass}
- *    - ${USER.csrf}
+ *    - ${user.id} or ${user.uid}
+ *    - ${user.mail}
+ *    - ${user.name}
+ *    - ${user.pass}
+ *    - ${user.csrf}
  *
  * For example you can write: visit: /user/{foo.uid}/edit
  */
