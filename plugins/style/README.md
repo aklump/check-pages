@@ -10,12 +10,12 @@ find:
     dom: .modal
     count: 1
   -
-    style: .modal
-    property: display
+    dom: .modal
+    style: display
     matches: /^(?!none).+$/
   -
-    style: .modal
-    property: opacity
+    dom: .modal
+    style: opacity
     is: 1
 ```
 
