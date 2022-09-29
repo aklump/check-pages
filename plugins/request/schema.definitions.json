@@ -1,72 +1,81 @@
 {
-    "request_method": {
-        "oneOf": [
-            {
-                "type": "string",
-                "pattern": "^\\${"
-            },
-            {
-                "type": "string",
-                "enum": [
-                    "delete",
-                    "get",
-                    "head",
-                    "options",
-                    "patch",
-                    "post",
-                    "put",
-                    "trace",
-                    "DELETE",
-                    "GET",
-                    "HEAD",
-                    "OPTIONS",
-                    "PATCH",
-                    "POST",
-                    "PUT",
-                    "TRACE"
-                ]
-            }
+  "request_method": {
+    "oneOf": [
+      {
+        "type": "string",
+        "pattern": "^\\${"
+      },
+      {
+        "type": "string",
+        "enum": [
+          "delete",
+          "get",
+          "head",
+          "options",
+          "patch",
+          "post",
+          "put",
+          "trace",
+          "DELETE",
+          "GET",
+          "HEAD",
+          "OPTIONS",
+          "PATCH",
+          "POST",
+          "PUT",
+          "TRACE"
         ]
-    },
-    "request_request": {
-        "type": "object",
-        "additionalProperties": false,
-        "oneOf": [
-            {
-                "required": [
-                    "method"
-                ]
-            },
-            {
-                "required": [
-                    "methods"
-                ]
-            }
-        ],
-        "properties": {
-            "method": {
-                "$ref": "#/definitions/request_method"
-            },
-            "methods": {
-                "type": "array",
-                "minItems": 2,
-                "items": {
-                    "$ref": "#/definitions/request_method"
-                }
-            },
-            "headers": {
-                "type": "object",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "body": {
-                "type": [
-                    "string",
-                    "object",
-                    "array"
-                ]
-            }
+      }
+    ]
+  },
+  "request_request": {
+    "type": "object",
+    "additionalProperties": false,
+    "oneOf": [
+      {
+        "required": [
+          "timeout"
+        ]
+      },
+      {
+        "required": [
+          "method"
+        ]
+      },
+      {
+        "required": [
+          "methods"
+        ]
+      }
+    ],
+    "properties": {
+      "timeout": {
+        "type": "integer",
+        "minimum": 10
+      },
+      "method": {
+        "$ref": "#/definitions/request_method"
+      },
+      "methods": {
+        "type": "array",
+        "minItems": 2,
+        "items": {
+          "$ref": "#/definitions/request_method"
         }
+      },
+      "headers": {
+        "type": "object",
+        "items": {
+          "type": "string"
+        }
+      },
+      "body": {
+        "type": [
+          "string",
+          "object",
+          "array"
+        ]
+      }
     }
+  }
 }

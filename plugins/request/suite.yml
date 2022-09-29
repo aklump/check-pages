@@ -1,4 +1,10 @@
 -
+  why: Demonstrate custom request timeout for this test only.
+  visit: /test_subject.php
+  request:
+    timeout: 120
+
+-
   why: Assert ${request.method} returns 405
   visit: /test_subject.php
   request:
@@ -60,4 +66,3 @@
     - "content-type: application/x-www-form-urlencoded"
     - "accept: application/json, application/xml"
     - 'foo=bar&do=re'
-

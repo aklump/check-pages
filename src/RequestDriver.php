@@ -9,14 +9,6 @@ use GuzzleHttp\Client;
  */
 abstract class RequestDriver implements RequestDriverInterface {
 
-  /**
-   * The total timeout of the request in seconds.
-   *
-   * @var int
-   * // TODO Make the timeout configurable.
-   */
-  const SERVER_TIMEOUT = 60;
-
   protected $method = 'GET';
 
   protected $body = '';
@@ -32,6 +24,11 @@ abstract class RequestDriver implements RequestDriverInterface {
   protected $response;
 
   protected $headers;
+
+  /**
+   * @var int
+   */
+  protected $requestTimeout = 20;
 
   /**
    * {@inheritdoc}
@@ -134,6 +131,14 @@ abstract class RequestDriver implements RequestDriverInterface {
     }
 
     return implode(PHP_EOL, $string) . PHP_EOL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setRequestTimeout(int $request_timeout): RequestDriverInterface {
+    $this->requestTimeout = $request_timeout;
+    return $this;
   }
 
 }

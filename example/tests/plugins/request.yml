@@ -1,4 +1,9 @@
 -
+    why: 'Demonstrate custom request timeout for this test only.'
+    visit: /plugins/request.php
+    request:
+        timeout: 120
+-
     why: 'Assert ${request.method} returns 405'
     visit: /plugins/request.php
     request:

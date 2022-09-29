@@ -797,7 +797,12 @@ class Runner implements DebuggableInterface {
       $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
 
       try {
+        // The config-level override...
+        $timeout = $this->getConfig()['request_timeout'] ?? NULL;
+        // ... the test-level override.
+        $timeout = $test->getConfig()["request"]["timeout"] ?? $timeout;
         $response = $driver
+          ->setRequestTimeout($timeout)
           ->setUrl($this->url($test->getConfig()['url']))
           ->request()
           ->getResponse();

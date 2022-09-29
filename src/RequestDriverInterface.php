@@ -77,6 +77,7 @@ interface RequestDriverInterface {
    * empty array.
    *
    * @param string $name Case-insensitive header field name.
+   *
    * @return string[] An array of string values as provided for the given
    *    header. If the header does not appear in the message, this method MUST
    *    return an empty array.
@@ -90,5 +91,15 @@ interface RequestDriverInterface {
    *    True if the driver should ignore SSL certificate errors.
    */
   public function allowInvalidCertificate(): bool;
+
+  /**
+   * Set the maximum seconds to wait for a request.
+   *
+   * @param int $request_timeout
+   *
+   * @return \AKlump\CheckPages\RequestDriverInterface
+   *   Self for chaining.
+   */
+  public function setRequestTimeout(int $request_timeout): RequestDriverInterface;
 
 }

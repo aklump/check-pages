@@ -13,7 +13,7 @@ class GuzzleDriver extends RequestDriver {
    */
   public function request(): RequestDriverInterface {
     $client = $this->getClient([
-      'timeout' => static::SERVER_TIMEOUT,
+      'timeout' => $this->requestTimeout,
       'headers' => $this->headers,
       // @link http://docs.guzzlephp.org/en/stable/faq.html#how-can-i-track-redirected-requests
       RequestOptions::ALLOW_REDIRECTS => [

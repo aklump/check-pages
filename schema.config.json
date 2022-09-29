@@ -1,49 +1,53 @@
 {
-    "definitions": {},
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Config Schema",
-    "type": "object",
-    "required": [
-        "base_url"
-    ],
-    "additionalProperties": false,
-    "properties": {
-        "base_url": {
-            "title": "Base URL",
-            "type": "string",
-            "default": "",
-            "examples": [
-                "https://www.mywebsite.com",
-                "http://mywebsite.local"
-            ],
-            "pattern": "^(http|https|localhost):.+$"
-        },
-        "stop_on_failed_test": {
-            "type": "boolean"
-        },
-        "stop_on_failed_suite": {
-            "type": "boolean"
-        },
-        "js": {
-            "type": "boolean"
-        },
-        "files": {
-            "type": "string",
-            "description": "A resolvable path to a writeable directory for file output.  The directory must exist and must be writeable."
-        },
-        "chrome": {
-            "type": "string"
-        },
-        "suites_to_ignore": {
-            "description": "A list of suite filenames that will be ignored by run_suite() when this configuration is used.  This allows you to write a suite called live_only.yml that can be skipped by your config.dev.yml file.",
-            "type": "array",
-            "items": {
-                "type": "string"
-            }
-        },
-        "extras": {
-            "type": "object",
-            "description": "Used for arbitrary configuration as determined by end user.  Use config_get() to access."
-        }
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Config Schema",
+  "type": "object",
+  "required": [
+    "base_url"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "base_url": {
+      "title": "Base URL",
+      "type": "string",
+      "default": "",
+      "examples": [
+        "https://www.mywebsite.com",
+        "http://mywebsite.local"
+      ],
+      "pattern": "^(http|https|localhost):.+$"
+    },
+    "stop_on_failed_test": {
+      "type": "boolean"
+    },
+    "stop_on_failed_suite": {
+      "type": "boolean"
+    },
+    "js": {
+      "type": "boolean"
+    },
+    "files": {
+      "type": "string",
+      "description": "A resolvable path to a writeable directory for file output.  The directory must exist and must be writeable."
+    },
+    "chrome": {
+      "type": "string"
+    },
+    "request_timeout": {
+      "type": "integer",
+      "description": "Maximum number of seconds to wait for each request before giving up."
+    },
+    "suites_to_ignore": {
+      "description": "A list of suite filenames that will be ignored by run_suite() when this configuration is used.  This allows you to write a suite called live_only.yml that can be skipped by your config.dev.yml file.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "extras": {
+      "type": "object",
+      "description": "Used for arbitrary configuration as determined by end user.  Use config_get() to access."
     }
+  }
 }
