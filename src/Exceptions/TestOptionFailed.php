@@ -14,7 +14,7 @@ class TestOptionFailed extends \Exception {
    *   An extra message to append to the generated one; for more clarity.
    */
   public function __construct(array $option_context, $extra_message, \Exception $exception = NULL) {
-    list($name) = array_keys($option_context['config']);
+    list($name) = array_keys(($option_context['config'] ?? [])) + ['?'];
     $message = rtrim(sprintf('Option "%s" failed. %s', $name, $extra_message));
 
     return parent::__construct($message, 0, $exception);

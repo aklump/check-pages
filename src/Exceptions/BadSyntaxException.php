@@ -23,10 +23,14 @@ class BadSyntaxException extends \LogicException {
    */
   public function __construct($message, $context_object = NULL) {
     $prefix = BadSyntaxException::PREFIX;
+    $config = '';
     if ($context_object) {
       $prefix = new \ReflectionClass($context_object);
       $prefix = $prefix->getShortName() . ' ' . BadSyntaxException::PREFIX;
+      if (method_exists($context_object, 'getConfig')) {
+        $config = "\n" . json_encode($context_object->getConfig(), JSON_PRETTY_PRINT);
+      }
     }
-    parent::__construct(sprintf('%s%s', $prefix, $message));
+    parent::__construct(sprintf('%s%s%s', $prefix, $message, $config));
   }
 }
