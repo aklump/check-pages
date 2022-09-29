@@ -801,8 +801,10 @@ class Runner implements DebuggableInterface {
         $timeout = $this->getConfig()['request_timeout'] ?? NULL;
         // ... the test-level override.
         $timeout = $test->getConfig()["request"]["timeout"] ?? $timeout;
+        if (is_int($timeout)) {
+          $driver->setRequestTimeout($timeout);
+        }
         $response = $driver
-          ->setRequestTimeout($timeout)
           ->setUrl($this->url($test->getConfig()['url']))
           ->request()
           ->getResponse();
