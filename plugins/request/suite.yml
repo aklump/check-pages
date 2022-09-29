@@ -6,13 +6,18 @@
   expect: 405
 
 -
+  why: Assert request body interpolation is working as expected.
+  value: bar
+  set: fooValue
+
+-
   why: Assert post with content-type header and body works as expected.
   visit: /test_subject.php
   request:
     method: post
     headers:
       content-type: application/json
-    body: '{"foo":"bar"}'
+    body: '{"foo":"${fooValue}"}'
   find:
     - 'POST'
     - 'content-type: application/json'

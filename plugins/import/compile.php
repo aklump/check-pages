@@ -9,6 +9,7 @@ $destination = "$compile_dir/tests/imports";
 
 $relative_paths = [
   "_headings.yml",
+  "_interpolate.yml",
   "_links.yml",
   "find/_button.yml",
 ];

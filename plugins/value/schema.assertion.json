@@ -1,0 +1,20 @@
+{
+    "type": "object",
+    "oneOf": [
+        {
+            "required": [
+                "value",
+                "set"
+            ]
+        }
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "value": {
+            "$ref": "#/definitions/value_value"
+        },
+        "set": {
+            "$ref": "#/definitions/value_set"
+        }
+    }
+}

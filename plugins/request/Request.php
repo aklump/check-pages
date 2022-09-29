@@ -37,7 +37,11 @@ final class Request extends LegacyPlugin {
    * {@inheritdoc}
    */
   public function onBeforeDriver(TestEventInterface $event) {
-    $this->config = $event->getTest()->getConfig();
+    $test = $event->getTest();
+    $this->config = $test->getConfig();
+    $test->interpolate($this->config['request']);
+    $test->setConfig($this->config);
+
     $this->request['method'] = strtoupper($this->config['request']['method'] ?? 'get');
     if (!empty($this->config['request']['headers'])) {
       $this->request['headers'] = array_combine(array_map('strtolower', array_keys($this->config['request']['headers'])), $this->config['request']['headers']);

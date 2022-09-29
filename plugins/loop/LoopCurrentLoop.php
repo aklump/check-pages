@@ -94,7 +94,7 @@ final class LoopCurrentLoop {
         // Because we're only interpolating with loop variables, the entire
         // config should be processed; including the find array.  So in this
         // case we should not use Test::interpolate().
-        $config = $variables->interpolate($config);
+        $variables->interpolate($config);
         $iterations[] = $config;
       }
     }

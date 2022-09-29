@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Code Snippets</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--ext--snippets">
+<header>
+  <div class="pager"><a href="ext--plugins.html" class="prev ext--plugins">&laquo;Plugins</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--event-responders.html" class="next respond_to">Responding to Events&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="ext--imports.html">Extending</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Code Snippets</h1>
+  
+
+<p>This page will list out some example code you might use while extending.</p>
+
+<h2>Http Request</h2>
+
+<p>This example shows how to make a request from the body of a <em>Shorthand</em>.</p>
+
+<pre><code class="php">add_shorthand('bundle_access', function ($shorthand, \AKlump\CheckPages\Parts\Test $test) {
+  $url = $test-&gt;getSuite()-&gt;getRunner()-&gt;url('/foo/bar');
+  $guzzle = new \AKlump\CheckPages\GuzzleDriver();
+  $response = $guzzle-&gt;getClient()-&gt;get($url);
+  $data = json_decode($response-&gt;getBody(), TRUE)['data'];
+});
+</code></pre>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="ext--plugins.html" class="prev ext--plugins">&laquo;Plugins</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--event-responders.html" class="next respond_to">Responding to Events&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Tue, 27 Sep 2022 16:09:14 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

@@ -7,3 +7,21 @@
     -
       dom: h2
       contains: Ut enim ad minim veniam, quis
+-
+  why: Assert interpolation works using outside value.
+  visit: /test_subject.html
+  find:
+    -
+      dom: h1
+      is: ${headingControlValue}
+-
+  why: Create local variable to test interpolation at this level.
+  value: Imports
+  set: localControlValue
+-
+  why: Assert interpolation works using outside value.
+  visit: /test_subject.html
+  find:
+    -
+      dom: h1
+      is: ${localControlValue}

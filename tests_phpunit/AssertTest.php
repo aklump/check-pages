@@ -10,7 +10,8 @@ use PHPUnit\Framework\TestCase;
 final class AssertTest extends TestCase {
 
   public function testSetGetNeedle() {
-    $assert = new Assert([], '');
+    $test = $this->createMock(\AKlump\CheckPages\Parts\Test::class);
+    $assert = new Assert('', [], $test);
     $this->assertNull($assert->getNeedle());
     $return = $assert->setNeedleIfNotSet('foo');
     $this->assertSame($assert, $return);

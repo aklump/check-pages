@@ -9,20 +9,34 @@ use PHPUnit\Framework\TestCase;
  */
 final class VariablesTest extends TestCase {
 
+  public function testInterpolateNullValuesRemovesToken() {
+    $var = new Variables();
+    $var->setItem('foo', NULL);
+    $subject = '${foo}';
+    $var->interpolate($subject);
+    $this->assertNull($subject);
+
+    $subject = ['lorem' => ['${foo}']];
+    $var->interpolate($subject);
+    $this->assertNull($subject['lorem'][0]);
+  }
+
   public function testInterpolateInArrayKeys() {
     $var = new Variables();
     $var->setItem('key', 'foo');
     $var->setItem('value', 'bar');
     $subject = ['${key}' => '${value}'];
-    $subject = $var->interpolate($subject);
-    $this->assertSame(['foo' => 'bar'], $subject);
+    $var->interpolate($subject);
+    $this->assertArrayHasKey('foo', $subject);
+    $this->assertContains('bar', $subject);
+    $this->assertCount(1, $subject);
   }
 
   public function testStrangeBugWithZeroIndexInterpolation() {
     $var = new Variables();
     $var->setItem('loop.index0', 0);
     $subject = ['find' => [['dom' => '.foo${loop.index0}']]];
-    $subject = $var->interpolate($subject);
+    $var->interpolate($subject);
     $this->assertSame('.foo0', $subject['find'][0]['dom']);
   }
 
@@ -30,7 +44,7 @@ final class VariablesTest extends TestCase {
     $var = new Variables();
     $this->assertSame($var, $var->setItem('age', 47));
     $subject = '${age}';
-    $subject = $var->interpolate($subject);
+    $var->interpolate($subject);
     $this->assertSame(47, $subject);
   }
 
@@ -38,7 +52,7 @@ final class VariablesTest extends TestCase {
     $var = new Variables();
     $var->setItem('data', ['18:32', 'Apr 7']);
     $subject = 'location: Office';
-    $subject = $var->interpolate($subject);
+    $var->interpolate($subject);
     $this->assertSame('location: Office', $subject);
   }
 
@@ -46,7 +60,7 @@ final class VariablesTest extends TestCase {
     $var = new Variables();
     $var->setItem('time', '18:32');
     $subject = 'date: Apr 7';
-    $subject = $var->interpolate($subject);
+    $var->interpolate($subject);
     $this->assertSame('date: Apr 7', $subject);
   }
 
@@ -54,7 +68,7 @@ final class VariablesTest extends TestCase {
     $var = new Variables();
     $var->setItem('loop.value', ['/admin', 403, 'No Access']);
     $subject = 'expect: ${loop.value[1]}';
-    $subject = $var->interpolate($subject);
+    $var->interpolate($subject);
     $this->assertSame('expect: 403', $subject);
   }
 
@@ -63,19 +77,19 @@ final class VariablesTest extends TestCase {
     $this->assertSame($var, $var->setItem('person', ['Mark', 47]));
 
     $subject = 'name: ${person[0]}';
-    $subject = $var->interpolate($subject);
+    $var->interpolate($subject);
     $this->assertSame('name: Mark', $subject);
 
     $subject = 'age: ${person[1]}';
-    $subject = $var->interpolate($subject);
+    $var->interpolate($subject);
     $this->assertSame('age: 47', $subject);
 
     $subject = 'name: ${person.0}';
-    $subject = $var->interpolate($subject);
+    $var->interpolate($subject);
     $this->assertSame('name: Mark', $subject);
 
     $subject = 'age: ${person.1}';
-    $subject = $var->interpolate($subject);
+    $var->interpolate($subject);
     $this->assertSame('age: 47', $subject);
   }
 
@@ -83,7 +97,7 @@ final class VariablesTest extends TestCase {
     $var = new Variables();
     $this->assertSame($var, $var->setItem('price', 19.95));
     $subject = '${price}';
-    $subject = $var->interpolate($subject);
+    $var->interpolate($subject);
     $this->assertSame(19.95, $subject);
   }
 
@@ -91,7 +105,7 @@ final class VariablesTest extends TestCase {
     $var = new Variables();
     $this->assertSame($var, $var->setItem('color', 'red'));
     $subject = 'color = ${color}';
-    $subject = $var->interpolate($subject);
+    $var->interpolate($subject);
     $this->assertSame('color = red', $subject);
   }
 

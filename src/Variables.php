@@ -38,23 +38,19 @@ final class Variables implements \Countable {
   /**
    * Recursively interpolate using instance variables.
    *
-   * @param string|array $value
+   * @param string|array &$value
    *   A string or array of strings to be interpolated.  Interpolation will only
-   *   occur if the variable has been set.
-   *
-   * @return mixed
-   *   $value with any possible interpolated values.
+   *   occur if the variable has been set--tokens that point to unset variables
+   *   will be left untouched.
    */
-  public function interpolate($value, &$context = NULL) {
-    $self_method = __FUNCTION__;
-
+  public function interpolate(&$value, &$context = NULL): void {
     if (!is_array($value)) {
 
       // We can only interpolate in strings, because otherwise they would not
       // contain the ${}, also the interpolation casts to a string, so we want
       // to avoid variable type change by accident.
       if (!is_string($value)) {
-        return $value;
+        return;
       }
 
       // Create a per-recursion set of values.  This should not be a class
@@ -77,15 +73,15 @@ final class Variables implements \Countable {
         }
       }
 
-      return $value;
+      return;
     }
     foreach ($value as $k => $v) {
+      // Interpolate the key, then the value, then combine.
       unset($value[$k]);
-      $k = $this->{$self_method}($k, $context);
-      $value[$k] = $this->{$self_method}($v, $context);
+      $this->interpolate($k, $context);
+      $this->interpolate($v, $context);
+      $value[$k] = $v;
     }
-
-    return $value;
   }
 
   /**

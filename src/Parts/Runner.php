@@ -742,7 +742,6 @@ class Runner implements DebuggableInterface {
    */
   protected function runTest(Test $test): void {
     $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_STARTED);
-    $test->interpolate();
 
     $this->totalTestsRun++;
     $test_passed = function (bool $result = NULL): bool {
@@ -784,14 +783,11 @@ class Runner implements DebuggableInterface {
       // "url" is a  skipped key when we use Test::interpolate(), which is why
       // we have to use long-hand here.
       $config = $test->getConfig();
-      $config['url'] = $this->getSuite()
-        ->variables()
-        ->interpolate($config['url']);
+      $test->interpolate($config['url']);
       $test->setConfig($config);
       unset($config);
 
       $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
-      $test->interpolate();
 
       try {
         $response = $driver
@@ -823,13 +819,14 @@ class Runner implements DebuggableInterface {
         $test->setFailed();
       }
       $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_FINISHED);
-      $test->interpolate();
 
       // Test the location if asked.
       $expected_location = $test->getConfig()['location'] ?? '';
       if (empty($expected_location)) {
         $expected_location = $test->getConfig()['redirect'] ?? '';
       }
+      $test->interpolate($expected_location);
+
       if ($http_location && $expected_location) {
         $location_test = $http_location === $this->url($expected_location);
         $test_passed($location_test);
@@ -1071,7 +1068,7 @@ class Runner implements DebuggableInterface {
    */
   protected function doFindAssert(Test $test, string $id, array $definition, RequestDriverInterface $driver): Assert {
     $response = $driver->getResponse();
-    $definition = $this->getSuite()->variables()->interpolate($definition);
+    $test->interpolate($definition);
 
     $this->debugger->echoYaml($definition, 2);
 

@@ -2,6 +2,8 @@
 
 namespace AKlump\CheckPages\Parts;
 
+use AKlump\CheckPages\Variables;
+
 class Test implements \JsonSerializable {
 
   const PASSED = 'P';
@@ -26,35 +28,67 @@ class Test implements \JsonSerializable {
    */
   protected $failed = NULL;
 
+  /**
+   * @var \AKlump\CheckPages\Parts\Variables
+   */
+  protected $vars;
+
   public function __construct(string $id, array $config, Suite $suite) {
     $this->suite = $suite;
     $this->id = $id;
     $this->setConfig($config);
+    $this->vars = new Variables();
+  }
+
+  /**
+   * Get the test-scoped variables.
+   *
+   * @return \AKlump\CheckPages\Variables
+   */
+  public function variables(): Variables {
+    return $this->vars;
+  }
+
+  /**
+   * Interpolate variables of all scopes on a value.
+   *
+   * If you wish to only apply test-scoped variables do like so:
+   *
+   * @code
+   * $this->variables()->interpolate($value)
+   * @endcode
+   *
+   * @param $value
+   *
+   * @return void
+   */
+  public function interpolate(&$value): void {
+    $this->variables()->interpolate($value);
+    $this->getSuite()->variables()->interpolate($value);
   }
 
   /**
    * Get the description of the test.
    *
    * This may be the test's `why` or a combination of method and url, depending
-   * upon context.
+   * upon context.  It will be interpolated at the time of the call.
    *
    * @return string
    *   The test description.
    */
   public function getDescription(): string {
-    if (empty($this->title)) {
-      $config = $this->getConfig();
-      $this->title = trim($config['why'] ?? '');
-      if (!$this->title) {
-        $url = $this->getRelativeUrl();
-        $method = $this->getHttpMethod();
-        $has_multiple_methods = count($this->getSuite()->getHttpMethods()) > 1;
-        $method = $has_multiple_methods ? $method : '';
-        $this->title = ltrim("$method $url", ' ');
-      }
+    $config = $this->getConfig();
+    $title = trim($config['why'] ?? '');
+    if (!$title) {
+      $url = $this->getRelativeUrl();
+      $method = $this->getHttpMethod();
+      $has_multiple_methods = count($this->getSuite()->getHttpMethods()) > 1;
+      $method = $has_multiple_methods ? $method : '';
+      $title = ltrim("$method $url", ' ');
     }
+    $this->interpolate($title);
 
-    return $this->title . rtrim(' ' . (implode('', $this->badges)));
+    return $title . rtrim(' ' . (implode('', $this->badges)));
   }
 
   /**
@@ -144,6 +178,7 @@ class Test implements \JsonSerializable {
   }
 
   public function setConfig(array $config): self {
+    unset($this->title);
 
     // Cast find to an array if needed.
     if (isset($config['find']) && !is_array($config['find'])) {
@@ -223,31 +258,6 @@ class Test implements \JsonSerializable {
 
   public function __toString() {
     return $this->getSuite() . '\\' . $this->id();
-  }
-
-  /**
-   * Interpolate values based on current suite variables, skipping certain keys.
-   *
-   * @param ... Optional.  One or more keys to interpolate.  Leave empty to
-   *
-   * @return $this
-   *   Self for chaining.
-   */
-  public function interpolate(): self {
-    $config = $this->getConfig();
-    $uninterpolated = [];
-    foreach (['find', 'url'] as $skip_key) {
-      if (array_key_exists($skip_key, $config)) {
-        $uninterpolated[$skip_key] = $config[$skip_key];
-      }
-    }
-    $config = $this->getSuite()->variables()->interpolate($config);
-    foreach (array_keys($uninterpolated) as $k) {
-      $config[$k] = $uninterpolated[$k];
-    }
-    $this->setConfig($config);
-
-    return $this;
   }
 
 }

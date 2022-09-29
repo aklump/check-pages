@@ -30,15 +30,15 @@ final class Evaluate implements EventSubscriberInterface {
       Event::TEST_CREATED => [
         function (TestEventInterface $event) {
           $test = $event->getTest();
-          $config = $test->interpolate()->getConfig();
+          $config = $test->getConfig();
           $should_apply = array_key_exists('eval', $config);
           if (!$should_apply) {
             return;
           }
-
-          $assert = new Assert([
+          $event->getTest()->interpolate($config['eval']);
+          $assert = new Assert(self::SEARCH_TYPE, [
             'eval' => $config['eval'],
-          ], self::SEARCH_TYPE);
+          ], $test);
           $assert->setAssertion(Assert::ASSERT_CALLABLE, [
             self::class,
             'evaluateExpression',
@@ -80,8 +80,13 @@ final class Evaluate implements EventSubscriberInterface {
     // Remove "px" to allow math.
     $expression = preg_replace('/(\d+)px/i', '$1', $expression);
 
-    $eval = new ExpressionLanguage();
-    $result = $eval->evaluate($expression);
+    try {
+      $eval = new ExpressionLanguage();
+      $result = $eval->evaluate($expression);
+    }
+    catch (\Exception $exception) {
+      throw new TestFailedException($assert->getConfig(), new \Exception($reason));
+    }
     if ($result) {
       $reason = "%s === true";
     }
