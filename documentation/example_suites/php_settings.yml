@@ -1,0 +1,12 @@
+# This shows how you can monitor PHP settings on a Drupal website to ensure all
+# environments are in sync.
+-
+  why: Ensure that ini customizations persist over time, across php version changes.
+  user: site_test.admin
+  visit: /admin/reports/status/php
+  find:
+    - <td class="e">max_file_uploads</td><td class="v">20</td>
+    - <td class="e">upload_max_filesize</td><td class="v">150M</td>
+    - <td class="e">memory_limit</td><td class="v">256M</td>
+    - <td class="e">post_max_size</td><td class="v">150M</td>
+    - <td class="e">max_execution_time</td><td class="v">120</td>
