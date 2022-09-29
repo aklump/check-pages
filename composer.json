@@ -57,7 +57,7 @@
         "ralouphie/mimey": "^2.1",
         "shanethehat/pretty-xml": "^1.0"
     },
-    "version": "0.16.0",
+    "version": "0.16.1",
     "bin": [
         "./check_pages",
         "./create_test_directory"
