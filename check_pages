@@ -2,7 +2,13 @@
 <?php
 
 const ROOT = __DIR__;
-require ROOT . '/vendor/autoload.php';
+
+if (file_exists(ROOT . '/../../autoload.php')) {
+  require ROOT . '/../../autoload.php';
+}
+else {
+  require ROOT . '/vendor/autoload.php';
+}
 
 use AKlump\CheckPages\Command\RunCommand;
 use Symfony\Component\Console\Application;
