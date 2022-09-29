@@ -854,6 +854,11 @@
             "oneOf": [
                 {
                     "required": [
+                        "timeout"
+                    ]
+                },
+                {
+                    "required": [
                         "method"
                     ]
                 },
@@ -864,6 +869,10 @@
                 }
             ],
             "properties": {
+                "timeout": {
+                    "type": "integer",
+                    "minimum": 10
+                },
                 "method": {
                     "$ref": "#/definitions/request_method"
                 },

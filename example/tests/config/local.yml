@@ -17,6 +17,11 @@ js: false
 # The system path to the chrome browser.  This is used for javascript tests.
 chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 
+# Maximum number of seconds to wait for each request before giving up.  This
+# setting is for all tests; you can override this value on a per-test basis by
+# using `request.timeout`; see the request plugin for more info.
+request_timeout: 60
+
 # Use this as a list of suites that will be skipped/ignored when you are using
 # this configuration file.  For example if you have a suite that can only be run
 # on your live environment, then in your config.dev.yml and config.stage.yml
