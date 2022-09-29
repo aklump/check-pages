@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "93960760d90044d80d5dd0c148efbe12",
+    "content-hash": "6bfa5cd58aa5e060d7dcb1a7a2955245",
     "packages": [
         {
             "name": "adamnicholson/bag",
