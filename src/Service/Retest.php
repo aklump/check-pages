@@ -168,9 +168,11 @@ final class Retest implements EventSubscriberInterface {
             && !$input->getOption('filter')
             && !$input->getOption('group')) {
             $tracking_path = $obj->getTrackingFilePath();
-            // With no options, we need to set up a clean slate by truncated our
-            // tracking file.  That way continue will work correctly.
-            fclose(fopen($tracking_path, 'w'));
+            if ($tracking_path) {
+              // With no options, we need to set up a clean slate by truncated our
+              // tracking file.  That way continue will work correctly.
+              fclose(fopen($tracking_path, 'w'));
+            }
           }
 
           // Handle messaging.

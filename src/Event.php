@@ -16,6 +16,18 @@ final class Event {
 
   const SUITE_LOADED = 'suite.loaded';
 
+  /**
+   * Can be used for fine-tuned validation beyond the json schema.  To
+   * invalidate throw a \AKlump\CheckPages\Exceptions\BadSyntaxException.
+   */
+  const SUITE_VALIDATION = 'suite.validation';
+
+  /**
+   * Can be used for fine-tuned validation beyond the json schema.  To
+   * invalidate throw a \AKlump\CheckPages\Exceptions\BadSyntaxException.
+   */
+  const TEST_VALIDATION = 'test.validation';
+
   const TEST_CREATED = 'test.created';
 
   const TEST_STARTED = 'test.started';

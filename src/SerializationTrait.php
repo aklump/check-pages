@@ -88,6 +88,10 @@ trait SerializationTrait {
       case 'application/json':
         return json_decode($serial);
 
+      case 'application/pdf':
+        // TODO What's the best solution here?
+        return [];
+
       case 'yaml':
       case 'yml':
       case 'application/x+yaml':

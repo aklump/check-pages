@@ -155,9 +155,9 @@ final class SourceCodeOutput {
     }
 
     // Try to make it more readable if we can.
-    $body = $this->deserialize($body, $content_type);
+    $data = $this->deserialize($body, $content_type);
     if (strstr($content_type, 'json')) {
-      $body = json_encode($body, JSON_PRETTY_PRINT);
+      $body = json_encode($data, JSON_PRETTY_PRINT);
     }
 
     $section->overwrite([
@@ -185,23 +185,23 @@ final class SourceCodeOutput {
     $status = $this->getResponseHttpStatusLine($test, $driver->getResponse());
 
     if ($test->hasFailed()) {
-      Feedback::$requestUrl->overwrite([
-        Color::wrap('red', $this->indent($url)),
-      ]);
-
-      Feedback::$testResult->overwrite([
-        Color::wrap('red', '└── ' . $status),
-        '',
-      ]);
+//      Feedback::$requestUrl->overwrite([
+//        Color::wrap('red', $this->indent($url)),
+//      ]);
+//
+//      Feedback::$testResult->overwrite([
+//        Color::wrap('red', '└── ' . $status),
+//        '',
+//      ]);
 
       // REQUEST
-      $this->overwriteHeaders($input, Feedback::$requestHeaders, $driver->getHeaders(), 'red');
-      $this->overwriteBody($input, Feedback::$requestBody, strval($driver), $this->getContentType($driver), 'red');
+//      $this->overwriteHeaders($input, Feedback::$requestHeaders, $driver->getHeaders(), 'red');
+//      $this->overwriteBody($input, Feedback::$requestBody, strval($driver), $this->getContentType($driver), 'red');
 
       // RESPONSE
-      $response = $event->getDriver()->getResponse();
-      $this->overwriteHeaders($input, Feedback::$responseHeaders, [], 'red', $test, $response);
-      $this->overwriteBody($input, Feedback::$responseBody, $response->getBody(), $this->getContentType($response), 'red');
+//      $response = $event->getDriver()->getResponse();
+//      $this->overwriteHeaders($input, Feedback::$responseHeaders, [], 'red', $test, $response);
+//      $this->overwriteBody($input, Feedback::$responseBody, $response->getBody(), $this->getContentType($response), 'red');
     }
     else {
 

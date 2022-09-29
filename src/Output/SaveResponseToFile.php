@@ -14,6 +14,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 final class SaveResponseToFile implements EventSubscriberInterface {
 
   /**
+   * @var int
+   */
+  static $counter;
+
+  /**
    * One or more mime types that if received will be written to file.
    *
    * @var string[]
@@ -35,6 +40,7 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           $suite->getRunner()->deleteFiles([
             'response/' . str_replace('\\', '_', $suite) . '*',
           ]);
+          self::$counter = 1;
         },
       ],
       Event::TEST_FINISHED => [
@@ -54,8 +60,12 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           $mime_type = $mime_type[0];
           $mimes = new MimeTypes();
 
-          $test = $event->getTest();
-          $path = str_replace('\\', '_', $test);
+          $path = str_replace('\\', '_', $event->getTest()->getSuite());
+
+          // We cannot use the test ID because it cannot be guaranteed to be
+          // sequential, since tests may be inserted during bootstrap, resulting
+          // in test IDs that are out of sequence.
+          $path .= '_' . str_pad(self::$counter++, 3, 0, STR_PAD_LEFT);
           $path .= '.' . $mimes->getExtension($mime_type);
 
           $content = $event->getDriver()->getResponse()->getBody();
@@ -69,6 +79,7 @@ final class SaveResponseToFile implements EventSubscriberInterface {
               $content = json_encode(json_decode($content), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
               break;
           }
+          $test = $event->getTest();
           $filepath = $test->getRunner()
             ->writeToFile('response/' . $path, [$content], 'w+');
 

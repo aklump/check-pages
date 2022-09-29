@@ -1,6 +1,7 @@
 /vendor/
 /tests/
 /.idea/
+/example/tests/files
 node_modules/
 documentation/core
 documentation/README.md

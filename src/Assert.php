@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages;
 
 use AKlump\CheckPages\Exceptions\TestFailedException;
+use AKlump\CheckPages\Parts\Test;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -149,12 +150,17 @@ final class Assert {
    *
    * @var array
    */
-  private $config = [];
+  private $config;
 
   /**
    * @var string
    */
-  private $id = '';
+  private $id;
+
+  /**
+   * @var \AKlump\CheckPages\Parts\Test
+   */
+  private $test;
 
   /**
    * Assert constructor.
@@ -164,9 +170,14 @@ final class Assert {
    * @param string $id
    *   An arbitrary value to track this assert by outside consumers.
    */
-  public function __construct(array $config, string $id) {
+  public function __construct(string $id, array $config, Test $test) {
     $this->config = $config;
     $this->id = $id;
+    $this->test = $test;
+  }
+
+  public function getTest(): Test {
+    return $this->test;
   }
 
   /**
@@ -516,6 +527,7 @@ final class Assert {
       case self::ASSERT_MATCHES:
         $pass = FALSE;
         $countable = [];
+        $item = '';
         foreach ($haystack as $item) {
           $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
             if (preg_match($this->assertValue, $item_variation)) {

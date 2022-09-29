@@ -27,7 +27,6 @@ use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
 use AKlump\LoftLib\Bash\Color;
 use GuzzleHttp\Exception\ServerException;
-use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -197,6 +196,10 @@ class Runner implements DebuggableInterface {
       $this->schema = json_decode(file_get_contents($schema_path), TRUE);
     }
     $this->pluginsManager->setSchema($this->schema);
+  }
+
+  public function getRootDir(): string {
+    return $this->rootDir;
   }
 
   /**
@@ -628,7 +631,9 @@ class Runner implements DebuggableInterface {
       return;
     }
 
-    $this->validateSuiteConfigAgainstSchema($this->suite);
+    // To invalidate a suite throw an instance of \AKlump\CheckPages\Exceptions\BadSyntaxException.
+    $this->getDispatcher()
+      ->dispatch(new SuiteEvent($this->suite), Event::SUITE_VALIDATION);
 
     // Add the tests to the suite in prep for the plugin hook...
     $suite_yaml = file_get_contents($path_to_suite);
@@ -663,6 +668,8 @@ class Runner implements DebuggableInterface {
     $failed_tests = 0;
 
     foreach ($this->suite->getTests() as $test) {
+
+      $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_VALIDATION);
 
       // This decides the render order.
       Feedback::$testTitle = $this->getOutput()->section();
@@ -1029,31 +1036,6 @@ class Runner implements DebuggableInterface {
   }
 
   /**
-   * Validate a configuration array against the configuration schema.
-   *
-   * @param \AKlump\CheckPages\Parts\Suite $suite
-   *
-   * @throws \Exception
-   */
-  protected function validateSuiteConfigAgainstSchema(Suite $suite) {
-    // Convert to objects.
-    $config = json_decode(json_encode($suite->getConfig()));
-    $validator = new Validator();
-    try {
-      $validator->validate($config, (object) ['$ref' => 'file://' . $this->rootDir . '/' . 'schema.config.json'], Constraint::CHECK_MODE_EXCEPTIONS);
-    }
-    catch (\Exception $exception) {
-      // Add in the file context.
-      $class = get_class($exception);
-      throw new $class(sprintf('In configuration : %s', strtolower($exception->getMessage())), $exception->getCode(), $exception);
-    }
-
-    // Convert to arrays, we only needed objects for the validation.
-    $config = json_decode(json_encode($config), TRUE);
-    $suite->setConfig($config);
-  }
-
-  /**
    * Apply a single find action in the text.
    *
    * @param string $id
@@ -1072,7 +1054,7 @@ class Runner implements DebuggableInterface {
 
     $this->debugger->echoYaml($definition, 2);
 
-    $assert = new Assert($definition, $id);
+    $assert = new Assert($id, $definition, $test);
     $assert
       ->setSearch(Assert::SEARCH_ALL)
       ->setHaystack([strval($response->getBody())]);
@@ -1252,7 +1234,7 @@ class Runner implements DebuggableInterface {
   ): string {
     $path_to_files = $this->getPathToRunnerFilesDirectory();
     if (!$path_to_files) {
-      return $this;
+      return '';
     }
     if (empty($this->writeToFileResources[$name])) {
       $path = [];

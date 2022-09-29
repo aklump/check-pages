@@ -77,6 +77,9 @@
                                 "$ref": "#/definitions/style"
                             },
                             {
+                                "$ref": "#/definitions/value"
+                            },
+                            {
                                 "$ref": "#/definitions/xpath"
                             }
                         ]
@@ -425,26 +428,45 @@
                 "input": {
                     "type": "array",
                     "items": {
-                        "type": "object",
-                        "required": [
-                            "name",
-                            "value"
-                        ],
-                        "additionalProperties": false,
-                        "properties": {
-                            "why": {
-                                "$ref": "#/definitions/why"
+                        "oneOf": [
+                            {
+                                "type": "object",
+                                "required": [
+                                    "import"
+                                ],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "why": {
+                                        "$ref": "#/definitions/why"
+                                    },
+                                    "import": {
+                                        "$ref": "#/definitions/import_import"
+                                    }
+                                }
                             },
-                            "name": {
-                                "type": "string"
-                            },
-                            "value": {
-                                "type": [
-                                    "string",
-                                    "number"
-                                ]
+                            {
+                                "type": "object",
+                                "required": [
+                                    "name",
+                                    "value"
+                                ],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "why": {
+                                        "$ref": "#/definitions/why"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "value": {
+                                        "type": [
+                                            "string",
+                                            "number"
+                                        ]
+                                    }
+                                }
                             }
-                        }
+                        ]
                     }
                 },
                 "submit": {
@@ -1003,6 +1025,33 @@
             ],
             "pattern": ".+",
             "examples": []
+        },
+        "value": {
+            "title": "Value Plugin Assertion",
+            "type": "object",
+            "oneOf": [
+                {
+                    "required": [
+                        "value",
+                        "set"
+                    ]
+                }
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "why": {
+                    "$ref": "#/definitions/why"
+                },
+                "extras": {
+                    "$ref": "#/definitions/extras"
+                },
+                "value": {
+                    "$ref": "#/definitions/value_value"
+                },
+                "set": {
+                    "$ref": "#/definitions/value_set"
+                }
+            }
         },
         "xpath_xpath": {
             "type": "string",

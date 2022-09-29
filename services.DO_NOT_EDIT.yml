@@ -1,4 +1,12 @@
 services:
+    suite_validator:
+        class: \AKlump\CheckPages\SuiteValidator
+        tags:
+            - { name: event_subscriber }
+    response_files:
+        class: \AKlump\CheckPages\Output\SaveResponseToFile
+        tags:
+            - { name: event_subscriber }
     feedback:
         class: \AKlump\CheckPages\Output\Feedback
         tags:
