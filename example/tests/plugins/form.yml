@@ -45,6 +45,18 @@
             dom: .messages
             text: 'A Little Extra Message'
 -
+    why: 'Demonstrate submitting values to the form using an import.'
+    url: /plugins/form.php
+    form:
+        dom: .form-b
+        input:
+            -
+                import: imports/form_data
+        find:
+            -
+                dom: .messages
+                text: 'A Little Extra Message'
+-
     why: 'Demonstrate a form that has an action to another URL.'
     url: /plugins/form.php
     form:

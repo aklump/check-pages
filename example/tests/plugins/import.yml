@@ -1,4 +1,8 @@
 -
+    why: 'Create a variable to ensure import interpolation is handled correctly.'
+    value: Imports
+    set: headingControlValue
+-
     import: imports/headings
     why: 'Test the basic syntax of an import.'
 -
@@ -24,3 +28,9 @@
         -
             why: 'Repeat the above using an assertion import.'
             import: imports/find/button
+        -
+            value: alpha
+            set: control.alpha
+-
+    why: 'Test import interpolation when value is set as assertion in earlier test.'
+    import: imports/interpolate

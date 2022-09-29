@@ -28,7 +28,7 @@
 
 <h2>Automatic Body Encoding</h2>
 
-<p>When the body is not a scalar or null, it will be encoded based on the content type. The assumed content type is <code>application/x-www-form-urlencoded</code></p>
+<p>When the body is not a scalar or null, it will be encoded based on the content type. The assumed content type is <code>application/octet-stream</code></p>
 
 <h2>Multiple Verbs</h2>
 
@@ -46,13 +46,18 @@
   expect: 405
 
 -
+  why: Assert request body interpolation is working as expected.
+  value: bar
+  set: fooValue
+
+-
   why: Assert post with content-type header and body works as expected.
   visit: /test_subject.php
   request:
     method: post
     headers:
       content-type: application/json
-    body: '{"foo":"bar"}'
+    body: '{"foo":"${fooValue}"}'
   find:
     - 'POST'
     - 'content-type: application/json'
@@ -110,7 +115,7 @@
 <footer>
   <div class="pager"><a href="demo--loop.html" class="prev demo--loop">&laquo;Loops</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--sleep.html" class="next plugin_sleep">Sleep: Adding a Delay&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Tue, 17 May 2022 22:00:27 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Wed, 28 Sep 2022 20:40:17 -0700</p>
   </div>
 </footer>
 

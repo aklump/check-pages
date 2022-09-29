@@ -112,9 +112,32 @@
   url: /foo/bar/${baz}
 </code></pre>
 
+<h2>Usage by Other Plugins</h2>
+
+<p>Use this pattern in other plugins to implement imports.</p>
+
+<pre><code class="php">$importer = new \AKlump\CheckPages\Plugin\Importer($test-&gt;getRunner());
+$importer-&gt;resolveImports($config['form']['input']);
+</code></pre>
+
+<p>In this example the form plugin allows the usage of imports, e.g.,</p>
+
+<pre><code class="yaml">-
+  url: /form.html
+  form:
+    dom: form
+    input:
+      -
+        import: imports/form_data
+</code></pre>
+
 <h2>Example Tests</h2>
 
 <pre><code class="yaml">-
+  why: Create a variable to ensure import interpolation is handled correctly.
+  value: Imports
+  set: headingControlValue
+-
   import: imports/headings
   why: Test the basic syntax of an import.
 -
@@ -140,6 +163,12 @@
     -
       why: Repeat the above using an assertion import.
       import: imports/find/button
+    -
+      value: alpha
+      set: control.alpha
+-
+  why: Test import interpolation when value is set as assertion in earlier test.
+  import: imports/interpolate
 
 </code></pre>
 
@@ -154,7 +183,7 @@
 <footer>
   <div class="pager"><a href="demo--evaluate.html" class="prev demo--evaluate">&laquo;Evaluate</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--loop.html" class="next plugin_loop">Loops&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Tue, 17 May 2022 22:00:24 -0700</p>
+    <p class="legaleeze center">Version: 0.15.2 &bull; Last Updated: Wed, 28 Sep 2022 20:40:14 -0700</p>
   </div>
 </footer>
 
