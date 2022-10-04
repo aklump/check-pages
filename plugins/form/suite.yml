@@ -70,6 +70,27 @@
       -
         name: first_name
         value: Rachel
+  find:
+    -
+      dom: h1
+      text: Thank you Rachel, for your submission
+-
+  set: savedFirstName
+  value: Anne
+-
+  why: Assert interpolation works for input values.
+  url: /test_subject.php
+  form:
+    dom: .form-c
+    input:
+      -
+        name: first_name
+        value: ${savedFirstName}
+  find:
+    -
+      dom: h1
+      text: Thank you Anne, for your submission
+
 
 -
   why: Demonstrate textfield default value is submitted.

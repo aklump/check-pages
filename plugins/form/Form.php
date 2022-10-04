@@ -97,6 +97,7 @@ final class Form implements EventSubscriberInterface {
           // Load the inputs that come from the test config, first.
           $inputs = [];
           foreach (($config['form']['input'] ?? []) as $input) {
+            $test->interpolate($input['value']);
             $inputs[$input['name']] = $input['value'];
           }
 
