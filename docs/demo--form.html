@@ -38,6 +38,22 @@
 
 <p>To provide a form value, add an object to the <code>input</code> array as shown below. It must have the keys <code>name</code> and <code>value</code>, where <code>name is the</code>name` attribute of the form element.</p>
 
+<h3>Dates</h3>
+
+<ul>
+<li>You must wrap date strings in quotations like this <code>value: "2010-01-01"</code>.</li>
+</ul>
+
+<h3>Select</h3>
+
+<ul>
+<li>Instead of using <code>value</code>, you may use <code>option</code> to set the value of a <code>&lt;select&gt;</code> element. It is case-sensitive. Subject to the <em>Element Present</em> limitation.</li>
+</ul>
+
+<h2><em>Element Present</em> limitation</h2>
+
+<p>The DOM element must be present in the markup and not added via AJAX, if it's not present the value cannot be determined.</p>
+
 <h2>Example Tests</h2>
 
 <pre><code class="yaml">-
@@ -112,6 +128,47 @@
       -
         name: first_name
         value: Rachel
+      -
+        name: date
+        value: "2010-01-01"
+  find:
+    -
+      dom: h1
+      text: Thank you Rachel, for your submission
+    -
+      dom: h2
+      text: Your membership will begin on 2010-01-01.
+-
+  set: savedFirstName
+  value: Anne
+-
+  set: savedDate
+  value: "1982-06-30"
+-
+  why: Assert interpolation works for input values.
+  url: /test_subject.php
+  form:
+    dom: .form-c
+    input:
+      -
+        name: first_name
+        value: ${savedFirstName}
+      -
+        name: date
+        value: "${savedDate}"
+      -
+        name: shirt_size
+        option: small
+  find:
+    -
+      dom: h1
+      text: Thank you Anne, for your submission
+    -
+      dom: h2
+      text: Your membership will begin on 1982-06-30.
+    -
+      dom: p
+      text: Your shirt size is sm.
 
 -
   why: Demonstrate textfield default value is submitted.
@@ -155,7 +212,7 @@
 <footer>
   <div class="pager"><a href="demo--json_schema.html" class="prev demo--json_schema">&laquo;Testing APIs with JSON Schema</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--header.html" class="next plugin_header">Testing Response Headers&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.16.2 &bull; Last Updated: Wed, 28 Sep 2022 21:34:16 -0700</p>
+    <p class="legaleeze center">Version: 0.16.4 &bull; Last Updated: Fri, 11 Nov 2022 17:04:23 -0800</p>
   </div>
 </footer>
 

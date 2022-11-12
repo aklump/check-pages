@@ -65,6 +65,47 @@
             -
                 name: first_name
                 value: Rachel
+            -
+                name: date
+                value: '2010-01-01'
+    find:
+        -
+            dom: h1
+            text: 'Thank you Rachel, for your submission'
+        -
+            dom: h2
+            text: 'Your membership will begin on 2010-01-01.'
+-
+    set: savedFirstName
+    value: Anne
+-
+    set: savedDate
+    value: '1982-06-30'
+-
+    why: 'Assert interpolation works for input values.'
+    url: /plugins/form.php
+    form:
+        dom: .form-c
+        input:
+            -
+                name: first_name
+                value: '${savedFirstName}'
+            -
+                name: date
+                value: '${savedDate}'
+            -
+                name: shirt_size
+                option: small
+    find:
+        -
+            dom: h1
+            text: 'Thank you Anne, for your submission'
+        -
+            dom: h2
+            text: 'Your membership will begin on 1982-06-30.'
+        -
+            dom: p
+            text: 'Your shirt size is sm.'
 -
     why: 'Demonstrate textfield default value is submitted.'
     url: /plugins/form.php

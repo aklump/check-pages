@@ -446,10 +446,18 @@
                             },
                             {
                                 "type": "object",
-                                "required": [
-                                    "name",
-                                    "value"
-                                ],
+                                "required": {
+                                    "oneOf": [
+                                        [
+                                            "name",
+                                            "value"
+                                        ],
+                                        [
+                                            "name",
+                                            "option"
+                                        ]
+                                    ]
+                                },
                                 "additionalProperties": false,
                                 "properties": {
                                     "why": {
@@ -459,6 +467,12 @@
                                         "type": "string"
                                     },
                                     "value": {
+                                        "type": [
+                                            "string",
+                                            "number"
+                                        ]
+                                    },
+                                    "option": {
                                         "type": [
                                             "string",
                                             "number"

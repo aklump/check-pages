@@ -1,31 +1,31 @@
 {
-    "name": "aklump\/check-pages",
+    "name": "aklump/check-pages",
     "type": "library",
     "description": "Very simple QA for websites.",
     "keywords": [],
-    "homepage": "https:\/\/github.com\/aklump\/check-pages",
+    "homepage": "https://github.com/aklump/check-pages",
     "license": "BSD-3-Clause",
     "autoload": {
         "psr-4": {
-            "AKlump\\CheckPages\\": "src\/",
+            "AKlump\\CheckPages\\": "src/",
             "AKlump\\CheckPages\\Plugin\\": [
-                "plugins\/breakpoint\/",
-                "plugins\/count\/",
-                "plugins\/dom\/",
-                "plugins\/evaluate\/",
-                "plugins\/form\/",
-                "plugins\/header\/",
-                "plugins\/import\/",
-                "plugins\/javascript\/",
-                "plugins\/json_schema\/",
-                "plugins\/loop\/",
-                "plugins\/options\/",
-                "plugins\/path\/",
-                "plugins\/request\/",
-                "plugins\/sleep\/",
-                "plugins\/style\/",
-                "plugins\/value\/",
-                "plugins\/xpath\/"
+                "plugins/breakpoint/",
+                "plugins/count/",
+                "plugins/dom/",
+                "plugins/evaluate/",
+                "plugins/form/",
+                "plugins/header/",
+                "plugins/import/",
+                "plugins/javascript/",
+                "plugins/json_schema/",
+                "plugins/loop/",
+                "plugins/options/",
+                "plugins/path/",
+                "plugins/request/",
+                "plugins/sleep/",
+                "plugins/style/",
+                "plugins/value/",
+                "plugins/xpath/"
             ]
         }
     },
@@ -36,40 +36,41 @@
         }
     ],
     "require": {
-        "aklump\/loft-lib": "^1.3",
-        "guzzlehttp\/guzzle": "^6.3|^7.0",
-        "symfony\/yaml": "^3.4.0|^4.0|^5.0",
-        "symfony\/dom-crawler": "^5.0",
-        "symfony\/css-selector": "^3.4.0|^4.0|^5.0",
-        "dmore\/chrome-mink-driver": "^2.7",
-        "behat\/mink": "^1.8",
-        "jakubkulhan\/chrome-devtools-protocol": "^1.0",
-        "adamnicholson\/bag": "@dev",
-        "midweste\/objectpath": "^1.0",
-        "laminas\/laminas-xml2json": "^3.2",
+        "aklump/loft-lib": "^1.3",
+        "guzzlehttp/guzzle": "^6.3|^7.0",
+        "symfony/yaml": "^3.4.0|^4.0|^5.0",
+        "symfony/dom-crawler": "^5.0",
+        "symfony/css-selector": "^3.4.0|^4.0|^5.0",
+        "dmore/chrome-mink-driver": "^2.7",
+        "behat/mink": "^1.8",
+        "jakubkulhan/chrome-devtools-protocol": "^1.0",
+        "adamnicholson/bag": "@dev",
+        "midweste/objectpath": "^1.0",
+        "laminas/laminas-xml2json": "^3.2",
         "ext-json": "*",
-        "symfony\/expression-language": "^4.4|^5.4",
-        "symfony\/event-dispatcher": "^4.4|^5.4",
-        "symfony\/dependency-injection": "^4.4|^5.4",
-        "symfony\/config": "^4.4|^5.4",
-        "symfony\/console": "^4.4|^5.4",
-        "justinrainbow\/json-schema": "^5.2",
-        "ralouphie\/mimey": "^2.1",
-        "shanethehat\/pretty-xml": "^1.0"
+        "symfony/expression-language": "^4.4|^5.4",
+        "symfony/event-dispatcher": "^4.4|^5.4",
+        "symfony/dependency-injection": "^4.4|^5.4",
+        "symfony/config": "^4.4|^5.4",
+        "symfony/console": "^4.4|^5.4",
+        "justinrainbow/json-schema": "^5.2",
+        "ralouphie/mimey": "^2.1",
+        "shanethehat/pretty-xml": "^1.0",
+        "ext-dom": "*"
     },
     "version": "0.16.4",
     "bin": [
-        ".\/check_pages",
-        ".\/create_test_directory"
+        "./check_pages",
+        "./create_test_directory"
     ],
     "scripts": {
         "post-install-cmd": [
-            ".\/create_test_directory"
+            "./create_test_directory"
         ]
     },
     "require-dev": {
-        "squizlabs\/php_codesniffer": "^3.5",
-        "drupal\/coder": "^8.3",
-        "phpunit\/phpunit": "^9.5"
+        "squizlabs/php_codesniffer": "^3.5",
+        "drupal/coder": "^8.3",
+        "phpunit/phpunit": "^9.5"
     }
 }
