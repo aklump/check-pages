@@ -38,6 +38,11 @@ if (isset($_POST['op'])) {
 
 <form class="form-c" action="/thank_you.php" method="post">
   <input type="text" name="first_name" value=""/>
+  <input type="date" name="date" value=""/>
+  <select name="shirt_size">
+    <option value="sm">small</option>
+    <option value="lg">large</option>
+  </select>
   <button type="submit">Submit</button>
 </form>
 

@@ -94,38 +94,97 @@ final class Form implements EventSubscriberInterface {
             $importer->resolveImports($config['form']['input']);
           }
 
-          // Load the inputs that come from the test config, first.
-          $inputs = [];
-          foreach (($config['form']['input'] ?? []) as $input) {
-            $test->interpolate($input['value']);
-            $inputs[$input['name']] = $input['value'];
+          $test_provided = [];
+          $form_values = $config['form']['input'] ?? [];
+          if ($form_values) {
+            $test->interpolate($form_values);
+            // Give an key/name index for later lookup.
+            $test_provided = array_combine(array_map(function ($item) {
+              return $item['name'];
+            }, $form_values), $form_values);
           }
 
-          $add_node_input = function ($node) use (&$inputs) {
-            if ($node) {
-              $name = $node->getAttribute('name');
-              if ($name) {
-                $inputs += [
-                  $name => $node->getAttribute('value') ?? '',
-                ];
-              }
+          $determine_value = function (\DOMElement $node) use (&$form_values, $test_provided) {
+            $name = $node->getAttribute('name');
+            if ($name && isset($test_provided[$name]) || !array_key_exists($name, $form_values)) {
+              $value = self::getElementValue($node, $test_provided[$name] ?? []);
+              $form_values[$name] = $value;
             }
           };
 
-          // Then add any non-existent values, pulling from the form inputs.
+          // ...then add any non-existent values, pulling from the form inputs.
           $submit_selector = $config['form']['submit'] ?? '[type="submit"]';
           $submit = $form->filter($submit_selector)->getNode(0);
-          $add_node_input($submit);
+          if ($submit) {
+            $determine_value($submit);
+          }
 
-          foreach ($form->filter('input') as $input) {
-            if ('submit' !== $input->getAttribute('type')) {
-              $add_node_input($input);
+          // Iterate over all supported DOM elements in the form and add user
+          // values or default values as appropriate.
+          foreach ($form->filter('input,select') as $el) {
+            if ('submit' !== $el->getAttribute('type')) {
+              $determine_value($el);
             }
           }
-          $variables->setItem('formBody', http_build_query($inputs));
+
+          // The last step is to add any test-provided values that did not match
+          // up to the form.  They must be included because the test says so.
+          // This is actually reasonable in the case of dynamic, ajax-forms that
+          // may not be fully loaded when it gets analyzed.  There is a
+          // limitation here, because only the "value" key can be used when the
+          // form element cannot be analyzed; in other words "option" will not
+          // work without a DomElement.
+          $missing_values = array_filter(array_map(function ($item) {
+            return $item['value'] ?? NULL;
+          }, $test_provided));
+          $form_values += $missing_values;
+
+          $variables->setItem('formBody', http_build_query($form_values));
         },
       ],
     ];
   }
 
+  private static function getElementValue(\DOMElement $el, array $context = []) {
+    if (array_key_exists('value', $context)) {
+      return $context['value'];
+    }
+
+    switch ($el->tagName) {
+      case 'select':
+        $crawler = new Crawler($el);
+        if (array_key_exists('option', $context)) {
+          // Lookup the option value based on the option label passed in $context.
+          $options = $crawler->filter('option')->extract(['_text', 'value']);
+          foreach ($options as $item) {
+            if ($context['option'] === $item[0]) {
+              return $item[1];
+            }
+          }
+        }
+
+        return static::getElementDefaultValue($el);
+
+      default:
+        return static::getElementDefaultValue($el);
+    }
+  }
+
+  private static function getElementDefaultValue(\DOMElement $el) {
+    switch ($el->tagName) {
+      case 'select':
+        $crawler = new Crawler($el);
+        $selected = $crawler->filter('option[selected]');
+        if (!$selected->count()) {
+          $selected = $crawler->filter('option');
+        }
+
+        return $selected->getNode(0)->getAttribute('value');
+
+      default:
+        return $el->getAttribute('value');
+    }
+  }
+
 }
+
