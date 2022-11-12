@@ -58,7 +58,7 @@
         "shanethehat/pretty-xml": "^1.0",
         "ext-dom": "*"
     },
-    "version": "0.16.4",
+    "version": "0.16.5",
     "bin": [
         "./check_pages",
         "./create_test_directory"
