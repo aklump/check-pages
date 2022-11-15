@@ -51,7 +51,7 @@ final class Value implements EventSubscriberInterface {
           }
 
           // Handle a test-level assertion.
-          $match = array_intersect_key([
+          $test_level_assertion = array_intersect_key([
             'is' => Assert::ASSERT_EQUALS,
             'is not' => Assert::ASSERT_NOT_EQUALS,
             'contains' => Assert::ASSERT_CONTAINS,
@@ -59,14 +59,14 @@ final class Value implements EventSubscriberInterface {
             'matches' => Assert::ASSERT_MATCHES,
             'not matches' => Assert::ASSERT_NOT_MATCHES,
           ], $config);
-          if ($match) {
-            $type = key($match);
+          if ($test_level_assertion) {
+            $type = key($test_level_assertion);
             $definition = [
               $type => $config['value'],
             ];
             $assert = new Assert('value', $definition, $test);
             $assert->setHaystack([$config['value']]);
-            $assert->setAssertion($match[$type], $config[$type]);
+            $assert->setAssertion($test_level_assertion[$type], $config[$type]);
             $assert->run();
             $test->setTitle(ltrim($set_message . '. ', '. ') . $assert);
             $assert->getResult() ? $test->setPassed() : $test->setFailed();

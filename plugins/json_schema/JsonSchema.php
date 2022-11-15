@@ -129,7 +129,7 @@ final class JsonSchema implements EventSubscriberInterface {
           $uri = 'file://' . $path_to_schema;
         }
         catch (UnresolvablePathException $exception) {
-          $message = sprintf('Cannot resolve to schema file: "%s".', $schema_config_value);
+          $message = sprintf('Schema cannot be resolved to an absolute path: "%s".', $schema_config_value);
           throw new UnresolvablePathException($schema_config_value, $message);
         }
         $json = file_get_contents($path_to_schema);
