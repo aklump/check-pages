@@ -82,3 +82,10 @@
             why: 'Assert the timestamp in the data attribute matches the subtitle; because the value is dynamic and always changing, the only way to assert against it is to use the set property.'
             dom: h2.page-subtitle
             matches: '/${currentTime}$/'
+        -
+            why: 'Assert using set with matches, sets the matched value, not the original.'
+            dom: .progress
+            matches: /^\d+/
+            set: percentage
+-
+    eval: '${percentage} == 89'
