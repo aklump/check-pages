@@ -530,8 +530,8 @@ final class Assert {
         $item = '';
         foreach ($haystack as $item) {
           $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
-            if (preg_match($this->assertValue, $item_variation)) {
-              $this->setNeedleIfNotSet($item_variation);
+            if (preg_match($this->assertValue, $item_variation, $matches)) {
+              $this->setNeedleIfNotSet($matches[0]);
 
               return TRUE;
             }
