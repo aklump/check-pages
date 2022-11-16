@@ -687,7 +687,15 @@ class Runner implements DebuggableInterface {
       // that handle has set the results, then the test should be considered
       // complete.
       if (!$test->hasFailed() && !$test->hasPassed()) {
-        $this->runTest($test);
+        try {
+          $this->runTest($test);
+        }
+        catch (TestFailedException $exception) {
+          // We have to catch this here, because of the dispatching and decision
+          // on what to do about it that is determined below looking at
+          // configuration.
+          $test->setFailed();
+        }
       }
 
       if ($test->hasFailed()) {
@@ -746,6 +754,8 @@ class Runner implements DebuggableInterface {
    * @param array $config
    *
    * @throws \GuzzleHttp\Exception\GuzzleException
+   * @throws \AKlump\CheckPages\Exceptions\TestFailedException
+   * @throws \InvalidArgumentException
    */
   protected function runTest(Test $test): void {
     $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_STARTED);
@@ -808,15 +818,26 @@ class Runner implements DebuggableInterface {
           ->setUrl($this->url($test->getConfig()['url']))
           ->request()
           ->getResponse();
+        $http_response_code = $response->getStatusCode();
       }
-      catch (ServerException $exception) {
-        $response = $exception->getResponse();
+      catch (\Exception $exception) {
+        $response = NULL;
+
+        if (method_exists($exception, 'getResponse')) {
+          $response = $exception->getResponse();
+          if ($response) {
+            $http_response_code = $response->getStatusCode();
+          }
+        }
+
+        if (empty($http_response_code)) {
+          $this->handleFailedRequestNoResponse($test, $driver, $exception);
+        }
       }
 
       $http_location = NULL;
 
       // If not specified, then any 2XX will pass.
-      $http_response_code = $response->getStatusCode();
       if (empty($test->getConfig()['expect'])) {
         $test_passed($http_response_code >= 200 && $http_response_code <= 299);
       }
@@ -887,6 +908,33 @@ class Runner implements DebuggableInterface {
     }
 
     $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::TEST_FINISHED);
+  }
+
+  /**
+   * @param \AKlump\CheckPages\Parts\Test $test
+   * @param \AKlump\CheckPages\RequestDriverInterface $driver
+   * @param $exception
+   *
+   * @return mixed
+   * @throws \AKlump\CheckPages\Exceptions\TestFailedException
+   */
+  private function handleFailedRequestNoResponse(Test $test, RequestDriverInterface $driver, $exception) {
+    // Try to be helpful with suggestions on mitigation of errors.
+    $message = $exception->getMessage();
+    $this->messages[] = [
+      'data' => sprintf('├── %s', $message),
+      'level' => 'error',
+    ];
+    if (strstr($message, 'timed out') !== FALSE) {
+      $this->messages[] = [
+        'data' => sprintf('├── Try setting a value higher than %d for "request_timeout" in %s, or at the test level.', $driver->getRequestTimeout(), basename($this->configPath)),
+        'level' => 'error',
+      ];
+    }
+
+    $test->setResults($this->messages);
+    $test->setFailed();
+    throw new TestFailedException($test->getConfig(), $exception);
   }
 
   /**
