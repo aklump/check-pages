@@ -24,10 +24,10 @@ class Suite implements PartInterface, \JsonSerializable {
   protected $vars;
 
   public function __construct(string $id, array $config, Runner $runner) {
+    $this->vars = new Variables();
     $this->runner = $runner;
     $this->id = $id;
     $this->setConfig($config);
-    $this->vars = new Variables();
   }
 
   /**
@@ -59,6 +59,9 @@ class Suite implements PartInterface, \JsonSerializable {
 
   public function setConfig(array $config): Suite {
     $this->config = $config;
+    foreach ($config['variables'] ?? [] as $key => $value) {
+      $this->variables()->setItem($key, $value);
+    }
 
     return $this;
   }

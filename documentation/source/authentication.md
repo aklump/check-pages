@@ -109,7 +109,7 @@ The token `${user.csrf}` is created automatically when you use `user`, and can b
 ```yaml
 -
   user: site_test.admin
-  url: /cp-api/jobs
+  url: /cp-api/${cp_api_public}/jobs
   request:
     method: POST
     headers:

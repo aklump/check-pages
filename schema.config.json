@@ -45,6 +45,10 @@
         "type": "string"
       }
     },
+    "variables": {
+      "type": "object",
+      "description": "Used to set common variables for interpolation across all suites."
+    },
     "extras": {
       "type": "object",
       "description": "Used for arbitrary configuration as determined by end user.  Use config_get() to access."

@@ -8,16 +8,26 @@
 * You should set variables on suite, which will persist across tests. `\AKlump\CheckPages\Parts\Suite::variables`
 * You may also want to use a throw-away instance such as is done in `\AKlump\CheckPages\Plugin\LoopCurrentLoop::execute`
 * When a plugin interpolates test config, it should probably set the config so that the interpolated values are passed down the execution chain, e.g. taken from the Request plugin:
-  ```php
-  function (TestEventInterface $event) {
-    $test = $event->getTest();
-    $this->config = $test->getConfig();
-    $test->interpolate($this->config['request']);
-    $test->setConfig($this->config);
-  }  
-  ```
+
+    ```php
+    function (TestEventInterface $event) {
+      $test = $event->getTest();
+      $this->config = $test->getConfig();
+      $test->interpolate($this->config['request']);
+      $test->setConfig($this->config);
+    }  
+    ```
 
 ### Example Implementations
 
 * `\AKlump\CheckPages\Plugin\Value`
 * `\AKlump\CheckPages\Plugin\Request`
+
+## Provide Variables from Configuration Files
+
+You may set (global) variables in configuration, which may be interpolated by all suites and tests, by using the `variables` root-level key, like this:
+
+```yaml
+variables:
+  foo_name: bar_value
+```
