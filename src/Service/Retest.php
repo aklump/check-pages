@@ -156,7 +156,7 @@ final class Retest implements EventSubscriberInterface {
           self::$skipSuites = self::$skipSuites ?? $obj->getSuitesToIgnore();
           if (self::$skipSuites) {
             $config = $event->getRunner()->getConfig();
-            $config['suites_to_ignore'] = array_unique(array_merge($config['suites_to_ignore'], self::$skipSuites));
+            $config['suites_to_ignore'] = array_values(array_unique(array_merge($config['suites_to_ignore'], self::$skipSuites)));
             $event->getRunner()->setConfig($config);
           }
 
