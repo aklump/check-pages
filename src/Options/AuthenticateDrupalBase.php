@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Options;
 use AKlump\CheckPages\GuzzleDriver;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Yaml\Yaml;
 
@@ -113,29 +114,43 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
       throw new \RuntimeException(sprintf('Login form missing from %s', $this->loginUrl));
     }
 
-    // Log in and get a session.
+    // Now that we have a complete form, try to log in and get a session.
     $jar = new CookieJar();
-    $this->response = $authenticator
-      ->getClient()
-      ->request('POST', $this->loginUrl, [
-        'cookies' => $jar,
-        'form_params' => [
-          'op' => 'Log in',
-          'name' => $username,
-          'pass' => $password,
-          'form_id' => $this->formId,
-          'form_build_id' => $form_build_id,
-        ],
-      ]);
+    try {
+      $failed_message = [sprintf('Login failed for username "%s".', $username)];
+      $failed = FALSE;
+      $this->response = $authenticator
+        ->getClient()
+        ->request('POST', $this->loginUrl, [
+          'cookies' => $jar,
+          'form_params' => [
+            'op' => 'Log in',
+            'name' => $username,
+            'pass' => $password,
+            'form_id' => $this->formId,
+            'form_build_id' => $form_build_id,
+          ],
+        ]);
+    }
+    catch (GuzzleException $exception) {
+      $failed = TRUE;
+      $failed_message[] = $exception->getMessage();
+    }
 
-    // Look for the login form again in the page response, if it's still here,
-    // that means login failed.  We could also look in the headers for
-    // "Set-Cookie" to see if it changed from the request above, if this doesn't
-    // prove to work over time.  A changed session cookie indicates a new
-    // session was created, but not necessarily that the login succeeded.
-    $crawler = new Crawler(strval($this->response->getBody()));
-    if ($crawler->filter($this->formSelector)->count() > 0) {
-      throw new \RuntimeException(sprintf('Login failed for username "%s".', $username));
+    if (!$failed) {
+      // Look for the login form again in the page response, if it's still here,
+      // that means login failed.  We could also look in the headers for
+      // "Set-Cookie" to see if it changed from the request above, if this doesn't
+      // prove to work over time.  A changed session cookie indicates a new
+      // session was created, but not necessarily that the login succeeded.
+      $crawler = new Crawler(strval($this->response->getBody()));
+      $failed = $crawler->filter($this->formSelector)->count() > 0;
+    }
+
+    // TODO Figure out how to read the session-based messages, so we can add them from Drupal to $failed_message for easier debugging.
+
+    if ($failed) {
+      throw new \RuntimeException(implode(PHP_EOL, $failed_message));
     }
 
     $session_cookie = array_first(array_filter($jar->toArray(), function ($item) {
