@@ -141,4 +141,8 @@ abstract class RequestDriver implements RequestDriverInterface {
     return $this;
   }
 
+  public function getRequestTimeout(): int {
+    return $this->requestTimeout;
+  }
+
 }

@@ -102,4 +102,6 @@ interface RequestDriverInterface {
    */
   public function setRequestTimeout(int $request_timeout): RequestDriverInterface;
 
+  public function getRequestTimeout(): int;
+
 }
