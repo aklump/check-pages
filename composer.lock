@@ -4,29 +4,28 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c64669d7a433644ee94db4167e457843",
+    "content-hash": "cd2a76b3783de974959170f623c756b5",
     "packages": [
         {
             "name": "adamnicholson/bag",
-            "version": "dev-master",
+            "version": "v2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/adamnicholson/bag.git",
-                "reference": "71787b311f62920616e8161fdfa0960cb2da4935"
+                "reference": "22a782d1a1e73e8e53f3d10bf86098bf5906d3c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/adamnicholson/bag/zipball/71787b311f62920616e8161fdfa0960cb2da4935",
-                "reference": "71787b311f62920616e8161fdfa0960cb2da4935",
+                "url": "https://api.github.com/repos/adamnicholson/bag/zipball/22a782d1a1e73e8e53f3d10bf86098bf5906d3c0",
+                "reference": "22a782d1a1e73e8e53f3d10bf86098bf5906d3c0",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.6"
+                "php": ">=7.4"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.0"
+                "phpunit/phpunit": "^9.0"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -49,9 +48,9 @@
             "description": "A simple parameter bag to make working with arrays easier",
             "support": {
                 "issues": "https://github.com/adamnicholson/bag/issues",
-                "source": "https://github.com/adamnicholson/bag/tree/master"
+                "source": "https://github.com/adamnicholson/bag/tree/v2.0"
             },
-            "time": "2015-11-04T18:31:43+00:00"
+            "time": "2022-11-15T11:29:25+00:00"
         },
         {
             "name": "aklump/data",

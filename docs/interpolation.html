@@ -32,14 +32,15 @@
 <li>You should set variables on the test, which will persist only for that test. <code>\AKlump\CheckPages\Parts\Test::variables()</code></li>
 <li>You should set variables on suite, which will persist across tests. <code>\AKlump\CheckPages\Parts\Suite::variables</code></li>
 <li>You may also want to use a throw-away instance such as is done in <code>\AKlump\CheckPages\Plugin\LoopCurrentLoop::execute</code></li>
-<li>When a plugin interpolates test config, it should probably set the config so that the interpolated values are passed down the execution chain, e.g. taken from the Request plugin:
-<code>php
-function (TestEventInterface $event) {
-$test = $event-&gt;getTest();
-$this-&gt;config = $test-&gt;getConfig();
-$test-&gt;interpolate($this-&gt;config['request']);
-$test-&gt;setConfig($this-&gt;config);
-}</code></li>
+<li><p>When a plugin interpolates test config, it should probably set the config so that the interpolated values are passed down the execution chain, e.g. taken from the Request plugin:</p>
+
+<pre><code class="php">function (TestEventInterface $event) {
+  $test = $event-&gt;getTest();
+  $this-&gt;config = $test-&gt;getConfig();
+  $test-&gt;interpolate($this-&gt;config['request']);
+  $test-&gt;setConfig($this-&gt;config);
+}  
+</code></pre></li>
 </ul>
 
 <h3>Example Implementations</h3>
@@ -48,6 +49,14 @@ $test-&gt;setConfig($this-&gt;config);
 <li><code>\AKlump\CheckPages\Plugin\Value</code></li>
 <li><code>\AKlump\CheckPages\Plugin\Request</code></li>
 </ul>
+
+<h2>Provide Variables from Configuration Files</h2>
+
+<p>You may set (global) variables in configuration, which may be interpolated by all suites and tests, by using the <code>variables</code> root-level key, like this:</p>
+
+<pre><code class="yaml">variables:
+  foo_name: bar_value
+</code></pre>
 
 </section>
 
@@ -58,7 +67,7 @@ $test-&gt;setConfig($this-&gt;config);
 <footer>
   <div class="pager"><a href="retest.html" class="prev retest">&laquo;Continuing and Retesting</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="phpstorm.html" class="next phpstorm">PhpStorm Integration&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.16.6 &bull; Last Updated: Mon, 14 Nov 2022 17:12:23 -0800</p>
+    <p class="legaleeze center">Version: 0.16.7 &bull; Last Updated: Tue, 15 Nov 2022 21:35:31 -0800</p>
   </div>
 </footer>
 
