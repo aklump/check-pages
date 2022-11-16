@@ -117,7 +117,12 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     // Now that we have a complete form, try to log in and get a session.
     $jar = new CookieJar();
     try {
-      $failed_message = [sprintf('Login failed for username "%s".', $username)];
+      $failed_message = [
+        sprintf('Login failed for username "%s" with password "%s".',
+          $username,
+          substr($password, 0, 2) . str_repeat('*', strlen($password) - 2)
+        ),
+      ];
       $failed = FALSE;
       $this->response = $authenticator
         ->getClient()
