@@ -85,7 +85,7 @@ final class Evaluate implements EventSubscriberInterface {
       $result = $eval->evaluate($expression);
     }
     catch (\Exception $exception) {
-      throw new TestFailedException($assert->getConfig(), new \Exception($reason));
+      throw new TestFailedException($assert->getConfig(), $exception);
     }
     if ($result) {
       $reason = "%s === true";
