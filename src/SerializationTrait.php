@@ -2,7 +2,8 @@
 
 namespace AKlump\CheckPages;
 
-use AKlump\CheckPages\Output\DebuggableInterface;
+use AKlump\CheckPages\Output\DebugMessage;
+use AKlump\Messaging\MessengerInterface;
 use Laminas\Xml2Json\Xml2Json;
 use Symfony\Component\Yaml\Yaml;
 
@@ -27,7 +28,7 @@ trait SerializationTrait {
     return strtolower($type);
   }
 
-  protected function serialize($data, string $type): string {
+  protected function serialize($data, string $type, MessengerInterface $printer = NULL): string {
     switch (strtolower($type)) {
       case 'text/html':
       case 'xml':
@@ -50,13 +51,13 @@ trait SerializationTrait {
       case 'application/json':
         return json_encode($data);
 
+      default:
+        if ($printer) {
+          array_unshift($data, 'Serialization Failure!', '');
+          $printer->deliver(new DebugMessage($data));
+        }
+        throw new \InvalidArgumentException(sprintf('Cannot serialize content of type "%s".', $type));
     }
-
-    //    if ($this instanceof DebuggableInterface) {
-    //      $this->debug('deserialize', [$serial]);
-    //    }
-
-    throw new \InvalidArgumentException(sprintf('Cannot serialize content of type "%s".', $type));
   }
 
   /**
@@ -74,7 +75,7 @@ trait SerializationTrait {
    *
    * @todo Support other content types.
    */
-  protected function deserialize(string $serial, string $type) {
+  protected function deserialize(string $serial, string $type, MessengerInterface $printer = NULL) {
     switch (strtolower($type)) {
       case 'text/html':
         return $serial;
@@ -111,13 +112,18 @@ trait SerializationTrait {
         $data = $this->typecastNumbers($data);
 
         return json_decode(json_encode($data));
-    }
 
-    if ($this instanceof DebuggableInterface) {
-      $this->debug('deserialize', [$serial]);
-    }
+      default:
+        if ($printer) {
+          $printer->deliver(new DebugMessage([
+            'Deserialization Failure!',
+            '',
+            $serial,
+          ]));
+        }
 
-    throw new \InvalidArgumentException(sprintf('Cannot deserialize content of type "%s".', $type));
+        throw new \InvalidArgumentException(sprintf('Cannot deserialize content of type "%s".', $type));
+    }
   }
 
   /**

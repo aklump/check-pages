@@ -15,7 +15,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class Feedback implements EventSubscriberInterface {
 
-
   /**
    * This must be a background color.
    *
@@ -235,13 +234,8 @@ class Feedback implements EventSubscriberInterface {
     $input = $runner->getInput();
     $output = $runner->getOutput();
 
-    $should_show = $output->isVerbose();
-    $should_show = $should_show || $input->getOption('request');
-    $should_show = $should_show || $input->getOption('req-headers');
-    $should_show = $should_show || $input->getOption('req');
-    $should_show = $should_show || $input->getOption('response');
-    $should_show = $should_show || $input->getOption('headers');
-    $should_show = $should_show || $input->getOption('res');
+    // TODO Revisit this second half re: show.
+    $should_show = $output->isVerbose() || $input->hasOption('show');
 
     if (!$should_show) {
       return;

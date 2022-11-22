@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Parts;
 use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\ChromeDriver;
 use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Output\ConsoleEchoPrinter;
 use AKlump\CheckPages\Event\AssertEvent;
 use AKlump\CheckPages\Event\DriverEvent;
 use AKlump\CheckPages\Event\RunnerEvent;
@@ -16,24 +17,27 @@ use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files;
 use AKlump\CheckPages\GuzzleDriver;
-use AKlump\CheckPages\Output\DebuggableInterface;
-use AKlump\CheckPages\Output\Debugging;
+use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\CheckPages\Output\Feedback;
+use AKlump\Messaging\MessengerInterface;
+use AKlump\Messaging\MessageType;
 use AKlump\CheckPages\Output\SourceCodeOutput;
+use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\VerboseDirective;
+use AKlump\CheckPages\Output\YamlMessage;
 use AKlump\CheckPages\Plugin\PluginsManager;
 use AKlump\CheckPages\RequestDriverInterface;
 use AKlump\CheckPages\SerializationTrait;
 use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
 use AKlump\LoftLib\Bash\Color;
-use GuzzleHttp\Exception\ServerException;
 use JsonSchema\Validator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Yaml\Yaml;
 
-class Runner implements DebuggableInterface {
+class Runner {
 
   use SerializationTrait;
   use SetTrait;
@@ -81,13 +85,6 @@ class Runner implements DebuggableInterface {
    * @var array
    */
   protected $printed = [];
-
-  /**
-   * True if in debug mode.
-   *
-   * @var bool
-   */
-  protected $debugging = FALSE;
 
   /**
    * An array of debug messages.
@@ -142,11 +139,6 @@ class Runner implements DebuggableInterface {
   protected $suite;
 
   /**
-   * @var \AKlump\CheckPages\Output\Debugging
-   */
-  protected $debugger;
-
-  /**
    * Holds a true state only when any filter is set and after a suite matching
    * the filter is used.  If a filter is set and all suites are run and this is
    * still FALSE, it means that the filter was for a suite that was not
@@ -182,7 +174,6 @@ class Runner implements DebuggableInterface {
   public function __construct(string $root_dir, InputInterface $input, OutputInterface $output) {
     $this->input = $input;
     $this->output = $output;
-    $this->debugger = new Debugging($output);
 
     $this->rootDir = $root_dir;
     $this->addResolveDirectory($this->rootDir);
@@ -307,9 +298,6 @@ class Runner implements DebuggableInterface {
     $this->runner = [
       'name' => $basename,
     ];
-
-    // TODO This needs to be reworked.
-    $this->debugging = !$this->getOutput()->isQuiet();
 
     $this->outputMode = Runner::OUTPUT_NORMAL;
     if ($this->getOutput()->isQuiet()) {
@@ -552,19 +540,25 @@ class Runner implements DebuggableInterface {
         $filter_message = '?' . urldecode(http_build_query($this->filters));
         $filter_message = preg_replace('/\[\d+\]/', '[]', $filter_message);
       }
-      $this->getOutput()
-        ->writeln(Color::wrap('blue', sprintf('Testing started with %s%s', basename($runner_path), $filter_message)));
+
+      $this->echo(new Message(
+        [
+          sprintf('Testing started with %s%s', basename($runner_path), $filter_message),
+        ]
+      ));
 
       require $runner_path;
 
       if (count($this->filters) > 0 && !$this->filtersWereApplied) {
-        $this->getOutput()
-          ->writeln([
+        $this->echo(new Message(
+          [
             '',
-            Color::wrap('yellow', sprintf('There are no suites in %s that match at least one of your filters.', basename($runner_path))),
-            Color::wrap('yellow', 'This can happen if you have not added `run_suite()` with a path to the intended suite(s).'),
+            sprintf('There are no suites in %s that match at least one of your filters.', basename($runner_path)),
+            'This can happen if you have not added `run_suite()` with a path to the intended suite(s).',
             '',
-          ], OutputInterface::VERBOSITY_NORMAL);
+          ],
+          MessageType::ERROR
+        ));
       }
     }
     catch (StopRunnerException $exception) {
@@ -656,8 +650,13 @@ class Runner implements DebuggableInterface {
     $data = Yaml::parse($suite_yaml, YAML::PARSE_OBJECT_FOR_MAP);
     $this->validateSuiteYaml($path_to_suite, $data, static::SCHEMA_VISIT . '.json');
 
-    if (!$this->debugging && empty($this->printed['base_url'])) {
-      echo Color::wrap('white on blue', sprintf('Base URL is %s', $this->getConfig()['base_url'])) . PHP_EOL;
+    if (empty($this->printed['base_url'])) {
+      $this->echo(new Message(
+        [
+          sprintf('Base URL is %s', $this->getConfig()['base_url']),
+          '',
+        ]
+      ), ConsoleEchoPrinter::INVERT);
       $this->printed['base_url'] = TRUE;
     }
 
@@ -776,11 +775,12 @@ class Runner implements DebuggableInterface {
 
       $debug = $test->getConfig();
       $debug['find'] = '';
-      $this->debugger->echoYaml($debug, 0, function ($yaml) {
+
+      $this->echo(new YamlMessage($debug, 0, function ($yaml) {
         // To make the output cleaner we need to remove the printed '' since find
         // is really an array, whose elements are yet to be printed.
         return str_replace("find: ''", 'find:', $yaml);
-      });
+      }, MessageType::DEBUG, new VerboseDirective('D')));
 
       if ($test->getConfig()['js'] ?? FALSE) {
         try {
@@ -884,7 +884,7 @@ class Runner implements DebuggableInterface {
     }
     else {
       $id = 0;
-      $this->debugger->lineBreak();
+      $this->echo(new Message([''], MessageType::DEBUG, new VerboseDirective('A')));
       while ($definition = array_shift($assertions)) {
         if (is_scalar($definition)) {
           $definition = [Assert::ASSERT_CONTAINS => $definition];
@@ -1067,20 +1067,38 @@ class Runner implements DebuggableInterface {
     $validator->validate($data, $schema);
     if (!$validator->isValid()) {
 
-      if ($this->getOutput()->isDebug()) {
-        echo Color::wrap('white on red', "Suite Group\\ID:") . PHP_EOL;
-        echo Color::wrap('light gray', strval($this->getSuite())) . PHP_EOL;
-        echo PHP_EOL;
-        echo Color::wrap('white on red', "Test Configuration:") . PHP_EOL;
-        echo Color::wrap('light gray', json_encode($data, JSON_PRETTY_PRINT)) . PHP_EOL;
-        echo PHP_EOL;
-        echo Color::wrap('white on red', "Schema Path:") . PHP_EOL;
-        echo Color::wrap('light gray', $path_to_schema) . PHP_EOL;
-        echo PHP_EOL;
-        echo Color::wrap('white on red', "Schema Validation Errors:") . PHP_EOL;
-        foreach ($validator->getErrors() as $error) {
-          echo Color::wrap('light gray', sprintf("[%s] %s", $error['property'], $error['message'])) . PHP_EOL;
-        }
+      $directive = new VerboseDirective('D');
+
+      $this->echo(new Message([
+        "Suite Group\\ID:",
+        strval($this->getSuite()),
+        '',
+      ], MessageType::ERROR, $directive), ConsoleEchoPrinter::INVERT_FIRST);
+
+      $this->echo(new Message([
+        "Test Configuration:",
+      ], MessageType::ERROR, $directive), ConsoleEchoPrinter::INVERT_FIRST);
+
+      $this->echo(new Message([
+        json_encode($data, JSON_PRETTY_PRINT),
+        '',
+      ], MessageType::DEBUG, $directive));
+
+      $this->echo(new Message([
+        'Schema Path:',
+        $path_to_schema,
+        '',
+      ], MessageType::ERROR, $directive), ConsoleEchoPrinter::INVERT_FIRST);
+
+      $this->echo(new Message([
+        "Schema Validation Errors:",
+      ], MessageType::ERROR, $directive), ConsoleEchoPrinter::INVERT_FIRST);
+
+      foreach ($validator->getErrors() as $error) {
+        $this->echo(new Message([
+          sprintf("[%s] %s", $error['property'], $error['message']),
+          '',
+        ], MessageType::DEBUG, $directive));
       }
 
       throw new \RuntimeException(sprintf('The suite (%s) does not match schema "%s". Use -vvv for more info.', basename($path_to_suite), $schema_basename));
@@ -1107,7 +1125,7 @@ class Runner implements DebuggableInterface {
     $response = $driver->getResponse();
     $test->interpolate($definition);
 
-    $this->debugger->echoYaml($definition, 2);
+    $this->echo(new YamlMessage($definition, 2, NULL, MessageType::DEBUG, new VerboseDirective('D')));
 
     $assert = new Assert($id, $definition, $test);
     $assert
@@ -1209,7 +1227,9 @@ class Runner implements DebuggableInterface {
       $storage_name = rtrim($path_to_storage, '/') . "/$storage_name";
     }
     else {
-      $this->debug('file_storage', [sprintf('To enable disk storage (i.e., sessions) create a writeable directory at %s.', $path_to_storage)]);
+      $this->echo(new DebugMessage([
+        sprintf('To enable disk storage (i.e., sessions) create a writeable directory at %s.', $path_to_storage),
+      ]));
     }
     $this->storage = new Storage($storage_name);
 
@@ -1225,7 +1245,7 @@ class Runner implements DebuggableInterface {
   public function getPathToFilesDirectory(): string {
     if (NULL === $this->pathToFiles) {
       if (empty($this->getConfig()['files'])) {
-        $this->debug('files', ['To enable file output you must set a value for "files" in your config.']);
+        $this->echo(new DebugMessage(['To enable file output you must set a value for "files" in your config.']));
         $this->pathToFiles = '';
       }
       else {

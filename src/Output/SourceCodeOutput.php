@@ -65,8 +65,10 @@ final class SourceCodeOutput {
     $test = $event->getTest();
     $input = $test->getRunner()->getInput();
     $config = $test->getConfig();
-    $show_headers = $input->getOption('request') || $input->getOption('req-headers');
-    $show_body = $input->getOption('request') || $input->getOption('req');
+
+    $show = new VerboseDirective(strval($input->getOption('show')));
+    $show_headers = $show->showSendHeaders();
+    $show_body = $show->showSendBody();
     $show_url = $show_headers || $test->getRunner()->getOutput()->isVerbose();
 
     if (!empty($config['url']) && $show_url) {
@@ -93,8 +95,11 @@ final class SourceCodeOutput {
   public function responseOutput(DriverEventInterface $event) {
     $test = $event->getTest();
     $input = $test->getRunner()->getInput();
-    $show_headers = $input->getOption('response') || $input->getOption('headers');
-    $show_body = $input->getOption('response') || $input->getOption('res');
+
+    $show = new VerboseDirective(strval($input->getOption('show')));
+    $show_headers = $show->showResponseHeaders();
+    $show_body = $show->showResponseBody();
+
     $response = $event->getDriver()->getResponse();
 
     if ($show_headers) {
@@ -185,23 +190,23 @@ final class SourceCodeOutput {
     $status = $this->getResponseHttpStatusLine($test, $driver->getResponse());
 
     if ($test->hasFailed()) {
-//      Feedback::$requestUrl->overwrite([
-//        Color::wrap('red', $this->indent($url)),
-//      ]);
-//
-//      Feedback::$testResult->overwrite([
-//        Color::wrap('red', '└── ' . $status),
-//        '',
-//      ]);
+      //      Feedback::$requestUrl->overwrite([
+      //        Color::wrap('red', $this->indent($url)),
+      //      ]);
+      //
+      //      Feedback::$testResult->overwrite([
+      //        Color::wrap('red', '└── ' . $status),
+      //        '',
+      //      ]);
 
       // REQUEST
-//      $this->overwriteHeaders($input, Feedback::$requestHeaders, $driver->getHeaders(), 'red');
-//      $this->overwriteBody($input, Feedback::$requestBody, strval($driver), $this->getContentType($driver), 'red');
+      //      $this->overwriteHeaders($input, Feedback::$requestHeaders, $driver->getHeaders(), 'red');
+      //      $this->overwriteBody($input, Feedback::$requestBody, strval($driver), $this->getContentType($driver), 'red');
 
       // RESPONSE
-//      $response = $event->getDriver()->getResponse();
-//      $this->overwriteHeaders($input, Feedback::$responseHeaders, [], 'red', $test, $response);
-//      $this->overwriteBody($input, Feedback::$responseBody, $response->getBody(), $this->getContentType($response), 'red');
+      //      $response = $event->getDriver()->getResponse();
+      //      $this->overwriteHeaders($input, Feedback::$responseHeaders, [], 'red', $test, $response);
+      //      $this->overwriteBody($input, Feedback::$responseBody, $response->getBody(), $this->getContentType($response), 'red');
     }
     else {
 

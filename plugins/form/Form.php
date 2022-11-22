@@ -178,8 +178,12 @@ final class Form implements EventSubscriberInterface {
         if (!$selected->count()) {
           $selected = $crawler->filter('option');
         }
+        $node = $selected->getNode(0);
+        if ($node) {
+          return $node->getAttribute('value');
+        }
 
-        return $selected->getNode(0)->getAttribute('value');
+        return $el->getAttribute('value');
 
       default:
         return $el->getAttribute('value');

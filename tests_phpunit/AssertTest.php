@@ -5,7 +5,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @group default
- * @covers \Drupal\gop_theme\Tests\Foo
+ * @covers \AKlump\CheckPages\Assert
  */
 final class AssertTest extends TestCase {
 
