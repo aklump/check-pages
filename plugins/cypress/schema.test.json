@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "required": [
+    "cypress"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "cypress": {
+      "type": "string",
+      "pattern": ".+\\.cy\\.js$",
+      "examples": [
+        "worker/3632.cy.js"
+      ]
+    },
+    "env": {
+      "description": "Any number of values to be used by Cypress.env.foo",
+      "type": "object",
+      "examples": [
+        {
+          "url": "/foo/bar/baz",
+          "user": {
+            "id": 123,
+            "name": "smith"
+          }
+        }
+      ]
+    }
+  }
+}
