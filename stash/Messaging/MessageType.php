@@ -11,4 +11,6 @@ interface MessageType {
   const INFO = 'info';
 
   const DEBUG = 'debug';
+
+  const TODO = 'todo';
 }

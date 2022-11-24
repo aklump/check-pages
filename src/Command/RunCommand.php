@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Command;
 use AKlump\CheckPages\CheckPages;
 use AKlump\CheckPages\Output\ConsoleEchoPrinter;
 use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Verbosity;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
 use AKlump\CheckPages\Output\Timer;
@@ -102,16 +103,6 @@ class RunCommand extends Command {
       return Command::SUCCESS;
     }
     catch (\Exception $exception) {
-      $message = trim($runner->getMessageOutput());
-      if ($message) {
-        $messenger->deliver(new Message(
-          [
-            $message,
-            '',
-          ],
-          MessageType::ERROR
-        ));
-      }
 
       $this->echoTimer($messenger, $timer);
 
@@ -138,7 +129,12 @@ class RunCommand extends Command {
 
   private function echoResults(Runner $runner, Timer $timer, \Exception $exception = NULL) {
     $messenger = $runner->getMessenger();
+
     $this->echoTimer($messenger, $timer);
+
+    foreach ($runner->getMessages() as $message) {
+      $messenger->deliver($message);
+    }
 
     $total_test_count = $runner->getTotalTestsRun();
 
@@ -219,7 +215,7 @@ class RunCommand extends Command {
         '🏁 ' . $timer->getCurrent(),
       ],
       MessageType::DEBUG,
-      new VerboseDirective('V')
+      Verbosity::VERBOSE
     );
     $messenger->deliver($message);
   }

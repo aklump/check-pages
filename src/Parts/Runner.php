@@ -19,6 +19,8 @@ use AKlump\CheckPages\Files;
 use AKlump\CheckPages\GuzzleDriver;
 use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\CheckPages\Output\Feedback;
+use AKlump\CheckPages\Output\Verbosity;
+use AKlump\Messaging\HasMessagesTrait;
 use AKlump\Messaging\MessengerInterface;
 use AKlump\Messaging\MessageType;
 use AKlump\CheckPages\Output\SourceCodeOutput;
@@ -41,6 +43,7 @@ class Runner {
 
   use SerializationTrait;
   use SetTrait;
+  use HasMessagesTrait;
 
   /**
    * The filename without extension or path.
@@ -187,6 +190,51 @@ class Runner {
       $this->schema = json_decode(file_get_contents($schema_path), TRUE);
     }
     $this->pluginsManager->setSchema($this->schema);
+  }
+
+
+  /**
+   * Echo a message.
+   *
+   * Shorthand for $this->getMessenger()->deliver(...
+   *
+   * @param \AKlump\CheckPages\Output\Message $message
+   * @param int|NULL $flags
+   *
+   * @return void
+   *
+   * @see \AKlump\CheckPages\Parts\Runner::getMessenger
+   */
+  private function echo(Message $message, int $flags = NULL) {
+    $this->getMessenger()->deliver($message, $flags);
+  }
+
+  /**
+   * Get a configured messenger for user feedback.
+   *
+   * @return \AKlump\Messaging\MessengerInterface
+   */
+  public function getMessenger(): MessengerInterface {
+    $output = $this->getOutput();
+
+    if ($output->isQuiet()) {
+      return new DevNullPrinter();
+    }
+
+    $printer = new ConsoleEchoPrinter($output);
+    $input = $this->getInput();
+    $directive = $input->getOption('verbose') ? 'A' : '';
+    if (!$directive) {
+      $directive = $input->getOption('show');
+    }
+    if ($input->hasOption('debug') || $input->getOption('verbose') === 'vvv') {
+      $directive .= 'D';
+    }
+    if ($directive) {
+      $printer->setVerboseDirective(new VerboseDirective($directive));
+    }
+
+    return $printer;
   }
 
   public function getRootDir(): string {
@@ -620,7 +668,10 @@ class Runner {
       if ($this->getInput()->getOption('retest')) {
         $status = TRUE;
       }
-      Feedback::updateSuiteTitle($this->getOutput(), $this->suite, $status);
+      Feedback::updateSuiteTitle($this->getOutput(), new Message(
+        [strval($this->suite)],
+        $status ? MessageType::SUCCESS : MessageType::TODO
+      ));
 
       return;
     }
@@ -661,9 +712,11 @@ class Runner {
     }
 
     $title = sprintf('Running %s%s suite...', ltrim($this->suite->getGroup() . '/', '/'), $this->suite->id());
-    Feedback::updateSuiteTitle($this->getOutput(), $title);
+    Feedback::updateSuiteTitle($this->getOutput(), new Message(
+      [$title],
+      MessageType::TODO
+    ));
 
-    $this->messages = [];
     $failed_tests = 0;
 
     foreach ($this->suite->getTests() as $test) {
@@ -719,7 +772,11 @@ class Runner {
 
 
     $title = sprintf('%s suite', ltrim($this->suite->getGroup() . '/', '/') . $this->suite->id());
-    Feedback::updateSuiteTitle($this->getOutput(), $title, !boolval($failed_tests));
+
+    Feedback::updateSuiteTitle($this->getOutput(), new Message(
+      [$title],
+      $failed_tests ? MessageType::ERROR : MessageType::SUCCESS
+    ));
 
     $this->dispatcher->dispatch(new SuiteEvent($this->suite), Event::SUITE_FINISHED);
 
@@ -729,22 +786,6 @@ class Runner {
         throw new SuiteFailedException($this->suite->id());
       }
     }
-  }
-
-  public function getMessageOutput(): string {
-    $color_map = [
-      'error' => 'red',
-      'info' => 'blue',
-      'success' => 'green',
-      'debug' => 'dark gray',
-    ];
-    $messages = array_map(function ($item) use ($color_map) {
-      return Color::wrap($color_map[$item['level']], $item['data']);
-    }, $this->messages);
-    $output = implode(PHP_EOL, $messages);
-    $this->messages = [];
-
-    return $output;
   }
 
   /**
@@ -780,7 +821,7 @@ class Runner {
         // To make the output cleaner we need to remove the printed '' since find
         // is really an array, whose elements are yet to be printed.
         return str_replace("find: ''", 'find:', $yaml);
-      }, MessageType::DEBUG, new VerboseDirective('D')));
+      }, MessageType::DEBUG, Verbosity::DEBUG));
 
       if ($test->getConfig()['js'] ?? FALSE) {
         try {
@@ -866,11 +907,13 @@ class Runner {
         $location_test = $http_location === $this->url($expected_location);
         $test_passed($location_test);
         if (!$location_test) {
-          $this->messages[] = [
-            'data' => sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $this->url($expected_location)),
-            'level' => 'error',
-            'tags' => ['todo'],
-          ];
+          $test->addMessage(new Message(
+            [
+              sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $this->url($expected_location)),
+            ],
+            MessageType::TODO,
+            Verbosity::VERBOSE
+          ));
         }
       }
     }
@@ -884,7 +927,7 @@ class Runner {
     }
     else {
       $id = 0;
-      $this->echo(new Message([''], MessageType::DEBUG, new VerboseDirective('A')));
+      $this->echo(new Message(['']));
       while ($definition = array_shift($assertions)) {
         if (is_scalar($definition)) {
           $definition = [Assert::ASSERT_CONTAINS => $definition];
@@ -897,8 +940,6 @@ class Runner {
         ++$id;
       }
     }
-
-    $test->setResults($this->messages);
 
     if ($test_passed()) {
       $test->setPassed();
@@ -921,18 +962,22 @@ class Runner {
   private function handleFailedRequestNoResponse(Test $test, RequestDriverInterface $driver, $exception) {
     // Try to be helpful with suggestions on mitigation of errors.
     $message = $exception->getMessage();
-    $this->messages[] = [
-      'data' => sprintf('├── %s', $message),
-      'level' => 'error',
-    ];
-    if (strstr($message, 'timed out') !== FALSE) {
-      $this->messages[] = [
-        'data' => sprintf('├── Try setting a value higher than %d for "request_timeout" in %s, or at the test level.', $driver->getRequestTimeout(), basename($this->configPath)),
-        'level' => 'error',
-      ];
-    }
 
-    $test->setResults($this->messages);
+    $test->addMessage(new Message(
+        [$message],
+        MessageType::ERROR,
+        Verbosity::DEBUG)
+    );
+
+    if (strstr($message, 'timed out') !== FALSE) {
+      $test->addMessage(new Message(
+          [
+            sprintf('Try setting a value higher than %d for "request_timeout" in %s, or at the test level.', $driver->getRequestTimeout(), basename($this->configPath)),
+          ],
+          MessageType::ERROR,
+          Verbosity::DEBUG)
+      );
+    }
     $test->setFailed();
     throw new TestFailedException($test->getConfig(), $exception);
   }
@@ -1067,7 +1112,7 @@ class Runner {
     $validator->validate($data, $schema);
     if (!$validator->isValid()) {
 
-      $directive = new VerboseDirective('D');
+      $directive = Verbosity::DEBUG;
 
       $this->echo(new Message([
         "Suite Group\\ID:",
@@ -1125,7 +1170,7 @@ class Runner {
     $response = $driver->getResponse();
     $test->interpolate($definition);
 
-    $this->echo(new YamlMessage($definition, 2, NULL, MessageType::DEBUG, new VerboseDirective('D')));
+    $this->echo(new YamlMessage($definition, 2, NULL, MessageType::DEBUG, Verbosity::DEBUG));
 
     $assert = new Assert($id, $definition, $test);
     $assert
@@ -1170,29 +1215,34 @@ class Runner {
       if (!empty($definition['why'])) {
         $why = "{$definition['why']} $why";
       }
-      $this->messages[] = [
-        'data' => sprintf('├── %s', $why),
-        'level' => 'error',
-      ];
+      $test->addMessage(new Message(
+          [$why],
+          MessageType::ERROR,
+          Verbosity::VERBOSE
+        )
+      );
+
       $reason = $assert->getReason();
       if ($reason) {
-        $this->messages[] = [
-          'data' => "│   └── $reason",
-          'level' => 'error',
-          'tags' => ['todo'],
-        ];
+        $test->addMessage(new Message(
+            [$reason],
+            MessageType::TODO,
+            Verbosity::VERBOSE
+          )
+        );
       }
     }
     else {
       $why = $definition['why'] ?? $why;
       if ($why) {
-        $this->messages[] = [
-          'data' => sprintf('├── %s', $why),
-          'level' => 'success',
-        ];
+        $test->addMessage(new Message(
+            [$why],
+            MessageType::SUCCESS,
+            Verbosity::VERBOSE
+          )
+        );
       }
     }
-
 
     $this->totalAssertions++;
     if (!$assert->getResult()) {
@@ -1347,13 +1397,6 @@ class Runner {
       list($handle) = $info;
       fclose($handle);
     }
-  }
-
-  /**
-   * @return array
-   */
-  public function getMessages(): array {
-    return $this->messages;
   }
 
   /**

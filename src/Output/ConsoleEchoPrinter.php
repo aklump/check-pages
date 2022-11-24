@@ -33,7 +33,9 @@ final class ConsoleEchoPrinter implements MessengerInterface {
   }
 
   public function deliver(MessageInterface $message, int $flags = NULL) {
-    if (!$this->verboseDirective->intersectsWith($message->getVerboseDirective())) {
+    $always_show_message = strval($message->getVerboseDirective()) === '';
+    if (!$always_show_message
+      && !$this->verboseDirective->intersectsWith($message->getVerboseDirective())) {
       return;
     }
     $colors = [

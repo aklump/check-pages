@@ -3,8 +3,11 @@
 namespace AKlump\CheckPages\Parts;
 
 use AKlump\CheckPages\Variables;
+use AKlump\Messaging\HasMessagesTrait;
 
 class Test implements \JsonSerializable {
+
+  use HasMessagesTrait;
 
   const PASSED = 'P';
 
@@ -153,28 +156,6 @@ class Test implements \JsonSerializable {
 
   public function hasPassed(): bool {
     return $this->failed === FALSE;
-  }
-
-  /**
-   * @return array
-   */
-  public function getResults(): array {
-    return $this->results;
-  }
-
-  /**
-   * @param array $results
-   *   Each element of the array is an array with the keys: data, level.
-   *
-   * @return
-   *   Self for chaining.
-   *
-   * @see \AKlump\CheckPages\Parts\Runner::info()
-   */
-  public function setResults(array $results): self {
-    $this->results = $results;
-
-    return $this;
   }
 
   public function setConfig(array $config): self {

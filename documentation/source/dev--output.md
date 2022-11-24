@@ -1,6 +1,14 @@
 # Developers Note: User Messages
 
-When working on this project, never `echo` directly. Follow the code as shown below for user feedback. The instance of `\AKlump\Messaging\MessengerInterface` will determine how the messages are printed, you just worry about the message, level, and verbosity as you write code.
+When working on this project, never `echo` directly.
+
+## Extension Authors
+
+For messages related to a test, you must use `$test->addMessage(...` because the timing of the output will be handled by the runner. **You must not use a printer from within plugins or custom extensions!**
+
+## Core Authors
+
+Follow the code as shown below for user feedback. The instance of `\AKlump\Messaging\MessengerInterface` will determine how the messages are printed, you just worry about the message, level, and verbosity as you write code.
 
 ```php
 // INFO MESSAGE
@@ -54,3 +62,4 @@ You will need an instance of `\AKlump\Messaging\MessengerInterface`, e.g.,
 ```php
 $printer = new \AKlump\CheckPages\Output\ConsoleEchoPrinter($runner->getOutput());
 ```
+

@@ -13,14 +13,10 @@ abstract class MessageBase implements MessageInterface {
   /** @var array */
   private $message;
 
-  public function __construct(array $message, string $message_type = NULL) {
-    $message_type = $message_type ?? MessageType::INFO;
-    if (!in_array($message_type, [
-      MessageType::ERROR,
-      MessageType::SUCCESS,
-      MessageType::INFO,
-      MessageType::DEBUG,
-    ])) {
+  public function __construct(array $message, string $message_type) {
+    $info = new \ReflectionClass(MessageType::class);
+    $valid_values = $info->getConstants();
+    if (!in_array($message_type, $valid_values)) {
       throw new \InvalidArgumentException(sprintf('Invalid message type: %s', $message_type));
     }
     $this->messageType = $message_type;

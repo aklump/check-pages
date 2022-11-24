@@ -3,6 +3,8 @@
 namespace AKlump\CheckPages\Output;
 
 use AKlump\CheckPages\Parts\Test;
+use AKlump\Messaging\MessageInterface;
+use AKlump\Messaging\MessageType;
 
 /**
  * Writes a markdown file for failing tests.
@@ -63,7 +65,7 @@ final class FailedTestMarkdown {
    */
   public static function output(string $output_filename, Test $test = NULL) {
     $obj = new static($output_filename, $test);
-    $obj->fail($test->getResults());
+    $obj->fail($test->getMessages());
   }
 
   /**
@@ -72,19 +74,16 @@ final class FailedTestMarkdown {
    * @param array $debug
    *   The debug array from the runner.
    */
-  private function fail(array $debug) {
-    $markdown_failure = array_filter(array_map(function ($item) {
-      $is_todo = in_array('todo', ($item['tags'] ?? []));
-      if (!$is_todo || !in_array($item['level'], ['error']) || '└── Test failed.' === $item['data']) {
-        return NULL;
-      }
-      $tokens = [['├──', '└──'], ['1. ', '1. ']];
-      if ($is_todo) {
-        $tokens = [['├──', '└──'], ['- [ ] ', '- [ ] ']];
-      }
+  private function fail(array $messages) {
+    $markdown_failure = array_filter(array_map(function (MessageInterface $message) {
+      switch ($message->getMessageType()) {
+        case MessageType::ERROR:
+          return "1. $message";
 
-      return str_replace($tokens[0], $tokens[1], $item['data']);
-    }, $debug));
+        default:
+          return NULL;
+      }
+    }, $messages));
 
     if (!$markdown_failure) {
       return;

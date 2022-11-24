@@ -22,7 +22,7 @@ class DebugMessage extends Message {
     parent::__construct(
       $lines,
       MessageType::DEBUG,
-      new VerboseDirective('D')
+      Verbosity::DEBUG
     );
   }
 

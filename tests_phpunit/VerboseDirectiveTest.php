@@ -54,6 +54,7 @@ final class VerboseDirectiveTest extends TestCase {
     $tests = [];
     $tests[] = ['', '', TRUE];
 
+    $tests[] = ['A', '', FALSE];
     $tests[] = ['A', 'H', TRUE];
 
     $tests[] = ['A', 'S', TRUE];
@@ -68,18 +69,27 @@ final class VerboseDirectiveTest extends TestCase {
 
     $tests[] = ['SH', 'SH', TRUE];
     $tests[] = ['HS', 'SH', TRUE];
+    $tests[] = ['SH', '', FALSE];
+    $tests[] = ['HS', '', FALSE];
 
     $tests[] = ['RH', 'RH', TRUE];
     $tests[] = ['HR', 'RH', TRUE];
+    $tests[] = ['RH', '', FALSE];
+    $tests[] = ['HR', '', FALSE];
 
     $tests[] = ['A', 'SRH', TRUE];
     $tests[] = ['A', 'HSR', TRUE];
     $tests[] = ['A', 'RHS', TRUE];
+    $tests[] = ['', 'SRH', FALSE];
+    $tests[] = ['', 'HSR', FALSE];
+    $tests[] = ['', 'RHS', FALSE];
+
+    $tests[] = ['', 'H', FALSE];
+    $tests[] = ['', 'S', FALSE];
+    $tests[] = ['', 'R', FALSE];
 
     $tests[] = ['H', 'S', FALSE];
     $tests[] = ['H', 'R', FALSE];
-
-    $tests[] = ['', 'A', FALSE];
 
     return $tests;
   }

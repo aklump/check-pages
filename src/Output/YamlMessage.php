@@ -14,10 +14,10 @@ class YamlMessage extends Message {
     int $yaml_level = 0,
     callable $yaml_callback = NULL,
     string $log_level = NULL,
-    VerboseDirective $verbose_directive = NULL
+    int $verbosity = NULL
   ) {
     $yaml = $this->datasetToYaml($dataset, $yaml_level, $yaml_callback);
-    parent::__construct([$yaml], $log_level, $verbose_directive);
+    parent::__construct([$yaml], $log_level, $verbosity);
   }
 
   private function datasetToYaml(array $dataset, $level, callable $callback = null): string {
