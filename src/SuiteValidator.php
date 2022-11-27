@@ -9,7 +9,7 @@ use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-    class SuiteValidator implements EventSubscriberInterface {
+class SuiteValidator implements EventSubscriberInterface {
 
   /**
    * @inheritDoc
@@ -31,7 +31,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
           try {
 
             // Convert to objects for our validator expects that, and not arrays.
-            $config = json_decode(json_encode($suite->getConfig()));
+            $config = json_decode(json_encode($suite->getRunner()
+              ->getConfig()));
 
             $validator = new Validator();
             //    try {

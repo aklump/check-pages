@@ -4,7 +4,8 @@ namespace AKlump\CheckPages\Plugin;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\Output\Feedback;
+use AKlump\CheckPages\Output\Message;
+use AKlump\Messaging\MessageType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -31,7 +32,17 @@ final class Breakpoint implements EventSubscriberInterface {
             return;
           }
 
-          Feedback::updateTestStatus($test->getRunner(), $test->getDescription(), NULL, '🛑 ', 'Press any key ');
+          $description = $test->getDescription();
+          if (!$description) {
+            $description = 'Press any key';
+          }
+          $test->addMessage(new Message(
+            [
+              "🛑 $description",
+            ],
+            MessageType::TODO
+          ));
+          $test->echoMessages();
 
           // @link https://www.sitepoint.com/howd-they-do-it-phpsnake-detecting-keypresses/
           // @link https://stackoverflow.com/a/15322457/3177610
@@ -40,7 +51,7 @@ final class Breakpoint implements EventSubscriberInterface {
           ord(fgetc($stdin));
 
           // Vanilla echo is sufficient because we're clearing out the keypress.
-          echo PHP_EOL;
+          echo '';
         },
       ],
     ];

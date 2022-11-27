@@ -2,12 +2,7 @@
 
 namespace AKlump\CheckPages\Parts;
 
-use AKlump\CheckPages\Assert;
-use AKlump\CheckPages\ChromeDriver;
 use AKlump\CheckPages\Event;
-use AKlump\CheckPages\Output\ConsoleEchoPrinter;
-use AKlump\CheckPages\Event\AssertEvent;
-use AKlump\CheckPages\Event\DriverEvent;
 use AKlump\CheckPages\Event\RunnerEvent;
 use AKlump\CheckPages\Event\SuiteEvent;
 use AKlump\CheckPages\Event\TestEvent;
@@ -16,23 +11,23 @@ use AKlump\CheckPages\Exceptions\SuiteFailedException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files;
-use AKlump\CheckPages\GuzzleDriver;
+use AKlump\CheckPages\Output\ConsoleEchoPrinter;
 use AKlump\CheckPages\Output\DebugMessage;
-use AKlump\CheckPages\Output\Feedback;
-use AKlump\CheckPages\Output\Verbosity;
-use AKlump\Messaging\HasMessagesTrait;
-use AKlump\Messaging\MessengerInterface;
-use AKlump\Messaging\MessageType;
-use AKlump\CheckPages\Output\SourceCodeOutput;
 use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\SourceCodeOutput;
 use AKlump\CheckPages\Output\VerboseDirective;
-use AKlump\CheckPages\Output\YamlMessage;
+use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Plugin\PluginsManager;
 use AKlump\CheckPages\RequestDriverInterface;
 use AKlump\CheckPages\SerializationTrait;
 use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
+use AKlump\CheckPages\Traits\HasSuiteTrait;
+use AKlump\CheckPages\Traits\SetTrait;
 use AKlump\LoftLib\Bash\Color;
+use AKlump\Messaging\HasMessagesTrait;
+use AKlump\Messaging\MessageType;
+use AKlump\Messaging\MessengerInterface;
 use JsonSchema\Validator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -41,6 +36,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class Runner {
 
+  use HasSuiteTrait;
   use SerializationTrait;
   use SetTrait;
   use HasMessagesTrait;
@@ -56,17 +52,17 @@ class Runner {
 
   const OUTPUT_QUIET = 2;
 
-  protected $outputMode;
+  public $totalAssertions = 0;
+
+  public $failedAssertionCount = 0;
 
   protected $totalTestsRun = 0;
+
+  protected $outputMode;
 
   protected $failedTestCount = 0;
 
   protected $failedSuiteCount = 0;
-
-  protected $totalAssertions = 0;
-
-  protected $failedAssertionCount = 0;
 
   protected $storage;
 
@@ -205,7 +201,7 @@ class Runner {
    *
    * @see \AKlump\CheckPages\Parts\Runner::getMessenger
    */
-  private function echo(Message $message, int $flags = NULL) {
+  public function echo(Message $message, int $flags = NULL) {
     $this->getMessenger()->deliver($message, $flags);
   }
 
@@ -213,6 +209,7 @@ class Runner {
    * Get a configured messenger for user feedback.
    *
    * @return \AKlump\Messaging\MessengerInterface
+   *   A new new instance.
    */
   public function getMessenger(): MessengerInterface {
     $output = $this->getOutput();
@@ -221,20 +218,30 @@ class Runner {
       return new DevNullPrinter();
     }
 
-    $printer = new ConsoleEchoPrinter($output);
+    $flags = Verbosity::NORMAL;
     $input = $this->getInput();
-    $directive = $input->getOption('verbose') ? 'A' : '';
-    if (!$directive) {
-      $directive = $input->getOption('show');
-    }
-    if ($input->hasOption('debug') || $input->getOption('verbose') === 'vvv') {
-      $directive .= 'D';
-    }
-    if ($directive) {
-      $printer->setVerboseDirective(new VerboseDirective($directive));
+    $options = $input->getOptions();
+
+    if ($options['verbose']) {
+      $flags = $flags | Verbosity::VERBOSE;
     }
 
-    return $printer;
+    // These are the CLI arguments: -vvv || --debug=true
+    if ($output->isVeryVerbose() || $options['debug']) {
+      $flags = $flags | Verbosity::DEBUG;
+    }
+    $show = new VerboseDirective(strval($options['show']));
+    if ($show->showSendHeaders() || $show->showResponseHeaders()) {
+      $flags = $flags | Verbosity::HEADERS;
+    }
+    if ($show->showSendBody()) {
+      $flags = $flags | Verbosity::REQUEST;
+    }
+    if ($show->showResponseBody()) {
+      $flags = $flags | Verbosity::RESPONSE;
+    }
+
+    return new ConsoleEchoPrinter($output, $flags);
   }
 
   public function getRootDir(): string {
@@ -371,8 +378,6 @@ class Runner {
     if ($config) {
       $this->setConfig($config);
       $this->configPath = $config_path;
-      $this->getDispatcher()
-        ->dispatch(new RunnerEvent($this), Event::RUNNER_CONFIG_LOADED);
     }
 
     return $this;
@@ -391,12 +396,15 @@ class Runner {
    */
   public function setConfig(array $config): Runner {
     $this->config = $config;
+    foreach ($config['variables'] ?? [] as $key => $value) {
+      $this->getSuite()->variables()->setItem($key, $value);
+    }
 
     return $this;
   }
 
   /**
-   * Return the active configuration values.
+   * Return the runtime configuration values.
    *
    * @return array
    *   The configuration array.
@@ -497,13 +505,6 @@ class Runner {
   }
 
   /**
-   * @return \AKlump\CheckPages\Parts\Suite|null
-   */
-  public function getSuite() {
-    return $this->suite ?? NULL;
-  }
-
-  /**
    * Add a custom command.
    *
    * @param string $name
@@ -592,7 +593,10 @@ class Runner {
       $this->echo(new Message(
         [
           sprintf('Testing started with %s%s', basename($runner_path), $filter_message),
-        ]
+          '',
+        ],
+        MessageType::INFO,
+        Verbosity::VERBOSE
       ));
 
       require $runner_path;
@@ -623,28 +627,23 @@ class Runner {
   }
 
   /**
-   * Visit an URLs definition found in $path.
+   * Run a suite.
    *
-   * @param string $path
-   *   A resolvable path to a yaml file.
+   * @param \AKlump\CheckPages\Parts\Suite $suite
+   * @param string $path_to_suite
    *
-   * @throws \AKlump\CheckPages\Exceptions\TestFailedException
    * @throws \AKlump\CheckPages\Exceptions\SuiteFailedException
+   * @throws \AKlump\CheckPages\Exceptions\TestFailedException
    * @see run_suite()
-   *
    */
-  public function runSuite(string $path_to_suite, array $suite_config = []) {
-    $resolved_path = '';
-    $path_to_suite = $this->resolveFile($path_to_suite, $resolved_path);
-    $suite_id = pathinfo(substr($path_to_suite, strlen($resolved_path) + 1), PATHINFO_FILENAME);
+  public function run(Suite $suite, string $path_to_suite) {
+    $this->setSuite($suite);
 
-    // The runner has config in YAML, which the suite uses by default, however
-    // we allow per-suite overrides as well.
-    $suite_config = array_merge($this->getConfig(), $suite_config);
-    $this->suite = new Suite($suite_id, $suite_config, $this);
-    unset($suite_config);
-    $this->suite->setGroup(basename(dirname($path_to_suite)));
+    // Allow the modification of the runner config before the suite is run.
+    $this->getDispatcher()
+      ->dispatch(new RunnerEvent($this), Event::RUNNER_CONFIG);
 
+    // TODO Might be worth moving this out of this method to src/SuiteValidator.php...
     $ignored_suite_paths = array_filter(array_map(function ($suite_to_ignore) {
       try {
         return $this->resolveFile($suite_to_ignore);
@@ -656,83 +655,48 @@ class Runner {
         // can't find it.  Return NULL, which will be filtered out.
         return NULL;
       }
-    }, $this->suite->getConfig()['suites_to_ignore'] ?? []));
+    }, $this->getConfig()['suites_to_ignore'] ?? []));
 
-    if (!$this->applyFilters([$this->suite])) {
+    if (!$this->applyFilters([$suite])) {
       return;
     }
 
-    Feedback::$suiteTitle = $this->getOutput()->section();
     if (in_array($path_to_suite, $ignored_suite_paths)) {
       $status = NULL;
       if ($this->getInput()->getOption('retest')) {
         $status = TRUE;
       }
-      Feedback::updateSuiteTitle($this->getOutput(), new Message(
-        [strval($this->suite)],
-        $status ? MessageType::SUCCESS : MessageType::TODO
+      $this->echo(new Message(
+        [' ↓  ' . $this->getSuite()],
+        $status ? MessageType::SUCCESS : MessageType::INFO,
+        Verbosity::NORMAL
       ));
 
       return;
     }
+    // ... end of section to move.
 
     // To invalidate a suite throw an instance of \AKlump\CheckPages\Exceptions\BadSyntaxException.
     $this->getDispatcher()
-      ->dispatch(new SuiteEvent($this->suite), Event::SUITE_VALIDATION);
+      ->dispatch(new SuiteEvent($this->getSuite()), Event::SUITE_VALIDATION);
 
     // Add the tests to the suite in prep for the plugin hook...
-    $suite_yaml = file_get_contents($path_to_suite);
-
     // If a suite file is empty, then just ignore it.  It's probably a stub file.
-    if (empty(trim($suite_yaml))) {
+    if (!$suite->getConfig()) {
       return;
     }
 
-    $data = Yaml::parse($suite_yaml);
-    foreach ($data as $config) {
-      $this->suite->addTest($config);
+    foreach ($suite->getConfig() as $test_config) {
+      $suite->addTestByConfig($test_config);
     }
-    unset($config);
 
-    $this->dispatcher->dispatch(new SuiteEvent($this->suite), Event::SUITE_LOADED);
+    $this->dispatcher->dispatch(new SuiteEvent($this->getSuite()), Event::SUITE_LOADED);
 
     // On return from the hook, we need to reparse to get format for validation.
-    $suite_yaml = Yaml::dump($this->suite->jsonSerialize());
-    $data = Yaml::parse($suite_yaml, YAML::PARSE_OBJECT_FOR_MAP);
-    $this->validateSuiteYaml($path_to_suite, $data, static::SCHEMA_VISIT . '.json');
+    $this->validateSuite($suite, static::SCHEMA_VISIT . '.json');
 
-    if (empty($this->printed['base_url'])) {
-      $this->echo(new Message(
-        [
-          sprintf('Base URL is %s', $this->getConfig()['base_url']),
-          '',
-        ]
-      ), ConsoleEchoPrinter::INVERT);
-      $this->printed['base_url'] = TRUE;
-    }
-
-    $title = sprintf('Running %s%s suite...', ltrim($this->suite->getGroup() . '/', '/'), $this->suite->id());
-    Feedback::updateSuiteTitle($this->getOutput(), new Message(
-      [$title],
-      MessageType::TODO
-    ));
-
-    $failed_tests = 0;
-
-    foreach ($this->suite->getTests() as $test) {
-
+    foreach ($suite->getTests() as $test) {
       $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_VALIDATION);
-
-      // This decides the render order.
-      Feedback::$testTitle = $this->getOutput()->section();
-      Feedback::$requestUrl = $this->getOutput()->section();
-      Feedback::$requestHeaders = $this->getOutput()->section();
-      Feedback::$requestBody = $this->getOutput()->section();
-      Feedback::$responseHeaders = $this->getOutput()->section();
-      Feedback::$responseBody = $this->getOutput()->section();
-      Feedback::$testDetails = $this->getOutput()->section();
-      Feedback::$testResult = $this->getOutput()->section();
-
       $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_CREATED);
 
       // It's possible the test was already run during Event::TEST_CREATED, if
@@ -740,7 +704,9 @@ class Runner {
       // complete.
       if (!$test->hasFailed() && !$test->hasPassed()) {
         try {
-          $this->runTest($test);
+          $test_runner = new TestRunner();
+          $test_runner->run($test);
+          $this->totalTestsRun++;
         }
         catch (TestFailedException $exception) {
           // We have to catch this here, because of the dispatching and decision
@@ -757,198 +723,31 @@ class Runner {
         $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_PASSED);
       }
 
+      $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_FINISHED);
+
       // Decide if we should stop the runner or not.
       if ($test->hasFailed()) {
-
-        // TODO echo the reason here?
-
+        $suite->setFailed();
         $this->failedTestCount++;
-        $failed_tests++;
         if ($this->getConfig()['stop_on_failed_test'] ?? FALSE) {
           throw new TestFailedException($test->getConfig());
         }
       }
     }
 
-
-    $title = sprintf('%s suite', ltrim($this->suite->getGroup() . '/', '/') . $this->suite->id());
-
-    Feedback::updateSuiteTitle($this->getOutput(), new Message(
-      [$title],
-      $failed_tests ? MessageType::ERROR : MessageType::SUCCESS
-    ));
-
-    $this->dispatcher->dispatch(new SuiteEvent($this->suite), Event::SUITE_FINISHED);
-
-    if ($failed_tests) {
+    // Handle end-of-suite events.
+    $suite_event = new SuiteEvent($this->getSuite());
+    if ($suite->hasFailed()) {
+      $this->dispatcher->dispatch($suite_event, Event::SUITE_FAILED);
       $this->failedSuiteCount++;
-      if ($this->getConfig()['stop_on_failed_suite'] ?? FALSE) {
-        throw new SuiteFailedException($this->suite->id());
-      }
-    }
-  }
-
-  /**
-   * Handle visitation to a single URL.
-   *
-   * @param array $config
-   *
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   * @throws \AKlump\CheckPages\Exceptions\TestFailedException
-   * @throws \InvalidArgumentException
-   */
-  protected function runTest(Test $test): void {
-    $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_STARTED);
-
-    $this->totalTestsRun++;
-    $test_passed = function (bool $result = NULL): bool {
-      static $state;
-      if (!is_null($result)) {
-        $state = is_null($state) || $state ? $result : FALSE;
-      }
-
-      return boolval($state);
-    };
-
-    $driver = new GuzzleDriver();
-    $is_http_test = !empty($test->getConfig()['url']);
-    if ($is_http_test) {
-
-      $debug = $test->getConfig();
-      $debug['find'] = '';
-
-      $this->echo(new YamlMessage($debug, 0, function ($yaml) {
-        // To make the output cleaner we need to remove the printed '' since find
-        // is really an array, whose elements are yet to be printed.
-        return str_replace("find: ''", 'find:', $yaml);
-      }, MessageType::DEBUG, Verbosity::DEBUG));
-
-      if ($test->getConfig()['js'] ?? FALSE) {
-        try {
-          if (empty($this->getConfig()['chrome'])) {
-            throw new \InvalidArgumentException(sprintf("Javascript testing is unavailable due to missing path to Chrome binary.  Add \"chrome\" in file %s.", $this->getLoadedConfigPath()));
-          }
-          $driver = new ChromeDriver($this->getConfig()['chrome']);
-        }
-        catch (\Exception $exception) {
-          throw new TestFailedException($test->getConfig(), $exception);
-        }
-      }
-
-      // We now must interpolate the URL, at the very last minute.  All event
-      // handlers have until this point to set variables and modify the url for
-      // interpolation; after this, the URL is going to be interpolated and set.
-      // "url" is a  skipped key when we use Test::interpolate(), which is why
-      // we have to use long-hand here.
-      $config = $test->getConfig();
-      $test->interpolate($config['url']);
-      $test->setConfig($config);
-      unset($config);
-
-      $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
-
-      try {
-        // The config-level override...
-        $timeout = $this->getConfig()['request_timeout'] ?? NULL;
-        // ... the test-level override.
-        $timeout = $test->getConfig()["request"]["timeout"] ?? $timeout;
-        if (is_int($timeout)) {
-          $driver->setRequestTimeout($timeout);
-        }
-        $response = $driver
-          ->setUrl($this->url($test->getConfig()['url']))
-          ->request()
-          ->getResponse();
-        $http_response_code = $response->getStatusCode();
-      }
-      catch (\Exception $exception) {
-        $response = NULL;
-
-        if (method_exists($exception, 'getResponse')) {
-          $response = $exception->getResponse();
-          if ($response) {
-            $http_response_code = $response->getStatusCode();
-          }
-        }
-
-        if (empty($http_response_code)) {
-          $this->handleFailedRequestNoResponse($test, $driver, $exception);
-        }
-      }
-
-      $http_location = NULL;
-
-      // If not specified, then any 2XX will pass.
-      if (empty($test->getConfig()['expect'])) {
-        $test_passed($http_response_code >= 200 && $http_response_code <= 299);
-      }
-      else {
-        if ($test->getConfig()['expect'] >= 300 && $test->getConfig()['expect'] <= 399) {
-          $http_location = $driver->getLocation();
-          $http_response_code = $driver->getRedirectCode();
-        }
-
-        $test_passed($http_response_code == $test->getConfig()['expect']);
-      }
-
-      if (!$test_passed()) {
-        $test->setFailed();
-      }
-      $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_FINISHED);
-
-      // Test the location if asked.
-      $expected_location = $test->getConfig()['location'] ?? '';
-      if (empty($expected_location)) {
-        $expected_location = $test->getConfig()['redirect'] ?? '';
-      }
-      $test->interpolate($expected_location);
-
-      if ($http_location && $expected_location) {
-        $location_test = $http_location === $this->url($expected_location);
-        $test_passed($location_test);
-        if (!$location_test) {
-          $test->addMessage(new Message(
-            [
-              sprintf('├── The actual location: %s did not match the expected location: %s', $http_location, $this->url($expected_location)),
-            ],
-            MessageType::TODO,
-            Verbosity::VERBOSE
-          ));
-        }
-      }
-    }
-
-    $assertions = $test->getConfig()['find'] ?? [];
-    if (count($assertions) === 0) {
-      $test_passed(TRUE);
-      if ($this->getOutput()->isDebug()) {
-        Feedback::$testDetails->write(Color::wrap('light gray', '├── This test has no assertions.'));
-      }
     }
     else {
-      $id = 0;
-      $this->echo(new Message(['']));
-      while ($definition = array_shift($assertions)) {
-        if (is_scalar($definition)) {
-          $definition = [Assert::ASSERT_CONTAINS => $definition];
-        }
-
-        $assert = $this->doFindAssert($test, strval($id), $definition, $driver);
-
-        $test_passed($assert->getResult());
-
-        ++$id;
-      }
+      $this->dispatcher->dispatch($suite_event, Event::SUITE_PASSED);
     }
-
-    if ($test_passed()) {
-      $test->setPassed();
+    $this->dispatcher->dispatch($suite_event, Event::SUITE_FINISHED);
+    if ($suite->hasFailed() && ($this->getConfig()['stop_on_failed_suite'] ?? FALSE)) {
+      throw new SuiteFailedException($suite->id());
     }
-    else {
-      $test->setFailed();
-    }
-
-    $this->dispatcher->dispatch(new DriverEvent($test, $driver), Event::TEST_FINISHED);
   }
 
   /**
@@ -959,7 +758,7 @@ class Runner {
    * @return mixed
    * @throws \AKlump\CheckPages\Exceptions\TestFailedException
    */
-  private function handleFailedRequestNoResponse(Test $test, RequestDriverInterface $driver, $exception) {
+  public function handleFailedRequestNoResponse(Test $test, RequestDriverInterface $driver, $exception) {
     // Try to be helpful with suggestions on mitigation of errors.
     $message = $exception->getMessage();
 
@@ -1086,14 +885,16 @@ class Runner {
   }
 
   /**
-   * Load YAML from a file first validating against the schema.
+   * Validate a suite for correct syntax.
    *
-   * @param string $path
+   * @param \AKlump\CheckPages\Parts\Suite $suite
    * @param string $schema_basename
    *
    * @return array
    */
-  protected function validateSuiteYaml(string $path_to_suite, $data, string $schema_basename): array {
+  protected function validateSuite(Suite $suite, string $schema_basename): array {
+    $suite_yaml = Yaml::dump($suite->jsonSerialize());
+    $data = Yaml::parse($suite_yaml, YAML::PARSE_OBJECT_FOR_MAP);
 
     // Do not validate $data properties that have been added using add_test_option().
     $path_to_schema = $this->rootDir . '/' . $schema_basename;
@@ -1116,7 +917,7 @@ class Runner {
 
       $this->echo(new Message([
         "Suite Group\\ID:",
-        strval($this->getSuite()),
+        strval($suite),
         '',
       ], MessageType::ERROR, $directive), ConsoleEchoPrinter::INVERT_FIRST);
 
@@ -1146,110 +947,11 @@ class Runner {
         ], MessageType::DEBUG, $directive));
       }
 
-      throw new \RuntimeException(sprintf('The suite (%s) does not match schema "%s". Use -vvv for more info.', basename($path_to_suite), $schema_basename));
+      throw new \RuntimeException(sprintf('The suite (%s) does not match schema "%s". Use -vvv for more info.', $suite->id(), $schema_basename));
     }
 
     // Convert to arrays, we only needed objects for the validation.
     return json_decode(json_encode($data), TRUE);
-  }
-
-  /**
-   * Apply a single find action in the text.
-   *
-   * @param string $id
-   *   An arbitrary value to track this assert by outside consumers.
-   * @param array $definition
-   *   The definition of the assertion, e.g. ['dom' => '#logo', 'count' => 1].
-   * @param \Psr\Http\Message\ResponseInterface $response
-   *   The response containing the custom headers and body.
-   *
-   * @return \AKlump\CheckPages\Assert
-   *    The result can be read from getResult().
-   */
-  protected function doFindAssert(Test $test, string $id, array $definition, RequestDriverInterface $driver): Assert {
-    $response = $driver->getResponse();
-    $test->interpolate($definition);
-
-    $this->echo(new YamlMessage($definition, 2, NULL, MessageType::DEBUG, Verbosity::DEBUG));
-
-    $assert = new Assert($id, $definition, $test);
-    $assert
-      ->setSearch(Assert::SEARCH_ALL)
-      ->setHaystack([strval($response->getBody())]);
-
-    if (!empty($definition[Assert::MODIFIER_ATTRIBUTE])) {
-      $assert->setModifer(Assert::MODIFIER_ATTRIBUTE, $definition[Assert::MODIFIER_ATTRIBUTE]);
-    }
-
-    if ($assert->set) {
-      // This may be overridden below if there is more going on than just `set`,
-      // and that's totally fine and the way it should be.  However if only
-      // setting, we need to know that later own in the flow.
-      $assert->setAssertion(Assert::ASSERT_SETTER, NULL);
-    }
-
-    $assertions = array_map(function ($help) {
-      return $help->code();
-    }, $assert->getAssertionsInfo());
-    foreach ($assertions as $code) {
-      if (isset($definition[$code])) {
-        $assert->setAssertion($code, $definition[$code]);
-        break;
-      }
-    }
-
-    $this->dispatcher->dispatch(new AssertEvent($assert, $test, $driver), Event::ASSERT_CREATED);
-    $assert->run();
-    $this->dispatcher->dispatch(new AssertEvent($assert, $test, $driver), Event::ASSERT_FINISHED);
-
-    if ($assert->set) {
-      $message = $this->setKeyValuePair($test->getSuite()
-        ->variables(), $assert->set, $assert->getNeedle());
-      if ($test->getRunner()->getOutput()->isVeryVerbose()) {
-        Feedback::$testDetails->write('├── ' . Color::wrap('green', $message));
-      }
-    }
-
-    $why = strval($assert);
-    if (!$assert->getResult()) {
-      if (!empty($definition['why'])) {
-        $why = "{$definition['why']} $why";
-      }
-      $test->addMessage(new Message(
-          [$why],
-          MessageType::ERROR,
-          Verbosity::VERBOSE
-        )
-      );
-
-      $reason = $assert->getReason();
-      if ($reason) {
-        $test->addMessage(new Message(
-            [$reason],
-            MessageType::TODO,
-            Verbosity::VERBOSE
-          )
-        );
-      }
-    }
-    else {
-      $why = $definition['why'] ?? $why;
-      if ($why) {
-        $test->addMessage(new Message(
-            [$why],
-            MessageType::SUCCESS,
-            Verbosity::VERBOSE
-          )
-        );
-      }
-    }
-
-    $this->totalAssertions++;
-    if (!$assert->getResult()) {
-      $this->failedAssertionCount++;
-    }
-
-    return $assert;
   }
 
   /**
@@ -1266,20 +968,27 @@ class Runner {
       return $this->storage;
     }
 
-    $storage_name = NULL;
-    $path_to_storage = $this->getPathToFilesDirectory() . '/storage/';
-
-    $files = new Files($this);
-    $path_to_storage = $files->prepareDirectory($path_to_storage);
-
-    if (is_dir($path_to_storage)) {
-      $storage_name = pathinfo($this->runner['name'], PATHINFO_FILENAME);
-      $storage_name = rtrim($path_to_storage, '/') . "/$storage_name";
+    try {
+      $storage_name = '';
+      $subdir = '/storage/';
+      $path_to_files = $this->getPathToFilesDirectory();
+      if ($path_to_files) {
+        $files = new Files($this);
+        $path_to_storage = $files->prepareDirectory("$path_to_files/$subdir");
+        if (is_dir($path_to_storage)) {
+          $storage_name = pathinfo($this->runner['name'], PATHINFO_FILENAME);
+          $storage_name = rtrim($path_to_storage, '/') . "/$storage_name";
+        }
+      }
     }
-    else {
-      $this->echo(new DebugMessage([
-        sprintf('To enable disk storage (i.e., sessions) create a writeable directory at %s.', $path_to_storage),
-      ]));
+    catch (\Exception $exception) {
+      $storage_name = '';
+    }
+
+    if (empty($storage_name)) {
+      $this->echo(new Message([
+        sprintf('To enable disk storage (i.e., sessions) create a writeable directory at %s.', rtrim($this->getConfig()['files'], '/') . $subdir),
+      ], MessageType::TODO, Verbosity::VERBOSE | Verbosity::DEBUG));
     }
     $this->storage = new Storage($storage_name);
 
@@ -1294,13 +1003,14 @@ class Runner {
    */
   public function getPathToFilesDirectory(): string {
     if (NULL === $this->pathToFiles) {
-      if (empty($this->getConfig()['files'])) {
+      $config = $this->getConfig();
+      if (empty($config['files'])) {
         $this->echo(new DebugMessage(['To enable file output you must set a value for "files" in your config.']));
         $this->pathToFiles = '';
       }
       else {
         try {
-          $this->pathToFiles = $this->resolve($this->getConfig()['files']);
+          $this->pathToFiles = $this->resolve($config['files']);
         }
         catch (\Exception $exception) {
           $this->pathToFiles = '';

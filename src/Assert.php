@@ -4,12 +4,15 @@ namespace AKlump\CheckPages;
 
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Parts\Test;
+use AKlump\CheckPages\Traits\PassFailTrait;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Handle the search and asserts.
  */
 final class Assert {
+
+  use PassFailTrait;
 
   /**
    * @var string
@@ -139,11 +142,6 @@ final class Assert {
    * @var string
    */
   private $reason = '';
-
-  /**
-   * @var string
-   */
-  private $result = '';
 
   /**
    * Store the raw assertion array.
@@ -333,13 +331,14 @@ final class Assert {
   /**
    * Run the test assertion.
    *
-   * @see \AKlump\CheckPages\Assert::getResult()
+   * @see \AKlump\CheckPages\Assert::hasPassed()
+   * @see \AKlump\CheckPages\Assert::hasFailed()
    * @see \AKlump\CheckPages\Assert::getReason()
    */
   public function run() {
 
     // Do not allow this to run a second time.
-    if (is_bool($this->result)) {
+    if ($this->hasPassed() || $this->hasFailed()) {
       return;
     }
 
@@ -573,7 +572,12 @@ final class Assert {
     }
 
     $this->setHaystack($countable);
-    $this->result = $pass;
+    if ($pass) {
+      $this->setPassed();
+    }
+    else {
+      $this->setFailed();
+    }
   }
 
   /**
@@ -628,16 +632,6 @@ final class Assert {
   }
 
   /**
-   * Get pass/fail status.
-   *
-   * @return bool
-   *   True if passed; false if failed.
-   */
-  public function getResult(): bool {
-    return $this->result;
-  }
-
-  /**
    * If this is set the assert run() will be bypassed.
    *
    * @param bool $result
@@ -649,7 +643,12 @@ final class Assert {
    *   Self for chaining.
    */
   public function setResult(bool $result, string $reason = ''): self {
-    $this->result = $result;
+    if ($result) {
+      $this->setPassed();
+    }
+    else {
+      $this->setFailed();
+    }
     $this->reason = $reason ?: sprintf('The result was set using %s', __METHOD__);
 
     return $this;

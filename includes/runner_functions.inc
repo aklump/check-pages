@@ -8,6 +8,7 @@
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
+use AKlump\CheckPages\Parts\Suite;
 use MidwestE\ObjectPath;
 
 /**
@@ -158,9 +159,20 @@ function respond_to($event, callable $callback) {
  *
  * @throws \AKlump\CheckPages\Exceptions\SuiteFailedException|\AKlump\CheckPages\Exceptions\TestFailedException
  */
-function run_suite(string $path_to_suite, array $suite_config = []): void {
+function run_suite(string $path_to_suite, array $runtime_config = []): void {
   global $container;
+
+  /** @var \AKlump\CheckPages\Parts\Runner $runner */
   $runner = $container->get('runner');
+
+  // If there was any runtime config added to the single-instance runner last
+  // time, we have to remove that.  We do that by reloading the configuration
+  // from the original file and then applying any runtime passed at this time.
+  $base_config = $runner
+    ->loadConfig($runner->getLoadedConfigPath())
+    ->getConfig();
+  $runtime_config = array_merge($base_config, $runtime_config);
+  $runner->setConfig($runtime_config);
 
   // Process a glob string if present.
   if (strstr($path_to_suite, '*') !== FALSE) {
@@ -190,19 +202,27 @@ function run_suite(string $path_to_suite, array $suite_config = []): void {
     $suites = [$path_to_suite];
   }
 
-  foreach ($suites as $suite) {
+  foreach ($suites as $path_to_suite) {
 
     // This is a little redundant, but we make sure it's in there.  It will be
     // de-duped by Runner, so no problem calling multiple times.
-    $runner->addResolveDirectory(dirname($suite));
+    $runner->addResolveDirectory(dirname($path_to_suite));
 
     // We also have to make sure the directory above the (group) directory is a
     // resolve directory so we can resolve by group/suite and not just suite.
     // If we did not do this, then you could not resolve with a value of
     // "group/suite".
-    $runner->addResolveDirectory(dirname(dirname($suite)));
+    $runner->addResolveDirectory(dirname($path_to_suite, 2));
 
-    $runner->runSuite($suite, $suite_config);
+    $resolved_path = '';
+    $path_to_suite = $runner->resolveFile($path_to_suite, $resolved_path);
+    $suite_id = pathinfo(substr($path_to_suite, strlen($resolved_path) + 1), PATHINFO_FILENAME);
+
+    $suite_config = Symfony\Component\Yaml\Yaml::parseFile($path_to_suite);
+    $suite = new Suite($suite_id, $suite_config, $runner);
+    $suite->setGroup(basename(dirname($path_to_suite)));
+
+    $runner->run($suite, $path_to_suite);
   }
 }
 

@@ -31,5 +31,3 @@
 -
     why: 'Demonstrate eval at the test level'
     eval: '${height} > ${width}'
--
-    eval: '${height} > ${width}'

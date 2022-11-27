@@ -12,6 +12,7 @@
             "AKlump\\CheckPages\\Plugin\\": [
                 "plugins/breakpoint/",
                 "plugins/count/",
+                "plugins/cypress/",
                 "plugins/dom/",
                 "plugins/evaluate/",
                 "plugins/form/",

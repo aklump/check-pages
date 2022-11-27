@@ -4,7 +4,9 @@ namespace AKlump\CheckPages\Plugin;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\Output\Feedback;
+use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Verbosity;
+use AKlump\Messaging\MessageType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -30,7 +32,15 @@ final class Cypress implements EventSubscriberInterface {
 
           $cypress_config = $test->getRunner()
                               ->getConfig()['extras']['cypress'] ?? [];
-          // TODO Throw on missing or bad config. or maybe use test validate event actually.
+
+          if (empty($cypress_config)) {
+            $test->addMessage(new Message([
+              'The test could not be run due to missing runner configuration: extras.cypress.cypress',
+            ], MessageType::ERROR));
+            $test->setFailed();
+
+            return;
+          }
 
           $command = [];
           $command[] = $cypress_config['cypress'];
@@ -50,27 +60,28 @@ final class Cypress implements EventSubscriberInterface {
             $command[] = sprintf('--env "%s"', $env);
           }
 
-          Feedback::updateTestStatus($test->getRunner(), "Passing to Cypress...");
+          $test->addMessage(new Message(["Passing to Cypress..."], MessageType::INFO, Verbosity::VERBOSE));
+          $test->echoMessages();
 
           $command = implode(' ', $command);
           $cypress_output = [];
           $test_result = 0;
           exec($command, $cypress_output, $test_result);
 
-          // TODO Fix the feedback, which does not work yet.
-
           $test_result == 0 ? $test->setPassed() : $test->setFailed();
-          $results = [
-            [
-              'level' => $test->hasPassed() ? 'info' : 'error',
-              'data' => implode(PHP_EOL, $cypress_output),
-            ],
-          ];
-          $test->setResults($results);
+
+          $message_type = MessageType::DEBUG;
+          $verbosity = Verbosity::VERBOSE;
           if ($test->hasFailed()) {
-            // TODO Use correct api methods.
-            echo implode(PHP_EOL, $cypress_output);
+            $message_type = MessageType::ERROR;
+            $verbosity = $verbosity | Verbosity::DEBUG;
           }
+          $test->addMessage(new Message(
+            $cypress_output,
+            $message_type,
+            $verbosity
+          ));
+
         },
       ],
     ];

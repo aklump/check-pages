@@ -2,7 +2,9 @@
 
 namespace AKlump\CheckPages\Event;
 
+use AKlump\CheckPages\Parts\Runner;
+
 interface RunnerEventInterface {
 
-  public function getRunner(): \AKlump\CheckPages\Parts\Runner;
+  public function getRunner(): Runner;
 }

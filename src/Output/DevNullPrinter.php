@@ -9,10 +9,6 @@ use AKlump\Messaging\MessengerInterface;
  */
 class DevNullPrinter implements MessengerInterface {
 
-  public function setVerboseDirective(VerboseDirective $verbose_directive): MessengerInterface {
-    return $this;
-  }
-
   public function getVerboseDirective(): VerboseDirective {
     return new VerboseDirective(VerboseDirective::getTotalIntersection());
   }
@@ -21,4 +17,7 @@ class DevNullPrinter implements MessengerInterface {
     // Do nothing e.g., > /dev/null
   }
 
+  public function addProcessor(callable $callback): MessengerInterface {
+    return $this;
+  }
 }

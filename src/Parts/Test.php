@@ -2,12 +2,17 @@
 
 namespace AKlump\CheckPages\Parts;
 
+use AKlump\CheckPages\Traits\HasRunnerTrait;
+use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Variables;
 use AKlump\Messaging\HasMessagesTrait;
+use AKlump\Messaging\Processor;
 
-class Test implements \JsonSerializable {
+class Test implements \JsonSerializable, PartInterface {
 
+  use HasRunnerTrait;
   use HasMessagesTrait;
+  use PassFailTrait;
 
   const PASSED = 'P';
 
@@ -24,12 +29,6 @@ class Test implements \JsonSerializable {
 
   protected $badges = [];
 
-  /**
-   * If this is boolean, you can infer the test has been run.
-   *
-   * @var null|boolean
-   */
-  protected $failed = NULL;
 
   /**
    * @var \AKlump\CheckPages\Parts\Variables
@@ -38,6 +37,7 @@ class Test implements \JsonSerializable {
 
   public function __construct(string $id, array $config, Suite $suite) {
     $this->suite = $suite;
+    $this->setRunner($suite->getRunner());
     $this->id = $id;
     $this->setConfig($config);
     $this->vars = new Variables();
@@ -95,20 +95,6 @@ class Test implements \JsonSerializable {
   }
 
   /**
-   * @param string $title
-   *   An override to the calculated title.  Can be used by event handlers and plugins to influence ::getDescrption.
-   *
-   * @return \AKlump\CheckPages\Parts\Test
-   *
-   * @see \AKlump\CheckPages\Parts\Test::getDescription()
-   */
-  public function setTitle(string $title): Test {
-    $this->title = $title;
-
-    return $this;
-  }
-
-  /**
    * Add a badge to a test for distinguishing special cases.
    *
    * For example, authenticated, javascript, session-started, etc.
@@ -124,38 +110,6 @@ class Test implements \JsonSerializable {
     $this->badges = array_unique($this->badges);
 
     return $this;
-  }
-
-  /**
-   * @param bool $failed
-   *
-   * @return
-   *   Self for chaining.
-   */
-  public function setFailed(): self {
-    $this->failed = TRUE;
-
-    return $this;
-  }
-
-  /**
-   * @param bool $failed
-   *
-   * @return
-   *   Self for chaining.
-   */
-  public function setPassed(): self {
-    $this->failed = FALSE;
-
-    return $this;
-  }
-
-  public function hasFailed(): bool {
-    return $this->failed === TRUE;
-  }
-
-  public function hasPassed(): bool {
-    return $this->failed === FALSE;
   }
 
   public function setConfig(array $config): self {
@@ -212,10 +166,6 @@ class Test implements \JsonSerializable {
     return $this->getRunner()->url($relative);
   }
 
-  public function getRunner(): Runner {
-    return $this->suite->getRunner();
-  }
-
   public function getSuite(): Suite {
     return $this->suite;
   }
@@ -241,4 +191,13 @@ class Test implements \JsonSerializable {
     return $this->getSuite() . '\\' . $this->id();
   }
 
+  public function echoMessages() {
+    $messenger = $this->getRunner()->getMessenger()
+      ->addProcessor([Processor::class, 'wordWrap'])
+      ->addProcessor([Processor::class, 'tree']);
+    foreach ($this->getMessages() as $message) {
+      $messenger->deliver($message);
+    }
+    $this->setMessages([]);
+  }
 }

@@ -23,6 +23,10 @@ services:
         class: \AKlump\CheckPages\Plugin\Count
         tags:
             - { name: event_subscriber }
+    cypress.plugin:
+        class: \AKlump\CheckPages\Plugin\Cypress
+        tags:
+            - { name: event_subscriber }
     dom.plugin:
         class: \AKlump\CheckPages\Plugin\Dom
         tags:

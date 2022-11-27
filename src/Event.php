@@ -12,7 +12,10 @@ namespace AKlump\CheckPages;
  */
 final class Event {
 
-  const RUNNER_CONFIG_LOADED = 'runner.config_loaded';
+  /**
+   * Affect the runner configuration before a suite is run.
+   */
+  const RUNNER_CONFIG = 'runner.config';
 
   const SUITE_LOADED = 'suite.loaded';
 
@@ -40,11 +43,17 @@ final class Event {
 
   const ASSERT_FINISHED = 'assert.finished';
 
-  const TEST_FINISHED = 'test.finished';
+  const REQUEST_TEST_FINISHED = 'request.test.finished';
 
   const TEST_FAILED = 'test.failed';
 
   const TEST_PASSED = 'test.passed';
+
+  const TEST_FINISHED = 'test.finished';
+
+  const SUITE_FAILED = 'suite.failed';
+
+  const SUITE_PASSED = 'suite.passed';
 
   const SUITE_FINISHED = 'suite.finished';
 

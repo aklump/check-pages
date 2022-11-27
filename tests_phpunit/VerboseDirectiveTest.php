@@ -2,6 +2,7 @@
 
 use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Output\VerboseDirective;
+use AKlump\CheckPages\Output\Verbosity;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -9,6 +10,16 @@ use PHPUnit\Framework\TestCase;
  * @covers \AKlump\CheckPages\Output\VerboseDirective
  */
 final class VerboseDirectiveTest extends TestCase {
+
+  public function testCreateFromInt() {
+    $directive = VerboseDirective::createFromInt(Verbosity::VERBOSE | Verbosity::DEBUG | Verbosity::HEADERS | Verbosity::REQUEST | Verbosity::RESPONSE);
+    $this->assertTrue($directive->showResponseHeaders());
+    $this->assertTrue($directive->showResponseBody());
+    $this->assertTrue($directive->showSendHeaders());
+    $this->assertTrue($directive->showSendBody());
+    $this->assertTrue($directive->showVerbose());
+    $this->assertTrue($directive->showDebugging());
+  }
 
   public function testGetTotalIntersection() {
     $directive = VerboseDirective::getTotalIntersection();

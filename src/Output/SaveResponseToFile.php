@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Output;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
+use AKlump\Messaging\MessageType;
 use Mimey\MimeTypes;
 use PrettyXml\Formatter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -43,17 +44,24 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           self::$counter = 1;
         },
       ],
-      Event::TEST_FINISHED => [
+      Event::REQUEST_TEST_FINISHED => [
         function (DriverEventInterface $event) {
-          $content_type = $event->getDriver()
-                            ->getResponse()
-                            ->getHeader('content-type')[0] ?? '';
+          try {
+            $content_type = $event->getDriver()
+                              ->getResponse()
+                              ->getHeader('content-type')[0] ?? '';
+          }
+          catch (\Exception $exception) {
+            $content_type = NULL;
+          }
+          if (!$content_type) {
+            return;
+          }
 
           $regex = '/' . implode('|', array_map(function ($item) {
               return preg_quote($item, '/');
             }, self::$mime_types)) . '/i';
-          if (!$content_type
-            || !preg_match($regex, $content_type, $mime_type)) {
+          if (!preg_match($regex, $content_type, $mime_type)) {
             return;
           }
 
@@ -83,16 +91,11 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           $filepath = $test->getRunner()
             ->writeToFile('response/' . $path, [$content], 'w+');
 
-          if ($test->hasFailed() || $test->getSuite()
-              ->getRunner()
-              ->getOutput()
-              ->isVerbose()) {
-            Feedback::$responseBody->overwrite([
-              NULL,
-              '├── ' . $filepath,
-              NULL,
-            ]);
+          $verbosity = Verbosity::VERBOSE;
+          if ($test->hasFailed()) {
+            $verbosity = Verbosity::NORMAL;
           }
+          $test->addMessage(new Message([$filepath], MessageType::TODO, $verbosity));
         },
         -1,
       ],

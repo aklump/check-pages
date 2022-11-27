@@ -6,8 +6,9 @@ use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
-use AKlump\CheckPages\Output\Feedback;
-use AKlump\LoftLib\Bash\Color;
+use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Verbosity;
+use AKlump\Messaging\MessageType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
@@ -44,31 +45,28 @@ final class Evaluate implements EventSubscriberInterface {
             'evaluateExpression',
           ]);
           $assert->run();
-          $test_result = $assert->getResult();
-          $test_result ? $test->setPassed() : $test->setFailed();
 
-          if ($test->getRunner()->getOutput()->isVerbose()) {
-            if ($test_result) {
-              Feedback::updateTestStatus($test->getRunner(), $assert, TRUE);
-              Feedback::$testDetails->write(Color::wrap('green', '├── ' . $assert));
-            }
-            else {
-              Feedback::updateTestStatus($test->getRunner(), $assert, FALSE);
-              Feedback::$testDetails->write(Color::wrap('red', '├── ' . $assert->getReason()));
-            }
+          if ($assert->hasPassed()) {
+            $test->setPassed();
+            $test->addMessage(new Message(
+              [
+                strval($assert),
+              ],
+              MessageType::SUCCESS,
+              Verbosity::VERBOSE
+            ));
+          }
+          elseif ($assert->hasFailed()) {
+            $test->hasFailed();
+            $test->addMessage(new Message(
+              [
+                $assert->getReason(),
+              ],
+              MessageType::ERROR,
+              Verbosity::VERBOSE
+            ));
           }
         },
-
-        //        Event::ASSERT_CREATED => [
-        //          function (AssertEventInterface $event) {
-        //            $assert = $event->getAssert();
-        //            $config = $assert->getConfig();
-        //            $should_apply = array_key_exists('eval', $config);
-        //            if (!$should_apply) {
-        //              return;
-        //            }
-        //          },
-        //        ],
       ],
     ];
   }

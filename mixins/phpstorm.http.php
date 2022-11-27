@@ -46,7 +46,7 @@ respond_to(Event::SUITE_LOADED, function (SuiteEventInterface $event) use ($mixi
   fclose(fopen($mixin->getFilepath($event->getSuite()), 'w'));
 });
 
-respond_to(Event::TEST_FINISHED, function (TestEventInterface $event) use ($mixin, $mixin_config) {
+respond_to(Event::REQUEST_TEST_FINISHED, function (TestEventInterface $event) use ($mixin, $mixin_config) {
   $did_pass = !$event->getTest()->hasFailed();
   if ($did_pass && TRUE === ($mixin_config['exclude_passing'] ?? FALSE)) {
     return;
@@ -91,7 +91,7 @@ final class PhpStormHttpMixin {
   public function getFilepath(Suite $suite): string {
     $basename = $suite->id();
     if ($this->options['single_file'] ?? FALSE) {
-      $basename = parse_url($suite->getConfig()['base_url'], PHP_URL_HOST);
+      $basename = parse_url($suite->getRunner()->getConfig()['base_url'], PHP_URL_HOST);
     }
     $basename = preg_replace('/[\.\- ]/', '_', $basename);
 

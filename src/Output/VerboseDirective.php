@@ -16,8 +16,15 @@ final class VerboseDirective {
    * @see \AKlump\CheckPages\Output\VerboseDirective::validate
    */
   public function __construct(string $value) {
-    $this->value = strtoupper($value);
+    $this->setValue($value);
     $this->validate();
+  }
+
+  private function setValue(string $value): void {
+    $value = strtoupper($value);
+    $value = str_split($value);
+    sort($value);
+    $this->value = implode('', $value);
   }
 
   public function __toString() {
@@ -25,6 +32,35 @@ final class VerboseDirective {
     sort($value);
 
     return implode($value);
+  }
+
+  /**
+   * @param int $verbosity
+   *
+   * @return static
+   *   A new instance created from an integer
+   *
+   * @see \AKlump\CheckPages\Output\Verbosity
+   */
+  public static function createFromInt(int $verbosity) {
+    $directive = '';
+    if ($verbosity & Verbosity::DEBUG) {
+      $directive .= 'D';
+    }
+    if ($verbosity & Verbosity::VERBOSE) {
+      $directive .= 'V';
+    }
+    if ($verbosity & Verbosity::HEADERS) {
+      $directive .= 'H';
+    }
+    if ($verbosity & Verbosity::REQUEST) {
+      $directive .= 'S';
+    }
+    if ($verbosity & Verbosity::RESPONSE) {
+      $directive .= 'R';
+    }
+
+    return new static($directive);
   }
 
   /**
@@ -48,33 +84,33 @@ final class VerboseDirective {
     if (!$this->value) {
       return;
     }
-    if (!preg_match('/^(A|H|HR|HRS|HS|R|RS|S)?D?V?$/i', $this)) {
+    if (!preg_match('/^(D?H?R?S?V?|A?D?V?)$/', $this)) {
       throw new \InvalidArgumentException(sprintf('Invalid verbose directive "%s"', $this->value));
     }
   }
 
   public function showVerbose(): bool {
-    return preg_match('/[V]/', $this->value);
+    return preg_match('/V/', $this->value);
   }
 
   public function showSendHeaders(): bool {
-    return preg_match('/^(A|SH|HS|H)$/', $this->value);
+    return preg_match('/A|H(?!R)|HR?S/', $this->value);
   }
 
   public function showResponseHeaders(): bool {
-    return preg_match('/^(A|RH|HR|H)$/', $this->value);
+    return preg_match('/A|H(?![RS])|HR/', $this->value);
   }
 
   public function showSendBody(): bool {
-    return preg_match('/[AS]/', $this->value);
+    return preg_match('/A|S/', $this->value);
   }
 
   public function showResponseBody(): bool {
-    return preg_match('/[AR]/', $this->value);
+    return preg_match('/A|R/', $this->value);
   }
 
   public function showDebugging(): bool {
-    return preg_match('/[D]/', $this->value);
+    return preg_match('/D/', $this->value);
   }
 
   /**

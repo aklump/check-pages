@@ -5,9 +5,10 @@ namespace AKlump\CheckPages\Plugin;
 use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\Output\Feedback;
-use AKlump\CheckPages\Parts\SetTrait;
-use AKlump\LoftLib\Bash\Color;
+use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Verbosity;
+use AKlump\CheckPages\Traits\SetTrait;
+use AKlump\Messaging\MessageType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -47,7 +48,11 @@ final class Value implements EventSubscriberInterface {
               $config['value']
             );
             $title = $config['why'] ?? $set_message;
-            $test->setTitle($title)->setPassed();
+            $test->addMessage(new Message([$title],
+              MessageType::INFO,
+              Verbosity::VERBOSE
+            ));
+            $test->setPassed();
           }
 
           // Handle a test-level assertion.
@@ -68,8 +73,20 @@ final class Value implements EventSubscriberInterface {
             $assert->setHaystack([$config['value']]);
             $assert->setAssertion($test_level_assertion[$type], $config[$type]);
             $assert->run();
-            $test->setTitle(ltrim($set_message . '. ', '. ') . $assert);
-            $assert->getResult() ? $test->setPassed() : $test->setFailed();
+
+            $test->addMessage(new Message([
+              ltrim($set_message . '. ', '. ') . $assert,
+            ],
+              MessageType::INFO,
+              Verbosity::VERBOSE
+            ));
+
+            if ($assert->hasPassed()) {
+              $test->setPassed();
+            }
+            elseif ($assert->hasFailed()) {
+              $test->setFailed();
+            }
           }
         },
         -10,

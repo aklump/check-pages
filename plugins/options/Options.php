@@ -6,10 +6,10 @@ use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\TestOptionFailed;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Assert;
-use AKlump\CheckPages\SerializationTrait;
 
 /**
  * Implements the Options plugin.
@@ -114,9 +114,9 @@ final class Options extends LegacyPlugin {
       if (in_array($hook, array_keys($option['hooks']))) {
         if (isset($this->pluginData['config'][$option['name']])) {
           $config = $this->pluginData['config'][$option['name']];
-//          if (!is_array($config)) {
-//            $config = [$config];
-//          }
+          //          if (!is_array($config)) {
+          //            $config = [$config];
+          //          }
           array_unshift($hook_args, $config);
         }
         $hook_args[] = $this->pluginData;
@@ -124,8 +124,22 @@ final class Options extends LegacyPlugin {
           call_user_func_array($option['hooks'][$hook]['callback'], $hook_args);
         }
         catch (\Exception $exception) {
-          // Repackage remaining exceptions as option failures.
-          throw new TestOptionFailed($this->pluginData, $exception->getMessage(), $exception);
+          $class = get_class($exception);
+
+          // Give the exception a contextual prefix.
+          list($name) = array_keys(($this->pluginData['config'] ?? [])) + ['?'];
+          $message = rtrim(sprintf('Option "%s" failed. %s', $name, $exception->getMessage()));
+          $exception = new $class($message, $exception->getCode(), $exception);
+
+          $event = $hook_args[1] ?? NULL;
+          if ($event instanceof TestEventInterface) {
+            throw new TestFailedException($event->getTest()
+              ->getConfig(), $exception);
+          }
+
+          // TODO Sniff out other exception types?
+
+          throw $exception;
         }
       }
     }

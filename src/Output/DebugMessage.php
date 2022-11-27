@@ -9,7 +9,8 @@ use AKlump\Messaging\MessageType;
  */
 class DebugMessage extends Message {
 
-  public function __construct(array $lines) {
+  public function __construct(array $lines, string $message_type = NULL) {
+    $message_type = $message_type ?? MessageType::DEBUG;
 
     // Add an icon to the first line.
     $first_line = array_shift($lines);
@@ -21,7 +22,7 @@ class DebugMessage extends Message {
 
     parent::__construct(
       $lines,
-      MessageType::DEBUG,
+      $message_type,
       Verbosity::DEBUG
     );
   }

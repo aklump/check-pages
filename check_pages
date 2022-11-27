@@ -21,7 +21,6 @@ $container = new ContainerBuilder();
 $loader = new YamlFileLoader($container, new FileLocator(ROOT));
 $loader->load('services.DO_NOT_EDIT.yml');
 
-
 $application = new Application();
 $application->setName('Check Pages by In the Loft Studios');
 $version = json_decode(file_get_contents(ROOT . '/composer.json'))->version ?? '';

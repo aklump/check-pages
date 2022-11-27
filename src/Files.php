@@ -3,10 +3,16 @@
 namespace AKlump\CheckPages;
 
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
+use AKlump\CheckPages\Parts\Runner;
 
 class Files {
 
-  public function __construct(\AKlump\CheckPages\Parts\Runner $runner) {
+  /**
+   * @var \AKlump\CheckPages\Parts\Runner
+   */
+  private $runner;
+
+  public function __construct(Runner $runner) {
     $this->runner = $runner;
   }
 

@@ -3,14 +3,16 @@
 namespace AKlump\CheckPages\Command;
 
 use AKlump\CheckPages\CheckPages;
+use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Event\SuiteEvent;
 use AKlump\CheckPages\Output\ConsoleEchoPrinter;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
 use AKlump\CheckPages\Output\Timer;
-use AKlump\CheckPages\Output\VerboseDirective;
 use AKlump\CheckPages\Parts\Runner;
+use AKlump\Messaging\Processor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -104,21 +106,29 @@ class RunCommand extends Command {
     }
     catch (\Exception $exception) {
 
-      $this->echoTimer($messenger, $timer);
+      $suite = $runner->getSuite();
+      if ($suite) {
+        $runner->getDispatcher()
+          ->dispatch(new SuiteEvent($suite), Event::SUITE_FAILED);
+      }
 
-      // Shift the first line so only that is red, in case we want to dump a
-      // pretty-print JSON variable.
       $message = trim($exception->getMessage());
       if ($message) {
-        $lines = explode(PHP_EOL, $message);
-        $first_line = array_shift($lines);
-        $messenger->deliver(new Message([
-          $first_line,
-          '',
-        ], MessageType::ERROR), ConsoleEchoPrinter::INVERT);
 
-        $messenger->deliver(new Message($lines, MessageType::ERROR));
-        $messenger->deliver(new Message(['', '']));
+        $lines = explode(PHP_EOL, $message);
+        $runner->getMessenger()
+          ->addProcessor([Processor::class, 'tree'])
+          ->deliver(new Message($lines, MessageType::ERROR), ConsoleEchoPrinter::INVERT_FIRST);
+
+        $lines = explode(PHP_EOL, $exception->getTraceAsString());
+        $list_printer = $runner->getMessenger()
+          ->addProcessor([Processor::class, 'wordWrap'])
+          ->addProcessor([Processor::class, 'tree']);
+        foreach ($lines as $line) {
+          $list_printer->deliver(new Message([$line], MessageType::ERROR, Verbosity::DEBUG));
+        }
+
+        $runner->getMessenger()->deliver(new Message(['', '']));
       }
 
       $this->echoResults($runner, $timer, $exception);
@@ -129,7 +139,6 @@ class RunCommand extends Command {
 
   private function echoResults(Runner $runner, Timer $timer, \Exception $exception = NULL) {
     $messenger = $runner->getMessenger();
-
     $this->echoTimer($messenger, $timer);
 
     foreach ($runner->getMessages() as $message) {
@@ -138,13 +147,6 @@ class RunCommand extends Command {
 
     $total_test_count = $runner->getTotalTestsRun();
 
-    //    if (!$exception && 0 === $total_test_count) {
-    //      echo Color::wrap('yellow', 'No tests were run.');
-    //      echo $footer;
-    //
-    //      return;
-    //    }
-
     // Percentage
     $percentage = NULL;
     if (!$exception) {
@@ -152,24 +154,18 @@ class RunCommand extends Command {
       $percentage = $total_test_count ? intval(100 * $passed_test_count / $total_test_count) : 100;
       $message = new Message([
           sprintf("%d / %d (%d%%)", $passed_test_count, $total_test_count, $percentage),
-          '',
-          '',
         ]
       );
       $messenger->deliver($message);
     }
 
-    $this->echoTimer($messenger, $timer);
-
-    // TODO Is this redundant?
-    // Time
-    $message = new Message([
+    // Calculated, total elapsed time.
+    $messenger->deliver(new Message(
+      [
         sprintf("Time: %s", $timer->getElapsed()),
         '',
-        '',
       ]
-    );
-    $messenger->deliver($message);
+    ));
 
     $total_assertion_count = $runner->getTotalAssertionsRun();
     $ok = !$exception || 100 === $percentage;

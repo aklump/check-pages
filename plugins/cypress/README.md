@@ -13,9 +13,26 @@ extras:
 
 ```
 
+## _suite.yml_ Example
+
+```yaml
+-
+  set: timesheet.id
+  value: 240
+-
+  set: timesheet.worker.id
+  value: 160
+-
+  why: Demonstrate the Cypress Plugin syntax.
+  cypress: worker/3632.cy.js
+  env:
+    user: site_test.worker1
+    visit: node/${timesheet.id}/approve/${timesheet.worker.id}
+
+```
+
 ## Todo
 
 - debug output
 - update title correctly
-- user feedback currently sucks.
 - implement https://docs.cypress.io/guides/guides/command-line#Debugging-commands

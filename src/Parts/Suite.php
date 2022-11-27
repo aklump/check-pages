@@ -2,9 +2,14 @@
 
 namespace AKlump\CheckPages\Parts;
 
+use AKlump\CheckPages\Traits\HasRunnerTrait;
+use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Variables;
 
 class Suite implements PartInterface, \JsonSerializable {
+
+  use PassFailTrait;
+  use HasRunnerTrait;
 
   /**
    * @var Test[]
@@ -12,8 +17,6 @@ class Suite implements PartInterface, \JsonSerializable {
   protected $tests = [];
 
   protected $autoIncrementTestId = 0;
-
-  protected $runner;
 
   protected $id;
 
@@ -23,11 +26,11 @@ class Suite implements PartInterface, \JsonSerializable {
 
   protected $vars;
 
-  public function __construct(string $id, array $config, Runner $runner) {
+  public function __construct(string $id, array $suite_config, Runner $runner) {
     $this->vars = new Variables();
-    $this->runner = $runner;
+    $this->config = $suite_config;
+    $this->setRunner($runner);
     $this->id = $id;
-    $this->setConfig($config);
   }
 
   /**
@@ -49,25 +52,8 @@ class Suite implements PartInterface, \JsonSerializable {
     return $this;
   }
 
-  public function getRunner(): Runner {
-    return $this->runner;
-  }
-
   public function id(): string {
     return $this->id;
-  }
-
-  public function setConfig(array $config): Suite {
-    $this->config = $config;
-    foreach ($config['variables'] ?? [] as $key => $value) {
-      $this->variables()->setItem($key, $value);
-    }
-
-    return $this;
-  }
-
-  public function getConfig(): array {
-    return $this->config;
   }
 
   public function variables(): Variables {
@@ -83,7 +69,7 @@ class Suite implements PartInterface, \JsonSerializable {
     return array_unique($methods);
   }
 
-  public function addTest(array $config): self {
+  public function addTestByConfig(array $config): self {
     $this->tests[] = new Test(++$this->autoIncrementTestId, $config, $this);
 
     return $this;
@@ -160,6 +146,10 @@ class Suite implements PartInterface, \JsonSerializable {
 
   public function __toString() {
     return $this->getGroup() . '\\' . $this->id();
+  }
+
+  public function getConfig(): array {
+    return $this->config;
   }
 
 }

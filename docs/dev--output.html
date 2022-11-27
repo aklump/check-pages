@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Developers Note: User Messages</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--dev--output">
+<header>
+  <div class="pager"><a href="demo--value.html" class="prev demo--value">&laquo;Value Plugin</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="config--suites_to_ignore.html" class="next config--suites_to_ignore">Ignore Suites&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="dev--output.html">Dev</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Developers Note: User Messages</h1>
+  
+
+<p>When working on this project, never <code>echo</code> directly.</p>
+
+<h2>Extension Authors</h2>
+
+<p>For messages related to a test, you must use <code>$test-&gt;addMessage(...</code> because the timing of the output will be handled by the runner. <strong>You must not use a printer from within plugins or custom extensions!</strong></p>
+
+<p>In some cases you may want to display your messages sooner than later, if so you may call <code>$test-&gt;echoMessages()</code>. Not this will print all test messages, including those set so far in the processing.  This ensures FIFO.</p>
+
+<h2>Core Authors</h2>
+
+<p>Follow the code as shown below for user feedback. The instance of <code>\AKlump\Messaging\MessengerInterface</code> will determine how the messages are printed, you just worry about the message, level, and verbosity as you write code.</p>
+
+<pre><code class="php">// INFO MESSAGE
+$printer-&gt;deliver(new Message(
+  [
+    'This is a two-line",
+    "info message.',
+  ],
+));
+
+// NOTICE MESSAGE
+$printer-&gt;deliver(new Message(
+  [
+    'This is an notice.',
+    '',
+  ],
+  \AKlump\Messaging\MessageType::SUCCESS,
+));
+
+// ERROR MESSAGE
+$printer-&gt;deliver(new Message(
+  [
+    'This is an error message with an extra line break.',
+    '',
+  ],
+  \AKlump\Messaging\MessageType::ERROR,
+));
+
+
+// VERBOSE, INFO
+$printer-&gt;deliver(new Message(
+  [
+    'This is a debug message that will show with (A)ny verbosity.',
+  ],
+  \AKlump\Messaging\MessageType::DEBUG,
+  new \AKlump\CheckPages\Output\VerboseDirective('D')
+));
+
+// or it's shorthand...
+$printer-&gt;deliver(new \AKlump\CheckPages\Output\DebugMessage(
+  [
+     'Demo debug message',
+     '',
+    'This is a debug message that will show with (A)ny verbosity.',
+  ],
+));
+</code></pre>
+
+<p>You will need an instance of <code>\AKlump\Messaging\MessengerInterface</code>, e.g.,</p>
+
+<pre><code class="php">$printer = new \AKlump\CheckPages\Output\ConsoleEchoPrinter($runner-&gt;getOutput());
+</code></pre>
+
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="demo--value.html" class="prev demo--value">&laquo;Value Plugin</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="config--suites_to_ignore.html" class="next config--suites_to_ignore">Ignore Suites&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Sun, 27 Nov 2022 21:07:07 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

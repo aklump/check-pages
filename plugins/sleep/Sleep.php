@@ -3,7 +3,9 @@
 namespace AKlump\CheckPages\Plugin;
 
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\Output\Feedback;
+use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Verbosity;
+use AKlump\Messaging\MessageType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use AKlump\CheckPages\Event;
 
@@ -29,23 +31,21 @@ final class Sleep implements EventSubscriberInterface {
           $sleep_seconds = intval($test->getConfig()['sleep']);
           $elapsed = 0;
 
-          $give_feedback = $test->getRunner()->getOutput()->isVerbose();
-          if ($give_feedback) {
-            $title = $test->getDescription();
-            if (empty($title)) {
-              $title = sprintf('Sleep for %s second(s)', $sleep_seconds);
-            }
-            // Provide a gutter before the 'zzz'.
-            $title .= ' ';
+          $title = $test->getDescription();
+          if (empty($title)) {
+            $title = sprintf('Sleep for %s second(s)', $sleep_seconds);
           }
+          $test->addMessage(new Message(
+            [
+              '😴 ' . $title,
+            ],
+            MessageType::INFO,
+            Verbosity::VERBOSE
+          ));
+          $test->echoMessages();
           while ($elapsed++ <= $sleep_seconds) {
-            if ($give_feedback) {
-              Feedback::updateTestStatus($test->getRunner(), $title, NULL, '😴 ');
-              $title .= 'z';
-            }
             sleep(1);
           }
-          Feedback::updateTestStatus($test->getRunner(), sprintf('%d second wait is over.', $sleep_seconds), TRUE);
         },
       ],
     ];

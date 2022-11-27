@@ -1,5 +1,0 @@
--
-    why: 'Demonstrate the Cypress Plugin syntax.'
-    cypress:
-        options:
-            spec: foo.js
