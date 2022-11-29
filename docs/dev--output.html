@@ -32,7 +32,9 @@
 
 <p>For messages related to a test, you must use <code>$test-&gt;addMessage(...</code> because the timing of the output will be handled by the runner. <strong>You must not use a printer from within plugins or custom extensions!</strong></p>
 
-<p>In some cases you may want to display your messages sooner than later, if so you may call <code>$test-&gt;echoMessages()</code>. Not this will print all test messages, including those set so far in the processing.  This ensures FIFO.</p>
+<p>In some cases you may want to display your messages sooner than later, if so you may call <code>$test-&gt;echoMessages()</code>. Not this will print all test messages, including those set so far in the processing. This ensures FIFO.</p>
+
+<p>For output initiated from inside non-test event handlers, you may use <code>$runner-&gt;echo()</code> for real time printing.</p>
 
 <h2>Core Authors</h2>
 
@@ -98,7 +100,7 @@ $printer-&gt;deliver(new \AKlump\CheckPages\Output\DebugMessage(
 <footer>
   <div class="pager"><a href="demo--value.html" class="prev demo--value">&laquo;Value Plugin</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="config--suites_to_ignore.html" class="next config--suites_to_ignore">Ignore Suites&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Sun, 27 Nov 2022 21:07:07 -0800</p>
+    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Mon, 28 Nov 2022 20:53:59 -0800</p>
   </div>
 </footer>
 
