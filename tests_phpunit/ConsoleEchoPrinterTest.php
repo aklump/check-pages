@@ -17,7 +17,7 @@ final class ConsoleEchoPrinterTest extends TestCase {
       ->deliver(new Message([
         'lorem ipsum',
         '',
-      ]), ConsoleEchoPrinter::INVERT_FIRST);
+      ]), \AKlump\CheckPages\Output\Flags::INVERT_FIRST_LINE);
     $output = ob_get_clean();
     $this->assertSame(2, substr_count($output, PHP_EOL));
   }
@@ -25,7 +25,7 @@ final class ConsoleEchoPrinterTest extends TestCase {
   public function testInvertFirstDoesNotAddALine() {
     ob_start();
     $this->getPrinter()
-      ->deliver(new Message(['lorem ipsum']), ConsoleEchoPrinter::INVERT_FIRST);
+      ->deliver(new Message(['lorem ipsum']), \AKlump\CheckPages\Output\Flags::INVERT_FIRST_LINE);
     $output = ob_get_clean();
     $this->assertSame(1, substr_count($output, PHP_EOL));
   }

@@ -13,10 +13,6 @@ use AKlump\Messaging\MessageType;
  */
 final class ConsoleEchoPrinter implements MessengerInterface {
 
-  const INVERT = 1;
-
-  const INVERT_FIRST = 2;
-
   private $callbacks = [];
 
   /**
@@ -40,6 +36,11 @@ final class ConsoleEchoPrinter implements MessengerInterface {
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   *
+   * @see \AKlump\CheckPages\Output\Flags
+   */
   public function deliver(MessageInterface $message, int $flags = NULL) {
     $always_show_message = strval($message->getVerboseDirective()) === '';
     if (!$always_show_message
@@ -62,7 +63,7 @@ final class ConsoleEchoPrinter implements MessengerInterface {
     ];
 
     $color = $colors[$message->getMessageType()];
-    if ($flags & self::INVERT) {
+    if ($flags & Flags::INVERT) {
       $color = $inverted[$message->getMessageType()];
     }
 
@@ -71,7 +72,7 @@ final class ConsoleEchoPrinter implements MessengerInterface {
       $lines = $callback($lines, $message);
     }
 
-    if ($flags & self::INVERT_FIRST) {
+    if ($flags & Flags::INVERT_FIRST_LINE) {
       $color = $inverted[$message->getMessageType()];
       $first_line = array_shift($lines);
 

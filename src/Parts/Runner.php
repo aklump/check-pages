@@ -918,11 +918,11 @@ class Runner {
         "Suite Group\\ID:",
         strval($suite),
         '',
-      ], MessageType::ERROR, $directive), ConsoleEchoPrinter::INVERT_FIRST);
+      ], MessageType::ERROR, $directive), \AKlump\CheckPages\Output\Flags::INVERT_FIRST_LINE);
 
       $this->echo(new Message([
         "Test Configuration:",
-      ], MessageType::ERROR, $directive), ConsoleEchoPrinter::INVERT_FIRST);
+      ], MessageType::ERROR, $directive), \AKlump\CheckPages\Output\Flags::INVERT_FIRST_LINE);
 
       $this->echo(new Message([
         json_encode($data, JSON_PRETTY_PRINT),
@@ -933,11 +933,11 @@ class Runner {
         'Schema Path:',
         $path_to_schema,
         '',
-      ], MessageType::ERROR, $directive), ConsoleEchoPrinter::INVERT_FIRST);
+      ], MessageType::ERROR, $directive), \AKlump\CheckPages\Output\Flags::INVERT_FIRST_LINE);
 
       $this->echo(new Message([
         "Schema Validation Errors:",
-      ], MessageType::ERROR, $directive), ConsoleEchoPrinter::INVERT_FIRST);
+      ], MessageType::ERROR, $directive), \AKlump\CheckPages\Output\Flags::INVERT_FIRST_LINE);
 
       foreach ($validator->getErrors() as $error) {
         $this->echo(new Message([

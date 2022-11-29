@@ -168,7 +168,7 @@ final class Retest implements EventSubscriberInterface {
         ],
         MessageType::INFO
       ),
-        ConsoleEchoPrinter::INVERT_FIRST
+        \AKlump\CheckPages\Output\Flags::INVERT_FIRST_LINE
       );
     }
 

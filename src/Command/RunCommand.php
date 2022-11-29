@@ -5,7 +5,7 @@ namespace AKlump\CheckPages\Command;
 use AKlump\CheckPages\CheckPages;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\SuiteEvent;
-use AKlump\CheckPages\Output\ConsoleEchoPrinter;
+use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\Messaging\MessageType;
@@ -118,7 +118,7 @@ class RunCommand extends Command {
         $lines = explode(PHP_EOL, $message);
         $runner->getMessenger()
           ->addProcessor([Processor::class, 'tree'])
-          ->deliver(new Message($lines, MessageType::ERROR), ConsoleEchoPrinter::INVERT_FIRST);
+          ->deliver(new Message($lines, MessageType::ERROR), Flags::INVERT_FIRST_LINE);
 
         $lines = explode(PHP_EOL, $exception->getTraceAsString());
         $list_printer = $runner->getMessenger()
@@ -181,7 +181,7 @@ class RunCommand extends Command {
       ],
         MessageType::SUCCESS
       );
-      $messenger->deliver($message, ConsoleEchoPrinter::INVERT_FIRST);
+      $messenger->deliver($message, Flags::INVERT_FIRST_LINE);
 
     }
     else {
@@ -200,7 +200,7 @@ class RunCommand extends Command {
         ],
         MessageType::ERROR
       );
-      $messenger->deliver($message, ConsoleEchoPrinter::INVERT_FIRST);
+      $messenger->deliver($message, Flags::INVERT_FIRST_LINE);
     }
   }
 

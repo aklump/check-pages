@@ -60,7 +60,7 @@ class Feedback implements EventSubscriberInterface {
               ],
               MessageType::INFO,
               Verbosity::NORMAL
-            ), ConsoleEchoPrinter::INVERT);
+            ), Flags::INVERT);
           }
         },
       ],
@@ -70,7 +70,7 @@ class Feedback implements EventSubscriberInterface {
           self::echoSuiteTitle($suite->getRunner()
             ->getMessenger(), new Message([
             sprintf('%s%s ...', ltrim($suite->getGroup() . '/', '/'), $suite->id()),
-          ], MessageType::INFO, Verbosity::VERBOSE), ConsoleEchoPrinter::INVERT_FIRST);
+          ], MessageType::INFO, Verbosity::VERBOSE), Flags::INVERT_FIRST_LINE);
         },
       ],
 
@@ -99,7 +99,7 @@ class Feedback implements EventSubscriberInterface {
           self::echoSuiteTitle($suite->getRunner()
             ->getMessenger(), new Message([
             '... ' . ltrim($suite->getGroup() . '/', '/') . $suite->id(),
-          ], MessageType::ERROR), ConsoleEchoPrinter::INVERT_FIRST);
+          ], MessageType::ERROR), Flags::INVERT_FIRST_LINE);
         },
       ],
 
