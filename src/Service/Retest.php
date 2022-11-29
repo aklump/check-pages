@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Service;
 
 use AKlump\CheckPages\Event\RunnerEventInterface;
 use AKlump\CheckPages\Output\ConsoleEchoPrinter;
+use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
@@ -34,8 +35,10 @@ final class Retest implements EventSubscriberInterface {
       $is_using = $input->getOption('retest') || $input->getOption('continue');
       if ($is_using) {
         $option = $input->getOption('retest') ? '--retest' : '--continue';
-        $this->getRunner()->getOutput()
-          ->writeln(sprintf('<error>"%s" requires file storage to be enabled.  See documentation for more info.</error>', $option, $tracking_path));
+        $this->getRunner()->echo(new DebugMessage([
+            sprintf('<error>"%s" requires file storage to be enabled.  See documentation for more info.</error>', $option),
+          ]
+        ));
       }
 
       return '';

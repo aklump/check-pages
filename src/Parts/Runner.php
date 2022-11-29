@@ -24,7 +24,6 @@ use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
 use AKlump\CheckPages\Traits\HasSuiteTrait;
 use AKlump\CheckPages\Traits\SetTrait;
-use AKlump\LoftLib\Bash\Color;
 use AKlump\Messaging\HasMessagesTrait;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
@@ -1106,21 +1105,6 @@ class Runner {
     foreach ($resources as $info) {
       list($handle) = $info;
       fclose($handle);
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function debug(string $id, array $messages): void {
-    $output = $this->getOutput();
-    if ($output->isDebug()) {
-      $output->writeln('🐞 ' . Color::wrap('light gray', $id));
-      $last = array_pop($messages);
-      $output->writeln(array_map(function ($line) {
-        return Color::wrap('light gray', '  ├── ') . $line;
-      }, $messages));
-      $output->writeln(Color::wrap('light gray', '  └── ') . $last);
     }
   }
 

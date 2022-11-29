@@ -17,12 +17,12 @@ trait SetTrait {
    * @param $value
    *
    * @return string
-   *   Feedback suitable for \Symfony\Component\Console\Output\OutputInterface::writeln.
+   *   A user feedback message.
    */
   public function setKeyValuePair(Variables $vars, string $key, $value): string {
     $vars->setItem($key, $value);
     $message = '${%s} set to "%s"';
-    if(is_null($value)) {
+    if (is_null($value)) {
       $message = '${%s} set to NULL';
     }
     elseif (!is_scalar($value)) {
