@@ -42,16 +42,17 @@ class RunCommand extends Command {
     $runner = new Runner(ROOT, $input, $output);
     $messenger = $runner->getMessenger();
 
+    // Pull the timezone from the system running this.
+    $timezone = new \DateTimeZone(exec('date +%Z'));
+    $timer = new Timer($timezone);
+    $timer->start();
+
     try {
       global $container;
 
       $container->set('input', $input);
       $container->set('output', $output);
 
-      // Pull the timezone from the system running this.
-      $timezone = new \DateTimeZone(exec('date +%Z'));
-      $timer = new Timer($timezone);
-      $timer->start();
       $this->echoTimer($messenger, $timer);
 
       $container->set('runner', $runner);
@@ -99,45 +100,39 @@ class RunCommand extends Command {
       }
 
       $runner->executeRunner();
-
-      $this->echoResults($runner, $timer);
-
-      return Command::SUCCESS;
     }
     catch (\Exception $exception) {
+      $runner->setFailed();
 
-      $suite = $runner->getSuite();
-      if ($suite) {
-        $runner->getDispatcher()
-          ->dispatch(new SuiteEvent($suite), Event::SUITE_FAILED);
-      }
+      //      $suite = $runner->getSuite();
+      //      if ($suite) {
+      //        $runner->getDispatcher()
+      //          ->dispatch(new SuiteEvent($suite), Event::SUITE_FAILED);
+      //      }
 
+      // Convert the exception to messages.
       $message = trim($exception->getMessage());
       if ($message) {
-
+        // Message as an error message.
         $lines = explode(PHP_EOL, $message);
-        $runner->getMessenger()
-          ->addProcessor([Processor::class, 'tree'])
-          ->deliver(new Message($lines, MessageType::ERROR), Flags::INVERT_FIRST_LINE);
-
+        $runner->addMessage(new Message($lines, MessageType::ERROR));
+        // Trace as a debug message.
         $lines = explode(PHP_EOL, $exception->getTraceAsString());
-        $list_printer = $runner->getMessenger()
-          ->addProcessor([Processor::class, 'wordWrap'])
-          ->addProcessor([Processor::class, 'tree']);
         foreach ($lines as $line) {
-          $list_printer->deliver(new Message([$line], MessageType::ERROR, Verbosity::DEBUG));
+          $runner->addMessage(new Message([$line], MessageType::ERROR, Verbosity::DEBUG));
         }
-
-        $runner->getMessenger()->deliver(new Message(['', '']));
       }
-
-      $this->echoResults($runner, $timer, $exception);
-
-      return Command::FAILURE;
     }
+
+    $this->echoResults($runner, $timer);
+    if ($runner->hasPassed()) {
+      return Command::SUCCESS;
+    }
+
+    return Command::FAILURE;
   }
 
-  private function echoResults(Runner $runner, Timer $timer, \Exception $exception = NULL) {
+  private function echoResults(Runner $runner, Timer $timer) {
     $messenger = $runner->getMessenger();
     $this->echoTimer($messenger, $timer);
 
@@ -149,7 +144,7 @@ class RunCommand extends Command {
 
     // Percentage
     $percentage = NULL;
-    if (!$exception) {
+    if ($runner->hasPassed()) {
       $passed_test_count = $runner->getTotalPassingTestsRun();
       $percentage = $total_test_count ? intval(100 * $passed_test_count / $total_test_count) : 100;
       $message = new Message([
@@ -168,7 +163,7 @@ class RunCommand extends Command {
     ));
 
     $total_assertion_count = $runner->getTotalAssertionsRun();
-    $ok = !$exception || 100 === $percentage;
+    $ok = $runner->hasPassed() || 100 === $percentage;
     if ($ok) {
       $message = new Message([
         sprintf("OK (%d test%s, %d assertion%s)",
@@ -186,7 +181,7 @@ class RunCommand extends Command {
     }
     else {
       // Sometimes a test fails without an assertion failing, e.g. the HTTP response code.
-      $failed_count = max($runner->getTotalFailedTests(), $runner->getTotalFailedAssertions(), intval(isset($exception)));
+      $failed_count = max($runner->getTotalFailedTests(), $runner->getTotalFailedAssertions(), intval($runner->hasFailed()));
       $message = new Message(
         [
           'FAILURES!',

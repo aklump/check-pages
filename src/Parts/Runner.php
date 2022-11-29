@@ -23,6 +23,7 @@ use AKlump\CheckPages\SerializationTrait;
 use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
 use AKlump\CheckPages\Traits\HasSuiteTrait;
+use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Traits\SetTrait;
 use AKlump\Messaging\HasMessagesTrait;
 use AKlump\Messaging\MessageType;
@@ -35,6 +36,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class Runner {
 
+  use PassFailTrait;
   use HasSuiteTrait;
   use SerializationTrait;
   use SetTrait;
@@ -611,17 +613,23 @@ class Runner {
           MessageType::ERROR
         ));
       }
+
+      if ($this->failedTestCount) {
+        $this->setFailed();
+      }
+      else {
+        $this->setPassed();
+      }
     }
     catch (StopRunnerException $exception) {
-      $this->getDispatcher()
-        ->dispatch(new RunnerEvent($this), Event::RUNNER_FINISHED);
-      throw $exception;
+      $this->setFailed();
     }
+
     $this->getDispatcher()
       ->dispatch(new RunnerEvent($this), Event::RUNNER_FINISHED);
 
-    if ($this->failedTestCount) {
-      throw new \RuntimeException();
+    if (!empty($exception)) {
+      throw $exception;
     }
   }
 
@@ -688,6 +696,7 @@ class Runner {
     foreach ($suite->getConfig() as $test_config) {
       $suite->addTestByConfig($test_config);
     }
+    unset($test_config);
 
     $this->dispatcher->dispatch(new SuiteEvent($this->getSuite()), Event::SUITE_LOADED);
 

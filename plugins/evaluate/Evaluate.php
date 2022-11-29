@@ -57,7 +57,7 @@ final class Evaluate implements EventSubscriberInterface {
             ));
           }
           elseif ($assert->hasFailed()) {
-            $test->hasFailed();
+            $test->setFailed();
             $test->addMessage(new Message(
               [
                 $assert->getReason(),
