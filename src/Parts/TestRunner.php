@@ -9,8 +9,8 @@ use AKlump\CheckPages\Event\DriverEvent;
 use AKlump\CheckPages\Event\TestEvent;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\GuzzleDriver;
-use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\CheckPages\Output\Verbosity;
+use AKlump\CheckPages\Service\Assertion;
 use AKlump\Messaging\MessageType;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\YamlMessage;
@@ -83,9 +83,23 @@ class TestRunner {
         if (is_int($timeout)) {
           $driver->setRequestTimeout($timeout);
         }
+
+
+        // In some cases the first assertion is looking for a dom element that
+        // may be created as a result of an asynchronous JS event.  We create an
+        // assertion to pass to the driver, which can be used by the driver as a
+        // "wait for this assertion to pass" signal.
+        $wait_for = NULL;
+        foreach ($test->getConfig()['find'] ?? [] as $config) {
+          if (is_array($config) && isset($config['dom'])) {
+            $wait_for = Assertion::create($config);
+            break;
+          }
+        }
+
         $response = $driver
           ->setUrl($runner->url($test->getConfig()['url']))
-          ->request()
+          ->request($wait_for)
           ->getResponse();
         $http_response_code = $response->getStatusCode();
       }

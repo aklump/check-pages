@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Service\Assertion;
 use ChromeDevtoolsProtocol\Context;
 use ChromeDevtoolsProtocol\Exception\ErrorException;
 use ChromeDevtoolsProtocol\Instance\Launcher;
@@ -33,7 +34,15 @@ final class ChromeDriver extends RequestDriver {
   /**
    * @var mixed|null
    */
-  protected $location;
+  private $location;
+
+  /**
+   * This will be set before the request is made.  It creates the time allowed
+   * to look for an asynchronous HTML to appear in ChromeDriver::getPage().
+   *
+   * @var int
+   */
+  private $getPageTimeout;
 
   /**
    * An array of optional query selectors to fill with computed CSS style info.
@@ -82,7 +91,9 @@ final class ChromeDriver extends RequestDriver {
   /**
    * @inheritDoc
    */
-  public function request(): RequestDriverInterface {
+  public function request(Assertion $wait_for = NULL): RequestDriverInterface {
+
+    $this->getPageTimeout = time() + $this->requestTimeout;
 
     // Context creates deadline for operations.
     $this->ctx = Context::withTimeout(Context::background(), $this->requestTimeout);
@@ -126,7 +137,7 @@ final class ChromeDriver extends RequestDriver {
           ->setUrl($this->url)
           ->build());
         $this->devtools->page()->awaitLoadEventFired($this->ctx);
-        $page_contents = $this->getPage();
+        $page_contents = $this->getPage($wait_for);
 
         if (!$this->evResponse) {
           throw new \RuntimeException('No response.');
@@ -300,14 +311,24 @@ final class ChromeDriver extends RequestDriver {
    * @return string
    *   HTML for the page.
    */
-  private function getPage(): string {
-    $document = $this->devtools->dom()
-      ->getDocument($this->ctx, GetDocumentRequest::make());
-    $page_contents = $this->devtools->dom()
-      ->getOuterHTML($this->ctx, GetOuterHTMLRequest::fromJson((object) ['nodeId' => $document->root->nodeId]));
-    $page_contents = json_encode($page_contents);
+  private function getPage(Assertion $wait_for = NULL): string {
+    $page = '';
+    $passed = FALSE;
+    while (FALSE === $passed && time() < $this->getPageTimeout) {
+      $document = $this->devtools->dom()
+        ->getDocument($this->ctx, GetDocumentRequest::make());
+      $page_contents = $this->devtools->dom()
+        ->getOuterHTML($this->ctx, GetOuterHTMLRequest::fromJson((object) ['nodeId' => $document->root->nodeId]));
+      $page_contents = json_encode($page_contents);
+      $page = json_decode($page_contents)->outerHTML;
 
-    return json_decode($page_contents)->outerHTML;
+      $passed = TRUE;
+      if ($wait_for) {
+        $passed = $wait_for->runAgainst($page);
+      }
+    }
+
+    return $page;
   }
 
   /**
