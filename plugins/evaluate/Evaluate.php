@@ -68,6 +68,20 @@ final class Evaluate implements EventSubscriberInterface {
           }
         },
       ],
+
+      Event::ASSERT_CREATED => [
+        function (Event\AssertEventInterface $event) {
+          $assert = $event->getAssert();
+          $config = $assert->getConfig();
+          $should_apply = array_key_exists('eval', $config);
+          if (!$should_apply) {
+            return;
+          }
+          $event->getTest()->interpolate($config['eval']);
+          $assert->setConfig($config);
+          self::evaluateExpression($assert);
+        },
+      ],
     ];
   }
 
