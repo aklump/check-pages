@@ -90,8 +90,12 @@ final class ChromeDriver extends RequestDriver {
 
   /**
    * @inheritDoc
+   *
+   * @param Assertion[]|null $wait_for
+   *    Asserts that will be tested until the timeout.  For example this will
+   *    cause the driver to wait for certain DOM elements to load.
    */
-  public function request(Assertion $wait_for = NULL): RequestDriverInterface {
+  public function request(array $wait_for = NULL): RequestDriverInterface {
 
     $this->getPageTimeout = time() + $this->requestTimeout;
 
@@ -311,10 +315,9 @@ final class ChromeDriver extends RequestDriver {
    * @return string
    *   HTML for the page.
    */
-  private function getPage(Assertion $wait_for = NULL): string {
+  private function getPage(array $wait_for = NULL): string {
     $page = '';
-    $passed = FALSE;
-    while (FALSE === $passed && time() < $this->getPageTimeout) {
+    while (!empty($wait_for) && time() < $this->getPageTimeout) {
       $document = $this->devtools->dom()
         ->getDocument($this->ctx, GetDocumentRequest::make());
       $page_contents = $this->devtools->dom()
@@ -322,10 +325,11 @@ final class ChromeDriver extends RequestDriver {
       $page_contents = json_encode($page_contents);
       $page = json_decode($page_contents)->outerHTML;
 
-      $passed = TRUE;
-      if ($wait_for) {
-        $passed = $wait_for->runAgainst($page);
-      }
+      $wait_for = array_filter($wait_for, function (Assertion $assertion) use ($page) {
+        // Only keep those that have not yet passed.  We'll try again as long as
+        // there is time left.
+        return $assertion->runAgainst($page) === FALSE;
+      });
     }
 
     return $page;

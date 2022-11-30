@@ -89,13 +89,12 @@ class TestRunner {
         // may be created as a result of an asynchronous JS event.  We create an
         // assertion to pass to the driver, which can be used by the driver as a
         // "wait for this assertion to pass" signal.
-        $wait_for = NULL;
-        foreach ($test->getConfig()['find'] ?? [] as $config) {
-          if (is_array($config) && isset($config['dom'])) {
-            $wait_for = Assertion::create($config);
-            break;
-          }
-        }
+        $wait_for = array_filter($test->getConfig()['find'] ?? [], function ($config) {
+          return array_intersect_key(array_flip(['dom']), $config);
+        });
+        $wait_for = array_map(function (array $config) {
+          return Assertion::create($config);
+        }, $wait_for);
 
         $response = $driver
           ->setUrl($runner->url($test->getConfig()['url']))
