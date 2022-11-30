@@ -20,6 +20,7 @@ use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Plugin\PluginsManager;
 use AKlump\CheckPages\RequestDriverInterface;
 use AKlump\CheckPages\SerializationTrait;
+use AKlump\CheckPages\Service\DispatcherFactory;
 use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
 use AKlump\CheckPages\Traits\HasSuiteTrait;
@@ -124,11 +125,6 @@ class Runner {
   protected $writeToFileResources;
 
   /**
-   * @var \AKlump\CheckPages\Plugin\PluginsManager
-   */
-  protected $pluginsManager;
-
-  /**
    * @var array
    */
   protected $runner;
@@ -186,7 +182,7 @@ class Runner {
     if (file_exists($schema_path)) {
       $this->schema = json_decode(file_get_contents($schema_path), TRUE);
     }
-    $this->pluginsManager->setSchema($this->schema);
+    $manager->setSchema($this->schema);
   }
 
 
@@ -303,33 +299,12 @@ class Runner {
    */
   public function getDispatcher(): EventDispatcher {
     if (empty($this->dispatcher)) {
-      $this->dispatcher = new EventDispatcher();
       global $container;
       if ($container) {
-        $serviceIds = $container->findTaggedServiceIds('event_subscriber');
-        foreach ($serviceIds as $serviceId => $tags) {
-          $listeners = $container->get($serviceId)->getSubscribedEvents();
-
-          $listeners = array_map(function ($listener) {
-            $priority = 0;
-            if (isset($listener[1]) && is_numeric($listener[1])) {
-              $priority = $listener[1];
-            }
-            if (is_callable($listener)) {
-              return [[$listener, $priority]];
-            }
-            elseif (is_callable($listener[0])) {
-              return [[$listener[0], $priority]];
-            }
-          }, $listeners);
-
-          foreach ($listeners as $event_name => $callbacks) {
-            foreach ($callbacks as $callback_set) {
-              list($callback, $priority) = $callback_set;
-              $this->dispatcher->addListener($event_name, $callback, $priority);
-            }
-          }
-        }
+        $this->dispatcher = DispatcherFactory::createFromContainer($container);
+      }
+      else {
+        $this->dispatcher = DispatcherFactory::create();
       }
     }
 
