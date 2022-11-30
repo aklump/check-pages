@@ -51,6 +51,10 @@ services:
         class: \AKlump\CheckPages\Plugin\Sleep
         tags:
             - { name: event_subscriber }
+    style.plugin:
+        class: \AKlump\CheckPages\Plugin\Style
+        tags:
+            - { name: event_subscriber }
     value.plugin:
         class: \AKlump\CheckPages\Plugin\Value
         tags:

@@ -69,10 +69,10 @@ class Assertion {
       $listener_classes = [
         // Not all plugins work without full context (runner, test, driver), so we
         // have hand-picked a selection here that will.
-        Dom::class,
-        Xpath::class,
-        Value::class,
         Count::class,
+        Dom::class,
+        Value::class,
+        Xpath::class,
       ];
     }
     if ($listener_classes) {
@@ -156,7 +156,6 @@ class Assertion {
     $this->dispatcher->dispatch($event, Event::ASSERT_CREATED);
     $this->assert->run();
     $this->dispatcher->dispatch($event, Event::ASSERT_FINISHED);
-
 
     if ($this->assert->hasPassed()) {
       $this->setPassed();

@@ -2,73 +2,73 @@
 
 namespace AKlump\CheckPages\Plugin;
 
+use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\Assert;
-use AKlump\CheckPages\SerializationTrait;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Implements the style plugin.
  */
-class Style extends LegacyPlugin {
+final class Style implements EventSubscriberInterface {
 
   const SEARCH_TYPE = 'style';
 
   const MODIFIER_TYPE = 'style';
 
-  /**
-   * Captures the test config to share across methods.
-   *
-   * @var array
-   */
-  private $assertions;
+  public static function getSubscribedEvents() {
+    return [
+      Event::TEST_STARTED => [
+        function (TestEventInterface $event) {
+          $test = $event->getTest();
+          $config = $test->getConfig();
+          if (empty($config['find'])) {
+            return;
+          }
+          $config['extras']['plugin_style'] = [];
+          foreach ($config['find'] as $assertion) {
+            if (is_array($assertion) && array_key_exists(self::SEARCH_TYPE, $assertion)) {
+              // Force JS to be enabled when we have to capture styles.
+              $config['js'] = TRUE;
+              $config['extras']['plugin_style'][] = $assertion;
+            }
+          }
+          $test->setConfig($config);
+        },
+      ],
+      Event::REQUEST_CREATED => [
+        function (DriverEventInterface $event) {
 
-  /**
-   * {@inheritdoc}
-   */
-  public function onBeforeDriver(TestEventInterface $event) {
-    $config = $event->getTest()->getConfig();
-    if (empty($config['find'])) {
-      return;
-    }
-    foreach ($config['find'] as $assertion) {
-      if (is_array($assertion) && array_key_exists(self::SEARCH_TYPE, $assertion)) {
-        $config['js'] = TRUE;
-        $this->assertions[] = $assertion;
-        $event->getTest()->setConfig($config);
-      }
-    }
+          // Add the style requests to the driver.
+          $assertions = $event->getTest()
+                          ->getConfig()['extras']['plugin_style'] ?? [];
+          foreach ($assertions as $assertion) {
+            if (!empty($assertion[Dom::SEARCH_TYPE])) {
+              $event->getDriver()
+                ->addStyleRequest($assertion[Dom::SEARCH_TYPE]);
+            }
+          }
+        },
+      ],
+      Event::ASSERT_CREATED => [
+        function (AssertEventInterface $event) {
+          $assert = $event->getAssert();
+          $should_apply = $assert->{self::SEARCH_TYPE};
+          if (!$should_apply) {
+            return;
+          }
+
+          $response = $event->getDriver()->getResponse();
+          $dom_path = $assert->{Dom::SEARCH_TYPE};
+          $style_property = $assert->{self::MODIFIER_TYPE};
+          $assert
+            ->setSearch(self::SEARCH_TYPE, $dom_path)
+            ->setModifer(self::MODIFIER_TYPE, $style_property);
+          $haystack = json_decode($response->getHeader('X-Computed-Styles')[0] ?? '{}', TRUE);
+          $assert->setHaystack([$haystack[$dom_path][$style_property] ?? NULL]);
+        },
+      ],
+    ];
   }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onBeforeRequest(DriverEventInterface $event) {
-    if (empty($this->assertions)) {
-      return;
-    }
-    foreach ($this->assertions as $assertion) {
-      if (!empty($assertion[Dom::SEARCH_TYPE])) {
-        $event->getDriver()->addStyleRequest($assertion[Dom::SEARCH_TYPE]);
-      }
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function onBeforeAssert(AssertEventInterface $event) {
-    $assert = $event->getAssert();
-    $response = $event->getDriver()->getResponse();
-
-    $dom_path = $assert->{Dom::SEARCH_TYPE};
-    $style_property = $assert->{self::MODIFIER_TYPE};
-    $assert
-      ->setSearch(self::SEARCH_TYPE, $dom_path)
-      ->setModifer(self::MODIFIER_TYPE, $style_property);
-    $haystack = json_decode($response->getHeader('X-Computed-Styles')[0] ?? '{}', TRUE);
-    $assert->setHaystack([$haystack[$dom_path][$style_property] ?? NULL]);
-  }
-
 }

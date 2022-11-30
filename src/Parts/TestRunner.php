@@ -84,13 +84,15 @@ class TestRunner {
           $driver->setRequestTimeout($timeout);
         }
 
-
         // In some cases the first assertion is looking for a dom element that
         // may be created as a result of an asynchronous JS event.  We create an
         // assertion to pass to the driver, which can be used by the driver as a
         // "wait for this assertion to pass" signal.
         $wait_for = array_filter($test->getConfig()['find'] ?? [], function ($config) {
-          return array_intersect_key(array_flip(['dom']), $config);
+          // Choose asserts based on IF they HAVE keys and NOT other keys.
+          return is_array($config)
+            && array_intersect_key(array_flip(['dom']), $config)
+            && !array_intersect_key(array_flip(['style']), $config);
         });
         $wait_for = array_map(function (array $config) {
           return Assertion::create($config);
