@@ -570,6 +570,10 @@ final class Assert {
           $this->reason = sprintf("Value \"%s\" should not match RegEx \"%s\".", $item, $this->assertValue);
         }
         break;
+
+      default:
+        $pass = FALSE;
+        break;
     }
 
     $this->setHaystack($countable);
