@@ -35,6 +35,13 @@ final class AssertionTest extends TestCase {
     $tests = [];
     $tests[] = [
       [
+        'xpath' => '(//*[contains(@class, "foo")])[2]',
+        'is' => 're'
+      ],
+      ['<div class="foo">do</div><div class="foo">re</div><div class="foo">mi</div>'],
+    ];
+    $tests[] = [
+      [
         'dom' => 'p',
         'count' => '>1',
       ],

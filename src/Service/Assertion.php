@@ -10,6 +10,7 @@ use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Plugin\Count;
 use AKlump\CheckPages\Plugin\Dom;
 use AKlump\CheckPages\Plugin\Value;
+use AKlump\CheckPages\Plugin\Xpath;
 use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Variables;
@@ -69,6 +70,7 @@ class Assertion {
         // Not all plugins work without full context (runner, test, driver), so we
         // have hand-picked a selection here that will.
         Dom::class,
+        Xpath::class,
         Value::class,
         Count::class,
       ];

@@ -55,3 +55,7 @@ services:
         class: \AKlump\CheckPages\Plugin\Value
         tags:
             - { name: event_subscriber }
+    xpath.plugin:
+        class: \AKlump\CheckPages\Plugin\Xpath
+        tags:
+            - { name: event_subscriber }
