@@ -316,10 +316,7 @@ final class ChromeDriver extends RequestDriver {
    *   HTML for the page.
    */
   private function getPage(array $wait_for = NULL): string {
-    $page = '';
-    $first_run = TRUE;
-    while ($first_run === TRUE || (!empty($wait_for) && time() < $this->getPageTimeout)) {
-      $first_run = FALSE;
+    do {
       $document = $this->devtools->dom()
         ->getDocument($this->ctx, GetDocumentRequest::make());
       $page_contents = $this->devtools->dom()
@@ -332,7 +329,7 @@ final class ChromeDriver extends RequestDriver {
         // there is time left.
         return $assertion->runAgainst($page) === FALSE;
       });
-    }
+    } while (!empty($wait_for) && time() < $this->getPageTimeout);
 
     return $page;
   }
