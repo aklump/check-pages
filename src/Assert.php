@@ -464,6 +464,7 @@ final class Assert {
         $pass = FALSE;
         $countable = [];
         foreach ($haystack as $item) {
+          $item = strip_tags($item);
           $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
             if ($item_variation == $this->assertValue) {
               $this->setNeedleIfNotSet($item_variation);
