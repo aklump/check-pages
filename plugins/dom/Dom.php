@@ -29,8 +29,11 @@ final class Dom implements EventSubscriberInterface {
             $assert = $event->getAssert();
             $search_value = $assert->{self::SEARCH_TYPE};
             $assert->setSearch(self::SEARCH_TYPE, $search_value);
-            $crawler = new Crawler($assert->getHaystack());
-            $haystack = $crawler->filter($search_value);
+            $haystack = $assert->getHaystack();
+            if (!$haystack instanceof Crawler) {
+              $haystack = new Crawler($haystack);
+            }
+            $haystack = $haystack->filter($search_value);
             $assert->setHaystack($haystack);
           }
         },

@@ -9,16 +9,16 @@ trait HasSuiteTrait {
   private $hasSuiteTraitSuite;
 
   /**
-   * @return mixed
+   * @return \AKlump\CheckPages\Parts\Suite
    */
   public function getSuite(): Suite {
     return $this->hasSuiteTraitSuite;
   }
 
   /**
-   * @param mixed $suite
+   * @param \AKlump\CheckPages\Parts\Suite $suite
    *
-   * @return
+   * @return self
    *   Self for chaining.
    */
   public function setSuite(Suite $suite): self {

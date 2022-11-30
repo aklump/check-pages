@@ -163,6 +163,7 @@ final class Assert {
   /**
    * Assert constructor.
    *
+   * @param string $id
    * @param array $config
    *   The raw assert key/value array.
    * @param string $id

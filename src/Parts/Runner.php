@@ -176,7 +176,7 @@ class Runner {
     if (is_dir($this->rootDir . '/tests')) {
       $this->addResolveDirectory($this->rootDir . '/tests');
     }
-    $this->pluginsManager = new PluginsManager($this, $this->rootDir . '/plugins');
+    $manager = new PluginsManager($this, $this->rootDir . '/plugins');
     $this->schema = [];
     $schema_path = $this->rootDir . '/' . static::SCHEMA_VISIT . '.json';
     if (file_exists($schema_path)) {
