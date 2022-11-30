@@ -22,6 +22,9 @@ use Symfony\Component\DomCrawler\Crawler;
 /**
  * A stand-alone assertion class.
  *
+ * This differs from \AKlump\CheckPages\Assert in that it can be used without
+ * the need for test or runner objects.
+ *
  * @code
  * Assertion::create([
  *   'matches' => '/cow/'

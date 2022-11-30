@@ -4,6 +4,7 @@ namespace AKlump\CheckPages;
 
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Parts\Test;
+use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -13,6 +14,7 @@ use Symfony\Component\DomCrawler\Crawler;
 final class Assert {
 
   use PassFailTrait;
+  use HasConfigTrait;
 
   /**
    * @var string
@@ -144,13 +146,6 @@ final class Assert {
   private $reason = '';
 
   /**
-   * Store the raw assertion array.
-   *
-   * @var array
-   */
-  private $config;
-
-  /**
    * @var string
    */
   private $id;
@@ -170,7 +165,7 @@ final class Assert {
    *   An arbitrary value to track this assert by outside consumers.
    */
   public function __construct(string $id, array $config, Test $test) {
-    $this->config = $config;
+    $this->setConfig($config);
     $this->id = $id;
     $this->test = $test;
   }
@@ -203,22 +198,18 @@ final class Assert {
   }
 
   /**
-   * Allow direct access to $this->config, e.g. $this->style
+   * Allow direct access to configuration properties, e.g. $this->style
    *
    * @param $key
    *
    * @return mixed|null
    */
   public function __get($key) {
-    return $this->config[$key] ?? NULL;
+    return $this->getConfig()[$key] ?? NULL;
   }
 
   public function __isset($key) {
-    return array_key_exists($key, $this->config);
-  }
-
-  public function getConfig(): array {
-    return $this->config;
+    return array_key_exists($key, $this->getConfig());
   }
 
   /**
@@ -338,7 +329,8 @@ final class Assert {
    */
   public function run() {
 
-    // Do not allow this to run a second time.
+    // Do not allow this to run a second time.  It may have already been run in
+    // an event listener.
     if ($this->hasPassed() || $this->hasFailed()) {
       return;
     }
@@ -761,7 +753,7 @@ final class Assert {
       $string = call_user_func($this->toStringOverride, $string, $this);
     }
 
-    return $string ?: sprintf('Assert: %s', json_encode($this->config));
+    return $string ?: sprintf('Assert: %s', json_encode($this->getConfig()));
   }
 
   /**

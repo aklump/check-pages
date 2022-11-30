@@ -36,7 +36,6 @@ final class Evaluate implements EventSubscriberInterface {
           if (!$should_apply) {
             return;
           }
-          $event->getTest()->interpolate($config['eval']);
           $assert = new Assert(self::SEARCH_TYPE, [
             'eval' => $config['eval'],
           ], $test);
@@ -77,9 +76,11 @@ final class Evaluate implements EventSubscriberInterface {
           if (!$should_apply) {
             return;
           }
-          $event->getTest()->interpolate($config['eval']);
-          $assert->setConfig($config);
-          self::evaluateExpression($assert);
+          $assert->setAssertion(Assert::ASSERT_CALLABLE, [
+            self::class,
+            'evaluateExpression',
+          ]);
+          $assert->run();
         },
       ],
     ];
@@ -88,6 +89,7 @@ final class Evaluate implements EventSubscriberInterface {
   public static function evaluateExpression(Assert $assert) {
     $assert->setToStringOverride([self::class, 'stringify']);
     $expression = $assert->eval;
+    $assert->getTest()->interpolate($expression);
 
     // Remove "px" to allow math.
     $expression = preg_replace('/(\d+)px/i', '$1', $expression);
