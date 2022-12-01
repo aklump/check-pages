@@ -10,9 +10,9 @@ trait HasTestTrait {
   private $hasTestTraitTest;
 
   /**
-   * @return \AKlump\CheckPages\Parts\Test
+   * @return NULL|\AKlump\CheckPages\Parts\Test
    */
-  public function getTest(): Test {
+  public function getTest(): ?Test {
     return $this->hasTestTraitTest;
   }
 

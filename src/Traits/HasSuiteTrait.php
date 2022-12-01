@@ -9,9 +9,9 @@ trait HasSuiteTrait {
   private $hasSuiteTraitSuite;
 
   /**
-   * @return \AKlump\CheckPages\Parts\Suite
+   * @return NULL|\AKlump\CheckPages\Parts\Suite
    */
-  public function getSuite(): Suite {
+  public function getSuite(): ?Suite {
     return $this->hasSuiteTraitSuite;
   }
 

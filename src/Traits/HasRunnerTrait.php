@@ -10,9 +10,9 @@ trait HasRunnerTrait {
   private $hasRunnerTraitRunner;
 
   /**
-   * @return \AKlump\CheckPages\Parts\Runner
+   * @return NULL|\AKlump\CheckPages\Parts\Runner
    */
-  public function getRunner(): Runner {
+  public function getRunner(): ?Runner {
     return $this->hasRunnerTraitRunner;
   }
 
