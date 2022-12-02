@@ -91,7 +91,7 @@ class TestRunner {
         $wait_for = array_filter($test->getConfig()['find'] ?? [], function ($config) {
           // Choose asserts based on IF they HAVE keys and NOT other keys.
           return is_array($config)
-            && array_intersect_key(array_flip(['dom']), $config)
+            && array_intersect_key(array_flip(['dom', 'xpath']), $config)
             && !array_intersect_key(array_flip(['style']), $config);
         });
         $wait_for = array_map(function (array $config) {
