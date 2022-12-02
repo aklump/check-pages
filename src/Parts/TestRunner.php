@@ -88,11 +88,21 @@ class TestRunner {
         // may be created as a result of an asynchronous JS event.  We create an
         // assertion to pass to the driver, which can be used by the driver as a
         // "wait for this assertion to pass" signal.
-        $wait_for = array_filter($test->getConfig()['find'] ?? [], function ($config) {
-          // Choose asserts based on IF they HAVE keys and NOT other keys.
-          return is_array($config)
-            && array_intersect_key(array_flip(['dom', 'xpath']), $config)
-            && !array_intersect_key(array_flip(['style']), $config);
+        $variables = $test->variables();
+        $wait_for = array_filter($test->getConfig()['find'] ?? [], function ($config) use ($variables) {
+
+          // Quick check against certain keys...
+          if (!is_array($config)
+            || !array_intersect_key(array_flip(['dom', 'xpath']), $config)
+            || array_intersect_key(array_flip(['style']), $config)
+          ) {
+            return FALSE;
+          }
+
+          // ... now make sure it is fully interpolated.
+          $variables->interpolate($config);
+
+          return $variables->needsInterpolation($config) === FALSE;
         });
         $wait_for = array_map(function (array $config) {
           return Assertion::create($config);

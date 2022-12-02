@@ -9,6 +9,31 @@ use PHPUnit\Framework\TestCase;
  */
 final class VariablesTest extends TestCase {
 
+  /**
+   * Provides data for testNeedsInterpolation.
+   */
+  public function dataForTestNeedsInterpolationProvider() {
+    $tests = [];
+
+    $tests[] = ['/api/${resource}', TRUE];
+    $tests[] = [['url' => '/api/${resource}'], TRUE];
+    $tests[] = ['/api/tree', FALSE];
+    $tests[] = ['', FALSE];
+    $tests[] = [123, FALSE];
+    $tests[] = [NULL, FALSE];
+    $tests[] = [['url' => '/api/tree'], FALSE];
+
+    return $tests;
+  }
+
+  /**
+   * @dataProvider dataForTestNeedsInterpolationProvider
+   */
+  public function testNeedsInterpolation($subject, $expect) {
+    $var = new Variables();
+    $this->assertSame($expect, $var->needsInterpolation($subject));
+  }
+
   public function testInterpolateNullValuesRemovesToken() {
     $var = new Variables();
     $var->setItem('foo', NULL);

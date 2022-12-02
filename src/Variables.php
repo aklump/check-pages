@@ -36,6 +36,31 @@ final class Variables implements \Countable {
   }
 
   /**
+   * Check for the presence of un-interpolated tokens.
+   *
+   * @param $value
+   *   A value as would be sent to ::interpolate.
+   *
+   * @return bool
+   *   True if there are any tokens remaining in $value.  This can happen after
+   *   calling interpolate, if the values are not set for certain tokens.
+   */
+  public function needsInterpolation($value): bool {
+    if (is_string($value)) {
+      return strstr($value, '${') !== FALSE;
+    }
+    if (is_array($value)) {
+      foreach ($value as $v) {
+        if ($this->needsInterpolation($v)) {
+          return TRUE;
+        }
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
    * Recursively interpolate using instance variables.
    *
    * @param string|array &$value
