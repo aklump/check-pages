@@ -219,6 +219,9 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
     $suite_id = pathinfo(substr($path_to_suite, strlen($resolved_path) + 1), PATHINFO_FILENAME);
 
     $suite_config = Symfony\Component\Yaml\Yaml::parseFile($path_to_suite);
+    if (!is_array($suite_config)) {
+      $suite_config = [];
+    }
     $suite = new Suite($suite_id, $suite_config, $runner);
     $suite->setGroup(basename(dirname($path_to_suite)));
 
