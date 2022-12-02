@@ -9,6 +9,40 @@ use PHPUnit\Framework\TestCase;
  */
 final class AssertTest extends TestCase {
 
+  /**
+   * Provides data for testEquals.
+   */
+  public function dataForTestEqualsProvider() {
+    $tests = [];
+
+    $tests[] = [TRUE, '', NULL];
+    $tests[] = [TRUE, '', ''];
+    $tests[] = [TRUE, NULL, NULL];
+    $tests[] = [TRUE, 0, 0];
+    $tests[] = [TRUE, 0, 0.0];
+    $tests[] = [TRUE, 0, '0'];
+    $tests[] = [FALSE, NULL, 0];
+    $tests[] = [FALSE, NULL, 0.0];
+    $tests[] = [FALSE, NULL, '0'];
+    $tests[] = [FALSE, '', '0'];
+    $tests[] = [FALSE, '', 0.0];
+    $tests[] = [FALSE, '', 0];
+
+    return $tests;
+  }
+
+  /**
+   * @dataProvider dataForTestEqualsProvider
+   */
+  public function testEquals($expect, $a, $b) {
+    $test = $this->createMock(\AKlump\CheckPages\Parts\Test::class);
+    $assert = new Assert('', [], $test);
+    $assert->setAssertion(Assert::ASSERT_EQUALS, $a);
+    $assert->setHaystack([$b]);
+    $assert->run();
+    $this->assertSame($expect, $assert->hasPassed());
+  }
+
   public function testSetGetNeedle() {
     $test = $this->createMock(\AKlump\CheckPages\Parts\Test::class);
     $assert = new Assert('', [], $test);
@@ -26,3 +60,4 @@ final class AssertTest extends TestCase {
   }
 
 }
+

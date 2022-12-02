@@ -84,7 +84,6 @@
       dom: '.block-title'
       text: Upcoming Events
 
-
     -
       dom: '#footer #copyright'
       count: 1
@@ -103,5 +102,33 @@
       dom: .progress
       matches: /^\d+/
       set: percentage
+    -
+      dom: .empty-tags .null-or-string
+      is: null
+    -
+      dom: .empty-tags .null-or-string
+      is: ''
+    -
+      dom: .empty-tags .null-or-string
+      is:
+    -
+      dom: .empty-tags .null-or-string
+      is not: 0
+    -
+      dom: .empty-tags .number
+      is not: null
+    -
+      dom: .empty-tags .number
+      is not: ''
+    -
+      dom: .empty-tags .number
+      is: 0
+    -
+      dom: .empty-tags .boolean-true
+      is: 'true'
+    -
+      dom: .empty-tags .boolean-false
+      is: 'false'
+
 -
   eval: ${percentage} == 89

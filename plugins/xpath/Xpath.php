@@ -24,7 +24,8 @@ final class Xpath implements EventSubscriberInterface {
     return [
       Event::ASSERT_CREATED => [
         function (AssertEventInterface $event) {
-          $should_apply = boolval($event->getAssert()->{self::SEARCH_TYPE});
+          $config = $event->getAssert()->getConfig();
+          $should_apply = array_key_exists(self::SEARCH_TYPE, $config);
           if ($should_apply) {
             $assert = $event->getAssert();
             $search_value = $assert->{self::SEARCH_TYPE};

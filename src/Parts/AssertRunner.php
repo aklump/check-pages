@@ -56,7 +56,7 @@ class AssertRunner {
       return $help->code();
     }, $assert->getAssertionsInfo());
     foreach ($assertions as $code) {
-      if (isset($config[$code])) {
+      if (array_key_exists($code, $config)) {
         $assert->setAssertion($code, $config[$code]);
         break;
       }
