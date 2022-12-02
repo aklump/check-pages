@@ -2,37 +2,41 @@
 
 namespace AKlump\CheckPages\Plugin;
 
-use AKlump\CheckPages\Event\SuiteEventInterface;
-use AKlump\CheckPages\Exceptions\BadSyntaxException;
-use Symfony\Component\Yaml\Yaml;
+use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Parts\SetTrait;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Implements the Imports plugin.
+ * Implements the Import plugin.
  */
-final class Import extends LegacyPlugin {
+final class Import implements EventSubscriberInterface {
 
   /**
-   * @var \AKlump\CheckPages\Parts\Suite
+   * {@inheritdoc}
    */
-  private $suite;
+  public static function getSubscribedEvents() {
+    return [
+      Event::SUITE_LOADED => [
+        function (Event\SuiteEventInterface $event) {
+          $suite = $event->getSuite();
+          $importer = new Importer($event->getSuite()->getRunner());
+          foreach ($suite->getTests() as $test) {
+            $config = $test->getConfig();
 
-  public function onLoadSuite(SuiteEventInterface $event) {
-    $this->suite = $event->getSuite();
-    $importer = new Importer($this->runner);
-    foreach ($this->suite->getTests() as $test) {
-      $config = $test->getConfig();
+            // Handle TEST imports.
+            if (!empty($config['import'])) {
+              $insert_code = $importer->loadImport($config['import']);
+              $suite->replaceTestWithMultiple($test, $insert_code);
+            }
 
-      // Handle TEST imports.
-      if (!empty($config['import'])) {
-        $insert_code = $importer->loadImport($config['import']);
-        $this->suite->replaceTestWithMultiple($test, $insert_code);
-      }
-
-      elseif (!empty($config['find']) && is_array($config['find'])) {
-        $importer->resolveImports($config['find']);
-        $test->setConfig($config);
-      }
-    }
+            elseif (!empty($config['find']) && is_array($config['find'])) {
+              $importer->resolveImports($config['find']);
+              $test->setConfig($config);
+            }
+          }
+        },
+      ],
+    ];
   }
 
 }
