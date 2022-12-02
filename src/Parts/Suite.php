@@ -28,6 +28,10 @@ class Suite implements PartInterface, \JsonSerializable {
 
   public function __construct(string $id, array $suite_config, Runner $runner) {
     $this->vars = new Variables();
+    foreach ($runner->getConfig()['variables'] ?? [] as $key => $value) {
+      $this->vars->setItem($key, $value);
+    }
+
     $this->config = $suite_config;
     $this->setRunner($runner);
     $this->id = $id;

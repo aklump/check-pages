@@ -372,12 +372,6 @@ class Runner {
    */
   public function setConfig(array $config): Runner {
     $this->config = $config;
-    $suite = $this->getSuite();
-    if ($suite) {
-      foreach ($config['variables'] ?? [] as $key => $value) {
-        $suite->variables()->setItem($key, $value);
-      }
-    }
 
     return $this;
   }
