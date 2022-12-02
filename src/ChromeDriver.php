@@ -86,6 +86,9 @@ final class ChromeDriver extends RequestDriver {
       throw new \InvalidArgumentException(sprintf('Missing or invalid path to Chrome "%s".', $path_to_chrome));
     }
     $this->pathToChrome = $path_to_chrome;
+
+    // Set the max memory to 50% of the allowed to prevent out of memory errors.
+    $this->getPageMemoryLimit = intval(ini_get('memory_limit')) * 1000000 * 0.5;
   }
 
   /**
@@ -329,7 +332,11 @@ final class ChromeDriver extends RequestDriver {
         // there is time left.
         return $assertion->runAgainst($page) === FALSE;
       });
-    } while (!empty($wait_for) && time() < $this->getPageTimeout);
+    } while (
+      !empty($wait_for)
+      && time() < $this->getPageTimeout
+      && memory_get_usage() < $this->getPageMemoryLimit
+    );
 
     return $page;
   }
