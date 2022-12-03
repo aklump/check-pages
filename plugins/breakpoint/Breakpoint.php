@@ -50,8 +50,10 @@ final class Breakpoint implements EventSubscriberInterface {
           $stdin = fopen('php://stdin', 'r');
           ord(fgetc($stdin));
 
-          // Vanilla echo is sufficient because we're clearing out the keypress.
-          echo '';
+          // This will give a little visual response to let the user know the
+          // keypress was received.
+          $test->addMessage(new Message([''], MessageType::TODO));
+          $test->echoMessages();
         },
       ],
     ];
