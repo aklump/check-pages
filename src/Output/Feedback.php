@@ -23,7 +23,7 @@ class Feedback implements EventSubscriberInterface {
    *
    * @var string
    */
-  const COLOR_WHY_ONLY = 'white on green';
+  const FAILED_PREFIX = '🚫 FAILED: ';
 
   const COLOR_PENDING = 'purple';
 
@@ -79,7 +79,7 @@ class Feedback implements EventSubscriberInterface {
           $test = $event->getTest();
           $test->addMessage(new Message(
             [
-              '🚫   ' . $test,
+              self::FAILED_PREFIX . $test,
             ],
             MessageType::ERROR,
             Verbosity::NORMAL
@@ -98,7 +98,7 @@ class Feedback implements EventSubscriberInterface {
           $suite = $event->getSuite();
           self::echoSuiteTitle($suite->getRunner()
             ->getMessenger(), new Message([
-            '... ' . ltrim($suite->getGroup() . '/', '/') . $suite->id(),
+            ltrim($suite->getGroup() . '/', '/') . $suite->id(),
           ], MessageType::ERROR), Flags::INVERT_FIRST_LINE);
         },
       ],
@@ -115,102 +115,102 @@ class Feedback implements EventSubscriberInterface {
     ];
 
 
-//    return [
-//      Event::TEST_CREATED => [
-//        function (TestEventInterface $event) {
-//          $test = $event->getTest();
-//          $config = $test->getConfig();
-//
-//          // TODO Move this to the javascript plugin.
-//          if ($config['js'] ?? FALSE) {
-//            $test->addBadge('☕');
-//          }
-//
-//          // If a "test" only contains a "why" then it will be seen as a header
-//          // and not a test, we'll do it a little differently.
-//          if (count($config) === 1 && !empty($config['why'])) {
-//            $test->setPassed();
-//            if ($test->getRunner()->getOutput()->isVerbose()) {
-//              $heading = '    ' . $test->getDescription() . ' ';
-//              self::$testTitle->overwrite([
-//                Color::wrap(self::COLOR_WHY_ONLY, $heading),
-//                '',
-//              ]);
-//              self::$testResult->clear();
-//            }
-//          }
-//          else {
-//            self::updateTestStatus($event->getTest()
-//              ->getRunner(), $test->getDescription());
-//          }
-//        },
-//        -1,
-//      ],
-//
-//      Event::TEST_FAILED => [
-//        function (TestEventInterface $event) {
-//          $test = $event->getTest();
-//          $runner = $event->getTest()->getRunner();
-//          $output = $runner->getOutput();
-//
-//          // We override the user-passed verbosity because in this case we want
-//          // to display things regardless of the actual user-provided verbosity.
-//          $stash = $output->getVerbosity();
-//          $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
-//          self::updateTestStatus($runner, sprintf('#%d: %s', $test->id(), $test->getDescription()), $test->hasPassed());
-//          $output->setVerbosity($stash);
-//
-//          //          foreach ($runner->getMessages() as $message) {
-//          //            self::$testDetails->write(strval($message));
-//          //          }
-//
-//          //
-//          // TODO Move this to another place.
-//          //
-//
-//          // Create the failure output files.
-//          if (0) {
-//            $test = $event->getTest();
-//            if (!empty($url)) {
-//              $failure_log = [$url];
-//            }
-//
-//            $runner = $test->getRunner();
-//            foreach ($runner->getMessages() as $item) {
-//              if ('error' === $item['level']) {
-//                $failure_log[] = $item['data'];
-//              }
-//            }
-//            $failure_log[] = PHP_EOL;
-//            $runner->writeToFile('failures', $failure_log);
-//
-//            $suite = $test->getSuite();
-//            FailedTestMarkdown::output("{$suite->id()}{$test->id()}", $test);
-//          }
-//
-//          //
-//          // TODO End Move this to another place.
-//          //
-//
-//        },
-//      ],
-//
-//      Event::TEST_PASSED => [
-//        function (TestEventInterface $event) {
-//          $test = $event->getTest();
-//          $runner = $event->getTest()->getRunner();
-//          $output = $runner->getOutput();
-//          if ($output->isVerbose()) {
-//            self::updateTestStatus($runner, $test->getDescription(), TRUE);
-//          }
-//          if ($output->isVeryVerbose() && $runner->getMessages()) {
-//            //            foreach ($runner->getMessages() as $message) {
-//            //              self::$testDetails->write(strval($message));
-//            //            }
-//          }
-//        },
-//      ],
-//    ];
+    //    return [
+    //      Event::TEST_CREATED => [
+    //        function (TestEventInterface $event) {
+    //          $test = $event->getTest();
+    //          $config = $test->getConfig();
+    //
+    //          // TODO Move this to the javascript plugin.
+    //          if ($config['js'] ?? FALSE) {
+    //            $test->addBadge('☕');
+    //          }
+    //
+    //          // If a "test" only contains a "why" then it will be seen as a header
+    //          // and not a test, we'll do it a little differently.
+    //          if (count($config) === 1 && !empty($config['why'])) {
+    //            $test->setPassed();
+    //            if ($test->getRunner()->getOutput()->isVerbose()) {
+    //              $heading = '    ' . $test->getDescription() . ' ';
+    //              self::$testTitle->overwrite([
+    //                Color::wrap(self::COLOR_WHY_ONLY, $heading),
+    //                '',
+    //              ]);
+    //              self::$testResult->clear();
+    //            }
+    //          }
+    //          else {
+    //            self::updateTestStatus($event->getTest()
+    //              ->getRunner(), $test->getDescription());
+    //          }
+    //        },
+    //        -1,
+    //      ],
+    //
+    //      Event::TEST_FAILED => [
+    //        function (TestEventInterface $event) {
+    //          $test = $event->getTest();
+    //          $runner = $event->getTest()->getRunner();
+    //          $output = $runner->getOutput();
+    //
+    //          // We override the user-passed verbosity because in this case we want
+    //          // to display things regardless of the actual user-provided verbosity.
+    //          $stash = $output->getVerbosity();
+    //          $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+    //          self::updateTestStatus($runner, sprintf('#%d: %s', $test->id(), $test->getDescription()), $test->hasPassed());
+    //          $output->setVerbosity($stash);
+    //
+    //          //          foreach ($runner->getMessages() as $message) {
+    //          //            self::$testDetails->write(strval($message));
+    //          //          }
+    //
+    //          //
+    //          // TODO Move this to another place.
+    //          //
+    //
+    //          // Create the failure output files.
+    //          if (0) {
+    //            $test = $event->getTest();
+    //            if (!empty($url)) {
+    //              $failure_log = [$url];
+    //            }
+    //
+    //            $runner = $test->getRunner();
+    //            foreach ($runner->getMessages() as $item) {
+    //              if ('error' === $item['level']) {
+    //                $failure_log[] = $item['data'];
+    //              }
+    //            }
+    //            $failure_log[] = PHP_EOL;
+    //            $runner->writeToFile('failures', $failure_log);
+    //
+    //            $suite = $test->getSuite();
+    //            FailedTestMarkdown::output("{$suite->id()}{$test->id()}", $test);
+    //          }
+    //
+    //          //
+    //          // TODO End Move this to another place.
+    //          //
+    //
+    //        },
+    //      ],
+    //
+    //      Event::TEST_PASSED => [
+    //        function (TestEventInterface $event) {
+    //          $test = $event->getTest();
+    //          $runner = $event->getTest()->getRunner();
+    //          $output = $runner->getOutput();
+    //          if ($output->isVerbose()) {
+    //            self::updateTestStatus($runner, $test->getDescription(), TRUE);
+    //          }
+    //          if ($output->isVeryVerbose() && $runner->getMessages()) {
+    //            //            foreach ($runner->getMessages() as $message) {
+    //            //              self::$testDetails->write(strval($message));
+    //            //            }
+    //          }
+    //        },
+    //      ],
+    //    ];
   }
 
   /**
@@ -234,7 +234,7 @@ class Feedback implements EventSubscriberInterface {
           break;
 
         case MessageType::ERROR:
-          $lines[0] = '🚫  ' . $lines[0];
+          $lines[0] = self::FAILED_PREFIX . $lines[0];
           break;
 
         default:
@@ -245,59 +245,59 @@ class Feedback implements EventSubscriberInterface {
       return $lines;
     })->deliver($message, $flags);
 
-//    return;
-//
-//
-//    $compact_mode = !$output->isVerbose() && !$output->isQuiet();
-//
-//    // In compact mode, no test details should display.
-//    if ($compact_mode) {
-//      $title = strval($message);
-//      switch ($message->getMessageType()) {
-//        case MessageType::SUCCESS:
-//          Feedback::$suiteTitle->overwrite([
-//            '👍  ' . Color::wrap('green', $title),
-//          ]);
-//          break;
-//
-//        case MessageType::ERROR:
-//          Feedback::$suiteTitle->overwrite([
-//            '🚫  ' . Color::wrap('white on red', $title),
-//          ]);
-//          break;
-//
-//        case MessageType::TODO:
-//          Feedback::$suiteTitle->overwrite([
-//            '🔎  ' . Color::wrap(Feedback::COLOR_PENDING, $title),
-//          ]);
-//          break;
-//      }
-//    }
-//
-//    // In the following mode, the test details will follow, so we add an extra
-//    // line break and create more color.
-//    else {
-//      $title = '    ' . strtoupper($message) . ' ';
-//      switch ($message->getMessageType()) {
-//        case MessageType::SUCCESS:
-//          Feedback::$suiteTitle->overwrite([
-//            Color::wrap('white on green', $title),
-//          ]);
-//          break;
-//
-//        case MessageType::ERROR:
-//          Feedback::$suiteTitle->overwrite([
-//            Color::wrap('white on red', $title),
-//          ]);
-//          break;
-//
-//        case MessageType::TODO:
-//          Feedback::$suiteTitle->overwrite([
-//            Color::wrap('white on ' . Feedback::COLOR_PENDING_BG, $title),
-//          ]);
-//          break;
-//      }
-//    }
+    //    return;
+    //
+    //
+    //    $compact_mode = !$output->isVerbose() && !$output->isQuiet();
+    //
+    //    // In compact mode, no test details should display.
+    //    if ($compact_mode) {
+    //      $title = strval($message);
+    //      switch ($message->getMessageType()) {
+    //        case MessageType::SUCCESS:
+    //          Feedback::$suiteTitle->overwrite([
+    //            '👍  ' . Color::wrap('green', $title),
+    //          ]);
+    //          break;
+    //
+    //        case MessageType::ERROR:
+    //          Feedback::$suiteTitle->overwrite([
+    //            self::FAILED_PREFIX . Color::wrap('white on red', $title),
+    //          ]);
+    //          break;
+    //
+    //        case MessageType::TODO:
+    //          Feedback::$suiteTitle->overwrite([
+    //            '🔎  ' . Color::wrap(Feedback::COLOR_PENDING, $title),
+    //          ]);
+    //          break;
+    //      }
+    //    }
+    //
+    //    // In the following mode, the test details will follow, so we add an extra
+    //    // line break and create more color.
+    //    else {
+    //      $title = '    ' . strtoupper($message) . ' ';
+    //      switch ($message->getMessageType()) {
+    //        case MessageType::SUCCESS:
+    //          Feedback::$suiteTitle->overwrite([
+    //            Color::wrap('white on green', $title),
+    //          ]);
+    //          break;
+    //
+    //        case MessageType::ERROR:
+    //          Feedback::$suiteTitle->overwrite([
+    //            Color::wrap('white on red', $title),
+    //          ]);
+    //          break;
+    //
+    //        case MessageType::TODO:
+    //          Feedback::$suiteTitle->overwrite([
+    //            Color::wrap('white on ' . Feedback::COLOR_PENDING_BG, $title),
+    //          ]);
+    //          break;
+    //      }
+    //    }
 
   }
 
