@@ -141,7 +141,11 @@ class TestRunner {
           $http_response_code = $driver->getRedirectCode();
         }
 
-        $test_passed($http_response_code == $test->getConfig()['expect']);
+        if (!$test_passed($http_response_code == $test->getConfig()['expect'])) {
+          $test->addMessage(new Message([
+            sprintf('The actual response code %d did not match the expected %d', $http_response_code, $test->getConfig()['expect']),
+          ], MessageType::ERROR, Verbosity::VERBOSE));
+        }
       }
 
       if (!$test_passed()) {
