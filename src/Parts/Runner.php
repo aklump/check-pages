@@ -12,8 +12,9 @@ use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files;
 use AKlump\CheckPages\Output\ConsoleEchoPrinter;
-use AKlump\CheckPages\Output\DebugMessage;
+use AKlump\CheckPages\Output\LoggerPrinter;
 use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\MultiPrinter;
 use AKlump\CheckPages\Output\SourceCodeOutput;
 use AKlump\CheckPages\Output\VerboseDirective;
 use AKlump\CheckPages\Output\Verbosity;
@@ -53,6 +54,8 @@ class Runner {
   const OUTPUT_NORMAL = 1;
 
   const OUTPUT_QUIET = 2;
+
+  const LOGGER_PRINTER_BASENAME = 'runner.log';
 
   public $totalAssertions = 0;
 
@@ -238,7 +241,11 @@ class Runner {
       $flags = $flags | Verbosity::RESPONSE;
     }
 
-    return new ConsoleEchoPrinter($output, $flags);
+    $printers = [];
+    $printers[] = new ConsoleEchoPrinter($output, $flags);
+    $printers[] = new LoggerPrinter(self::LOGGER_PRINTER_BASENAME, $this);
+
+    return new MultiPrinter($printers);
   }
 
   public function getRootDir(): string {
@@ -555,6 +562,8 @@ class Runner {
    */
   public function executeRunner() {
     try {
+      $this->deleteFiles([self::LOGGER_PRINTER_BASENAME]);
+
       $runner_path = $this->getRunnerPath();
 
       $filter_message = '';
@@ -984,8 +993,13 @@ class Runner {
   public function getPathToFilesDirectory(): string {
     if (NULL === $this->pathToFiles) {
       $config = $this->getConfig();
+      if (count($config) === 0) {
+        // This happens if this gets called before config is loaded; in such
+        // case we do not want to alter $this->pathToFiles yet; the hope is to
+        // catch it the next time--after config has been loaded.
+        return '';
+      }
       if (empty($config['files'])) {
-        $this->echo(new DebugMessage(['To enable file output you must set a value for "files" in your config.']));
         $this->pathToFiles = '';
       }
       else {
