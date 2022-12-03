@@ -112,6 +112,16 @@ class Feedback implements EventSubscriberInterface {
           ], MessageType::SUCCESS));
         },
       ],
+
+      Event::TEST_STARTED => [
+        function (TestEventInterface $event) {
+          $test = $event->getTest();
+          $config = $test->getConfig();
+          if (!empty($config['why'])) {
+            $test->addMessage(new Message([$config['why']], MessageType::INFO, Verbosity::VERBOSE));
+          }
+        },
+      ],
     ];
 
 
