@@ -6,13 +6,16 @@ use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\GuzzleDriver;
+use AKlump\CheckPages\Output\DebugMessage;
+use AKlump\CheckPages\SerializationTrait;
+use AKlump\Messaging\MessageType;
 
 /**
  * Implements the Request plugin.
  */
 final class Request extends LegacyPlugin {
 
-  use \AKlump\CheckPages\SerializationTrait;
+  use SerializationTrait;
 
   /**
    * Captures the test config to share across methods.
@@ -69,9 +72,28 @@ final class Request extends LegacyPlugin {
       }
     }
 
+    $encoded_body = $this->getEncodedBody();
     $driver
-      ->setBody($this->getEncodedBody())
+      ->setBody($encoded_body)
       ->setMethod($this->request['method']);
+
+    // Interpolation check debugging.  This step will look for un-interpolated
+    // values in the request and send out a debug message, which may help
+    // developers troubleshoot failing tests.
+    $interpolation_review = [
+      'method' => $this->request['method'],
+      'headers' => $this->request['headers'] ?? [],
+      'body' => $encoded_body,
+    ];
+    if ($event->getTest()
+      ->variables()
+      ->needsInterpolation($interpolation_review)) {
+      $event->getTest()
+        ->addMessage(new DebugMessage([
+          'The request appears to still need interpolation.',
+        ], MessageType::DEBUG));
+    }
+
   }
 
   private function getEncodedBody() {

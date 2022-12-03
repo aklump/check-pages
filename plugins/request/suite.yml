@@ -66,3 +66,10 @@
     - "content-type: application/x-www-form-urlencoded"
     - "accept: application/json, application/xml"
     - 'foo=bar&do=re'
+
+-
+  why: This will print a debug message in debug mode about un-interpolation.
+  visit: /test_subject.php
+  request:
+    method: GET
+    body: 'lorem ${missingVar}'
