@@ -7,7 +7,6 @@
  *   add_mixin('phpstorm.http', [
  *     'output' => config_get('files') . '/phpstorm',
  *     'single_file' => TRUE,
- *     'exclude_passing' => TRUE,
  *   ]);
  * @endcode
  *
@@ -46,12 +45,7 @@ respond_to(Event::SUITE_LOADED, function (SuiteEventInterface $event) use ($mixi
   fclose(fopen($mixin->getFilepath($event->getSuite()), 'w'));
 });
 
-respond_to(Event::REQUEST_TEST_FINISHED, function (TestEventInterface $event) use ($mixin, $mixin_config) {
-  $did_pass = !$event->getTest()->hasFailed();
-  if ($did_pass && TRUE === ($mixin_config['exclude_passing'] ?? FALSE)) {
-    return;
-  }
-
+respond_to(Event::REQUEST_READY, function (TestEventInterface $event) use ($mixin, $mixin_config) {
   $http = fopen($mixin->getFilepath($event->getTest()->getSuite()), 'a');
   try {
     $export = $mixin->export(
