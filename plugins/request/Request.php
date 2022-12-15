@@ -90,7 +90,7 @@ final class Request extends LegacyPlugin {
       ->needsInterpolation($interpolation_review)) {
       $event->getTest()
         ->addMessage(new DebugMessage([
-          'The request appears to still need interpolation.',
+          'Check variables; the request appears to still need interpolation.',
         ], MessageType::DEBUG));
     }
 

@@ -12,6 +12,7 @@ use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files;
 use AKlump\CheckPages\Output\ConsoleEchoPrinter;
+use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\CheckPages\Output\LoggerPrinter;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\MultiPrinter;
@@ -758,15 +759,15 @@ class Runner {
     );
 
     if (strstr($message, 'timed out') !== FALSE) {
-      $test->addMessage(new Message(
+      $test->addMessage(new DebugMessage(
           [
             sprintf('Try setting a value higher than %d for "request_timeout" in %s, or at the test level.', $driver->getRequestTimeout(), basename($this->configPath)),
           ],
-          MessageType::ERROR,
-          Verbosity::DEBUG)
+          MessageType::TODO)
       );
     }
     $test->setFailed();
+
     throw new TestFailedException($test->getConfig(), $exception);
   }
 
