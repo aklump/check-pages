@@ -98,17 +98,22 @@ final class Form implements EventSubscriberInterface {
           $form_values = $config['form']['input'] ?? [];
           if ($form_values) {
             $test->interpolate($form_values);
+
             // Give an key/name index for later lookup.
-            $test_provided = array_combine(array_map(function ($item) {
-              return $item['name'];
-            }, $form_values), $form_values);
+            foreach ($form_values as $key => $form_value) {
+              $test_provided[$form_value['name']] = ['_key' => $key] + $form_value;
+            }
           }
 
-          $determine_value = function (\DOMElement $node) use (&$form_values, $test_provided) {
+          $determine_value = function (\DOMElement $node) use (&$form_values, &$test_provided) {
             $name = $node->getAttribute('name');
             if ($name && isset($test_provided[$name]) || !array_key_exists($name, $form_values)) {
               $value = self::getElementValue($node, $test_provided[$name] ?? []);
               $form_values[$name] = $value;
+              if (isset($test_provided[$name])) {
+                unset($form_values[$test_provided[$name]['_key']]);
+                unset($test_provided[$name]);
+              }
             }
           };
 
