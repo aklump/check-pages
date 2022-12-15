@@ -108,8 +108,9 @@ class TestRunner {
           return Assertion::create($config);
         }, $wait_for);
 
+        $driver->setUrl($runner->url($test->getConfig()['url']));
+        $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_READY);
         $response = $driver
-          ->setUrl($runner->url($test->getConfig()['url']))
           ->request($wait_for)
           ->getResponse();
         $http_response_code = $response->getStatusCode();

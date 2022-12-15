@@ -37,6 +37,8 @@ final class Event {
 
   const REQUEST_CREATED = 'request.created';
 
+  const REQUEST_READY = 'request.ready';
+
   const REQUEST_FINISHED = 'request.finished';
 
   const ASSERT_CREATED = 'assert.created';
