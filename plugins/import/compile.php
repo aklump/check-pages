@@ -12,6 +12,7 @@ $relative_paths = [
   "_interpolate.yml",
   "_links.yml",
   "find/_button.yml",
+  "find/_title.yml",
 ];
 foreach ($relative_paths as $relative_path) {
   $path = "$destination/$relative_path";

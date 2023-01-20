@@ -18,13 +18,16 @@ final class Importer {
   }
 
   public function resolveImports(array &$test): void {
+    $resolved_test = [];
     foreach ($test as $key => $item) {
       if (!isset($item['import'])) {
+        $resolved_test[$key] = $item;
         continue;
       }
       $import_code = $this->loadImport($item['import']);
-      array_splice($test, $key, 1, $import_code);
+      $resolved_test = array_merge($resolved_test, $import_code);
     }
+    $test = $resolved_test;
   }
 
   public function loadImport(string $import): array {
