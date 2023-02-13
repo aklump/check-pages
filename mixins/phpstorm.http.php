@@ -89,7 +89,7 @@ final class PhpStormHttpMixin {
     }
     $basename = preg_replace('/[\.\- ]/', '_', $basename);
 
-    return sprintf('%s/%s.http', rtrim($this->outputDir, '/'), $basename);
+    return sprintf('%s/%s_%s.http', rtrim($this->outputDir, '/'), $suite->getGroup(), $basename);
   }
 
   public function export(Test $test, RequestDriverInterface $driver): string {

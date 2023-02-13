@@ -38,19 +38,19 @@ class Suite implements PartInterface, \JsonSerializable {
   }
 
   /**
-   * @return mixed
+   * @return string
    */
-  public function getGroup() {
+  public function getGroup(): string {
     return $this->group;
   }
 
   /**
-   * @param mixed $group
+   * @param string $group
    *
    * @return
    *   Self for chaining.
    */
-  public function setGroup($group): self {
+  public function setGroup(string $group): self {
     $this->group = $group;
 
     return $this;
