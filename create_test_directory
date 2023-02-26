@@ -4,7 +4,6 @@
 # Create a test directory w/scaffold files.
 #
 source="${BASH_SOURCE[0]}"
-source="${BASH_SOURCE[0]}"
 if [[ ! "$source" ]]; then
   source="${(%):-%N}"
 fi
@@ -16,6 +15,12 @@ done
 APP_ROOT="$( cd -P "$( dirname "$source" )" && pwd )"
 
 need_input=true
+
+tests_dir="$1"
+if [[ "$tests_dir" ]]; then
+  need_input=false
+fi
+
 while [[ "$need_input" == true ]]; do
   echo
   echo "A directory for your tests can be created with scaffolding files at this time."
@@ -34,6 +39,12 @@ while [[ "$need_input" == true ]]; do
 done
 
 if [[ "$tests_dir" ]]; then
+
+  if [[ -e "$tests_dir" ]]; then
+    echo "$tests_dir already exists.  Please choose a non-existent directory name."
+    exit 1
+  fi
+
   ! mkdir -p "$tests_dir" && echo "Could not create $tests_dir" && exit 1
   rsync -aq "$APP_ROOT/init_scaffold/" "$PWD/$tests_dir"
   echo "files" >> "$PWD/$tests_dir/.gitignore"
