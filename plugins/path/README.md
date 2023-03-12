@@ -1,5 +1,7 @@
 # The Path Plugin is for Testing Structured Content
 
+You can also use the json_pointer plugin for JSON responses only.
+
 ```json
 {
     "foo": {
@@ -125,6 +127,7 @@ To select the root node use an empty string for `path`...
     - path: ""
       count: 2
 ```
+
 ## Capturing Values
 
 It can be handy to store the value for use in a subsequent test.

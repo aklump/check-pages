@@ -35,7 +35,7 @@ switch ($_GET['op'] ?? '') {
     exit(0);
 
   default:
-    $headers = getallheaders();
+    $headers = array_change_key_case(getallheaders());
     header('content-type: ' . $headers['accept']);
 
     switch ($headers['accept']) {

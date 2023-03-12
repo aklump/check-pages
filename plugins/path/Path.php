@@ -2,75 +2,65 @@
 
 namespace AKlump\CheckPages\Plugin;
 
-use AKlump\CheckPages\Event\AssertEventInterface;
-use AKlump\CheckPages\Assert;
+use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Parts\SetTrait;
 use AKlump\CheckPages\SerializationTrait;
 use MidwestE\ObjectPath;
+use AKlump\CheckPages\Event\AssertEventInterface;
 
 /**
- * Implements the Path plugin.
+ * Implements the Json Pointer plugin.
  */
-final class Path extends LegacyPlugin {
+final class Path implements PluginInterface {
 
   use SerializationTrait;
 
-  const SEARCH_TYPE = 'path';
-
   /**
    * {@inheritdoc}
    */
-  public function onAssertToString(string $stringified, Assert $assert): string {
-    if (!empty($stringified)) {
-      $stringified = rtrim($stringified, '.');
-      if (!$assert->path) {
-        $stringified = sprintf('%s at the root node.', $stringified, $assert->path);
-      }
-      else {
-        $stringified = sprintf('%s in the node at "%s".', $stringified, $assert->path);
-      }
-    }
-
-    return $stringified;
+  public static function getSubscribedEvents() {
+    return [
+      Event::ASSERT_CREATED => [
+        function (AssertEventInterface $event) {
+          $should_apply = array_key_exists('path', $event->getAssert()
+            ->getConfig());
+          if ($should_apply) {
+            $path = new self();
+            $path->setHaystack($event);
+          }
+        },
+      ],
+    ];
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function onBeforeAssert(AssertEventInterface $event) {
-    try {
-      $assert = $event->getAssert();
-      $response = $event->getDriver()->getResponse();
-      $assert->setSearch(self::SEARCH_TYPE);
-      $value = $this->deserialize(
-        $response->getBody(),
-        $this->getContentType($response)
-      );
+  public function setHaystack(AssertEventInterface $event = NULL) {
+    $assert = $event->getAssert();
+    $assert->setSearch($this->getPluginId());
+    $response_body = $assert->getHaystack()[0] ?? '';
 
-      // "" means the root node.
-      $path = $assert->path ?? "";
-      if ($path) {
-        $o = new ObjectPath($value);
-        $value = $o->get($path);
+    if (!empty($response_body)) {
+      $content_type = $this->getContentType($event->getDriver()
+        ->getResponse());
+      $data = $this->deserialize($response_body, $content_type);
+      if (is_array($data)) {
+        $assert->setHaystack($data);
       }
-      if ($path && isset($o) && !$o->exists($path)) {
-        $assert->setHaystack([]);
-      }
-      else {
-        $assert->setHaystack($this->normalize($value));
-      }
-      if ($assert->set) {
-        [$type] = $assert->getAssertion();
-        if (empty($type)) {
-          $assert->setNeedle($value);
-          $assert->setResult(TRUE);
+      if ($assert->path) {
+        $object_path = new ObjectPath($data);
+        if (!$object_path->exists($assert->path)) {
+          $assert->setHaystack([]);
+        }
+        else {
+          $haystack = $object_path->get($assert->path);
+          $haystack = $this->normalize($haystack);
+          $assert->setHaystack($haystack);
         }
       }
     }
-    catch (\Exception $exception) {
-      // TODO How to print a message? Throwing doesn't print anything to the user so that is not good.
-      $assert->setHaystack([]);
-      $assert->setResult(FALSE);
-    }
+  }
+
+  public function getPluginId(): string {
+    return 'path';
   }
 
 }
