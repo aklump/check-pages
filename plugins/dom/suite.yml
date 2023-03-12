@@ -6,7 +6,6 @@
       attribute: href
       is: /page2
       set: url
-
     -
       eval: '"/page2" == "${url}"'
     -
@@ -129,6 +128,13 @@
     -
       dom: .empty-tags .boolean-false
       is: 'false'
-
+    -
+      why: Ensure not contains works when element does not exist
+      dom: .bogus-non-existent-element
+      not contains: spaghetti
+    -
+      why: Ensure not contains works when element does exist
+      dom: .page-title
+      not contains: spaghetti
 -
   eval: ${percentage} == 89
