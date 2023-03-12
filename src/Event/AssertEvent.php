@@ -3,8 +3,8 @@
 namespace AKlump\CheckPages\Event;
 
 use AKlump\CheckPages\Assert;
+use AKlump\CheckPages\Browser\RequestDriverInterface;
 use AKlump\CheckPages\Parts\Test;
-use AKlump\CheckPages\RequestDriverInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 final class AssertEvent extends Event implements AssertEventInterface {
@@ -20,7 +20,7 @@ final class AssertEvent extends Event implements AssertEventInterface {
   private $test;
 
   /**
-   * @var \AKlump\CheckPages\RequestDriverInterface
+   * @var \AKlump\CheckPages\Browser\RequestDriverInterface
    */
   private $driver;
 

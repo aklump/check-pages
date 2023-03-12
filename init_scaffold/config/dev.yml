@@ -3,4 +3,3 @@ stop_on_failed_suite: true
 stop_on_failed_test: true
 suites_to_ignore: []
 files: files/dev
-chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome

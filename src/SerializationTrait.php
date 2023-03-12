@@ -12,7 +12,7 @@ trait SerializationTrait {
   /**
    * Get content type from a response instance.
    *
-   * @param \Psr\Http\Message\ResponseInterface|\AKlump\CheckPages\RequestDriverInterface $payload
+   * @param \Psr\Http\Message\ResponseInterface|\AKlump\CheckPages\Browser\RequestDriverInterface $payload
    *
    * @return string
    *   The lower-cased content type, e.g. 'application/json'

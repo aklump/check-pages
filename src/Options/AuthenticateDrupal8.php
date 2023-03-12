@@ -2,7 +2,7 @@
 
 namespace AKlump\CheckPages\Options;
 
-use AKlump\CheckPages\GuzzleDriver;
+use AKlump\CheckPages\Browser\GuzzleDriver;
 use GuzzleHttp\Exception\ConnectException;
 
 final class AuthenticateDrupal8 extends AuthenticateDrupalBase {

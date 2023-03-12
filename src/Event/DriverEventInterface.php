@@ -2,7 +2,7 @@
 
 namespace AKlump\CheckPages\Event;
 
-use AKlump\CheckPages\RequestDriverInterface;
+use AKlump\CheckPages\Browser\RequestDriverInterface;
 
 interface DriverEventInterface extends TestEventInterface {
 

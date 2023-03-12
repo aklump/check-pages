@@ -2,7 +2,7 @@
 
 namespace AKlump\CheckPages\Options;
 
-use AKlump\CheckPages\GuzzleDriver;
+use AKlump\CheckPages\Browser\GuzzleDriver;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
@@ -195,16 +195,16 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     $url = $parts['scheme'] . '://' . $parts['host'] . '/user';
     try {
       $guzzle = new GuzzleDriver();
-      $response = $guzzle
+      $request_result = $guzzle
         ->setUrl($url)
         ->setHeader('Cookie', $this->getSessionCookie())
         ->request();
-      $location = $response->getLocation();
+      $location = $request_result->getLocation();
       // If the user page is not aliased the UID will appear in the location bar.
       if (preg_match('/user\/(\d+)/', $location, $matches)) {
         return intval($matches[1]);
       }
-      $body = strval($response->getResponse()->getBody());
+      $body = strval($request_result->getResponse()->getBody());
       $crawler = new Crawler($body);
 
       // Sometimes it appears in a <link> tag.
@@ -242,12 +242,12 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     $url = $parts['scheme'] . '://' . $parts['host'] . "/user/$uid/edit";
     try {
       $guzzle = new GuzzleDriver();
-      $response = $guzzle
+      $body = strval($guzzle
         ->setUrl($url)
         ->setHeader('Cookie', $this->getSessionCookie())
         ->request()
-        ->getResponse();
-      $body = strval($response->getBody());
+        ->getResponse()
+        ->getBody());
       $crawler = new Crawler($body);
       $email_input = $crawler->filter('input[name="mail"]')->getNode(0);
       if ($email_input) {

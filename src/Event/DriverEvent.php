@@ -2,14 +2,14 @@
 
 namespace AKlump\CheckPages\Event;
 
+use AKlump\CheckPages\Browser\RequestDriverInterface;
 use AKlump\CheckPages\Parts\Test;
-use AKlump\CheckPages\RequestDriverInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 final class DriverEvent extends Event implements DriverEventInterface {
 
   /**
-   * @var \AKlump\CheckPages\RequestDriverInterface
+   * @var \AKlump\CheckPages\Browser\RequestDriverInterface
    */
   private $driver;
 

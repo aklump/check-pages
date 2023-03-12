@@ -2,10 +2,10 @@
 
 namespace AKlump\CheckPages\Plugin;
 
+use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\GuzzleDriver;
 use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\CheckPages\SerializationTrait;
 use AKlump\Messaging\MessageType;

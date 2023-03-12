@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Parts;
 
+use AKlump\CheckPages\Browser\RequestDriverInterface;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\RunnerEvent;
 use AKlump\CheckPages\Event\SuiteEvent;
@@ -20,7 +21,6 @@ use AKlump\CheckPages\Output\SourceCodeOutput;
 use AKlump\CheckPages\Output\VerboseDirective;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Plugin\PluginsManager;
-use AKlump\CheckPages\RequestDriverInterface;
 use AKlump\CheckPages\SerializationTrait;
 use AKlump\CheckPages\Service\DispatcherFactory;
 use AKlump\CheckPages\Storage;
@@ -745,7 +745,7 @@ class Runner {
 
   /**
    * @param \AKlump\CheckPages\Parts\Test $test
-   * @param \AKlump\CheckPages\RequestDriverInterface $driver
+   * @param \AKlump\CheckPages\Browser\RequestDriverInterface $driver
    * @param $exception
    *
    * @return mixed

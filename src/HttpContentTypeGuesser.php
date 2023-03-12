@@ -52,7 +52,12 @@ final class HttpContentTypeGuesser {
   }
 
   private function isXML() {
-    return is_string($this->content) && FALSE !== @simplexml_load_string($this->content);
+    set_error_handler(function () { });
+    $is = is_string($this->content) && FALSE !== @simplexml_load_string($this->content);
+    restore_error_handler();
+
+    return $is;
+
   }
 
   private function isFormURLEncoded() {

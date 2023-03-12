@@ -1,8 +1,10 @@
 <?php
 
-namespace AKlump\CheckPages;
+namespace AKlump\CheckPages\Browser;
 
+use AKlump\CheckPages\Response;
 use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Non-Javascript response driver.
@@ -138,11 +140,26 @@ abstract class RequestDriver implements RequestDriverInterface {
    */
   public function setRequestTimeout(int $request_timeout): RequestDriverInterface {
     $this->requestTimeout = $request_timeout;
+
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLocation(): string {
+    return $this->location ?? '';
   }
 
   public function getRequestTimeout(): int {
     return $this->requestTimeout;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getResponse(): ResponseInterface {
+    return $this->response ?? new Response('', 0);
   }
 
 }

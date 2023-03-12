@@ -15,6 +15,7 @@
 
 namespace AKlump\CheckPages\Mixins;
 
+use AKlump\CheckPages\Browser\RequestDriverInterface;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
@@ -23,7 +24,6 @@ use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
-use AKlump\CheckPages\RequestDriverInterface;
 
 //
 // Verify the output directory.

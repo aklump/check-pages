@@ -3,12 +3,12 @@
 namespace AKlump\CheckPages\Parts;
 
 use AKlump\CheckPages\Assert;
+use AKlump\CheckPages\Browser\RequestDriverInterface;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEvent;
 use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
-use AKlump\CheckPages\RequestDriverInterface;
 use AKlump\CheckPages\Traits\HasTestTrait;
 use AKlump\Messaging\MessageType;
 
@@ -17,7 +17,7 @@ class AssertRunner {
   use HasTestTrait;
 
   /**
-   * @var \AKlump\CheckPages\RequestDriverInterface
+   * @var \AKlump\CheckPages\Browser\RequestDriverInterface
    */
   protected $driver;
 

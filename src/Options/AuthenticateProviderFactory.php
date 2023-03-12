@@ -2,8 +2,8 @@
 
 namespace AKlump\CheckPages\Options;
 
+use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
-use AKlump\CheckPages\GuzzleDriver;
 
 class AuthenticateProviderFactory {
 

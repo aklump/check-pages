@@ -3,17 +3,17 @@
 namespace AKlump\CheckPages\Parts;
 
 use AKlump\CheckPages\Assert;
-use AKlump\CheckPages\ChromeDriver;
+use AKlump\CheckPages\Browser\ChromeDriver;
+use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEvent;
 use AKlump\CheckPages\Event\TestEvent;
 use AKlump\CheckPages\Exceptions\TestFailedException;
-use AKlump\CheckPages\GuzzleDriver;
+use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
+use AKlump\CheckPages\Output\YamlMessage;
 use AKlump\CheckPages\Service\Assertion;
 use AKlump\Messaging\MessageType;
-use AKlump\CheckPages\Output\Message;
-use AKlump\CheckPages\Output\YamlMessage;
 
 class TestRunner {
 
@@ -53,10 +53,7 @@ class TestRunner {
 
       if ($test->getConfig()['js'] ?? FALSE) {
         try {
-          if (empty($runner->getConfig()['chrome'])) {
-            throw new \InvalidArgumentException(sprintf("Javascript testing is unavailable due to missing path to Chrome binary.  Add \"chrome\" in file %s.", $runner->getLoadedConfigPath()));
-          }
-          $driver = new ChromeDriver($runner->getConfig()['chrome']);
+          $driver = new ChromeDriver();
         }
         catch (\Exception $exception) {
           throw new TestFailedException($test->getConfig(), $exception);

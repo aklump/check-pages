@@ -3,10 +3,12 @@
 namespace AKlump\CheckPages\Service;
 
 use AKlump\CheckPages\Assert;
+use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEvent;
-use AKlump\CheckPages\GuzzleDriver;
 use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\Parts\Suite;
+use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Plugin\Count;
 use AKlump\CheckPages\Plugin\Dom;
 use AKlump\CheckPages\Plugin\Value;
@@ -14,8 +16,6 @@ use AKlump\CheckPages\Plugin\Xpath;
 use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Variables;
-use AKlump\CheckPages\Parts\Suite;
-use AKlump\CheckPages\Parts\Test;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DomCrawler\Crawler;

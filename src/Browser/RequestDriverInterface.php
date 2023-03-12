@@ -1,7 +1,7 @@
 <?php
 
 
-namespace AKlump\CheckPages;
+namespace AKlump\CheckPages\Browser;
 
 
 use Psr\Http\Message\ResponseInterface;
@@ -20,20 +20,25 @@ interface RequestDriverInterface {
   /**
    * Perform the HTTP request.
    *
-   * @return \AKlump\CheckPages\RequestDriverInterface
+   * @param \AKlump\CheckPages\Service\Assertion[] $wait_for
+   *    Optional.  One or more assertions that will be used to delay the
+   *    results.  This can be used to wait for certain AJAX objects to load by
+   *    asserting that such and such element is present.
+   *
+   * @return \AKlump\CheckPages\Browser\RequestDriverInterface
+   *   Self for chaining.
    *
    * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
    *   If the request fails for any reason.
+   *
+   * @see \AKlump\CheckPages\Browser\RequestDriverInterface::getResponse();
    */
-  public function request(): self;
+  public function request(array $wait_for = NULL): RequestDriverInterface;
 
   /**
    * Return the response after fetching.
    *
    * @return \Psr\Http\Message\ResponseInterface
-   *
-   * @throws \RuntimeException
-   *   If request has not yet been called.
    */
   public function getResponse(): ResponseInterface;
 
@@ -50,17 +55,6 @@ interface RequestDriverInterface {
    * @return int
    */
   public function getRedirectCode(): int;
-
-  /**
-   * Set an HTTP header to be sent with the request.
-   *
-   * @param string $key
-   * @param string $value
-   *
-   * @return \AKlump\CheckPages\RequestDriverInterface
-   *   Self for chaining.
-   */
-  public function setHeader(string $key, string $value): RequestDriverInterface;
 
   /**
    * Get the request headers.
