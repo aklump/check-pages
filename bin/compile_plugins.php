@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 
 /**
@@ -10,7 +11,7 @@ use AKlump\CheckPages\Plugin\PluginsCompiler;
 use AKlump\CheckPages\Plugin\PluginsManager;
 use Symfony\Component\Console\Input\ArrayInput;
 
-define('ROOT', $argv[7]);
+define('ROOT', realpath(__DIR__ . '/../'));
 
 require_once ROOT . '/vendor/autoload.php';
 
@@ -25,4 +26,4 @@ $compiler = new PluginsCompiler(
 );
 $compiler->compile();
 
-echo "You may need to run `composer dump` if autoloading has changed." . PHP_EOL;
+system('composer dump; composer update');

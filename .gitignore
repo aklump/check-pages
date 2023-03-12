@@ -7,3 +7,4 @@ documentation/core
 documentation/README.md
 /files/*
 /.phpunit.result.cache
+plugins/*/composer.lock

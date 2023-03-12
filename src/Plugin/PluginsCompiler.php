@@ -167,8 +167,8 @@ final class PluginsCompiler {
 
     // Locate the file with the filename of 'test_subject'.
     $subject = array_values(array_filter(scandir($path_to_plugin), function ($path) {
-        return pathinfo($path, PATHINFO_FILENAME) === 'test_subject';
-      }))[0] ?? NULL;
+      return pathinfo($path, PATHINFO_FILENAME) === 'test_subject';
+    }))[0] ?? NULL;
 
     $suite_relative_path_final = NULL;
     if ($subject) {
@@ -209,7 +209,25 @@ final class PluginsCompiler {
     $plugins = $this->pluginsManager->getAllPlugins();
     foreach ($plugins as $plugin) {
       $json['autoload']['psr-4']['AKlump\CheckPages\Plugin\\'][] = 'plugins/' . $plugin['id'] . '/';
+      $composer_json = $plugin['path'] . '/composer.json';
+      if (file_exists($composer_json)) {
+        $composer_json = file_get_contents($composer_json);
+        $plugin_json = json_decode($composer_json, TRUE);
+        if (!$plugin_json) {
+          throw new \RuntimeException(sprintf('Invalid contents in %s', $composer_json));
+        }
+        foreach (($plugin_json['require'] ?? []) as $package => $version) {
+          if (empty($json['require'][$package])) {
+            $json['require'][$package] = $version;
+          }
+          elseif ($json['require'][$package] !== $version) {
+            throw new \RuntimeException(sprintf('Version conflict for package %s in %s', $package, $plugin['id']));
+          }
+        }
+      }
     }
+    ksort($json['require']);
+
     file_put_contents($this->composerJsonPath, json_encode($json, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
   }
 
