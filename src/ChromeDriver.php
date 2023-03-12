@@ -164,7 +164,7 @@ final class ChromeDriver extends RequestDriver {
         // In order to get the entire URL including the fragment we evaluate
         // using JS, it did not seem possible to get this from the response,
         // which didn't include the fragment.
-        $this->location = $this->devtools->runtime()
+        $this->location = (string) $this->devtools->runtime()
           ->evaluate($this->ctx, EvaluateRequest::builder()
             ->setExpression('window.location.href')
             ->build())->result->value;
