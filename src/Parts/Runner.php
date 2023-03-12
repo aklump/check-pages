@@ -353,7 +353,7 @@ class Runner {
    *   The path to the currently loaded config.
    */
   public function getLoadedConfigPath(): string {
-    return $this->configPath;
+    return $this->configPath ?? '';
   }
 
   public function loadConfig(string $resolve_config_path) {
@@ -701,8 +701,11 @@ class Runner {
         catch (TestFailedException $exception) {
           // We have to catch this here, because of the dispatching and decision
           // on what to do about it that is determined below looking at
-          // configuration.
+          // configuration.  Also we will add a error message so that writing
+          // plugins is easier.
           $test->setFailed();
+          $test
+            ->addMessage(new \AKlump\CheckPages\Output\Message([$exception->getMessage()], \AKlump\Messaging\MessageType::ERROR));
         }
       }
 

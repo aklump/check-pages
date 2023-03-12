@@ -1,0 +1,11 @@
+{
+    "json_pointer_pointer": {
+        "type": "string",
+        "pattern": "(/[^/~]+)+",
+        "examples": [
+            "/foo/bar",
+            "/items/0",
+            "/items/-"
+        ]
+    }
+}

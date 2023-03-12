@@ -1,0 +1,83 @@
+{
+    "type": "object",
+    "oneOf": [
+        {
+            "required": [
+                "pointer",
+                "set"
+            ]
+        },
+        {
+            "required": [
+                "pointer",
+                "contains"
+            ]
+        },
+        {
+            "required": [
+                "pointer",
+                "not contains"
+            ]
+        },
+        {
+            "required": [
+                "pointer",
+                "is"
+            ]
+        },
+        {
+            "required": [
+                "pointer",
+                "is not"
+            ]
+        },
+        {
+            "required": [
+                "pointer",
+                "matches"
+            ]
+        },
+        {
+            "required": [
+                "pointer",
+                "not matches"
+            ]
+        },
+        {
+            "required": [
+                "pointer",
+                "count"
+            ]
+        }
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "pointer": {
+            "$ref": "#/definitions/json_pointer_pointer"
+        },
+        "set": {
+            "$ref": "#/definitions/value_set"
+        },
+        "contains": {
+            "$ref": "#/definitions/contains"
+        },
+        "not contains": {
+            "$ref": "#/definitions/contains"
+        },
+        "is": {
+            "$ref": "#/definitions/equals"
+        },
+        "is not": {
+            "$ref": "#/definitions/equals"
+        },
+        "matches": {
+            "$ref": "#/definitions/matches"
+        },
+        "not matches": {
+            "$ref": "#/definitions/matches"
+        },
+        "count": {
+            "$ref": "#/definitions/count_count"
+        }
+    }
+}

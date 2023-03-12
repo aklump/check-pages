@@ -252,6 +252,9 @@ final class Assert {
    *
    * @return $this
    *   Self for chaining.
+   *
+   * @throws \InvalidArgumentException
+   *   If $haystack is invalid.
    */
   public function setHaystack($haystack): self {
     if (!is_array($haystack) && !$haystack instanceof Crawler) {
