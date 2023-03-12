@@ -23,3 +23,7 @@ To provide a form value, add an object to the `input` array as shown below. It m
 ## _Element Present_ limitation
 
 The DOM element must be present in the markup and not added via AJAX, if it's not present the value cannot be determined.
+
+## _Element Name Attribute_ issue
+
+If the input element is missing the `name` attribute, strange things may happen.

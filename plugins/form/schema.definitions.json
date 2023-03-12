@@ -29,18 +29,20 @@
             },
             {
               "type": "object",
-              "required": {
-                "oneOf": [
-                  [
+              "oneOf": [
+                {
+                  "required": [
                     "name",
                     "value"
-                  ],
-                  [
+                  ]
+                },
+                {
+                  "required": [
                     "name",
                     "option"
                   ]
-                ]
-              },
+                }
+              ],
               "additionalProperties": false,
               "properties": {
                 "why": {
