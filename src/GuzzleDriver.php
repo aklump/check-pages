@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Exceptions\StopRunnerException;
 use GuzzleHttp\Exception\BadResponseException;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\RequestOptions;
@@ -28,6 +29,9 @@ class GuzzleDriver extends RequestDriver {
     }
     catch (BadResponseException $exception) {
       $this->response = $exception->getResponse();
+    }
+    catch (\Exception $e) {
+      throw new StopRunnerException($e->getMessage(), $e->getCode, $e);
     }
 
     return $this;

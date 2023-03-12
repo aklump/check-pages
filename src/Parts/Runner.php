@@ -754,13 +754,6 @@ class Runner {
   public function handleFailedRequestNoResponse(Test $test, RequestDriverInterface $driver, $exception) {
     // Try to be helpful with suggestions on mitigation of errors.
     $message = $exception->getMessage();
-
-    $test->addMessage(new Message(
-        [$message],
-        MessageType::ERROR,
-        Verbosity::DEBUG)
-    );
-
     if (strstr($message, 'timed out') !== FALSE) {
       $test->addMessage(new DebugMessage(
           [

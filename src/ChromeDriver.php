@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Service\Assertion;
 use ChromeDevtoolsProtocol\Context;
 use ChromeDevtoolsProtocol\Exception\ErrorException;
@@ -110,7 +111,6 @@ final class ChromeDriver extends RequestDriver {
     $instance = $launcher->launch($this->ctx);
 
     try {
-
       // Create a new browser tab with our URL.
       $tab = $instance->open($this->ctx);
       $tab->activate($this->ctx);
@@ -182,17 +182,14 @@ final class ChromeDriver extends RequestDriver {
           $response_headers['X-Javascript-Evals'] = json_encode($this->javascriptEvals);
         }
       }
-      catch (\Exception $e) {
-        $class = get_class($e);
-
-        // Add some additional context to any errors.
-        $message = sprintf("Test failure in %s(): %s", __METHOD__, $e->getMessage());
-        throw new $class($message, $e->getCode(), $e);
-      }
       finally {
         // Close the devtools tab.
         $this->devtools->close();
       }
+    }
+    catch (\Exception $e) {
+      $message = sprintf("Test failure in %s(): %s", __METHOD__, $e->getMessage());
+      throw new StopRunnerException($message, $e->getCode(), $e);
     }
     finally {
       // Kill the system process that is running the Chrome instance.

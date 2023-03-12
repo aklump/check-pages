@@ -21,6 +21,9 @@ interface RequestDriverInterface {
    * Perform the HTTP request.
    *
    * @return \AKlump\CheckPages\RequestDriverInterface
+   *
+   * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
+   *   If the request fails for any reason.
    */
   public function request(): self;
 
