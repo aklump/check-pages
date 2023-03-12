@@ -1,0 +1,5 @@
+{
+    "require": {
+        "midweste/objectpath": "^1.0"
+    }
+}

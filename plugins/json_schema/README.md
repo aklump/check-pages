@@ -5,7 +5,7 @@ You can test APIs using [JSON Schema](https://json-schema.org/), here's the basi
 ```text
 .
 ├── runner.php
-├── schemas
+├── json_schema
 │   └── object.json
 └── suite.yml
 ```
@@ -28,9 +28,9 @@ You can test APIs using [JSON Schema](https://json-schema.org/), here's the basi
       visit: /api/2/thing/99
       find:
         -
-          schema: schemas/object.json
+          schema: json_schema/object.json
         -
-          schema: schemas/array.json
+          schema: json_schema/array.json
           matches: false
     ```
 3. `matches` may also be `false`; it may be omitted and defaults to `true`.
@@ -67,3 +67,43 @@ You may also apply a schema on just part of the reponse data using the `path` mo
          schema: '{"type":"array"}'
          path: lorem.ipsum
    ```
+
+## References in JSON Schema
+
+* [learn more](https://opis.io/json-schema/2.x/references.html)
+
+Here's now to write a schema that references another file.
+
+The file that provides the `$defs` is called (in the case and arbitrary) _shared.json_:
+
+```json
+{
+  "$defs": {
+    "date": {
+      "type": "string",
+      "pattern": "^\\d{4}\\-\\d{2}\\-\\d{2}[ T]\\d{2}:\\d{2}:\\d{2}$"
+    }
+  }
+}
+```
+
+Here is the file that references the date property. Two examples are given, which are effectively identical. You cannot use `file:` prefix as shown online in some examples.
+
+```json
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "date": {
+        "$ref": "./shared.json#/$defs/date"
+      },
+      "date": {
+        "$ref": "shared.json#/$defs/date"
+      }
+    }
+  }
+}
+```
+
+

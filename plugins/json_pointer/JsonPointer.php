@@ -4,8 +4,8 @@ namespace AKlump\CheckPages\Plugin;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Parts\SetTrait;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use AKlump\CheckPages\Event\AssertEventInterface;
+use AKlump\CheckPages\SerializationTrait;
 use Rs\Json\Pointer;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 
@@ -14,6 +14,8 @@ use AKlump\CheckPages\Exceptions\TestFailedException;
  */
 final class JsonPointer implements PluginInterface {
 
+  use SerializationTrait;
+
   /**
    * {@inheritdoc}
    */
@@ -21,34 +23,48 @@ final class JsonPointer implements PluginInterface {
     return [
       Event::ASSERT_CREATED => [
         function (AssertEventInterface $event) {
-          $assert = $event->getAssert();
-          $should_apply = $assert->pointer;
-          if (!$should_apply) {
-            return;
-          }
-          $json = $assert->getHaystack()[0] ?? NULL;
-          try {
-            $assert->setSearch($this->getPluginId())->setHaystack([]);
-            $pointer = new Pointer($json);
-            $haystack = $pointer->get($assert->pointer);
-            if (is_scalar($haystack)) {
-              $haystack = [$haystack];
+          $should_apply = array_key_exists('pointer', $event->getAssert()
+            ->getConfig());
+          if ($should_apply) {
+            try {
+              $json_pointer = new self();
+              $json_pointer->setHaystack($event);
             }
-            $assert->setHaystack($haystack);
-          }
-          catch (Pointer\InvalidJsonException $e) {
-            throw new TestFailedException($event->getTest()
-              ->getConfig(), 'The response was not valid JSON.');
-          }
-          catch (Pointer\NonexistentValueReferencedException $e) {
-            $assert->setHaystack([]);
+            catch (\Exception $e) {
+              throw new TestFailedException($event->getTest()->getConfig(), $e);
+            }
           }
         },
       ],
     ];
   }
 
-  public function getPluginId(): string {
+  /**
+   * @throws \Rs\Json\Pointer\NonWalkableJsonException
+   * @throws \AKlump\CheckPages\Exceptions\TestFailedException
+   * @throws \Rs\Json\Pointer\InvalidPointerException
+   */
+  protected function setHaystack(AssertEventInterface $event) {
+    $assert = $event->getAssert();
+    $assert->setSearch($this->getPluginId(), $assert->pointer);
+    $json = $assert->getHaystack()[0] ?? NULL;
+    try {
+      $assert->setHaystack([]);
+      $pointer = new Pointer($json);
+      $haystack = $pointer->get($assert->pointer);
+      $haystack = $this->valueToArray($haystack);
+      $assert->setHaystack($haystack);
+    }
+    catch (Pointer\InvalidJsonException $e) {
+      throw new TestFailedException($event->getTest()
+        ->getConfig(), 'The response was not valid JSON.');
+    }
+    catch (Pointer\NonexistentValueReferencedException $e) {
+      $assert->setHaystack([]);
+    }
+  }
+
+  public static function getPluginId(): string {
     return 'json_pointer';
   }
 

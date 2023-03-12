@@ -25,17 +25,27 @@ final class Path implements PluginInterface {
           $should_apply = array_key_exists('path', $event->getAssert()
             ->getConfig());
           if ($should_apply) {
-            $path = new self();
-            $path->setHaystack($event);
+            try {
+              $path = new self();
+              $path->setHaystack($event);
+            }
+            catch (\Exception $e) {
+              throw new TestFailedException($event->getTest()->getConfig(), $e);
+            }
           }
         },
       ],
     ];
   }
 
-  public function setHaystack(AssertEventInterface $event = NULL) {
+  /**
+   * @throws \Rs\Json\Pointer\NonWalkableJsonException
+   * @throws \AKlump\CheckPages\Exceptions\TestFailedException
+   * @throws \Rs\Json\Pointer\InvalidPointerException
+   */
+  protected function setHaystack(AssertEventInterface $event) {
     $assert = $event->getAssert();
-    $assert->setSearch($this->getPluginId());
+    $assert->setSearch($this->getPluginId(), $assert->path);
     $response_body = $assert->getHaystack()[0] ?? '';
 
     if (!empty($response_body)) {
@@ -52,14 +62,14 @@ final class Path implements PluginInterface {
         }
         else {
           $haystack = $object_path->get($assert->path);
-          $haystack = $this->normalize($haystack);
+          $haystack = $this->valueToArray($haystack);
           $assert->setHaystack($haystack);
         }
       }
     }
   }
 
-  public function getPluginId(): string {
+  public static function getPluginId(): string {
     return 'path';
   }
 

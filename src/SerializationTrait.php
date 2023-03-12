@@ -134,7 +134,7 @@ trait SerializationTrait {
    *
    * @return array
    */
-  protected function normalize($value): array {
+  protected function valueToArray($value): array {
     if (is_object($value)) {
       $value = json_decode(json_encode($value), TRUE);
     }

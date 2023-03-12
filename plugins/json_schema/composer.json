@@ -3,6 +3,7 @@
         "AKlump\\CheckPages\\Plugin\\": "."
     },
     "require": {
-        "opis/json-schema": "^2.3"
+        "opis/json-schema": "^2.3",
+        "midweste/objectpath": "^1.0"
     }
 }

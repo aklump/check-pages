@@ -25,7 +25,7 @@
       matches: /^https:/
     -
       pointer: /homeworld
-      not matches: /^https://swapi.dev/api/films/
+      not matches: /^https:\/\/swapi\.dev\/api\/films\//
     -
       pointer: /films
       count: 4
