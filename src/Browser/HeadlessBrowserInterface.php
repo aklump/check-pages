@@ -42,4 +42,15 @@ interface HeadlessBrowserInterface {
    */
   public function getComputedStyles(): array;
 
+  /**
+   * Set one or both dimensions of the headless browser for the request.
+   *
+   * @param int|NULL $width
+   * @param int|NULL $height
+   *
+   * @return \AKlump\CheckPages\Browser\HeadlessBrowserInterface
+   *   Self for chaining.
+   */
+  public function setViewport(int $width = NULL, int $height = NULL);
+
 }

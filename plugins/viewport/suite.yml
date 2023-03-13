@@ -1,0 +1,33 @@
+-
+  why: Demonstrate setting width only.
+  url: /test_subject.html
+  viewport:
+    width: 480
+  find:
+    -
+      dom: .size__width
+      is: 480
+
+-
+  why: Demonstrate setting height only.
+  url: /test_subject.html
+  viewport:
+    height: 200
+  find:
+    -
+      dom: .size__height
+      is: 200
+
+-
+  why: Demonstrate setting both dimensions.
+  url: /test_subject.html
+  viewport:
+    width: 1280
+    height: 760
+  find:
+    -
+      dom: .size__height
+      is: 760
+    -
+      dom: .size__width
+      is: 1280

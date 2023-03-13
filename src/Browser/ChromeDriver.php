@@ -38,6 +38,11 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
    */
   private $limits;
 
+  /**
+   * @var array
+   */
+  private $deviceOverrides;
+
   public function __construct() {
     // Set the max memory to 50% of the allowed to prevent out of memory errors.
     $this->limits = ['memory' => intval(ini_get('memory_limit')) * 1000000 * 0.5];
@@ -98,6 +103,10 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
     try {
       // creates a new page and navigate to an URL
       $this->page = $browser->createPage();
+      if (!empty($this->deviceOverrides)) {
+        // @link https://chromedevtools.github.io/devtools-protocol/1-2/Emulation/#method-setDeviceMetricsOverride
+        $this->page->setDeviceMetricsOverride($this->deviceOverrides);
+      }
 
       $response = [];
       $this->page->getSession()
@@ -137,6 +146,17 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
     }
     finally {
       $browser->close();
+    }
+
+    return $this;
+  }
+
+  public function setViewport(int $width = NULL, int $height = NULL) {
+    if (!is_null($width)) {
+      $this->deviceOverrides['width'] = $width;
+    }
+    if (!is_null($height)) {
+      $this->deviceOverrides['height'] = $height;
     }
 
     return $this;

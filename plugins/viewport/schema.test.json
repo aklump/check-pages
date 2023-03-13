@@ -1,0 +1,11 @@
+{
+    "type": "object",
+    "required": [
+        "viewport"
+    ],
+    "properties": {
+        "viewport": {
+            "$ref": "#/definitions/viewport_viewport"
+        }
+    }
+}
