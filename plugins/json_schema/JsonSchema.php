@@ -17,11 +17,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * Implements the Json Schema plugin.
  */
-final class JsonSchema implements EventSubscriberInterface {
+final class JsonSchema implements PluginInterface {
 
   use SerializationTrait;
-
-  const SEARCH_TYPE = 'schema';
 
   /**
    * Allows instance caching of decoded schemas.
@@ -30,6 +28,14 @@ final class JsonSchema implements EventSubscriberInterface {
    */
   private $jsonSchemas;
 
+  public static function doesApply($context): bool {
+    if ($context instanceof Assert) {
+      return array_key_exists('schema', $context->getConfig());
+    }
+
+    return FALSE;
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -37,11 +43,15 @@ final class JsonSchema implements EventSubscriberInterface {
     return [
       Event::ASSERT_CREATED => [
         function (AssertEventInterface $event) {
-          $should_apply = boolval($event->getAssert()->schema);
-          if ($should_apply) {
-            $obj = new self();
-
-            return $obj->prepareAssertion($event);
+          if (!self::doesApply($event->getAssert())) {
+            return;
+          }
+          try {
+            $json_schema = new self();
+            $json_schema->prepareAssertion($event);
+          }
+          catch (\Exception $e) {
+            throw new TestFailedException($event->getTest()->getConfig(), $e);
           }
         },
       ],
@@ -68,7 +78,7 @@ final class JsonSchema implements EventSubscriberInterface {
       return $item;
     }, $assert->getHaystack());
     $assert->setHaystack($haystack);
-    $assert->setSearch(self::SEARCH_TYPE);
+    $assert->setSearch(self::getPluginId(), $assert->schema);
 
     $assert->setAssertion(Assert::ASSERT_CALLABLE, function ($assert) use ($response) {
 
@@ -161,6 +171,10 @@ final class JsonSchema implements EventSubscriberInterface {
     }
 
     return sprintf('%s %s JSON schema: %s', $path, $matches ? 'matches' : 'does not match', $assert->schema);
+  }
+
+  public static function getPluginId(): string {
+    return 'json_schema';
   }
 
 }

@@ -22,16 +22,15 @@ final class Path implements PluginInterface {
     return [
       Event::ASSERT_CREATED => [
         function (AssertEventInterface $event) {
-          $should_apply = array_key_exists('path', $event->getAssert()
-            ->getConfig());
-          if ($should_apply) {
-            try {
-              $path = new self();
-              $path->setHaystack($event);
-            }
-            catch (\Exception $e) {
-              throw new TestFailedException($event->getTest()->getConfig(), $e);
-            }
+          if (!self::doesApply($event->getAssert())) {
+            return;
+          }
+          try {
+            $path = new self();
+            $path->setHaystack($event);
+          }
+          catch (\Exception $e) {
+            throw new TestFailedException($event->getTest()->getConfig(), $e);
           }
         },
       ],
@@ -71,6 +70,18 @@ final class Path implements PluginInterface {
 
   public static function getPluginId(): string {
     return 'path';
+  }
+
+  public static function doesApply($context): bool {
+    if ($context instanceof \AKlump\CheckPages\Assert) {
+      $config = $context->getConfig();
+    }
+    if (empty($config)) {
+      return FALSE;
+    }
+    // This is a hack for now because json_schema also uses the 'path'; need
+    // to find a better detection method.
+    return array_key_exists('path', $config) && !array_key_exists('schema', $config);
   }
 
 }

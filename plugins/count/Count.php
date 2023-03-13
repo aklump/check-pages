@@ -10,7 +10,7 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 /**
  * Implements the Count plugin.
  */
-final class Count implements EventSubscriberInterface {
+final class Count implements PluginInterface {
 
   /**
    * {@inheritdoc}
@@ -53,6 +53,10 @@ final class Count implements EventSubscriberInterface {
         },
       ],
     ];
+  }
+
+  public static function getPluginId(): string {
+    return 'count';
   }
 
 }

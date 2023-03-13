@@ -10,12 +10,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * Implements the Dom plugin.
  */
-final class Dom implements EventSubscriberInterface {
+final class Dom implements PluginInterface {
 
   /**
    * @var string
    */
-  const SEARCH_TYPE = 'dom';
+  const SELECTOR = 'dom';
 
   /**
    * {@inheritdoc}
@@ -25,11 +25,11 @@ final class Dom implements EventSubscriberInterface {
       Event::ASSERT_CREATED => [
         function (AssertEventInterface $event) {
           $config = $event->getAssert()->getConfig();
-          $should_apply = array_key_exists(self::SEARCH_TYPE, $config);
+          $should_apply = array_key_exists(self::SELECTOR, $config);
           if ($should_apply) {
             $assert = $event->getAssert();
-            $search_value = $assert->{self::SEARCH_TYPE};
-            $assert->setSearch(self::SEARCH_TYPE, $search_value);
+            $search_value = $assert->{self::SELECTOR};
+            $assert->setSearch(self::getPluginId(), $search_value);
             $haystack = $assert->getHaystack();
             if (!$haystack instanceof Crawler) {
               $haystack = new Crawler($haystack);
@@ -40,6 +40,10 @@ final class Dom implements EventSubscriberInterface {
         },
       ],
     ];
+  }
+
+  public static function getPluginId(): string {
+    return 'dom';
   }
 
 }

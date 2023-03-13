@@ -15,9 +15,7 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 /**
  * Implements the Evaluate plugin.
  */
-final class Evaluate implements EventSubscriberInterface {
-
-  const SEARCH_TYPE = 'evaluate';
+final class Evaluate implements PluginInterface {
 
   /**
    * {@inheritdoc}
@@ -36,7 +34,7 @@ final class Evaluate implements EventSubscriberInterface {
           if (!$should_apply) {
             return;
           }
-          $assert = new Assert(self::SEARCH_TYPE, [
+          $assert = new Assert(self::getPluginId(), [
             'eval' => $config['eval'],
           ], $test);
           $assert->setAssertion(Assert::ASSERT_CALLABLE, [
@@ -120,4 +118,9 @@ final class Evaluate implements EventSubscriberInterface {
   public static function stringify(string $stringified, Assert $assert): string {
     return sprintf('%s', $assert->eval);
   }
+
+  public static function getPluginId(): string {
+    return 'evaluate';
+  }
+
 }

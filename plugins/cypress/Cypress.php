@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * Implements the Cypress plugin.
  */
-final class Cypress implements EventSubscriberInterface {
+final class Cypress implements PluginInterface {
 
   /**
    * {@inheritdoc}
@@ -85,6 +85,10 @@ final class Cypress implements EventSubscriberInterface {
         },
       ],
     ];
+  }
+
+  public static function getPluginId(): string {
+    return 'cypress';
   }
 
 }

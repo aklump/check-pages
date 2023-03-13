@@ -9,7 +9,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * Implements the Import plugin.
  */
-final class Import implements EventSubscriberInterface {
+final class Import implements PluginInterface {
 
   /**
    * {@inheritdoc}
@@ -37,6 +37,10 @@ final class Import implements EventSubscriberInterface {
         },
       ],
     ];
+  }
+
+  public static function getPluginId(): string {
+    return 'import';
   }
 
 }

@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Plugin;
 
+use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Parts\SetTrait;
 use AKlump\CheckPages\Event\AssertEventInterface;
@@ -16,6 +17,14 @@ final class JsonPointer implements PluginInterface {
 
   use SerializationTrait;
 
+  public static function doesApply($context): bool {
+    if ($context instanceof Assert) {
+      return array_key_exists('pointer', $context->getConfig());
+    }
+
+    return FALSE;
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -23,16 +32,15 @@ final class JsonPointer implements PluginInterface {
     return [
       Event::ASSERT_CREATED => [
         function (AssertEventInterface $event) {
-          $should_apply = array_key_exists('pointer', $event->getAssert()
-            ->getConfig());
-          if ($should_apply) {
-            try {
-              $json_pointer = new self();
-              $json_pointer->setHaystack($event);
-            }
-            catch (\Exception $e) {
-              throw new TestFailedException($event->getTest()->getConfig(), $e);
-            }
+          if (!self::doesApply($event->getAssert())) {
+            return;
+          }
+          try {
+            $json_pointer = new self();
+            $json_pointer->setHaystack($event);
+          }
+          catch (\Exception $e) {
+            throw new TestFailedException($event->getTest()->getConfig(), $e);
           }
         },
       ],

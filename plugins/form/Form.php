@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * Implements the Form plugin.
  */
-final class Form implements EventSubscriberInterface {
+final class Form implements PluginInterface {
 
   /**
    * {@inheritdoc}
@@ -193,6 +193,10 @@ final class Form implements EventSubscriberInterface {
       default:
         return $el->getAttribute('value');
     }
+  }
+
+  public static function getPluginId(): string {
+    return 'form';
   }
 
 }

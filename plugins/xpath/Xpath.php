@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Plugin;
 
+use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
@@ -12,6 +13,14 @@ use Symfony\Component\DomCrawler\Crawler;
  */
 final class Xpath implements PluginInterface {
 
+  public static function doesApply($context): bool {
+    if ($context instanceof Assert) {
+      return array_key_exists('xpath', $context->getConfig());
+    }
+
+    return FALSE;
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -19,20 +28,19 @@ final class Xpath implements PluginInterface {
     return [
       Event::ASSERT_CREATED => [
         function (AssertEventInterface $event) {
-          $should_apply = array_key_exists('xpath', $event->getAssert()
-            ->getConfig());
-          if ($should_apply) {
-            try {
-              // Here will will create an instance and call the method because the
-              // implementation is going to be more complicated and involve
-              // multiple methods.
-              $xpath = new self();
-              $xpath->setHaystack($event);
-            }
-            catch (\Exception $e) {
-              throw new TestFailedException($event->getTest()
-                ->getConfig(), $e);
-            }
+          if (!self::doesApply($event->getAssert())) {
+            return;
+          }
+          try {
+            // Here will will create an instance and call the method because the
+            // implementation is going to be more complicated and involve
+            // multiple methods.
+            $xpath = new self();
+            $xpath->setHaystack($event);
+          }
+          catch (\Exception $e) {
+            throw new TestFailedException($event->getTest()
+              ->getConfig(), $e);
           }
         },
       ],

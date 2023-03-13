@@ -7,16 +7,24 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
+use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Traits\SetTrait;
 use AKlump\Messaging\MessageType;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Implements the Value plugin.
  */
-final class Value implements EventSubscriberInterface {
+final class Value implements PluginInterface {
 
   use SetTrait;
+
+  public static function doesApply($context): bool {
+    if ($context instanceof Assert || $context instanceof Test) {
+      return array_key_exists('value', $context->getConfig());
+    }
+
+    return FALSE;
+  }
 
   /**
    * {@inheritdoc}
@@ -30,11 +38,11 @@ final class Value implements EventSubscriberInterface {
       Event::TEST_CREATED => [
         function (TestEventInterface $event) {
           $test = $event->getTest();
-          $config = $test->getConfig();
-          $should_apply = array_key_exists('value', $config);
-          if (!$should_apply) {
+          if (!self::doesApply($test)) {
             return;
           }
+
+          $config = $test->getConfig();
           $test->interpolate($config['value']);
 
           // Handle a test-level setter.
@@ -93,16 +101,19 @@ final class Value implements EventSubscriberInterface {
       ],
       Event::ASSERT_CREATED => [
         function (Event\AssertEventInterface $event) {
-          $config = $event->getAssert()->getConfig();
-          $should_apply = array_key_exists('value', $config);
-          if (!$should_apply) {
+          $assert = $event->getAssert();
+          if (!self::doesApply($assert)) {
             return;
           }
-          $event->getAssert()->setHaystack([$config['value']]);
+          $event->getAssert()->setHaystack([$assert->value]);
         },
         -10,
       ],
     ];
+  }
+
+  public static function getPluginId(): string {
+    return 'value';
   }
 
 }

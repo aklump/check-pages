@@ -6,16 +6,15 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use AKlump\CheckPages\Exceptions\TestFailedException;
+use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Verbosity;
+use AKlump\Messaging\MessageType;
 
 /**
  * Implements the style plugin.
  */
-final class Style implements EventSubscriberInterface {
-
-  const SEARCH_TYPE = 'style';
-
-  const MODIFIER_TYPE = 'style';
+final class Style implements PluginInterface {
 
   public static function getSubscribedEvents() {
     return [
@@ -28,7 +27,7 @@ final class Style implements EventSubscriberInterface {
           }
           $config['extras']['plugin_style'] = [];
           foreach ($config['find'] as $assertion) {
-            if (is_array($assertion) && array_key_exists(self::SEARCH_TYPE, $assertion)) {
+            if (is_array($assertion) && array_key_exists('style', $assertion)) {
               // Force JS to be enabled when we have to capture styles.
               $config['js'] = TRUE;
               $config['extras']['plugin_style'][] = $assertion;
@@ -44,9 +43,9 @@ final class Style implements EventSubscriberInterface {
           $assertions = $event->getTest()
                           ->getConfig()['extras']['plugin_style'] ?? [];
           foreach ($assertions as $assertion) {
-            if (!empty($assertion[Dom::SEARCH_TYPE])) {
+            if (!empty($assertion[Dom::SELECTOR])) {
               $event->getDriver()
-                ->addStyleRequest($assertion[Dom::SEARCH_TYPE]);
+                ->addStyleRequest($assertion[Dom::SELECTOR], $assertion['style']);
             }
           }
         },
@@ -54,21 +53,37 @@ final class Style implements EventSubscriberInterface {
       Event::ASSERT_CREATED => [
         function (AssertEventInterface $event) {
           $assert = $event->getAssert();
-          $should_apply = $assert->{self::SEARCH_TYPE};
-          if (!$should_apply) {
-            return;
+          $should_apply = array_key_exists('style', $assert->getConfig());
+          if ($should_apply) {
+            try {
+              $response = $event->getDriver()->getResponse();
+              $dom_path = $assert->{Dom::SELECTOR};
+              $style_property = $assert->style;
+              $assert
+                ->setSearch(self::getPluginId(), $dom_path)
+                ->setModifer('style', $style_property);
+              $styles_header = $response->getHeader('X-Computed-Styles')[0] ?? NULL;
+              if (is_null($styles_header)) {
+                $event->getTest()
+                  ->addMessage(new Message([
+                    "Missing X-Computed-Styles header from response; cause unknown.",
+                  ], MessageType::ERROR, Verbosity::VERBOSE));
+              }
+              $haystack = json_decode($styles_header ?? '{}', TRUE);
+              $assert->setHaystack([$haystack[$dom_path][$style_property] ?? NULL]);
+            }
+            catch (\Exception $e) {
+              throw new TestFailedException($event->getTest()->getConfig(), $e);
+            }
           }
-
-          $response = $event->getDriver()->getResponse();
-          $dom_path = $assert->{Dom::SEARCH_TYPE};
-          $style_property = $assert->{self::MODIFIER_TYPE};
-          $assert
-            ->setSearch(self::SEARCH_TYPE, $dom_path)
-            ->setModifer(self::MODIFIER_TYPE, $style_property);
-          $haystack = json_decode($response->getHeader('X-Computed-Styles')[0] ?? '{}', TRUE);
-          $assert->setHaystack([$haystack[$dom_path][$style_property] ?? NULL]);
         },
       ],
+
     ];
   }
+
+  public static function getPluginId(): string {
+    return 'style';
+  }
+
 }

@@ -10,7 +10,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * Implements the Sleep plugin.
  */
-final class Loop implements EventSubscriberInterface {
+final class Loop implements PluginInterface {
 
   /**
    * {@inheritdoc}
@@ -71,4 +71,9 @@ final class Loop implements EventSubscriberInterface {
       }
     }
   }
+
+  public static function getPluginId(): string {
+    return 'loop';
+  }
+
 }

@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * Implements the Breakpoint plugin.
  */
-final class Breakpoint implements EventSubscriberInterface {
+final class Breakpoint implements PluginInterface {
 
   /**
    * {@inheritdoc}
@@ -59,5 +59,11 @@ final class Breakpoint implements EventSubscriberInterface {
     ];
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function getPluginId(): string {
+    return 'breakpoint';
+  }
 
 }

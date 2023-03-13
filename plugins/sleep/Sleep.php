@@ -12,7 +12,7 @@ use AKlump\CheckPages\Event;
 /**
  * Implements the Sleep plugin.
  */
-final class Sleep implements EventSubscriberInterface {
+final class Sleep implements PluginInterface {
 
   /**
    * {@inheritdoc}
@@ -22,13 +22,14 @@ final class Sleep implements EventSubscriberInterface {
       Event::TEST_CREATED => [
         function (TestEventInterface $event) {
           $test = $event->getTest();
-          $should_apply = array_key_exists('sleep', $test->getConfig());
+          $test_config = $test->getConfig();
+          $should_apply = array_key_exists('sleep', $test_config);
           if (!$should_apply) {
             return;
           }
 
           $test->setPassed();
-          $sleep_seconds = intval($test->getConfig()['sleep']);
+          $sleep_seconds = intval($test_config['sleep']);
           $elapsed = 0;
 
           $title = $test->getDescription();
@@ -49,6 +50,10 @@ final class Sleep implements EventSubscriberInterface {
         },
       ],
     ];
+  }
+
+  public static function getPluginId(): string {
+    return 'sleep';
   }
 
 }
