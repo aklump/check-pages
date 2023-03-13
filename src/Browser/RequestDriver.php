@@ -18,7 +18,7 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * @var string
    */
-  protected $url = '';
+  private $url = '';
 
   /**
    * @var \Psr\Http\Message\ResponseInterface
@@ -31,6 +31,11 @@ abstract class RequestDriver implements RequestDriverInterface {
    * @var int
    */
   protected $requestTimeout = 20;
+
+  /**
+   * @var string
+   */
+  protected $location;
 
   /**
    * {@inheritdoc}
@@ -74,7 +79,7 @@ abstract class RequestDriver implements RequestDriverInterface {
   }
 
   public function getUrl(): string {
-    return $this->url;
+    return $this->url ?? '';
   }
 
   public function getClient(array $options = []) {
@@ -151,6 +156,9 @@ abstract class RequestDriver implements RequestDriverInterface {
     return $this->location ?? '';
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getRequestTimeout(): int {
     return $this->requestTimeout;
   }

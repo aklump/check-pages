@@ -20,7 +20,7 @@ interface RequestDriverInterface {
   /**
    * Perform the HTTP request.
    *
-   * @param \AKlump\CheckPages\Service\Assertion[] $wait_for
+   * @param \AKlump\CheckPages\Service\Assertion[] $assertions
    *    Optional.  One or more assertions that will be used to delay the
    *    results.  This can be used to wait for certain AJAX objects to load by
    *    asserting that such and such element is present.
@@ -33,7 +33,7 @@ interface RequestDriverInterface {
    *
    * @see \AKlump\CheckPages\Browser\RequestDriverInterface::getResponse();
    */
-  public function request(array $wait_for = NULL): RequestDriverInterface;
+  public function request(array $assertions = NULL): RequestDriverInterface;
 
   /**
    * Return the response after fetching.
@@ -99,6 +99,10 @@ interface RequestDriverInterface {
    */
   public function setRequestTimeout(int $request_timeout): RequestDriverInterface;
 
+  /**
+   * @return int
+   *   The number of seconds to wait for the page to fully load before timeout.
+   */
   public function getRequestTimeout(): int;
 
 }

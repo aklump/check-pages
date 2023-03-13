@@ -34,18 +34,13 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
   private $page;
 
   /**
-   * @var float
+   * @var array
    */
-  private $getPageMemoryLimit;
-
-  /**
-   * @var int
-   */
-  private $getPageTimeout;
+  private $limits;
 
   public function __construct() {
     // Set the max memory to 50% of the allowed to prevent out of memory errors.
-    $this->getPageMemoryLimit = intval(ini_get('memory_limit')) * 1000000 * 0.5;
+    $this->limits = ['memory' => intval(ini_get('memory_limit')) * 1000000 * 0.5];
   }
 
   /**
@@ -90,9 +85,8 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
   /**
    * {@inheritdoc}
    */
-  public function request(array $wait_for = NULL): RequestDriverInterface {
+  public function request(array $assertions = NULL): RequestDriverInterface {
     $this->response = NULL;
-    $this->getPageTimeout = time() + $this->requestTimeout;
     $browserFactory = new BrowserFactory();
 
     // starts headless chrome
@@ -114,8 +108,8 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
         });
 
       $this->page->navigate($this->getUrl())
-        ->waitForNavigation(Page::LOAD, $this->getRequestTimeout());
-      $page_contents = $this->getPageContents($wait_for);
+        ->waitForNavigation(Page::LOAD, $this->getRequestTimeout() * 1000);
+      $page_contents = $this->getPageContents($assertions);
 
       $computed_styles = $this->getComputedStyles();
       if ($computed_styles) {
@@ -154,19 +148,18 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
    * @return string
    *   HTML for the page.
    */
-  private function getPageContents(array $wait_for = NULL): string {
+  private function getPageContents(array $assertions = NULL): string {
+    $this->limits['time'] = time() + $this->getRequestTimeout();
     do {
       $page_contents = $this->page->getHtml();
-      $wait_for = array_filter($wait_for, function (Assertion $assertion) use ($page_contents) {
+      $assertions = array_filter($assertions, function (Assertion $assertion) use ($page_contents) {
         // Only keep those that have not yet passed.  We'll try again as long as
         // there is time left.
         return $assertion->runAgainst($page_contents) === FALSE;
       });
-    } while (
-      !empty($wait_for)
-      && time() < $this->getPageTimeout
-      && memory_get_usage() < $this->getPageMemoryLimit
-    );
+      $remaining_time = $this->limits['time'] - time();
+      $remaining_memory = $this->limits['memory'] - memory_get_usage();
+    } while (!empty($assertions) && $remaining_time && $remaining_memory);
 
     return $page_contents;
   }
@@ -197,7 +190,7 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
     }
     $redirect_driver
       ->setMethod($this->method)
-      ->setUrl($this->url)
+      ->setUrl($this->getUrl())
       ->setBody($this->body)
       ->request()
       ->getResponse();

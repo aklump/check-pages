@@ -39,3 +39,14 @@
     -
       javascript: location.query
       is: ""
+
+-
+  why: Demonstrate how the request will wait for elements to load via AJAX.
+  js: true
+  visit: /test_subject.php
+  request:
+    timeout: 4
+  find:
+    -
+      dom: '.ajax-content li'
+      count: 3

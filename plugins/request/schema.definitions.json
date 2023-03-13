@@ -31,7 +31,7 @@
   "request_request": {
     "type": "object",
     "additionalProperties": false,
-    "oneOf": [
+    "anyOf": [
       {
         "required": [
           "timeout"
@@ -50,8 +50,7 @@
     ],
     "properties": {
       "timeout": {
-        "type": "integer",
-        "minimum": 10
+        "type": "integer"
       },
       "method": {
         "$ref": "#/definitions/request_method"

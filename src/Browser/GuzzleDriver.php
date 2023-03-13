@@ -11,7 +11,7 @@ class GuzzleDriver extends RequestDriver {
   /**
    * {@inheritdoc}
    */
-  public function request(array $wait_for = NULL): RequestDriverInterface {
+  public function request(array $assertions = NULL): RequestDriverInterface {
     try {
       $this->response = NULL;
       $client = $this->getClient([
@@ -25,14 +25,14 @@ class GuzzleDriver extends RequestDriver {
           'track_redirects' => TRUE,
         ],
       ]);
-      $this->response = $client->request($this->method, $this->url, ['body' => $this->body]);
+      $this->response = $client->request($this->method, $this->getUrl(), ['body' => $this->body]);
       $this->location = array_values($this->response->getHeader('X-Guzzle-Redirect-History'))[0] ?? NULL;
     }
     catch (BadResponseException $exception) {
       $this->response = $exception->getResponse();
     }
     catch (\Exception $e) {
-      throw new StopRunnerException($e->getMessage(), $e->getCode, $e);
+      throw new StopRunnerException($e->getMessage(), $e->getCode(), $e);
     }
 
     return $this;

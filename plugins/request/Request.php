@@ -57,13 +57,28 @@ final class Request extends LegacyPlugin {
    */
   public function onBeforeRequest(DriverEventInterface $event) {
     $driver = $event->getDriver();
+    $request_config = $event->getTest()->getConfig()['request'] ?? [];
+    $request_config_keys = array_keys($request_config);
+
     if (!$driver instanceof GuzzleDriver) {
-      if (!empty($this->config['js'])) {
+      if ($request_config_keys === ['timeout']
+        || ($request_config_keys === ['method', 'timeout'] && $request_config_keys['method'] === 'get')) {
+        // Allow this combination for any driver because all it's doing is
+        // altering the request timeout and the assumption is that all drivers
+        // will work with GET.
+      }
+      elseif (!empty($this->config['js'])) {
         // Only the GuzzleDriver has been tested to work with this plugin.  When
         // JS is false the GuzzleDriver is not used.
         throw new \RuntimeException(sprintf('"js" must be set to false when using "request". %s', json_encode($this->config)));
       }
-      throw new \RuntimeException(sprintf('The %s driver is not supported by the request plugin.', get_class($driver)));
+      else {
+        throw new \RuntimeException(sprintf('The %s driver is not supported by the request plugin.', get_class($driver)));
+      }
+    }
+
+    if (isset($request_config['timeout']) && is_numeric($request_config['timeout'])) {
+      $driver->setRequestTimeout($request_config['timeout']);
     }
 
     if (!empty($this->request['headers'])) {

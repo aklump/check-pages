@@ -336,6 +336,9 @@
           "user": {
             "$ref": "#/definitions/user"
           },
+          "js": {
+            "$ref": "#/definitions/js"
+          },
           "url": {
             "$ref": "#/definitions/url"
           },
@@ -365,6 +368,9 @@
           },
           "user": {
             "$ref": "#/definitions/user"
+          },
+          "js": {
+            "$ref": "#/definitions/js"
           },
           "visit": {
             "$ref": "#/definitions/url"

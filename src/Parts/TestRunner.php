@@ -70,23 +70,21 @@ class TestRunner {
       $test->setConfig($config);
       unset($config);
 
-      $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
-
       try {
-        // The config-level override...
         $timeout = $runner->getConfig()['request_timeout'] ?? NULL;
-        // ... the test-level override.
-        $timeout = $test->getConfig()["request"]["timeout"] ?? $timeout;
         if (is_int($timeout)) {
           $driver->setRequestTimeout($timeout);
         }
+
+        // Keep this after the timeout so that plugins may override.
+        $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
 
         // In some cases the first assertion is looking for a dom element that
         // may be created as a result of an asynchronous JS event.  We create an
         // assertion to pass to the driver, which can be used by the driver as a
         // "wait for this assertion to pass" signal.
         $variables = $test->variables();
-        $wait_for = array_filter($test->getConfig()['find'] ?? [], function ($config) use ($variables) {
+        $assertions_to_wait_for = array_filter($test->getConfig()['find'] ?? [], function ($config) use ($variables) {
 
           // Quick check against certain keys...
           if (!is_array($config)
@@ -101,14 +99,14 @@ class TestRunner {
 
           return $variables->needsInterpolation($config) === FALSE;
         });
-        $wait_for = array_map(function (array $config) {
+        $assertions_to_wait_for = array_map(function (array $config) {
           return Assertion::create($config);
-        }, $wait_for);
+        }, $assertions_to_wait_for);
 
         $driver->setUrl($runner->url($test->getConfig()['url']));
         $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_READY);
         $response = $driver
-          ->request($wait_for)
+          ->request($assertions_to_wait_for)
           ->getResponse();
         $http_response_code = $response->getStatusCode();
       }
