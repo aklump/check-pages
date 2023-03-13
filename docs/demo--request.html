@@ -5,6 +5,7 @@
   <title>Making Requests Other Than GET</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
 </head>
 
 <body class="page--plugin_request">
@@ -13,7 +14,7 @@
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
-                        <a href="demo--javascript2.html">Usage and Examples</a>
+                        <a href="demo--javascript2">Usage and Examples</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -24,7 +25,7 @@
 
 <section>
   <h1>Making Requests Other Than GET</h1>
-  
+  <!--searchable_content-->
 
 <h2>Automatic Body Encoding</h2>
 
@@ -118,10 +119,17 @@
     - "accept: application/json, application/xml"
     - 'foo=bar&amp;do=re'
 
+-
+  why: This will print a debug message in debug mode about un-interpolation.
+  visit: /test_subject.php
+  request:
+    method: GET
+    body: 'lorem ${missingVar}'
+
 </code></pre>
 
 <p><em>Provided by the request plugin.</em></p>
-
+<!--end_searchable_content-->
 </section>
 
 <div class="search__results">
@@ -131,7 +139,7 @@
 <footer>
   <div class="pager"><a href="demo--loop.html" class="prev demo--loop">&laquo;Loops</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--sleep.html" class="next plugin_sleep">Sleep: Adding a Delay&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Tue, 29 Nov 2022 23:16:38 -0800</p>
+    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Sun, 12 Mar 2023 21:02:49 -0700</p>
   </div>
 </footer>
 

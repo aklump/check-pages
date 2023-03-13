@@ -5,6 +5,7 @@
   <title>File Output</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
 </head>
 
 <body class="page--files">
@@ -22,7 +23,7 @@
 
 <section>
   <h1>File Output</h1>
-  
+  <!--searchable_content-->
 
 <p>File output is enabled in the runner configuration file. Two things are required to enable this feature:</p>
 
@@ -55,7 +56,7 @@
 <p>Authentication can slow down your tests. To mitigate this you can create a writeable folder at <em>{config.files}/storage</em> and the session cookies will be written to disk the first time they are obtained from the test subject. After that, authentication will skip the login step and pull the session data from <em>files/storage</em>. Protect the contents of that directory because it contains credentials.</p>
 
 <p>If you do not want this feature, then make sure that there is no directory called <em>storage</em> in the the directory you've defined as your writeable files in the runner config.</p>
-
+<!--end_searchable_content-->
 </section>
 
 <div class="search__results">
@@ -65,7 +66,7 @@
 <footer>
   <div class="pager"><a href="authentication.html" class="prev authentication">&laquo;Authentication</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="xdebug.html" class="next xdebug">Debugging While Running Tests&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Tue, 29 Nov 2022 23:16:44 -0800</p>
+    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Sun, 12 Mar 2023 21:02:54 -0700</p>
   </div>
 </footer>
 

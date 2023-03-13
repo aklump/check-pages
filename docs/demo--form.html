@@ -5,6 +5,7 @@
   <title>Testing Forms</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
 </head>
 
 <body class="page--plugin_form">
@@ -13,7 +14,7 @@
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
-                        <a href="demo--javascript2.html">Usage and Examples</a>
+                        <a href="demo--javascript2">Usage and Examples</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -24,7 +25,7 @@
 
 <section>
   <h1>Testing Forms</h1>
-  
+  <!--searchable_content-->
 
 <p>The form plugin allows you to test the submission of forms.</p>
 
@@ -53,6 +54,10 @@
 <h2><em>Element Present</em> limitation</h2>
 
 <p>The DOM element must be present in the markup and not added via AJAX, if it's not present the value cannot be determined.</p>
+
+<h2><em>Element Name Attribute</em> issue</h2>
+
+<p>If the input element is missing the <code>name</code> attribute, strange things may happen.</p>
 
 <h2>Example Tests</h2>
 
@@ -202,7 +207,7 @@
 </code></pre>
 
 <p><em>Provided by the form plugin.</em></p>
-
+<!--end_searchable_content-->
 </section>
 
 <div class="search__results">
@@ -212,7 +217,7 @@
 <footer>
   <div class="pager"><a href="demo--json_schema.html" class="prev demo--json_schema">&laquo;Testing APIs with JSON Schema</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--header.html" class="next plugin_header">Testing Response Headers&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Tue, 29 Nov 2022 23:16:35 -0800</p>
+    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Sun, 12 Mar 2023 21:02:46 -0700</p>
   </div>
 </footer>
 

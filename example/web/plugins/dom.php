@@ -47,5 +47,12 @@ $datetime = time();
   <a href="/page3">Page 3</a>
 </nav>
 
+<div class="empty-tags">
+  <span class="null-or-string"></span>
+  <span class="number">0</span>
+  <span class="boolean-true">true</span>
+  <span class="boolean-false">false</span>
+</div>
+
 </body>
 </html>

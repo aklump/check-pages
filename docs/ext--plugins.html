@@ -5,6 +5,7 @@
   <title>Plugins</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
 </head>
 
 <body class="page--plugins">
@@ -13,7 +14,7 @@
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
-                        <a href="ext--imports.html">Extending</a>
+                        <a href="ext--imports">Extending</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -24,7 +25,20 @@
 
 <section>
   <h1>Plugins: Full Customization</h1>
-  
+  <!--searchable_content-->
+
+
+<h2>Using Composer Dependencies</h2>
+
+<ol>
+<li>Inside the plugin folder require your dependency with the <code>--no-install</code> flag.</li>
+<li>Do not add <em>PLUGIN/composer.lock</em> to the repo.</li>
+<li>Compile the plugins <code>./bin/compile_plugins.php.php</code>.</li>
+</ol>
+
+<p>@todo Below here is old, needs update.</p>
+
+<hr />
 
 <h2>How it Looks</h2>
 
@@ -184,7 +198,7 @@ foreach ([
   }
 }
 </code></pre>
-
+<!--end_searchable_content-->
 </section>
 
 <div class="search__results">
@@ -194,7 +208,7 @@ foreach ([
 <footer>
   <div class="pager"><a href="ext--mixins.html" class="prev ext--mixins">&laquo;Mixins</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--snippets.html" class="next ext--snippets">Code Snippets&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Tue, 29 Nov 2022 23:16:42 -0800</p>
+    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Sun, 12 Mar 2023 21:02:53 -0700</p>
   </div>
 </footer>
 

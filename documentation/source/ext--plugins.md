@@ -5,6 +5,19 @@ title: Plugins
 
 # Plugins: Full Customization
 
+# Plugins
+
+## Using Composer Dependencies
+
+1. Inside the plugin folder require your dependency with the `--no-install` flag.
+3. Do not add _PLUGIN/composer.lock_ to the repo.
+2. Compile the plugins `./bin/compile_plugins.php.php`.
+
+
+@todo Below here is old, needs update.
+
+---
+
 ## How it Looks
 
 _How it looks is myriad and you must refer to the plugin code to determine how it's implemented when writing tests._

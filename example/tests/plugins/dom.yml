@@ -87,5 +87,40 @@
             dom: .progress
             matches: /^\d+/
             set: percentage
+        -
+            dom: '.empty-tags .null-or-string'
+            is: null
+        -
+            dom: '.empty-tags .null-or-string'
+            is: ''
+        -
+            dom: '.empty-tags .null-or-string'
+            is: null
+        -
+            dom: '.empty-tags .null-or-string'
+            'is not': 0
+        -
+            dom: '.empty-tags .number'
+            'is not': null
+        -
+            dom: '.empty-tags .number'
+            'is not': ''
+        -
+            dom: '.empty-tags .number'
+            is: 0
+        -
+            dom: '.empty-tags .boolean-true'
+            is: 'true'
+        -
+            dom: '.empty-tags .boolean-false'
+            is: 'false'
+        -
+            why: 'Ensure not contains works when element does not exist'
+            dom: .bogus-non-existent-element
+            'not contains': spaghetti
+        -
+            why: 'Ensure not contains works when element does exist'
+            dom: .page-title
+            'not contains': spaghetti
 -
     eval: '${percentage} == 89'

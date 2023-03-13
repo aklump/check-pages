@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [0.17] - 2022-11-27
 
+### Removed
+
+- The configuration for `chrome` can be removed from your .yml file, it's now automatic.
+
 ### Changed
 
 - `TEST_FINISHED` changed to `REQUEST_TEST_FINISHED`

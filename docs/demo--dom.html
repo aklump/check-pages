@@ -2,18 +2,19 @@
 
 <html>
 <head>
-  <title>Dom</title>
+  <title>Demo  Dom</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
 </head>
 
 <body class="page--plugin_dom">
 <header>
-  <div class="pager"><a href="demo--xpath.html" class="prev demo--xpath">&laquo;Demo  Xpath</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--evaluate.html" class="next plugin_evaluate">Evaluate&raquo;</a></div></header>
+  <div class="pager"><a href="demo--cypress.html" class="prev demo--cypress">&laquo;Cypress</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--xpath.html" class="next plugin_xpath">Demo  Xpath&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
-                        <a href="demo--javascript2.html">Usage and Examples</a>
+                        <a href="demo--javascript2">Usage and Examples</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -23,8 +24,14 @@
   </section>
 
 <section>
-  <h1>Dom</h1>
-  
+  <h1>Demo  Dom</h1>
+  <!--searchable_content--><p>When using <code>is:</code>...</p>
+
+<ul>
+<li>Empty string and null are interchangeable.</li>
+<li>Given <code>&lt;div&gt;&lt;/div&gt;</code> the assertion <code>is: null</code> and <code>is: ''</code> and <code>is:</code> are all going to pass.</li>
+<li>Also, numeric strings and numbers are interchangeable.</li>
+</ul>
 
 <h2>Example Tests</h2>
 
@@ -36,7 +43,6 @@
       attribute: href
       is: /page2
       set: url
-
     -
       eval: '"/page2" == "${url}"'
     -
@@ -114,7 +120,6 @@
       dom: '.block-title'
       text: Upcoming Events
 
-
     -
       dom: '#footer #copyright'
       count: 1
@@ -133,13 +138,48 @@
       dom: .progress
       matches: /^\d+/
       set: percentage
+    -
+      dom: .empty-tags .null-or-string
+      is: null
+    -
+      dom: .empty-tags .null-or-string
+      is: ''
+    -
+      dom: .empty-tags .null-or-string
+      is:
+    -
+      dom: .empty-tags .null-or-string
+      is not: 0
+    -
+      dom: .empty-tags .number
+      is not: null
+    -
+      dom: .empty-tags .number
+      is not: ''
+    -
+      dom: .empty-tags .number
+      is: 0
+    -
+      dom: .empty-tags .boolean-true
+      is: 'true'
+    -
+      dom: .empty-tags .boolean-false
+      is: 'false'
+    -
+      why: Ensure not contains works when element does not exist
+      dom: .bogus-non-existent-element
+      not contains: spaghetti
+    -
+      why: Ensure not contains works when element does exist
+      dom: .page-title
+      not contains: spaghetti
 -
   eval: ${percentage} == 89
 
 </code></pre>
 
 <p><em>Provided by the dom plugin.</em></p>
-
+<!--end_searchable_content-->
 </section>
 
 <div class="search__results">
@@ -147,9 +187,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="demo--xpath.html" class="prev demo--xpath">&laquo;Demo  Xpath</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--evaluate.html" class="next plugin_evaluate">Evaluate&raquo;</a></div>  
+  <div class="pager"><a href="demo--cypress.html" class="prev demo--cypress">&laquo;Cypress</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--xpath.html" class="next plugin_xpath">Demo  Xpath&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Tue, 29 Nov 2022 23:16:34 -0800</p>
+    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Sun, 12 Mar 2023 21:02:45 -0700</p>
   </div>
 </footer>
 

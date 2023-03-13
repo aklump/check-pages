@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>JSON Pointer</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
+</head>
+
+<body class="page--plugin_json_pointer">
+<header>
+  <div class="pager"><a href="demo--import.html" class="prev demo--import">&laquo;Imports (Code Reuse with Partials)</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--loop.html" class="next plugin_loop">Loops&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2">Usage and Examples</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>JSON Pointer</h1>
+  <!--searchable_content-->
+
+<p>Implements <a href="https://www.rfc-editor.org/rfc/rfc6901">JSON Pointer</a> to be able to extract data from JSON responses.</p>
+
+<p>Features:</p>
+
+<ul>
+<li>Will only work on valid JSON responses. A valid response is one that explicitly has <code>content-type: application/json</code> whose body can be parsed as JSON without error.</li>
+</ul>
+
+<h2>More Links</h2>
+
+<ul>
+<li>https://packagist.org/packages/php-jsonpointer/php-jsonpointer</li>
+</ul>
+
+<h2>Example Tests</h2>
+
+<pre><code class="yaml">-
+  why: Demonstrate the Json Plugin syntax.
+  url: /test_subject.php?q=json_pointer__luke.json
+  find:
+    -
+      pointer: /height
+      is: 172
+    -
+      pointer: /hair_color
+      set: hairColor
+    -
+      pointer: /skin_color
+      contains: air
+    -
+      pointer: /mass
+      not contains: 6
+    -
+      pointer: /hair_color
+      is: ${hairColor}
+    -
+      pointer: /height
+      is not: 200
+    -
+      pointer: /homeworld
+      matches: /^https:/
+    -
+      pointer: /homeworld
+      not matches: /^https:\/\/swapi\.dev\/api\/films\//
+    -
+      pointer: /films
+      count: 4
+
+-
+  why: Demonstrate the Json Plugin syntax with nested data.
+  url: /test_subject.php?q=json_pointer__nested.json
+  find:
+    -
+      pointer: /data/0/categories/0/CategoryID
+      is: 1
+    -
+      pointer: /messages
+      count: 0
+
+</code></pre>
+
+<p><em>Provided by the json_pointer plugin.</em></p>
+<!--end_searchable_content-->
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="demo--import.html" class="prev demo--import">&laquo;Imports (Code Reuse with Partials)</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--loop.html" class="next plugin_loop">Loops&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Sun, 12 Mar 2023 21:02:47 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

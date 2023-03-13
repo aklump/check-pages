@@ -5,6 +5,7 @@
   <title>Testing APIs with JSON Schema</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
 </head>
 
 <body class="page--plugin_json_schema">
@@ -13,7 +14,7 @@
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
-                        <a href="demo--javascript2.html">Usage and Examples</a>
+                        <a href="demo--javascript2">Usage and Examples</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -24,13 +25,13 @@
 
 <section>
   <h1>Testing APIs with JSON Schema</h1>
-  
+  <!--searchable_content-->
 
 <p>You can test APIs using <a href="https://json-schema.org/">JSON Schema</a>, here's the basic idea...</p>
 
 <pre><code class="text">.
 ├── runner.php
-├── schemas
+├── json_schema
 │   └── object.json
 └── suite.yml
 </code></pre>
@@ -52,9 +53,9 @@
   visit: /api/2/thing/99
   find:
     -
-      schema: schemas/object.json
+      schema: json_schema/object.json
     -
-      schema: schemas/array.json
+      schema: json_schema/array.json
       matches: false
 </code></pre></li>
 <li><code>matches</code> may also be <code>false</code>; it may be omitted and defaults to <code>true</code>.</li>
@@ -91,6 +92,44 @@
      path: lorem.ipsum
 </code></pre></li>
 </ol>
+
+<h2>References in JSON Schema</h2>
+
+<ul>
+<li><a href="https://opis.io/json-schema/2.x/references.html">learn more</a></li>
+</ul>
+
+<p>Here's now to write a schema that references another file.</p>
+
+<p>The file that provides the <code>$defs</code> is called (in the case and arbitrary) <em>shared.json</em>:</p>
+
+<pre><code class="json">{
+  "$defs": {
+    "date": {
+      "type": "string",
+      "pattern": "^\\d{4}\\-\\d{2}\\-\\d{2}[ T]\\d{2}:\\d{2}:\\d{2}$"
+    }
+  }
+}
+</code></pre>
+
+<p>Here is the file that references the date property. Two examples are given, which are effectively identical. You cannot use <code>file:</code> prefix as shown online in some examples.</p>
+
+<pre><code class="json">{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "date": {
+        "$ref": "./shared.json#/$defs/date"
+      },
+      "date": {
+        "$ref": "shared.json#/$defs/date"
+      }
+    }
+  }
+}
+</code></pre>
 
 <h2>Example Tests</h2>
 
@@ -137,7 +176,7 @@
 </code></pre>
 
 <p><em>Provided by the json_schema plugin.</em></p>
-
+<!--end_searchable_content-->
 </section>
 
 <div class="search__results">
@@ -147,7 +186,7 @@
 <footer>
   <div class="pager"><a href="demo--style.html" class="prev demo--style">&laquo;Style Plugin: Assertions Against CSS</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--form.html" class="next plugin_form">Testing Forms&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Tue, 29 Nov 2022 23:16:37 -0800</p>
+    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Sun, 12 Mar 2023 21:02:48 -0700</p>
   </div>
 </footer>
 

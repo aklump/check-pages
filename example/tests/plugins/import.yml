@@ -29,6 +29,9 @@
             why: 'Repeat the above using an assertion import.'
             import: imports/find/button
         -
+            why: 'Repeat the above using an assertion import a second time'
+            import: imports/find/title
+        -
             value: alpha
             set: control.alpha
 -

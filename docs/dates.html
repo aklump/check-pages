@@ -2,15 +2,15 @@
 
 <html>
 <head>
-  <title></title>
+  <title>Dates</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
   <meta name="keywords" content="" />
 </head>
 
-<body class="">
+<body class="page--dates">
 <header>
-  <div class="pager"><a href="javascript:void(0)" class="prev ">&laquo;</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="javascript:void(0)" class="next ">&raquo;</a></div></header>
+  <div class="pager"><a href="retest.html" class="prev retest">&laquo;Continuing and Retesting</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="interpolation.html" class="next interpolation">Interpolation&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -22,8 +22,21 @@
   </section>
 
 <section>
-  <h1></h1>
+  <h1>Dates</h1>
   <!--searchable_content-->
+
+<p><strong>The YAML parser will convert unquoted strings which look like a date or a date-time into a Unix timestamp. To avoid this you must quote your dates as shown below.</strong></p>
+
+<pre><code class="yaml">-
+  my_custom_mixin:
+    -
+      d: '2023-03-09'
+      cd: 8
+      or: 100
+      cf: soft
+</code></pre>
+
+<p><a href="https://symfony.com/doc/current/components/yaml.html#date-handling">learn more</a></p>
 <!--end_searchable_content-->
 </section>
 
@@ -32,9 +45,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="javascript:void(0)" class="prev ">&laquo;</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="javascript:void(0)" class="next ">&raquo;</a></div>  
+  <div class="pager"><a href="retest.html" class="prev retest">&laquo;Continuing and Retesting</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="interpolation.html" class="next interpolation">Interpolation&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Sun, 12 Mar 2023 21:02:57 -0700</p>
+    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Sun, 12 Mar 2023 21:02:42 -0700</p>
   </div>
 </footer>
 

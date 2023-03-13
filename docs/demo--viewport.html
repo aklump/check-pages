@@ -2,15 +2,15 @@
 
 <html>
 <head>
-  <title>Sleep: Adding a Delay</title>
+  <title>Viewport</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
   <meta name="keywords" content="" />
 </head>
 
-<body class="page--plugin_sleep">
+<body class="page--plugin_viewport">
 <header>
-  <div class="pager"><a href="demo--request.html" class="prev demo--request">&laquo;Making Requests Other Than GET</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--style.html" class="next plugin_style">Style Plugin: Assertions Against CSS&raquo;</a></div></header>
+  <div class="pager"><a href="demo--value.html" class="prev demo--value">&laquo;Value Plugin</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="dev--output.html" class="next dev--output">Developers Note: User Messages&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -24,36 +24,50 @@
   </section>
 
 <section>
-  <h1>Sleep: Adding a Delay</h1>
+  <h1>Viewport</h1>
   <!--searchable_content-->
 
-<p><code>sleep: &lt;seconds&gt;</code> provides a means of adding a delay to the test runner.</p>
+<p>Provides the ability to set the browser dimensions before the request is made.</p>
 
 <h2>Example Tests</h2>
 
 <pre><code class="yaml">-
-  visit: /test_subject.php
+  why: Demonstrate setting width only.
+  url: /test_subject.html
+  viewport:
+    width: 480
   find:
     -
-      header: X-timestamp
-      set: time
+      dom: .size__width
+      is: 480
 
 -
-  why: Wait three seconds to ensure REQUEST_TIME increases.
-  sleep: 3
-
--
-  visit: /test_subject.php
+  why: Demonstrate setting height only.
+  url: /test_subject.html
+  viewport:
+    height: 200
   find:
     -
-      header: X-timestamp
-      set: time2
+      dom: .size__height
+      is: 200
+
+-
+  why: Demonstrate setting both dimensions.
+  url: /test_subject.html
+  viewport:
+    width: 1280
+    height: 760
+  find:
     -
-      eval: ${time2} &gt;= ${time} + 3
+      dom: .size__height
+      is: 760
+    -
+      dom: .size__width
+      is: 1280
 
 </code></pre>
 
-<p><em>Provided by the sleep plugin.</em></p>
+<p><em>Provided by the viewport plugin.</em></p>
 <!--end_searchable_content-->
 </section>
 
@@ -62,9 +76,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="demo--request.html" class="prev demo--request">&laquo;Making Requests Other Than GET</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--style.html" class="next plugin_style">Style Plugin: Assertions Against CSS&raquo;</a></div>  
+  <div class="pager"><a href="demo--value.html" class="prev demo--value">&laquo;Value Plugin</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="dev--output.html" class="next dev--output">Developers Note: User Messages&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Sun, 12 Mar 2023 21:02:49 -0700</p>
+    <p class="legaleeze center">Version: 0.16.8 &bull; Last Updated: Sun, 12 Mar 2023 21:02:50 -0700</p>
   </div>
 </footer>
 

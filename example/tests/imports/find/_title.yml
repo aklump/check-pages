@@ -1,0 +1,8 @@
+-
+  why: Assert title is present
+  dom: h1
+  text: Imports
+-
+  why: Assert title is present using xpath
+  xpath: //h1
+  count: 1
