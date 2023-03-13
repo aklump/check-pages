@@ -1,5 +1,5 @@
 {
-  "viewport_viewport": {
+  "device__device": {
     "type": "object",
     "additionalProperties": false,
     "properties": {
@@ -17,6 +17,14 @@
         "examples": [
           400,
           800
+        ]
+      },
+      "pixel ratio": {
+        "type": "number",
+        "minimum": 0,
+        "examples": [
+          1,
+          2
         ]
       }
     }

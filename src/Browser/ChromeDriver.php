@@ -151,12 +151,18 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
     return $this;
   }
 
-  public function setViewport(int $width = NULL, int $height = NULL) {
+  /**
+   * {@inheritdoc}
+   */
+  public function setViewport(int $width = NULL, int $height = NULL, float $pixel_ratio = NULL) {
     if (!is_null($width)) {
       $this->deviceOverrides['width'] = $width;
     }
     if (!is_null($height)) {
       $this->deviceOverrides['height'] = $height;
+    }
+    if (!is_null($pixel_ratio)) {
+      $this->deviceOverrides['deviceScaleFactor'] = $pixel_ratio;
     }
 
     return $this;

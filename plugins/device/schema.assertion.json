@@ -1,0 +1,95 @@
+{
+    "type": "object",
+    "oneOf": [
+            {
+            "required": [
+                "device",
+                "set"
+            ]
+        },
+        {
+            "required": [
+                "device",
+                "contains"
+            ]
+        },
+        {
+            "required": [
+                "device",
+                "not contains"
+            ]
+        },
+        {
+            "required": [
+                "device",
+                "is"
+            ]
+        },
+        {
+            "required": [
+                "device",
+                "is not"
+            ]
+        },
+        {
+            "required": [
+                "device",
+                "matches"
+            ]
+        },
+        {
+            "required": [
+                "device",
+                "not matches"
+            ]
+        },
+        {
+            "required": [
+                "device",
+                "count"
+            ]
+        },
+        {
+            "required": [
+                "device",
+                "text"
+            ]
+        }
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "device": {
+            "$ref": "#/definitions/device__device"
+        },
+        "set": {
+            "$ref": "#/definitions/value_set"
+        },
+        "contains": {
+            "$ref": "#/definitions/contains"
+        },
+        "not contains": {
+            "$ref": "#/definitions/contains"
+        },
+        "is": {
+            "$ref": "#/definitions/equals"
+        },
+        "is not": {
+            "$ref": "#/definitions/equals"
+        },
+        "matches": {
+            "$ref": "#/definitions/matches"
+        },
+        "not matches": {
+            "$ref": "#/definitions/matches"
+        },
+        "count": {
+            "$ref": "#/definitions/count_count"
+        },
+        "text": {
+            "$ref": "#/definitions/text"
+        },
+        "attribute": {
+            "$ref": "#/definitions/attribute"
+        }
+    }
+}

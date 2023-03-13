@@ -7,23 +7,15 @@ use AKlump\CheckPages\Parts\SetTrait;
 use AKlump\CheckPages\Parts\Test;
 
 /**
- * Implements the Viewport plugin.
+ * Implements the Device plugin.
  */
-final class Viewport implements PluginInterface {
+final class Device implements PluginInterface {
 
   /**
    * {@inheritdoc}
    */
   public static function getPluginId(): string {
-    return 'viewport';
-  }
-
-  public static function doesApply($context): bool {
-    if ($context instanceof Test) {
-      return array_key_exists('viewport', $context->getConfig());
-    }
-
-    return FALSE;
+    return 'device';
   }
 
   /**
@@ -34,7 +26,7 @@ final class Viewport implements PluginInterface {
       Event::TEST_STARTED => [
         function (Event\TestEventInterface $event) {
           $test = $event->getTest();
-          if (self::doesApply($test)) {
+          if ($test->has('device')) {
             $config = $test->getConfig();
             // Turn on JS so we get the right browser class.
             $config['js'] = TRUE;
@@ -45,11 +37,11 @@ final class Viewport implements PluginInterface {
       Event::REQUEST_CREATED => [
         function (Event\DriverEventInterface $event) {
           $test = $event->getTest();
-          if (self::doesApply($test)) {
+          if ($test->has('device')) {
             /** @var \AKlump\CheckPages\Browser\HeadlessBrowserInterface $driver */
             $driver = $event->getDriver();
-            $config = $test->getConfig()['viewport'] ?? [];
-            $driver->setViewport($config['width'] ?? NULL, $config['height'] ?? NULL);
+            $device = $test->get('device') ?? [];
+            $driver->setViewport($device['width'] ?? NULL, $device['height'] ?? NULL, $device['pixel ratio'] ?? NULL);
           }
         },
       ],

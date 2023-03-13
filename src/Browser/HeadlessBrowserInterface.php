@@ -47,10 +47,11 @@ interface HeadlessBrowserInterface {
    *
    * @param int|NULL $width
    * @param int|NULL $height
+   * @param float|NULL $pixel_ratio
    *
    * @return \AKlump\CheckPages\Browser\HeadlessBrowserInterface
    *   Self for chaining.
    */
-  public function setViewport(int $width = NULL, int $height = NULL);
+  public function setViewport(int $width = NULL, int $height = NULL, float $pixel_ratio = NULL);
 
 }

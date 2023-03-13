@@ -1,0 +1,11 @@
+{
+    "type": "object",
+    "required": [
+        "device"
+    ],
+    "properties": {
+        "device": {
+            "$ref": "#/definitions/device__device"
+        }
+    }
+}
