@@ -9,6 +9,9 @@ trait HasConfigTrait {
 
   /**
    * @return array
+   *
+   * @see \AKlump\CheckPages\Traits\HasConfigTrait::get()
+   * @see \AKlump\CheckPages\Traits\HasConfigTrait::has()
    */
   public function getConfig(): array {
     return $this->hasConfigTraitConfig ?? [];
@@ -24,6 +27,33 @@ trait HasConfigTrait {
     $this->hasConfigTraitConfig = $config;
 
     return $this;
+  }
+
+  /**
+   * Get the value of a configuration key
+   *
+   * @param string $config_key
+   *
+   * @return mixed|null
+   *   Null if the key is set to NULL, or does not exit.
+   *
+   * @see \AKlump\CheckPages\Traits\HasConfigTrait::get()
+   */
+  public function get(string $config_key) {
+    return $this->getConfig()[$config_key] ?? NULL;
+  }
+
+  /**
+   * Check if a configuration key exists.
+   *
+   * @param string $config_key
+   *   A config key to check for.
+   *
+   * @return bool
+   *   True if the configuration has that key.
+   */
+  public function has(string $config_key): bool {
+    return array_key_exists($config_key, $this->getConfig());
   }
 
 }

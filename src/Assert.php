@@ -203,6 +203,8 @@ final class Assert {
    * @param $key
    *
    * @return mixed|null
+   *
+   * @deprecated 
    */
   public function __get($key) {
     return $this->getConfig()[$key] ?? NULL;

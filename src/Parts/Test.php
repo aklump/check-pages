@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Parts;
 
+use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Variables;
@@ -13,6 +14,9 @@ class Test implements \JsonSerializable, PartInterface {
   use HasRunnerTrait;
   use HasMessagesTrait;
   use PassFailTrait;
+  use HasConfigTrait {
+    HasConfigTrait::setConfig as traitSetTrait;
+  }
 
   const PASSED = 'P';
 
@@ -28,7 +32,6 @@ class Test implements \JsonSerializable, PartInterface {
   protected $results = [];
 
   protected $badges = [];
-
 
   /**
    * @var \AKlump\CheckPages\Parts\Variables
@@ -125,14 +128,9 @@ class Test implements \JsonSerializable, PartInterface {
       return $key === 'visit' ? 'url' : $key;
     }, array_keys($config));
     $config = array_combine($keys, $config);
-
-    $this->config = $config;
+    $this->traitSetTrait($config);
 
     return $this;
-  }
-
-  public function getConfig(): array {
-    return $this->config;
   }
 
   public function id(): string {
@@ -147,7 +145,7 @@ class Test implements \JsonSerializable, PartInterface {
    *   this: $this->getRunner()->url($this->getRelativeUrl()).
    */
   public function getRelativeUrl(): string {
-    return $this->config['url'] ?? '';
+    return $this->get('url') ?? '';
   }
 
   /**
@@ -177,7 +175,12 @@ class Test implements \JsonSerializable, PartInterface {
    *   The HTTP method used by the test, e.g. GET, PUT, POST, etc.
    */
   public function getHttpMethod(): string {
-    return strtoupper($this->config['request']['method'] ?? 'get');
+    $request = $this->get('request');
+    if ($request) {
+      $method = $request['method'] ?? NULL;
+    }
+
+    return strtoupper($method ?? 'get');
   }
 
   /**
