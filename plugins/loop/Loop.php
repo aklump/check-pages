@@ -5,7 +5,8 @@ namespace AKlump\CheckPages\Plugin;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Exceptions\BadSyntaxException;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use AKlump\CheckPages\Exceptions\TestFailedException;
+use AKlump\CheckPages\Parts\Test;
 
 /**
  * Implements the Sleep plugin.
@@ -13,13 +14,41 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 final class Loop implements PluginInterface {
 
   /**
+   * @var \AKlump\CheckPages\Plugin\LoopCurrentLoop
+   */
+  private $currentLoop;
+
+  /**
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
+
     return [
-      // It's important that loop runs last over others because others may need
-      // to do things first, e.g., the "import" plugin.
-      Event::SUITE_LOADED => [[self::class, 'expandLoops'], -100],
+      Event::SUITE_LOADED => [
+        function (SuiteEventInterface $event) {
+          $suite_has_loops = FALSE;
+          foreach ($event->getSuite()->getTests() as $test) {
+            if ($test->has('loop') || $test->has('end loop')) {
+              $suite_has_loops = TRUE;
+              break;
+            }
+          }
+          if (!$suite_has_loops) {
+            return;
+          }
+          try {
+            $loop = new self();
+            $loop->expandLoops($event);
+          }
+          catch (\Exception $e) {
+            throw new TestFailedException($event->getTest()
+              ->getConfig(), $e);
+          }
+        },
+        // It's important that loop runs last over others because others may need
+        // to do things first, e.g., the "import" plugin.
+        -100,
+      ],
     ];
   }
 
@@ -31,23 +60,17 @@ final class Loop implements PluginInterface {
    * @return void
    * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
    */
-  public static function expandLoops(SuiteEventInterface $event) {
+  public function expandLoops(SuiteEventInterface $event) {
     $suite = $event->getSuite();
-    $current_loop = NULL;
+    $this->currentLoop = NULL;
     foreach ($suite->getTests() as $test) {
-      $test_config = $test->getConfig();
-
-      // Watch for "endloop" (a mistake) instead of "end loop" as a closure.
-      if (array_key_exists('endloop', $test_config) && count($test_config) === 1 && is_null($test_config['endloop']) && $current_loop) {
-        throw new BadSyntaxException('Found "endloop", did you mean "end loop"?');
-      }
-
-      if (array_key_exists('loop', $test_config)) {
-        if ($current_loop) {
+      $this->beHelpful($test);
+      if ($test->has('loop')) {
+        if ($this->currentLoop) {
           throw new BadSyntaxException('Loops may not be nested; you must end the first loop before starting a new one.', $suite);
         }
         try {
-          $current_loop = new LoopCurrentLoop($test_config['loop']);
+          $this->currentLoop = new LoopCurrentLoop($test->get('loop'));
         }
         catch (BadSyntaxException $exception) {
 
@@ -57,18 +80,33 @@ final class Loop implements PluginInterface {
         }
         $suite->removeTest($test);
       }
-      elseif (array_key_exists('end loop', $test_config)) {
-        if (!$current_loop) {
+      elseif ($test->has('end loop')) {
+        if (!$this->currentLoop) {
           throw new BadSyntaxException('Invalid `end loop` found; no `loop` was found.', $suite);
         }
-        $loop_tests = $current_loop->execute();
+        $loop_tests = $this->currentLoop->execute();
         $suite->replaceTestWithMultiple($test, $loop_tests);
-        $current_loop = NULL;
+        $this->currentLoop = NULL;
       }
-      elseif ($current_loop) {
-        $current_loop->addTest($test);
+      elseif ($this->currentLoop) {
+        $this->currentLoop->addTest($test);
         $suite->removeTest($test);
       }
+    }
+  }
+
+  /**
+   * Analyze a test and try to make suggestions if the dev has made a mistake.
+   *
+   * @param \AKlump\CheckPages\Parts\Test $test
+   *
+   * @return void
+   */
+  private function beHelpful(Test $test) {
+    $config = $test->getConfig();
+    // Watch for "endloop" (a mistake) instead of "end loop" as a closure.
+    if (array_key_exists('endloop', $config) && count($config) === 1 && is_null($config['endloop']) && $this->currentLoop) {
+      throw new BadSyntaxException('Found "endloop", did you mean "end loop"?');
     }
   }
 

@@ -15,41 +15,10 @@
     "additionalProperties": false,
     "properties": {
         "loop": {
-            "oneOf": [
-                {
-                    "type": "string",
-                    "pattern": "\\d+\\.\\.\\.\\d+|\\d+x",
-                    "examples": [
-                        "1...10",
-                        "10x"
-                    ]
-                },
-                {
-                    "type": "array",
-                    "minItems": 2,
-                    "examples": [
-                        [
-                            "do",
-                            "re",
-                            "mi"
-                        ]
-                    ]
-                },
-                {
-                    "type": "object",
-                    "minProperties": 2,
-                    "examples": [
-                        {
-                            "h1": "Lorem",
-                            "h2": "Ipsum",
-                            "h3": "Dolar"
-                        }
-                    ]
-                }
-            ]
+            "$ref": "#/definitions/loop__loop"
         },
         "end loop": {
-            "type": "null"
+            "$ref": "#/definitions/loop__end_loop"
         }
     }
 }
