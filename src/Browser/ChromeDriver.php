@@ -75,12 +75,29 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
    * {@inheritdoc}
    */
   public function getComputedStyles(): array {
+    $escape_chars = function ($value) {
+      return str_replace('"', '\"', $value);;
+    };
+
     $computed_styles = [];
     foreach (($this->styleRequests ?? []) as $selector => $style_names) {
+      $js_selector = $escape_chars($selector);
       foreach (array_unique($style_names) as $style_name) {
-        $eval = sprintf('window.getComputedStyle(document.querySelector("%s"))["%s"]', $selector, $style_name);
-        $computed_styles[$selector][$style_name] = $this->page->evaluate($eval)
-          ->getReturnValue();
+        $eval = sprintf(
+          'window.getComputedStyle(document.querySelector("%s"))["%s"]',
+          $js_selector,
+          $escape_chars($style_name)
+        );
+        try {
+          $computed_styles[$selector][$style_name] = $this->page->evaluate($eval)
+            ->getReturnValue();
+        }
+        catch (\Exception $e) {
+          $class = get_class($e);
+          // Catch exceptions long enough to add context.
+          $message = sprintf('%s.  Evaluated code: %s', $e->getMessage(), $eval);
+          throw new $class($message, $e->getCode(), $e);
+        }
       }
     }
 
