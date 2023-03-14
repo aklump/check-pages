@@ -37,9 +37,9 @@ final class Loop implements PluginInterface {
     foreach ($suite->getTests() as $test) {
       $test_config = $test->getConfig();
 
-      // Watch for "endloop" instead of "end_loop" as a closure.
+      // Watch for "endloop" (a mistake) instead of "end loop" as a closure.
       if (array_key_exists('endloop', $test_config) && count($test_config) === 1 && is_null($test_config['endloop']) && $current_loop) {
-        throw new BadSyntaxException('Found "endloop", did you mean "end_loop"?');
+        throw new BadSyntaxException('Found "endloop", did you mean "end loop"?');
       }
 
       if (array_key_exists('loop', $test_config)) {
@@ -57,9 +57,9 @@ final class Loop implements PluginInterface {
         }
         $suite->removeTest($test);
       }
-      elseif (array_key_exists('end_loop', $test_config)) {
+      elseif (array_key_exists('end loop', $test_config)) {
         if (!$current_loop) {
-          throw new BadSyntaxException('Invalid `end_loop` found; no `loop` was found.', $suite);
+          throw new BadSyntaxException('Invalid `end loop` found; no `loop` was found.', $suite);
         }
         $loop_tests = $current_loop->execute();
         $suite->replaceTestWithMultiple($test, $loop_tests);

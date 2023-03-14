@@ -62,7 +62,7 @@
             "$ref": "#/definitions/device__device"
         },
         "set": {
-            "$ref": "#/definitions/value_set"
+            "$ref": "#/definitions/value__set"
         },
         "contains": {
             "$ref": "#/definitions/contains"
@@ -83,7 +83,7 @@
             "$ref": "#/definitions/matches"
         },
         "count": {
-            "$ref": "#/definitions/count_count"
+            "$ref": "#/definitions/count__count"
         },
         "text": {
             "$ref": "#/definitions/text"

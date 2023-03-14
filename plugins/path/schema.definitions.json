@@ -1,5 +1,5 @@
 {
-    "path_path": {
+    "path__path": {
         "type": [
             "string",
             "number"

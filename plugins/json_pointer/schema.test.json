@@ -6,7 +6,7 @@
     "additionalProperties": false,
     "properties": {
         "pointer": {
-            "$ref": "#/definitions/json_pointer_pointer"
+            "$ref": "#/definitions/json_pointer__pointer"
         }
     }
 }

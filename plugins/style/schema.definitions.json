@@ -1,5 +1,5 @@
 {
-    "style_style": {
+    "style__style": {
         "type": "string",
         "pattern": ".+"
     }

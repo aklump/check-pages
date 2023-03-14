@@ -8,7 +8,7 @@
         },
         {
             "required": [
-                "end_loop"
+                "end loop"
             ]
         }
     ],
@@ -48,7 +48,7 @@
                 }
             ]
         },
-        "end_loop": {
+        "end loop": {
             "type": "null"
         }
     }

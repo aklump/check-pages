@@ -11,10 +11,10 @@
     "additionalProperties": false,
     "properties": {
         "value": {
-            "$ref": "#/definitions/value_value"
+            "$ref": "#/definitions/value__value"
         },
         "set": {
-            "$ref": "#/definitions/value_set"
+            "$ref": "#/definitions/value__set"
         }
     }
 }

@@ -102,10 +102,10 @@
     "additionalProperties": false,
     "properties": {
         "set": {
-            "$ref": "#/definitions/value_set"
+            "$ref": "#/definitions/value__set"
         },
         "dom": {
-            "$ref": "#/definitions/dom_dom"
+            "$ref": "#/definitions/dom__dom"
         },
         "contains": {
             "$ref": "#/definitions/contains"
@@ -123,7 +123,7 @@
             "$ref": "#/definitions/matches"
         },
         "count": {
-            "$ref": "#/definitions/count_count"
+            "$ref": "#/definitions/count__count"
         },
         "text": {
             "$ref": "#/definitions/text"

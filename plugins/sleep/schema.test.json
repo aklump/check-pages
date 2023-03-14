@@ -1,16 +1,12 @@
 {
-    "type": "object",
-    "oneOf": [
-        {
-            "required": [
-                "sleep"
-            ]
-        }
-    ],
-    "additionalProperties": false,
-    "properties": {
-        "sleep": {
-            "$ref": "#/definitions/sleep_sleep"
-        }
+  "type": "object",
+  "required": [
+    "sleep"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "sleep": {
+      "$ref": "#/definitions/sleep__sleep"
     }
+  }
 }

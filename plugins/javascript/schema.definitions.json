@@ -1,5 +1,5 @@
 {
-    "javascript_javascript": {
+    "javascript__javascript": {
         "type": "string",
         "pattern": ".+",
         "examples": [

@@ -6,7 +6,7 @@
     "additionalProperties": false,
     "properties": {
         "import": {
-            "$ref": "#/definitions/import_import"
+            "$ref": "#/definitions/import__import"
         }
     }
 }

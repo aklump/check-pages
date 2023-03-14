@@ -1,5 +1,5 @@
 {
-    "count_count": {
+    "count__count": {
         "oneOf": [
             {
                 "type": "integer",

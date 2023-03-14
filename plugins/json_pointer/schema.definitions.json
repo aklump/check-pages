@@ -1,5 +1,5 @@
 {
-    "json_pointer_pointer": {
+    "json_pointer__pointer": {
         "type": "string",
         "pattern": "(/[^/~]+)+",
         "examples": [

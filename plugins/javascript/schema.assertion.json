@@ -46,10 +46,10 @@
     "additionalProperties": false,
     "properties": {
         "set": {
-            "$ref": "#/definitions/value_set"
+            "$ref": "#/definitions/value__set"
         },
         "javascript": {
-            "$ref": "#/definitions/javascript_javascript"
+            "$ref": "#/definitions/javascript__javascript"
         },
         "contains": {
             "$ref": "#/definitions/contains"

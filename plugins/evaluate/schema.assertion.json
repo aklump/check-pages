@@ -10,7 +10,7 @@
     "additionalProperties": false,
     "properties": {
         "eval": {
-            "$ref": "#/definitions/evaluate_eval"
+            "$ref": "#/definitions/evaluate__eval"
         }
     }
 }

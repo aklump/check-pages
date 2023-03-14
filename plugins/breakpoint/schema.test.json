@@ -6,7 +6,7 @@
     ],
     "properties": {
         "breakpoint": {
-            "$ref": "#/definitions/breakpoint_breakpoint"
+            "$ref": "#/definitions/breakpoint__breakpoint"
         }
     }
 }

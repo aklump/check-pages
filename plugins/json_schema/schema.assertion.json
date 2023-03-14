@@ -2,14 +2,14 @@
     "type": "object",
     "properties": {
         "schema": {
-            "$ref": "#/definitions/json_schema_schema"
+            "$ref": "#/definitions/json_schema__schema"
         },
         "matches": {
             "type": "boolean",
             "default": true
         },
         "path": {
-            "$ref": "#/definitions/path_path"
+            "$ref": "#/definitions/path__path"
         }
     },
     "required": [

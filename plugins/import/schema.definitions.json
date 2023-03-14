@@ -1,5 +1,5 @@
 {
-    "import_import": {
+    "import__import": {
         "type": "string",
         "pattern": ".+",
         "examples": [

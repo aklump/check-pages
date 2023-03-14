@@ -1,5 +1,5 @@
 {
-    "json_schema_schema": {
+    "json_schema__schema": {
         "type": "string",
         "pattern": ".+\\.json$|^{.+}$",
         "examples": [

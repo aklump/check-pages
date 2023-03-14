@@ -1,5 +1,5 @@
 {
-  "request_method": {
+  "request__method": {
     "oneOf": [
       {
         "type": "string",
@@ -53,13 +53,13 @@
         "type": "integer"
       },
       "method": {
-        "$ref": "#/definitions/request_method"
+        "$ref": "#/definitions/request__method"
       },
       "methods": {
         "type": "array",
         "minItems": 2,
         "items": {
-          "$ref": "#/definitions/request_method"
+          "$ref": "#/definitions/request__method"
         }
       },
       "headers": {

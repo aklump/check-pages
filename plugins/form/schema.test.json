@@ -10,7 +10,7 @@
             "$ref": "#/definitions/url"
         },
         "form": {
-            "$ref": "#/definitions/form_form"
+            "$ref": "#/definitions/form__form"
         },
         "find": {
             "$ref": "#/definitions/find"

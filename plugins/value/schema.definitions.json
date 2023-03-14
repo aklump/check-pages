@@ -1,9 +1,9 @@
 {
-    "value_set": {
+    "value__set": {
         "description": "The name of the variable to set.",
         "type": "string"
     },
-    "value_value": {
+    "value__value": {
         "type": [
             "string",
             "number",

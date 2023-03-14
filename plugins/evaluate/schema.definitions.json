@@ -1,5 +1,5 @@
 {
-    "evaluate_eval": {
+    "evaluate__eval": {
         "type": "string",
         "pattern": ".+",
         "examples": [

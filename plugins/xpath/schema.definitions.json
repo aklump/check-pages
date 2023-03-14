@@ -1,5 +1,5 @@
 {
-    "xpath_xpath": {
+    "xpath__xpath": {
         "type": "string",
         "pattern": ".+",
         "examples": [

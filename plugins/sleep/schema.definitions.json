@@ -1,5 +1,5 @@
 {
-    "sleep_sleep": {
+    "sleep__sleep": {
         "description": "A number of seconds to pause execution",
         "type": "integer",
         "pattern": "^\\d+$",

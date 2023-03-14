@@ -53,10 +53,10 @@
     "additionalProperties": false,
     "properties": {
         "set": {
-            "$ref": "#/definitions/value_set"
+            "$ref": "#/definitions/value__set"
         },
         "path": {
-            "$ref": "#/definitions/path_path"
+            "$ref": "#/definitions/path__path"
         },
         "contains": {
             "$ref": "#/definitions/contains"
@@ -77,7 +77,7 @@
             "$ref": "#/definitions/matches"
         },
         "count": {
-            "$ref": "#/definitions/count_count"
+            "$ref": "#/definitions/count__count"
         }
     }
 }

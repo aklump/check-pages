@@ -1,5 +1,5 @@
 {
-    "dom_dom": {
+    "dom__dom": {
         "type": "string",
         "pattern": ".+",
         "examples": [

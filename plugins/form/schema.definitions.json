@@ -1,12 +1,12 @@
 {
-  "form_form": {
+  "form__form": {
     "type": "object",
     "required": [
       "dom"
     ],
     "properties": {
       "dom": {
-        "$ref": "#/definitions/dom_dom"
+        "$ref": "#/definitions/dom__dom"
       },
       "input": {
         "type": "array",
@@ -23,7 +23,7 @@
                   "$ref": "#/definitions/why"
                 },
                 "import": {
-                  "$ref": "#/definitions/import_import"
+                  "$ref": "#/definitions/import__import"
                 }
               }
             },
@@ -69,7 +69,7 @@
         }
       },
       "submit": {
-        "$ref": "#/definitions/dom_dom"
+        "$ref": "#/definitions/dom__dom"
       }
     }
   }
