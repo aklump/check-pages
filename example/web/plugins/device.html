@@ -1,0 +1,43 @@
+<html>
+<head>
+  <script>
+    function ready(fn) {
+      if (document.readyState != 'loading') {
+        fn()
+      } else {
+        document.addEventListener('DOMContentLoaded', fn)
+      }
+    }
+
+    // @link https://stackoverflow.com/a/29913175/3177610
+    function getPixelRatio() {
+      var ratio = 1
+      // To account for zoom, change to use deviceXDPI instead of systemXDPI
+      if (window.screen.systemXDPI !== undefined && window.screen.logicalXDPI !== undefined && window.screen.systemXDPI > window.screen.logicalXDPI) {
+        // Only allow for values > 1
+        ratio = window.screen.systemXDPI / window.screen.logicalXDPI
+      } else if (window.devicePixelRatio !== undefined) {
+        ratio = window.devicePixelRatio
+      }
+      return ratio
+    }
+
+    ready(function() {
+      document.querySelector('.size__width').innerHTML = window.innerWidth
+      document.querySelector('.size__height').innerHTML = window.innerHeight
+      document.querySelector('.size__pixel-ratio').innerHTML = getPixelRatio()
+    })
+  </script>
+</head>
+<body>
+<label>Width</label>
+<div class="size__width"></div>
+
+<label>Height</label>
+<div class="size__height"></div>
+
+<label>Pixel Ratio</label>
+<div class="size__pixel-ratio"></div>
+
+</body>
+</html>

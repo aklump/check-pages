@@ -27,6 +27,10 @@ services:
         class: \AKlump\CheckPages\Plugin\Cypress
         tags:
             - { name: event_subscriber }
+    device.plugin:
+        class: \AKlump\CheckPages\Plugin\Device
+        tags:
+            - { name: event_subscriber }
     dom.plugin:
         class: \AKlump\CheckPages\Plugin\Dom
         tags:
@@ -69,10 +73,6 @@ services:
             - { name: event_subscriber }
     value.plugin:
         class: \AKlump\CheckPages\Plugin\Value
-        tags:
-            - { name: event_subscriber }
-    viewport.plugin:
-        class: \AKlump\CheckPages\Plugin\Viewport
         tags:
             - { name: event_subscriber }
     xpath.plugin:

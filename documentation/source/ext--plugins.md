@@ -13,6 +13,21 @@ title: Plugins
 3. Do not add _PLUGIN/composer.lock_ to the repo.
 2. Compile the plugins `./bin/compile_plugins.php.php`.
 
+## Proper Use of Letter Case
+
+Configuration keys provided by plugins should be lower-cased, space-separated in keeping with human-like syntax.  See `pixel ratio` below for an example.
+
+**Do not make them mixed- or snake-case.**
+
+```yaml
+-
+  why: Demonstrate testing against a "retina" display
+  url: /test_subject.html
+  device:
+    pixel ratio: 2
+```
+
+
 
 @todo Below here is old, needs update.
 
@@ -73,7 +88,7 @@ _(Inspect plugins to see how these are used. Be aware that some properties are r
     ],
     "properties": {
         "foo": {
-            "$ref": "#/definitions/dom_dom"
+            "$ref": "#/definitions/dom__dom"
         }
     },
     "additionalProperties": false

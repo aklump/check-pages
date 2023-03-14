@@ -53,6 +53,9 @@
                                 "$ref": "#/definitions/page_match"
                             },
                             {
+                                "$ref": "#/definitions/device"
+                            },
+                            {
                                 "$ref": "#/definitions/dom"
                             },
                             {
@@ -207,10 +210,10 @@
                 }
             }
         },
-        "breakpoint_breakpoint": {
+        "breakpoint__breakpoint": {
             "type": "null"
         },
-        "count_count": {
+        "count__count": {
             "oneOf": [
                 {
                     "type": "integer",
@@ -239,7 +242,139 @@
                 }
             ]
         },
-        "dom_dom": {
+        "device__device": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "width": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "examples": [
+                        480,
+                        1280
+                    ]
+                },
+                "height": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "examples": [
+                        400,
+                        800
+                    ]
+                },
+                "pixel ratio": {
+                    "type": "number",
+                    "minimum": 0,
+                    "examples": [
+                        1,
+                        2
+                    ]
+                }
+            }
+        },
+        "device": {
+            "title": "Device Plugin Assertion",
+            "type": "object",
+            "oneOf": [
+                {
+                    "required": [
+                        "device",
+                        "set"
+                    ]
+                },
+                {
+                    "required": [
+                        "device",
+                        "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "device",
+                        "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "device",
+                        "is"
+                    ]
+                },
+                {
+                    "required": [
+                        "device",
+                        "is not"
+                    ]
+                },
+                {
+                    "required": [
+                        "device",
+                        "matches"
+                    ]
+                },
+                {
+                    "required": [
+                        "device",
+                        "not matches"
+                    ]
+                },
+                {
+                    "required": [
+                        "device",
+                        "count"
+                    ]
+                },
+                {
+                    "required": [
+                        "device",
+                        "text"
+                    ]
+                }
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "why": {
+                    "$ref": "#/definitions/why"
+                },
+                "extras": {
+                    "$ref": "#/definitions/extras"
+                },
+                "device": {
+                    "$ref": "#/definitions/device__device"
+                },
+                "set": {
+                    "$ref": "#/definitions/value__set"
+                },
+                "contains": {
+                    "$ref": "#/definitions/contains"
+                },
+                "not contains": {
+                    "$ref": "#/definitions/contains"
+                },
+                "is": {
+                    "$ref": "#/definitions/equals"
+                },
+                "is not": {
+                    "$ref": "#/definitions/equals"
+                },
+                "matches": {
+                    "$ref": "#/definitions/matches"
+                },
+                "not matches": {
+                    "$ref": "#/definitions/matches"
+                },
+                "count": {
+                    "$ref": "#/definitions/count__count"
+                },
+                "text": {
+                    "$ref": "#/definitions/text"
+                },
+                "attribute": {
+                    "$ref": "#/definitions/attribute"
+                }
+            }
+        },
+        "dom__dom": {
             "type": "string",
             "pattern": ".+",
             "examples": [
@@ -359,10 +494,10 @@
                     "$ref": "#/definitions/extras"
                 },
                 "set": {
-                    "$ref": "#/definitions/value_set"
+                    "$ref": "#/definitions/value__set"
                 },
                 "dom": {
-                    "$ref": "#/definitions/dom_dom"
+                    "$ref": "#/definitions/dom__dom"
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
@@ -380,7 +515,7 @@
                     "$ref": "#/definitions/matches"
                 },
                 "count": {
-                    "$ref": "#/definitions/count_count"
+                    "$ref": "#/definitions/count__count"
                 },
                 "text": {
                     "$ref": "#/definitions/text"
@@ -390,7 +525,7 @@
                 }
             }
         },
-        "evaluate_eval": {
+        "evaluate__eval": {
             "type": "string",
             "pattern": ".+",
             "examples": [
@@ -416,18 +551,18 @@
                     "$ref": "#/definitions/extras"
                 },
                 "eval": {
-                    "$ref": "#/definitions/evaluate_eval"
+                    "$ref": "#/definitions/evaluate__eval"
                 }
             }
         },
-        "form_form": {
+        "form__form": {
             "type": "object",
             "required": [
                 "dom"
             ],
             "properties": {
                 "dom": {
-                    "$ref": "#/definitions/dom_dom"
+                    "$ref": "#/definitions/dom__dom"
                 },
                 "input": {
                     "type": "array",
@@ -444,7 +579,7 @@
                                         "$ref": "#/definitions/why"
                                     },
                                     "import": {
-                                        "$ref": "#/definitions/import_import"
+                                        "$ref": "#/definitions/import__import"
                                     }
                                 }
                             },
@@ -490,11 +625,11 @@
                     }
                 },
                 "submit": {
-                    "$ref": "#/definitions/dom_dom"
+                    "$ref": "#/definitions/dom__dom"
                 }
             }
         },
-        "header_header": {
+        "header__header": {
             "type": "string",
             "pattern": ".+",
             "examples": [
@@ -563,10 +698,10 @@
                     "$ref": "#/definitions/extras"
                 },
                 "header": {
-                    "$ref": "#/definitions/header_header"
+                    "$ref": "#/definitions/header__header"
                 },
                 "set": {
-                    "$ref": "#/definitions/value_set"
+                    "$ref": "#/definitions/value__set"
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
@@ -587,11 +722,11 @@
                     "$ref": "#/definitions/matches"
                 },
                 "count": {
-                    "$ref": "#/definitions/count_count"
+                    "$ref": "#/definitions/count__count"
                 }
             }
         },
-        "import_import": {
+        "import__import": {
             "type": "string",
             "pattern": ".+",
             "examples": [
@@ -613,11 +748,11 @@
                     "$ref": "#/definitions/extras"
                 },
                 "import": {
-                    "$ref": "#/definitions/import_import"
+                    "$ref": "#/definitions/import__import"
                 }
             }
         },
-        "javascript_javascript": {
+        "javascript__javascript": {
             "type": "string",
             "pattern": ".+",
             "examples": [
@@ -679,10 +814,10 @@
                     "$ref": "#/definitions/extras"
                 },
                 "set": {
-                    "$ref": "#/definitions/value_set"
+                    "$ref": "#/definitions/value__set"
                 },
                 "javascript": {
-                    "$ref": "#/definitions/javascript_javascript"
+                    "$ref": "#/definitions/javascript__javascript"
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
@@ -701,7 +836,7 @@
                 }
             }
         },
-        "json_pointer_pointer": {
+        "json_pointer__pointer": {
             "type": "string",
             "pattern": "(/[^/~]+)+",
             "examples": [
@@ -772,10 +907,10 @@
                     "$ref": "#/definitions/extras"
                 },
                 "pointer": {
-                    "$ref": "#/definitions/json_pointer_pointer"
+                    "$ref": "#/definitions/json_pointer__pointer"
                 },
                 "set": {
-                    "$ref": "#/definitions/value_set"
+                    "$ref": "#/definitions/value__set"
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
@@ -796,11 +931,11 @@
                     "$ref": "#/definitions/matches"
                 },
                 "count": {
-                    "$ref": "#/definitions/count_count"
+                    "$ref": "#/definitions/count__count"
                 }
             }
         },
-        "json_schema_schema": {
+        "json_schema__schema": {
             "type": "string",
             "pattern": ".+\\.json$|^{.+}$",
             "examples": [
@@ -820,14 +955,14 @@
                     "$ref": "#/definitions/extras"
                 },
                 "schema": {
-                    "$ref": "#/definitions/json_schema_schema"
+                    "$ref": "#/definitions/json_schema__schema"
                 },
                 "matches": {
                     "type": "boolean",
                     "default": true
                 },
                 "path": {
-                    "$ref": "#/definitions/path_path"
+                    "$ref": "#/definitions/path__path"
                 }
             },
             "required": [
@@ -835,7 +970,7 @@
             ],
             "additionalProperties": false
         },
-        "path_path": {
+        "path__path": {
             "type": [
                 "string",
                 "number"
@@ -910,10 +1045,10 @@
                     "$ref": "#/definitions/extras"
                 },
                 "set": {
-                    "$ref": "#/definitions/value_set"
+                    "$ref": "#/definitions/value__set"
                 },
                 "path": {
-                    "$ref": "#/definitions/path_path"
+                    "$ref": "#/definitions/path__path"
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
@@ -934,11 +1069,11 @@
                     "$ref": "#/definitions/matches"
                 },
                 "count": {
-                    "$ref": "#/definitions/count_count"
+                    "$ref": "#/definitions/count__count"
                 }
             }
         },
-        "request_method": {
+        "request__method": {
             "oneOf": [
                 {
                     "type": "string",
@@ -992,13 +1127,13 @@
                     "type": "integer"
                 },
                 "method": {
-                    "$ref": "#/definitions/request_method"
+                    "$ref": "#/definitions/request__method"
                 },
                 "methods": {
                     "type": "array",
                     "minItems": 2,
                     "items": {
-                        "$ref": "#/definitions/request_method"
+                        "$ref": "#/definitions/request__method"
                     }
                 },
                 "headers": {
@@ -1016,7 +1151,7 @@
                 }
             }
         },
-        "sleep_sleep": {
+        "sleep__sleep": {
             "description": "A number of seconds to pause execution",
             "type": "integer",
             "pattern": "^\\d+$",
@@ -1025,7 +1160,7 @@
                 30
             ]
         },
-        "style_style": {
+        "style__style": {
             "type": "string",
             "pattern": ".+"
         },
@@ -1106,10 +1241,10 @@
                     "$ref": "#/definitions/extras"
                 },
                 "set": {
-                    "$ref": "#/definitions/value_set"
+                    "$ref": "#/definitions/value__set"
                 },
                 "dom": {
-                    "$ref": "#/definitions/dom_dom"
+                    "$ref": "#/definitions/dom__dom"
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
@@ -1130,21 +1265,21 @@
                     "$ref": "#/definitions/matches"
                 },
                 "count": {
-                    "$ref": "#/definitions/count_count"
+                    "$ref": "#/definitions/count__count"
                 },
                 "text": {
                     "$ref": "#/definitions/text"
                 },
                 "style": {
-                    "$ref": "#/definitions/style_style"
+                    "$ref": "#/definitions/style__style"
                 }
             }
         },
-        "value_set": {
+        "value__set": {
             "description": "The name of the variable to set.",
             "type": "string"
         },
-        "value_value": {
+        "value__value": {
             "type": [
                 "string",
                 "number",
@@ -1173,36 +1308,14 @@
                     "$ref": "#/definitions/extras"
                 },
                 "value": {
-                    "$ref": "#/definitions/value_value"
+                    "$ref": "#/definitions/value__value"
                 },
                 "set": {
-                    "$ref": "#/definitions/value_set"
+                    "$ref": "#/definitions/value__set"
                 }
             }
         },
-        "viewport_viewport": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "width": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "examples": [
-                        480,
-                        1280
-                    ]
-                },
-                "height": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "examples": [
-                        400,
-                        800
-                    ]
-                }
-            }
-        },
-        "xpath_xpath": {
+        "xpath__xpath": {
             "type": "string",
             "pattern": ".+",
             "examples": [
@@ -1320,10 +1433,10 @@
                     "$ref": "#/definitions/extras"
                 },
                 "set": {
-                    "$ref": "#/definitions/value_set"
+                    "$ref": "#/definitions/value__set"
                 },
                 "xpath": {
-                    "$ref": "#/definitions/xpath_xpath"
+                    "$ref": "#/definitions/xpath__xpath"
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
@@ -1341,7 +1454,7 @@
                     "$ref": "#/definitions/matches"
                 },
                 "count": {
-                    "$ref": "#/definitions/count_count"
+                    "$ref": "#/definitions/count__count"
                 },
                 "text": {
                     "$ref": "#/definitions/text"
@@ -1578,7 +1691,7 @@
                         "$ref": "#/definitions/extras"
                     },
                     "breakpoint": {
-                        "$ref": "#/definitions/breakpoint_breakpoint"
+                        "$ref": "#/definitions/breakpoint__breakpoint"
                     }
                 }
             },
@@ -1619,6 +1732,23 @@
             },
             {
                 "type": "object",
+                "required": [
+                    "device"
+                ],
+                "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
+                    "extras": {
+                        "$ref": "#/definitions/extras"
+                    },
+                    "device": {
+                        "$ref": "#/definitions/device__device"
+                    }
+                }
+            },
+            {
+                "type": "object",
                 "oneOf": [
                     {
                         "required": [
@@ -1635,7 +1765,7 @@
                         "$ref": "#/definitions/extras"
                     },
                     "eval": {
-                        "$ref": "#/definitions/evaluate_eval"
+                        "$ref": "#/definitions/evaluate__eval"
                     }
                 }
             },
@@ -1657,7 +1787,7 @@
                         "$ref": "#/definitions/url"
                     },
                     "form": {
-                        "$ref": "#/definitions/form_form"
+                        "$ref": "#/definitions/form__form"
                     },
                     "find": {
                         "$ref": "#/definitions/find"
@@ -1678,7 +1808,7 @@
                         "$ref": "#/definitions/extras"
                     },
                     "import": {
-                        "$ref": "#/definitions/import_import"
+                        "$ref": "#/definitions/import__import"
                     }
                 }
             },
@@ -1696,7 +1826,7 @@
                         "$ref": "#/definitions/extras"
                     },
                     "pointer": {
-                        "$ref": "#/definitions/json_pointer_pointer"
+                        "$ref": "#/definitions/json_pointer__pointer"
                     }
                 }
             },
@@ -1710,7 +1840,7 @@
                     },
                     {
                         "required": [
-                            "end_loop"
+                            "end loop"
                         ]
                     }
                 ],
@@ -1756,19 +1886,15 @@
                             }
                         ]
                     },
-                    "end_loop": {
+                    "end loop": {
                         "type": "null"
                     }
                 }
             },
             {
                 "type": "object",
-                "oneOf": [
-                    {
-                        "required": [
-                            "sleep"
-                        ]
-                    }
+                "required": [
+                    "sleep"
                 ],
                 "additionalProperties": false,
                 "properties": {
@@ -1779,7 +1905,7 @@
                         "$ref": "#/definitions/extras"
                     },
                     "sleep": {
-                        "$ref": "#/definitions/sleep_sleep"
+                        "$ref": "#/definitions/sleep__sleep"
                     }
                 }
             },
@@ -1838,10 +1964,10 @@
                         "$ref": "#/definitions/extras"
                     },
                     "value": {
-                        "$ref": "#/definitions/value_value"
+                        "$ref": "#/definitions/value__value"
                     },
                     "set": {
-                        "$ref": "#/definitions/value_set"
+                        "$ref": "#/definitions/value__set"
                     },
                     "contains": {
                         "$ref": "#/definitions/contains"
@@ -1860,23 +1986,6 @@
                     },
                     "not matches": {
                         "$ref": "#/definitions/matches"
-                    }
-                }
-            },
-            {
-                "type": "object",
-                "required": [
-                    "viewport"
-                ],
-                "properties": {
-                    "why": {
-                        "$ref": "#/definitions/why"
-                    },
-                    "extras": {
-                        "$ref": "#/definitions/extras"
-                    },
-                    "viewport": {
-                        "$ref": "#/definitions/viewport_viewport"
                     }
                 }
             }

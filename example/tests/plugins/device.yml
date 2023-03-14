@@ -1,0 +1,49 @@
+-
+    why: 'Demonstrate setting width and asserting using javascript.'
+    url: /plugins/device.html
+    device:
+        width: 480
+    find:
+        -
+            javascript: window.innerWidth
+            is: 480
+-
+    why: 'Assert our plugin automatically sets "js" to true even without a JS assertion (by using "dom").'
+    url: /plugins/device.html
+    device:
+        height: 200
+    find:
+        -
+            dom: .size__height
+            is: 200
+-
+    why: 'Demonstrate setting both dimensions.'
+    url: /plugins/device.html
+    device:
+        width: 1280
+        height: 760
+    find:
+        -
+            dom: .size__height
+            is: 760
+        -
+            dom: .size__width
+            is: 1280
+-
+    why: 'Demonstrate testing against a "retina" display'
+    url: /plugins/device.html
+    device:
+        'pixel ratio': 2
+    find:
+        -
+            dom: .size__pixel-ratio
+            is: 2
+-
+    why: 'Demonstrate pixel ratio as a float.'
+    url: /plugins/device.html
+    device:
+        'pixel ratio': 1.5
+    find:
+        -
+            dom: .size__pixel-ratio
+            is: 1.5

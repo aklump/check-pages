@@ -13,6 +13,7 @@
                 "plugins/breakpoint/",
                 "plugins/count/",
                 "plugins/cypress/",
+                "plugins/device/",
                 "plugins/dom/",
                 "plugins/evaluate/",
                 "plugins/form/",
@@ -28,7 +29,6 @@
                 "plugins/sleep/",
                 "plugins/style/",
                 "plugins/value/",
-                "plugins/viewport/",
                 "plugins/xpath/"
             ]
         }
