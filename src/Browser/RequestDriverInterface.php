@@ -8,6 +8,8 @@ use Psr\Http\Message\ResponseInterface;
 
 interface RequestDriverInterface {
 
+  public function setBaseUrl(string $base_url): void;
+
   /**
    * Set the url.
    *
@@ -15,7 +17,7 @@ interface RequestDriverInterface {
    *
    * @return $this
    */
-  public function setUrl(string $url): self;
+  public function setUrl(string $url): RequestDriverInterface;
 
   /**
    * Perform the HTTP request.
@@ -46,11 +48,19 @@ interface RequestDriverInterface {
    * Return the final location of the page (after redirects, if any).
    *
    * @return string
+   *   This will be relative if it contains the configured "base_url", otherwise
+   *   it will be absolute.  You should use this same form when setting the
+   *   "location" value in tests.
    */
   public function getLocation(): string;
 
   /**
    * Return the initial redirect status code.
+   *
+   * Pay attention because if there is more than one redirect, this will give
+   * you the first redirect code encountered.  This is opposite of
+   * \AKlump\CheckPages\Browser\RequestDriverInterface::getLocation() which
+   * returns the final destination URL.
    *
    * @return int
    */

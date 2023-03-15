@@ -125,7 +125,6 @@ class TestRunner {
         }
       }
 
-      $http_location = NULL;
 
       // If not specified, then any 2XX will pass.
       if (empty($test->getConfig()['expect'])) {
@@ -133,7 +132,6 @@ class TestRunner {
       }
       else {
         if ($test->getConfig()['expect'] >= 300 && $test->getConfig()['expect'] <= 399) {
-          $http_location = $driver->getLocation();
           $http_response_code = $driver->getRedirectCode();
         }
 
@@ -150,13 +148,19 @@ class TestRunner {
       $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_FINISHED);
 
       // Test the location if asked.
-      $expected_location = $test->getConfig()['location'] ?? '';
-      if (empty($expected_location)) {
-        $expected_location = $test->getConfig()['redirect'] ?? '';
+      $expected_location = NULL;
+      if ($test->has('location')) {
+        $expected_location = $test->get('location') ?? '';
       }
-      $test->interpolate($expected_location);
+      if (empty($expected_location) && $test->has('redirect')) {
+        $expected_location = $test->get('redirect') ?? '';
+      }
+      if (isset($expected_location)) {
+        $test->interpolate($expected_location);
+      }
 
-      if ($http_location && $expected_location) {
+      $http_location = $driver->getLocation();
+      if (!is_null($expected_location)) {
         $location_test = $http_location === $runner->url($expected_location);
         $test_passed($location_test);
         if (!$location_test) {

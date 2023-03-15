@@ -19,14 +19,15 @@ class GuzzleDriver extends RequestDriver {
         'headers' => $this->headers,
         // @link http://docs.guzzlephp.org/en/stable/faq.html#how-can-i-track-redirected-requests
         RequestOptions::ALLOW_REDIRECTS => [
-          'max' => 10,        // allow at most 10 redirects.
+          'max' => static::MAX_REDIRECTS,        // allow at most 10 redirects.
           'strict' => TRUE,      // use "strict" RFC compliant redirects.
           'referer' => TRUE,      // add a Referer header
-          'track_redirects' => TRUE,
+          // Don't need to do this because we use
+          // \AKlump\CheckPages\Service\RequestHistory for that instead.
+          'track_redirects' => false,
         ],
       ]);
       $this->response = $client->request($this->method, $this->getUrl(), ['body' => $this->body]);
-      $this->location = array_values($this->response->getHeader('X-Guzzle-Redirect-History'))[0] ?? NULL;
     }
     catch (BadResponseException $exception) {
       $this->response = $exception->getResponse();
@@ -36,13 +37,6 @@ class GuzzleDriver extends RequestDriver {
     }
 
     return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getRedirectCode(): int {
-    return (int) ($this->response->getHeader('X-Guzzle-Redirect-Status-History')[0] ?? 0);
   }
 
 }

@@ -10,3 +10,25 @@
     # The previous is shorthand for this.
     -
       contains: We've moved!
+-
+  why: Ensure redirects work when JS is NOT enabled.
+  url: /moved.php
+  expect: 301
+  location: /location.html
+  find:
+    - We've moved!
+-
+  why: Ensure location works on 403 after 301
+  url: /forbidden.php
+  expect: 403
+  location: /forbidden.php?access_denied
+
+-
+  why: Ensure a multiple redirects captures the final location
+  url: /redirects.php
+  expect: 301
+  location: /redirects.php?q=/aliased-path
+  find:
+    -
+      dom: h1
+      is: Aliased Path

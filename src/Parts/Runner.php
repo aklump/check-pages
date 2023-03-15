@@ -25,6 +25,7 @@ use AKlump\CheckPages\SerializationTrait;
 use AKlump\CheckPages\Service\DispatcherFactory;
 use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
+use AKlump\CheckPages\Traits\BaseUrlTrait;
 use AKlump\CheckPages\Traits\HasSuiteTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Traits\SetTrait;
@@ -44,6 +45,7 @@ class Runner {
   use SerializationTrait;
   use SetTrait;
   use HasMessagesTrait;
+  use BaseUrlTrait;
 
   /**
    * The filename without extension or path.
@@ -121,7 +123,7 @@ class Runner {
   /**
    * @var array
    */
-  protected $options = [];
+  protected $runtimeOptions = [];
 
   /**
    * @var array
@@ -380,6 +382,9 @@ class Runner {
    */
   public function setConfig(array $config): Runner {
     $this->config = $config;
+    if (isset($config['base_url'])) {
+      $this->setBaseUrl($config['base_url']);
+    }
 
     return $this;
   }
@@ -407,8 +412,8 @@ class Runner {
    * @return $this
    */
   public function addSuiteIdFilter(string $filter): Runner {
-    $pathinfo = pathinfo($filter);
-    if (!empty($pathinfo['extension'])) {
+    if (preg_match('/\.ya?ml$/', $filter)) {
+      $pathinfo = pathinfo($filter);
       throw new \InvalidArgumentException(sprintf('Omit the file extension for filter values; use "%s" not "%s".', $pathinfo['filename'], $pathinfo['basename']));
     }
     $this->addFilterByType('id', $filter);
@@ -848,26 +853,6 @@ class Runner {
       }
     }
     throw new UnresolvablePathException($path);
-  }
-
-  /**
-   * Resolve a relative URL to the configured base_url.
-   *
-   * If the url does not being with a '/', it will be assumed it is already
-   * resolved and the value will pass through.
-   *
-   * @param string $possible_relative_url
-   *   THe relative URL, beginning with an '/'.
-   *
-   * @return string
-   *   The absolute URL.
-   */
-  public function url(string $possible_relative_url): string {
-    if (substr($possible_relative_url, 0, 1) !== '/') {
-      return $possible_relative_url;
-    }
-
-    return rtrim($this->getConfig()['base_url'], '/') . '/' . trim($possible_relative_url, '/');
   }
 
   /**

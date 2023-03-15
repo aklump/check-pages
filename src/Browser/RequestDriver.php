@@ -3,6 +3,8 @@
 namespace AKlump\CheckPages\Browser;
 
 use AKlump\CheckPages\Response;
+use AKlump\CheckPages\Service\RequestHistory;
+use AKlump\CheckPages\Traits\BaseUrlTrait;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 
@@ -10,6 +12,16 @@ use Psr\Http\Message\ResponseInterface;
  * Non-Javascript response driver.
  */
 abstract class RequestDriver implements RequestDriverInterface {
+
+  use BaseUrlTrait;
+
+  /**
+   * Maximum number of redirects to allow per request.  Child classes should
+   * utilize this value in their
+   * \AKlump\CheckPages\Browser\RequestDriverInterface::request()
+   * implementation.
+   */
+  const MAX_REDIRECTS = 10;
 
   protected $method = 'GET';
 
@@ -33,9 +45,18 @@ abstract class RequestDriver implements RequestDriverInterface {
   protected $requestTimeout = 20;
 
   /**
+   * Keep protected so children can set if they want.
+   *
    * @var string
    */
-  protected $location;
+  private $location;
+
+  /**
+   * Keep protected so children can set if they want.
+   *
+   * @var int
+   */
+  private $redirectCode;
 
   /**
    * {@inheritdoc}
@@ -74,6 +95,8 @@ abstract class RequestDriver implements RequestDriverInterface {
    */
   public function setUrl(string $url): RequestDriverInterface {
     $this->url = $url;
+    $this->location = NULL;
+    $this->redirectCode = NULL;
 
     return $this;
   }
@@ -153,7 +176,32 @@ abstract class RequestDriver implements RequestDriverInterface {
    * {@inheritdoc}
    */
   public function getLocation(): string {
-    return $this->location ?? '';
+    if (!isset($this->location)) {
+      $this->getRequestHistory();
+    }
+
+    return $this->location;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRedirectCode(): int {
+    if (!isset($this->redirectCode)) {
+      $this->getRequestHistory();
+    }
+
+    return $this->redirectCode;
+  }
+
+  public function getRequestHistory(): array {
+    $redirection = new RequestHistory(self::MAX_REDIRECTS);
+    $history = $redirection($this->getUrl());
+    $this->redirectCode = $history[0]['status'];
+    $final_location = $history[count($history) - 1]['location'];
+    $this->location = $this->withoutBaseUrl($final_location);
+
+    return $history;
   }
 
   /**

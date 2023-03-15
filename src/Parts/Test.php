@@ -142,10 +142,10 @@ class Test implements \JsonSerializable, PartInterface {
    *
    * @return string
    *   The relative test URL.  To get the absolute url, you need to do like
-   *   this: $this->getRunner()->url($this->getRelativeUrl()).
+   *   this: $this->getRunner()->withBaseUrl($this->getRelativeUrl()).
    */
   public function getRelativeUrl(): string {
-    return $this->get('url') ?? '';
+    return $this->getRunner()->withoutBaseUrl($this->get('url'));
   }
 
   /**
@@ -153,15 +153,17 @@ class Test implements \JsonSerializable, PartInterface {
    *
    * @return string
    *   The relative test URL.  To get the absolute url, you need to do like
-   *   this: $this->getRunner()->url($this->getRelativeUrl()).
+   *   this: $this->getRunner()->withBaseUrl($this->getRelativeUrl()).
    */
   public function getAbsoluteUrl(): string {
+
+    // TODO Rewrite with BaseUrlTrait?
     $relative = $this->getRelativeUrl();
     if (empty($relative)) {
       return '';
     }
 
-    return $this->getRunner()->url($relative);
+    return $this->getRunner()->withBaseUrl($relative);
   }
 
   public function getSuite(): Suite {
