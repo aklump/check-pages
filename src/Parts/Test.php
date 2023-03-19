@@ -15,7 +15,7 @@ class Test implements \JsonSerializable, PartInterface {
   use HasMessagesTrait;
   use PassFailTrait;
   use HasConfigTrait {
-    HasConfigTrait::setConfig as traitSetTrait;
+    HasConfigTrait::setConfig as traitSetConfig;
   }
 
   const PASSED = 'P';
@@ -128,7 +128,7 @@ class Test implements \JsonSerializable, PartInterface {
       return $key === 'visit' ? 'url' : $key;
     }, array_keys($config));
     $config = array_combine($keys, $config);
-    $this->traitSetTrait($config);
+    $this->traitSetConfig($config);
 
     return $this;
   }

@@ -1,12 +1,12 @@
 {
-    "type": "object",
-    "additionalProperties": false,
-    "required": [
-        "breakpoint"
-    ],
-    "properties": {
-        "breakpoint": {
-            "$ref": "#/definitions/breakpoint__breakpoint"
-        }
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "breakpoint"
+  ],
+  "properties": {
+    "breakpoint": {
+      "$ref": "#/definitions/breakpoint__breakpoint"
     }
+  }
 }

@@ -773,15 +773,16 @@ class Runner {
   }
 
   /**
-   * Resolve a path.
+   * Resolve a partial path to an absolute when possible.
    *
+   * @param array $extensions
+   *   One or more extensions that should be considered.  Only files with one of
+   *   these extension will be resolved.  These should not contain dots.
    * @param string $path
    *   This can be a resolvable path or an absolute path; if it's an absolute
    *   path, it will simply be returned.
    * @param string &$resolved_path
    *   This variable will be set with the parents used to resolve $path.
-   * @param array $extensions
-   *   One or more extensions you're looking for.
    *
    * @return string
    *   The resolved full path to a file if it exists.

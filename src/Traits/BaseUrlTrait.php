@@ -34,8 +34,8 @@ trait BaseUrlTrait {
     $base_url = $this->getBaseUrl();
     if (strpos($url, $base_url) !== 0) {
 
-      $a = parse_url($url) + ['host' => '', 'schema' => ''];
-      $b = parse_url($base_url) + ['host' => '', 'schema' => ''];
+      $a = parse_url($url) + ['host' => '', 'scheme' => ''];
+      $b = parse_url($base_url) + ['host' => '', 'scheme' => ''];
       if ($a['host'] === $b['host'] && $a['scheme'] !== $b['scheme']) {
         throw new \InvalidArgumentException("It looks like you're trying to create a local URL with the wrong HTTPS schema, the base_url and the url need to have the same scheme if they have the same host.");
       }

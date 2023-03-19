@@ -199,15 +199,16 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
         ->setUrl($url)
         ->setHeader('Cookie', $this->getSessionCookie())
         ->request();
-      $location = $request_result->getLocation();
+
       // If the user page is not aliased the UID will appear in the location bar.
+      $location = $request_result->getLocation();
       if (preg_match('/user\/(\d+)/', $location, $matches)) {
         return intval($matches[1]);
       }
-      $body = strval($request_result->getResponse()->getBody());
-      $crawler = new Crawler($body);
 
       // Sometimes it appears in a <link> tag.
+      $body = strval($request_result->getResponse()->getBody());
+      $crawler = new Crawler($body);
       $shortlink = $crawler->filter('link[rel=shortlink]')->getNode(0);
       if ($shortlink) {
         $shortlink = $shortlink->getAttribute('href');

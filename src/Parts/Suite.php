@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Parts;
 
+use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Variables;
@@ -10,6 +11,7 @@ class Suite implements PartInterface, \JsonSerializable {
 
   use PassFailTrait;
   use HasRunnerTrait;
+  use HasConfigTrait;
 
   /**
    * @var Test[]
@@ -22,8 +24,6 @@ class Suite implements PartInterface, \JsonSerializable {
 
   protected $group;
 
-  protected $config;
-
   protected $vars;
 
   public function __construct(string $id, array $suite_config, Runner $runner) {
@@ -32,7 +32,7 @@ class Suite implements PartInterface, \JsonSerializable {
       $this->vars->setItem($key, $value);
     }
 
-    $this->config = $suite_config;
+    $this->setConfig($suite_config);
     $this->setRunner($runner);
     $this->id = $id;
   }
@@ -150,10 +150,6 @@ class Suite implements PartInterface, \JsonSerializable {
 
   public function __toString() {
     return $this->getGroup() . '\\' . $this->id();
-  }
-
-  public function getConfig(): array {
-    return $this->config;
   }
 
 }
