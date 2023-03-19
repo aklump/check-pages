@@ -19,7 +19,7 @@ final class Import implements PluginInterface {
       Event::SUITE_LOADED => [
         function (Event\SuiteEventInterface $event) {
           $suite = $event->getSuite();
-          $importer = new Importer($event->getSuite()->getRunner());
+          $importer = new Importer($event->getSuite()->getRunner()->getFiles());
           foreach ($suite->getTests() as $test) {
             $config = $test->getConfig();
 

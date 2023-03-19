@@ -21,9 +21,10 @@ use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
-use AKlump\CheckPages\Files;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
+
+/** @var \AKlump\CheckPages\Parts\Runner $runner */
 
 //
 // Verify the output directory.
@@ -33,8 +34,7 @@ if (empty($mixin_config['output'])) {
 }
 
 try {
-  $files = new Files($runner);
-  $output_dir = $files->prepareDirectory($mixin_config['output']);
+  $output_dir = $runner->getLogFiles()->tryResolveDir($mixin_config['output'])[0];
   $mixin = new PhpStormHttpMixin($output_dir, $mixin_config);
 }
 catch (UnresolvablePathException $exception) {

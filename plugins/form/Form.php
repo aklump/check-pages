@@ -90,7 +90,7 @@ final class Form implements PluginInterface {
 
           // We will allow imports on form.input.
           if (isset($config['form']['input']) && is_array($config['form']['input'])) {
-            $importer = new Importer($test->getRunner());
+            $importer = new Importer($test->getRunner()->getFiles());
             $importer->resolveImports($config['form']['input']);
           }
 

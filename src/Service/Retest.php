@@ -3,8 +3,7 @@
 namespace AKlump\CheckPages\Service;
 
 use AKlump\CheckPages\Event\RunnerEventInterface;
-use AKlump\CheckPages\Output\ConsoleEchoPrinter;
-use AKlump\CheckPages\Output\DebugMessage;
+use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
@@ -24,27 +23,12 @@ final class Retest implements EventSubscriberInterface {
   /**
    * Return the full filepath the the CSV file.
    *
-   * @param \AKlump\CheckPages\Parts\Runner $runner
-   *
    * @return string
+   *   Absolute path to the results log file.
    */
   public function getTrackingFilePath(): string {
-    $tracking_path = $this->getRunner()->getPathToRunnerFilesDirectory();
-    if (empty($tracking_path)) {
-      $input = $this->getRunner()->getInput();
-      $is_using = $input->getOption('retest') || $input->getOption('continue');
-      if ($is_using) {
-        $option = $input->getOption('retest') ? '--retest' : '--continue';
-        $this->getRunner()->echo(new DebugMessage([
-            sprintf('<error>"%s" requires file storage to be enabled.  See documentation for more info.</error>', $option),
-          ]
-        ));
-      }
-
-      return '';
-    }
-
-    return "$tracking_path/_results.csv";
+    return $this->getRunner()->getLogFiles()
+             ->tryResolveFile('results.csv', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
   }
 
   /**
@@ -179,7 +163,7 @@ final class Retest implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      Event::RUNNER_CONFIG => [
+      Event::RUNNER_STARTED => [
         function (RunnerEventInterface $event) {
           $retest = new self();
           $runner = $event->getRunner();

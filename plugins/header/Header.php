@@ -2,56 +2,59 @@
 
 namespace AKlump\CheckPages\Plugin;
 
-use AKlump\CheckPages\Event\AssertEventInterface;
-use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Assert;
-use AKlump\CheckPages\SerializationTrait;
+use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Event\DriverEventInterface;
+use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Parts\SetTrait;
+use AKlump\LoftLib\Bash\Color;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use AKlump\CheckPages\Event\AssertEventInterface;
 
 /**
  * Implements the Header plugin.
  */
-final class Header extends LegacyPlugin {
+final class Header implements \AKlump\CheckPages\Plugin\PluginInterface {
+
+  const SELECTOR = 'header';
 
   const SEARCH_TYPE = 'header';
 
   /**
-   * Captures the test config to share across methods.
-   *
-   * @var array
-   */
-  private $assertions;
-
-  /**
    * {@inheritdoc}
    */
-  public function onBeforeDriver(TestEventInterface $event) {
-    $config = $event->getTest()->getConfig();
-    if (!is_array($config) || empty($config['find'])) {
-      return;
-    }
-    foreach ($config['find'] as $assertion) {
-      if (is_array($assertion) && array_key_exists(self::SEARCH_TYPE, $assertion)) {
-        $this->assertions[] = $assertion;
-      }
-    }
+  public static function getPluginId(): string {
+    return 'header';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function onBeforeAssert(AssertEventInterface $event) {
-    $assert = $event->getAssert();
-    $search_value = $assert->{self::SEARCH_TYPE};
-    $assert->setSearch(self::SEARCH_TYPE, $search_value);
-    $assert->setHaystack($event->getDriver()
-      ->getResponse()
-      ->getHeader($search_value));
+  public static function getSubscribedEvents() {
+    return [
+      Event::ASSERT_CREATED => [
+        function (AssertEventInterface $event) {
+          $assert = $event->getAssert();
+          if (!$assert->has('header')) {
+            return;
+          }
+          $header_name = $assert->get('header');
+          $assert->setSearch('header', $header_name);
+          $header_value = $event->getDriver()
+            ->getResponse()
+            ->getHeader($header_name);
+          $assert->setHaystack($header_value);
+        },
+      ],
+    ];
   }
 
   /**
    * {@inheritdoc}
    */
   public function onAssertToString(string $stringified, Assert $assert): string {
+    // TODO This is from legacy plugin; need to update if I want to keep it.
     list(, $header) = $assert->getSearch();
     list($type, $value) = $assert->getAssertion();
     switch ($type) {

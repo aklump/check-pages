@@ -13,7 +13,7 @@ You may locate suite files in directories other than the main one, by registerin
  * Assert URLs as an anonymous user.
  */
 load_config('config/dev.yml');
-add_directory(realpath(__DIR__ . '/../web/themes/custom/gop_theme/components/smodal'));
+add_directory(__DIR__ . '/../web/themes/custom/gop_theme/components/smodal');
 
 run_suite('*');
 

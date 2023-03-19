@@ -37,7 +37,7 @@ The `add_test_option()` function allows you to add customization at the level of
 ```php
 # file: runner.php
 add_test_option('foo', [
-  'onBeforeTest' => function ($option, \AKlump\CheckPages\Parts\Test $test, $context){
+  'onBeforeTest' => function ($option, $event){
     // Note, $option === 123
   },
 ]);
@@ -61,18 +61,18 @@ These examples show how `$option` can have non-scalar values.
 
 ```php
 add_test_option('bar', [
-  'onBeforeTest' => function ($option, \AKlump\CheckPages\Parts\Test $test, $context){
+  'onBeforeTest' => function ($option, \AKlump\CheckPages\Event\TestEventInterface $event){
     list($do, $re, $mi) = $option;
     // ...
   },
-  'onBeforeRequest' => function ($option, &$driver, array $context){
+  'onBeforeRequest' => function ($option, \AKlump\CheckPages\Event\DriverEventInterface $event){
     list($do, $re, $mi) = $option;
     // ...
   },
 ]);
 
 add_test_option('baz', [
-  'onBeforeTest' => function ($option, \AKlump\CheckPages\Parts\Test $test, $context){
+  'onBeforeTest' => function ($option, \AKlump\CheckPages\Event\TestEventInterface $event){
     if ($option['lorem'] === 'ipsum dolar') {
       // ...
     }
@@ -88,15 +88,15 @@ The `onBeforeTest` callback is the best place to put custom processing if you wa
 
 ## Advance to Next Test
 
-In some cases you may want to advance to the next test after you finish executing some code inside of `onBeforeTest` in your custom test option. That is to say, you want to mark the test (option) as complete and stop any further execution on that test config. To do this you should return the value `\AKlump\CheckPages\Parts\Test::IS_COMPLETE`. This will mark the test neither passed nor failed, rather it will silently move on.
+In some cases you may want to advance to the next test after you finish executing some code inside of `onBeforeTest` in your custom test option. That is to say, you want to mark the test (option) as passed/complete and stop any further execution on that test config. To do this you should use the `\AKlump\CheckPages\Traits\PassFailTrait::setPassed()` method.
 
 ```php
 add_test_option('event.create', [
-  "onBeforeTest" => function ($option, \AKlump\CheckPages\Parts\Test $test, array $context) {
+  "onBeforeTest" => function ($option, \AKlump\CheckPages\Event\TestEventInterface $event) {
   
     // ...
-  
-    return \AKlump\CheckPages\Parts\Test::IS_COMPLETE;
+    
+    $event->getTest()->setPassed();
   },
 ]);
 ```

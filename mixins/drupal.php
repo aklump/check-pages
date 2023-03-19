@@ -66,9 +66,9 @@ $_get_session = function (string $username, \AKlump\CheckPages\Parts\Test $test)
     if (empty($mixin_config['users'])) {
       throw new \RuntimeException('Missing value for "users" in the drupal mixin.');
     }
-    $path_to_users_list = $runner->resolveFile($mixin_config['users']);
+    $path_to_users_list = $runner->getFiles()->tryResolveFile($mixin_config['users'], ['yaml', 'yml'])[0];
     $login_url = $mixin_config['login_url'] ?? '/user/login';
-    $absolute_login_url = $runner->url($login_url);
+    $absolute_login_url = $runner->withBaseUrl($login_url);
 
     $factory = new AuthenticateProviderFactory();
     $auth = $factory->get($path_to_users_list, $absolute_login_url);

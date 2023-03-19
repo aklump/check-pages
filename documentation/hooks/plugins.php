@@ -7,7 +7,7 @@
 
 use AKlump\LoftLib\Code\Strings;
 
-$path_to_plugins = realpath(__DIR__ . '/../../plugins');
+$path_to_plugins = __DIR__ . '/../../plugins';
 $plugins = scandir($path_to_plugins);
 
 foreach ($plugins as $plugin) {

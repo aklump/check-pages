@@ -81,7 +81,7 @@ class AssertRunner {
       else {
         $value = $assert->getNeedle();
         $set_feedback = $test->getRunner()->setKeyValuePair($test->getSuite()
-          ->variables(), $assert->set, $value);
+          ->variables(), $assert->get('set'), $value);
         $test->addMessage(new Message(
           [
             $set_feedback,

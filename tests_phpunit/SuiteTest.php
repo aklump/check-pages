@@ -18,7 +18,7 @@ final class SuiteTest extends TestCase {
     $output = $this->getMockBuilder(OutputInterface::class)
       ->getMock();
 
-    $runner = new Runner('', $input, $output);
+    $runner = new Runner($input, $output);
     $runner->setConfig(['variables' => ['alpha' => 123, 'bravo' => 456]]);
 
     $suite = new Suite('', [], $runner);

@@ -48,6 +48,36 @@ class Assertion {
    */
   private $dispatcher;
 
+  /**
+   * @var \AKlump\CheckPages\Parts\Runner
+   */
+  private $runner;
+
+  /**
+   * @var \AKlump\CheckPages\Parts\Test
+   */
+  private $test;
+
+  /**
+   * @var \AKlump\CheckPages\Browser\GuzzleDriver
+   */
+  private $driver;
+
+  /**
+   * @var \AKlump\CheckPages\Assert
+   */
+  private $assert;
+
+  /**
+   * @var \AKlump\CheckPages\Variables
+   */
+  private $vars;
+
+  /**
+   * @var false
+   */
+  private $mayRun;
+
   use PassFailTrait;
   use HasConfigTrait;
 
@@ -55,15 +85,13 @@ class Assertion {
    * Only use this if you are trying to avoid the default listener classes.
    *
    * @param array $config
-   * @param array $listener_classes
+   * @param array|null $listener_classes
    *   Do not pass this unless you are wanting to override the default plugins.
    *
    * @see \AKlump\CheckPages\Service\Assertion::create()
    */
   public function __construct(array $config, array $listener_classes = NULL) {
     $this->setConfig($config);
-    $this->runner = new Runner('', new ArrayInput([]), new NullOutput());
-
     $this->dispatcher = DispatcherFactory::create();
     if (is_null($listener_classes)) {
       $listener_classes = [
@@ -83,10 +111,11 @@ class Assertion {
       }
     }
 
-    // Have to create a bunch of instances just to satisfy the original code.
+    // Have to create a bunch of instances just to satisfy legacy code.
     // Most of these things are not actually used and could be refactored in the
     // future.
-    $suite = new Suite('', [], $this->runner);
+    $runner = new Runner(new ArrayInput([]), new NullOutput());
+    $suite = new Suite('', [], $runner);
     $this->test = new Test('', [], $suite);
     $this->driver = new GuzzleDriver();
     $this->assert = new Assert('', $config, $this->test);

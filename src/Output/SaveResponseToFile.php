@@ -4,6 +4,9 @@ namespace AKlump\CheckPages\Output;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
+use AKlump\CheckPages\Event\SuiteEventInterface;
+use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Parts\Suite;
 use AKlump\Messaging\MessageType;
 use Mimey\MimeTypes;
 use PrettyXml\Formatter;
@@ -30,20 +33,36 @@ final class SaveResponseToFile implements EventSubscriberInterface {
     'application/xml',
   ];
 
+  private static function getRelativePathBySuite(Suite $suite): string {
+    return 'response/' . $suite->getGroup() . '/' . $suite->id();
+  }
+
   /**
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
     return [
+
+      //
+      // Remove previous files.
+      //
       Event::SUITE_LOADED => [
-        function (Event\SuiteEventInterface $event) {
-          $suite = $event->getSuite();
-          $suite->getRunner()->deleteFiles([
-            'response/' . str_replace('\\', '_', $suite) . '*',
-          ]);
-          self::$counter = 1;
+        function (SuiteEventInterface $event) {
+          $log_files = $event->getSuite()->getRunner()->getLogFiles();
+          if (!$log_files) {
+            return '';
+          }
+          $relative_path = self::getRelativePathBySuite($event->getSuite());
+          $absolute_path = $log_files->tryResolveDir($relative_path, FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
+          if ($absolute_path && is_dir($absolute_path)) {
+            $event->getRunner()->getLogFiles()->tryEmptyDir($absolute_path);
+          }
         },
       ],
+
+      //
+      // Write request responses to file.
+      //
       Event::REQUEST_TEST_FINISHED => [
         function (DriverEventInterface $event) {
           try {
@@ -68,13 +87,14 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           $mime_type = $mime_type[0];
           $mimes = new MimeTypes();
 
-          $path = str_replace('\\', '_', $event->getTest()->getSuite());
+          $relative_path = self::getRelativePathBySuite($event->getTest()
+            ->getSuite());
 
           // We cannot use the test ID because it cannot be guaranteed to be
           // sequential, since tests may be inserted during bootstrap, resulting
           // in test IDs that are out of sequence.
-          $path .= '_' . str_pad(self::$counter++, 3, 0, STR_PAD_LEFT);
-          $path .= '.' . $mimes->getExtension($mime_type);
+          $relative_path .= '_' . str_pad(self::$counter++, 3, 0, STR_PAD_LEFT);
+          $relative_path .= '.' . $mimes->getExtension($mime_type);
 
           $content = $event->getDriver()->getResponse()->getBody();
           switch ($content_type) {
@@ -88,14 +108,14 @@ final class SaveResponseToFile implements EventSubscriberInterface {
               break;
           }
           $test = $event->getTest();
-          $filepath = $test->getRunner()
-            ->writeToFile('response/' . $path, [$content], 'w+');
+          $runner = $test->getRunner();
+          $runner->writeToFile($relative_path, [$content], 'w+');
 
           $verbosity = Verbosity::VERBOSE;
           if ($test->hasFailed()) {
             $verbosity = Verbosity::NORMAL;
           }
-          $test->addMessage(new Message([$filepath], MessageType::TODO, $verbosity));
+          $test->addMessage(new Message([$relative_path], MessageType::TODO, $verbosity));
         },
         -1,
       ],

@@ -45,7 +45,7 @@ class Feedback implements EventSubscriberInterface {
   public static function getSubscribedEvents() {
     return [
 
-      Event::RUNNER_CONFIG => [
+      Event::RUNNER_STARTED => [
         function (Event\RunnerEvent $event) {
 
           // Print base URL only when it hasn't been printed, or it's changed.
@@ -69,7 +69,7 @@ class Feedback implements EventSubscriberInterface {
           $suite = $event->getSuite();
           self::echoSuiteTitle($suite->getRunner()
             ->getMessenger(), new Message([
-            sprintf('%s%s ...', ltrim($suite->getGroup() . '/', '/'), $suite->id()),
+            sprintf('%s ...', $suite),
           ], MessageType::INFO, Verbosity::VERBOSE), Flags::INVERT_FIRST_LINE);
         },
       ],

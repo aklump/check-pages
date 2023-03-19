@@ -34,16 +34,27 @@ final class PluginsCompiler {
   private $generatedSchemaPath;
 
   /**
+   * @var string
+   */
+  private $masterComposerJsonPath;
+
+  /**
+   * @var string
+   */
+  private $generatedComposerJsonPath;
+
+
+  /**
    * PluginsCompiler constructor.
    *
-   * @param string $plugins_dir
+   * @param \AKlump\CheckPages\Plugin\PluginsManager $plugins_manager
    * @param string $master_schema_path
-   *   The path to the base schema to load as the template; plugins are merged
-   *   into this.  This schema is what is editable by developers.
    * @param string $generated_schema_path
-   *   The output schema path, with plugins compiled in.
+   * @param string $master_services_path
+   * @param string $generated_services_path
+   * @param string $master_composer_json_path
+   * @param string $generated_composer_json_path
    * @param string $examples_path
-   *   The path to the projects demo/example files.
    */
   public function __construct(
     PluginsManager $plugins_manager,
@@ -51,14 +62,16 @@ final class PluginsCompiler {
     string $generated_schema_path,
     string $master_services_path,
     string $generated_services_path,
-    string $composer_json_path,
+    string $master_composer_json_path,
+    string $generated_composer_json_path,
     string $examples_path
   ) {
     $this->pluginsManager = $plugins_manager;
 
     $this->masterServicesPath = $master_services_path;
     $this->generatedServicesPath = $generated_services_path;
-    $this->composerJsonPath = $composer_json_path;
+    $this->masterComposerJsonPath = $master_composer_json_path;
+    $this->generatedComposerJsonPath = $generated_composer_json_path;
     $this->services = Yaml::parseFile($this->masterServicesPath);
 
     $this->masterSchemaPath = $master_schema_path;
@@ -204,11 +217,20 @@ final class PluginsCompiler {
    * @return void
    */
   private function updateComposerJson() {
-    $json = json_decode(file_get_contents($this->composerJsonPath), TRUE);
+    $unique = function (array &$array) {
+      $array = array_unique($array);
+    };
+    $json = json_decode(file_get_contents($this->masterComposerJsonPath), TRUE);
     $json['autoload']['psr-4']['AKlump\CheckPages\Plugin\\'] = [];
     $plugins = $this->pluginsManager->getAllPlugins();
     foreach ($plugins as $plugin) {
       $json['autoload']['psr-4']['AKlump\CheckPages\Plugin\\'][] = 'plugins/' . $plugin['id'] . '/';
+      $unique($json['autoload']['psr-4']['AKlump\CheckPages\Plugin\\']);
+      if (is_dir($plugin['path'] . '/src/')) {
+        $psr_prefix = 'AKlump\CheckPages\Plugin\\' . Strings::upperCamel($plugin['id']) . '\\';
+        $json['autoload']['psr-4'][$psr_prefix][] = 'plugins/' . $plugin['id'] . '/src/';
+        $unique($json['autoload']['psr-4'][$psr_prefix]);
+      }
       $composer_json = $plugin['path'] . '/composer.json';
       if (file_exists($composer_json)) {
         $composer_json = file_get_contents($composer_json);
@@ -228,7 +250,7 @@ final class PluginsCompiler {
     }
     ksort($json['require']);
 
-    file_put_contents($this->composerJsonPath, json_encode($json, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    file_put_contents($this->generatedComposerJsonPath, json_encode($json, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
   }
 
   /**

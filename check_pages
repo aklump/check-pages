@@ -1,40 +1,58 @@
 #!/usr/bin/env php
 <?php
+/**
+ * @file
+ * Entry file for Check Pages CLI.
+ */
 
-const ROOT = __DIR__;
-
-if (file_exists(ROOT . '/../../autoload.php')) {
-  require ROOT . '/../../autoload.php';
+if (file_exists(__DIR__ . '/../../autoload.php')) {
+  require __DIR__ . '/../../autoload.php';
 }
 else {
-  require ROOT . '/vendor/autoload.php';
+  require __DIR__ . '/vendor/autoload.php';
 }
 
 use AKlump\CheckPages\Command\RunCommand;
+use AKlump\CheckPages\Files\LocalFilesProvider;
+use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\Plugin\PluginsManager;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 global $container;
 $container = new ContainerBuilder();
-$loader = new YamlFileLoader($container, new FileLocator(ROOT));
+
+$root_files = new LocalFilesProvider(__DIR__);
+
+// This will load the services into the $container.
+$loader = new YamlFileLoader($container, $root_files);
 $loader->load('services.DO_NOT_EDIT.yml');
 
 $application = new Application();
 $application->setName('Check Pages by In the Loft Studios');
-$version = json_decode(file_get_contents(ROOT . '/composer.json'))->version ?? '';
+
+$composer_json = $root_files->tryResolveFile('composer.json')[0];
+$version = json_decode(file_get_contents($composer_json))->version ?? '';
 $application->setVersion($version);
-$application->add(new RunCommand());
+
+$plugins_manager = new PluginsManager($root_files->tryResolveDir('plugins')[0]);
+$schema_path = $root_files->tryResolveFile(Runner::SCHEMA_VISIT, ['json'])[0];
+$schema = json_decode(file_get_contents($schema_path), TRUE);
+$plugins_manager->setSchema($schema);
+$container->set('plugins_manager', $plugins_manager);
+
+$application->add(new RunCommand($root_files));
 
 // Expose commands to plugins via events.
 foreach ($application->all() as $command) {
+  if ($command->getName() === 'run') {
+    $command->addOption('debug', NULL, InputOption::VALUE_OPTIONAL);
+  }
+
   // TODO setup an event for plugins to add options to a command.
   // @see \AKlump\CheckPages\Parts\Runner::getDispatcher()
-  $command_name = $command->getName();
-  if ('run' === $command_name) {
-    $command->addOption('debug', NULL, \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL);
-  }
 }
 
 $application->run();

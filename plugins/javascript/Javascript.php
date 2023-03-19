@@ -2,11 +2,11 @@
 
 namespace AKlump\CheckPages\Plugin;
 
+use AKlump\CheckPages\Browser\HeadlessBrowserInterface;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Assert;
-use AKlump\CheckPages\SerializationTrait;
 
 /**
  * Implements the javascript plugin.
@@ -43,10 +43,14 @@ final class Javascript extends LegacyPlugin {
    * {@inheritdoc}
    */
   public function onBeforeRequest(DriverEventInterface $event) {
+    $driver = $event->getDriver();
+    if (!$driver instanceof HeadlessBrowserInterface) {
+      return;
+    }
     if (!empty($this->assertions)) {
       foreach ($this->assertions as $assertion) {
         if (!empty($assertion[self::SEARCH_TYPE])) {
-          $event->getDriver()->addJavascriptEval($assertion[self::SEARCH_TYPE]);
+          $driver->addJavascriptEval($assertion[self::SEARCH_TYPE]);
         }
       }
     }

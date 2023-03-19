@@ -33,19 +33,13 @@ class SuiteValidator implements EventSubscriberInterface {
             // Convert to objects for our validator expects that, and not arrays.
             $config = json_decode(json_encode($suite->getRunner()
               ->getConfig()));
-
             $validator = new Validator();
-            //    try {
+            $path_to_schema = $suite->getRunner()
+              ->getFiles()
+              ->tryResolveFile('schema.config.json')[0];
             $validator->validate($config, (object) [
-              '$ref' => 'file://' . $suite->getRunner()
-                  ->getRootDir() . '/' . 'schema.config.json',
+              '$ref' => 'file://' . $path_to_schema,
             ], Constraint::CHECK_MODE_EXCEPTIONS);
-            //    }
-            //    catch (\Exception $exception) {
-            //      // Add in the file context.
-            //      $class = get_class($exception);
-            //      throw new $class(sprintf('In configuration : %s', strtolower($exception->getMessage())), $exception->getCode(), $exception);
-            //    }
           }
           catch (BadSyntaxException $exception) {
             throw $exception;

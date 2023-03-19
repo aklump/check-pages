@@ -2,9 +2,8 @@
 
 namespace AKlump\CheckPages\Command;
 
-use AKlump\CheckPages\CheckPages;
-use AKlump\CheckPages\Event;
-use AKlump\CheckPages\Event\SuiteEvent;
+use AKlump\CheckPages\Exceptions\UnresolvablePathException;
+use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
@@ -12,7 +11,6 @@ use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
 use AKlump\CheckPages\Output\Timer;
 use AKlump\CheckPages\Parts\Runner;
-use AKlump\Messaging\Processor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,6 +18,16 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class RunCommand extends Command {
+
+  /**
+   * @var \AKlump\CheckPages\Files\FilesProviderInterface
+   */
+  private $rootFiles;
+
+  public function __construct(FilesProviderInterface $root_files, string $name = NULL) {
+    parent::__construct($name);
+    $this->rootFiles = $root_files;
+  }
 
   protected static $defaultName = 'run';
 
@@ -39,17 +47,26 @@ class RunCommand extends Command {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $runner = new Runner(ROOT, $input, $output);
-    $messenger = $runner->getMessenger();
+    global $container;
 
-    // Pull the timezone from the system running this.
-    $timezone = new \DateTimeZone(exec('date +%Z'));
-    $timer = new Timer($timezone);
-    $timer->start();
+    // Keep outside of try, because the catch needs this instance.
+    $runner = new Runner($input, $output);
 
     try {
-      global $container;
 
+      // Now that we have a runner we pass it to the plugins manager to the
+      // dispatcher can be connected to the plugins.
+      $container->get('plugins_manager')->setRunner($runner);
+
+      // Pull the timezone from the system running this.
+      $timezone = new \DateTimeZone(exec('date +%Z'));
+      $timer = new Timer($timezone);
+      $timer->start();
+
+      $messenger = $runner->getMessenger();
+
+      // We set this now because there were not available before this point.  We
+      // set them so that runner functions may use them.
       $container->set('input', $input);
       $container->set('output', $output);
 
@@ -57,34 +74,23 @@ class RunCommand extends Command {
 
       $container->set('runner', $runner);
       $path_to_runner = $input->getArgument('runner');
-      $runner->setBasename(basename($path_to_runner));
-
-      // Add the directory of the runner as a resolvable directory and path to suites.
-      if ($path_to_runner) {
-        $realpath_to_runner = realpath($path_to_runner);
-        if (!$realpath_to_runner) {
-          throw new \InvalidArgumentException("The runner file: \"$path_to_runner\" does not exist.");
-        }
-        $runner_dir = dirname($realpath_to_runner);
-        $runner->addResolveDirectory($runner_dir);
+      if (!file_exists($path_to_runner)) {
+        throw new UnresolvablePathException($path_to_runner);
       }
+      $runner->setId(pathinfo($path_to_runner, PATHINFO_FILENAME));
+
+      $this->rootFiles->addResolveDir(realpath(dirname($path_to_runner)));
+      $runner->setFiles($this->rootFiles);
 
       $dir = $input->getOption('dir');
       if ($dir) {
-        $resolved_dir = realpath($dir);
-        if (!is_dir($resolved_dir)) {
+        if (!is_dir($dir)) {
           throw new \InvalidArgumentException("\"$dir\" must be an existing directory.");
         }
 
         // This path to suites needs to overwrite that from runner directory above.
-        $runner->addResolveDirectory($resolved_dir);
+        $runner->getFiles()->addResolveDir(realpath($dir));
       }
-
-      if (!$runner->getRunnerPath()) {
-        throw new \InvalidArgumentException('You must pass a resolvable path to your PHP runner file, as the only argument, e.g., ./check_pages runner.php');
-      }
-
-      require_once ROOT . '/includes/runner_functions.inc';
 
       if ($input->getOption('filter')) {
         $filters = array_filter($input->getOption('filter'));
@@ -99,7 +105,7 @@ class RunCommand extends Command {
         }
       }
 
-      $runner->executeRunner();
+      $runner->executeRunner($path_to_runner);
     }
     catch (\Exception $exception) {
       $runner->setFailed();
@@ -180,6 +186,17 @@ class RunCommand extends Command {
 
     }
     else {
+      $suite = $runner->getSuite();
+      if ($suite) {
+        $title = sprintf("Suite: %s", $suite);
+        $margin = str_repeat(' ', 27);
+        $message = new Message([
+          "$margin$title$margin",
+          '',
+        ], MessageType::INFO);
+        $messenger->deliver($message, Flags::INVERT_FIRST_LINE);
+      }
+
       // Sometimes a test fails without an assertion failing, e.g. the HTTP response code.
       $failed_count = max($runner->getTotalFailedTests(), $runner->getTotalFailedAssertions(), intval($runner->hasFailed()));
       $message = new Message(

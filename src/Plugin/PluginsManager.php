@@ -53,10 +53,14 @@ final class PluginsManager {
    * @param string $path_to_plugins
    *   Path to the directory containing all plugins.
    */
-  public function __construct(Runner $runner_instance, string $path_to_plugins) {
-    $this->runner = $runner_instance;
+  public function __construct(string $path_to_plugins) {
     $this->testPluginsDir = rtrim($path_to_plugins, '/');
+  }
+
+  public function setRunner(Runner $runner): PluginsManager {
+    $this->runner = $runner;
     $this->subscribeToEvents($this->runner->getDispatcher());
+    return $this;
   }
 
   /**
@@ -85,6 +89,12 @@ final class PluginsManager {
       $filepath = "$basepath/$basename";
       if ($basename !== '.' && $basename !== '..' && is_dir($filepath)) {
         $id = pathinfo($filepath, PATHINFO_FILENAME);
+
+        // This means the plugin is disabled.
+        if (strpos($id, '_') === 0) {
+          continue;
+        }
+
         $filename = Strings::upperCamel($id);
         $plugins[] = [
           'id' => $id,

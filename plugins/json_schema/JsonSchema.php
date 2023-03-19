@@ -22,6 +22,11 @@ final class JsonSchema implements PluginInterface {
   use SerializationTrait;
 
   /**
+   * @var \AKlump\CheckPages\Files\FilesProviderInterface
+   */
+  private $files;
+
+  /**
    * Allows instance caching of decoded schemas.
    *
    * @var array
@@ -62,7 +67,7 @@ final class JsonSchema implements PluginInterface {
    * {@inheritdoc}
    */
   public function prepareAssertion(AssertEventInterface $event) {
-    $this->runner = $event->getTest()->getRunner();
+    $this->files = $event->getTest()->getRunner()->getFiles();
     $assert = $event->getAssert();
     $assert->setToStringOverride([$this, 'onAssertToString']);
     $response = $event->getDriver()->getResponse();
@@ -135,7 +140,7 @@ final class JsonSchema implements PluginInterface {
       }
       else {
         try {
-          $path_to_schema = $this->runner->resolveFile($schema_config_value);
+          $path_to_schema = $this->files->tryResolveFile($schema_config_value, ['json'])[0];
           $uri = 'file://' . $path_to_schema;
         }
         catch (UnresolvablePathException $exception) {

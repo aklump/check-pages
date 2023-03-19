@@ -11,19 +11,6 @@ use AKlump\CheckPages\Parts\Runner;
 
 abstract class LegacyPlugin implements LegacyPluginInterface {
 
-  /**
-   * @var \AKlump\CheckPages\Parts\Runner
-   */
-  protected $runner;
-
-  /**
-   * @param \AKlump\CheckPages\Parts\Runner $runner
-   *   A test runner instance.
-   */
-  public function __construct(Runner $runner) {
-    $this->runner = $runner;
-  }
-
   public function applies(array &$config) {
   }
 

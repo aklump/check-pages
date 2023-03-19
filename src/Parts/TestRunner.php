@@ -39,7 +39,9 @@ class TestRunner {
       return boolval($state);
     };
 
+    $base_uri = $runner->getConfig()['base_url'];
     $driver = new GuzzleDriver();
+    $driver->setBaseUrl($base_uri);
     $is_http_test = !empty($test->getConfig()['url']);
     if ($is_http_test) {
 
@@ -54,6 +56,7 @@ class TestRunner {
       if ($test->getConfig()['js'] ?? FALSE) {
         try {
           $driver = new ChromeDriver();
+          $driver->setBaseUrl($base_uri);
         }
         catch (\Exception $exception) {
           throw new TestFailedException($test->getConfig(), $exception);
@@ -103,7 +106,7 @@ class TestRunner {
           return Assertion::create($config);
         }, $assertions_to_wait_for);
 
-        $driver->setUrl($runner->url($test->getConfig()['url']));
+        $driver->setUrl($runner->withBaseUrl($test->getConfig()['url']));
         $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_READY);
         $response = $driver
           ->request($assertions_to_wait_for)
@@ -161,12 +164,12 @@ class TestRunner {
 
       $http_location = $driver->getLocation();
       if (!is_null($expected_location)) {
-        $location_test = $http_location === $runner->url($expected_location);
+        $location_test = $http_location === $expected_location;
         $test_passed($location_test);
         if (!$location_test) {
           $test->addMessage(new Message(
             [
-              sprintf('The actual location: %s did not match the expected location: %s', $http_location, $runner->url($expected_location)),
+              sprintf('The actual "%s" and expected "%s" locations do not match', $http_location, $expected_location),
             ],
             MessageType::ERROR,
             Verbosity::VERBOSE

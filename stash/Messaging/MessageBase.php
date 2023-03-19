@@ -20,7 +20,7 @@ abstract class MessageBase implements MessageInterface {
       throw new \InvalidArgumentException(sprintf('Invalid message type: %s', $message_type));
     }
     $this->messageType = $message_type;
-    $this->message = array_values($message);
+    $this->message = array_map('strval', array_values($message));
   }
 
   /**

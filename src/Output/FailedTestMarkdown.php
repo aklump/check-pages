@@ -103,7 +103,7 @@ final class FailedTestMarkdown {
       ]);
     }
     $url = $this->test->getRelativeUrl();
-    $url = $runner->url($url);
+    $url = $runner->withBaseUrl($url);
     $runner->writeToFile($this->basename, [
       "<$url>",
       '',

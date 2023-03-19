@@ -67,7 +67,7 @@ add_shorthand('item.delete', function ($shorthand, $test) {
 add_shorthand('json_factory', function ($shorthand, \AKlump\CheckPages\Parts\Test $test) use ($runner) {
   assert(is_array($shorthand));
   $config = $test->getConfig();
-  $path = $runner->resolveFile($shorthand['schema']);
+  $path = $runner->getFiles()->tryResolveFile($shorthand['schema'], ['json'])[0];
   $faker = new Faker($path);
   $data = $faker->jsonSerialize();
 

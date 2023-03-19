@@ -13,9 +13,14 @@ namespace AKlump\CheckPages;
 final class Event {
 
   /**
-   * Affect the runner configuration before a suite is run.
+   * Configuration has been loaded.
+   *
+   * @see \load_config()
+   * @see \AKlump\CheckPages\Parts\Runner::loadConfig()
    */
-  const RUNNER_CONFIG = 'runner.config';
+  const CONFIG_LOADED = 'config.loaded';
+
+  const RUNNER_STARTED = 'runner.started';
 
   const SUITE_LOADED = 'suite.loaded';
 

@@ -11,16 +11,17 @@ use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\SuiteFailedException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
-use AKlump\CheckPages\Files;
+use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Files\LocalFilesProvider;
 use AKlump\CheckPages\Output\ConsoleEchoPrinter;
 use AKlump\CheckPages\Output\DebugMessage;
+use AKlump\CheckPages\Output\DevNullPrinter;
+use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\LoggerPrinter;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\MultiPrinter;
-use AKlump\CheckPages\Output\SourceCodeOutput;
 use AKlump\CheckPages\Output\VerboseDirective;
 use AKlump\CheckPages\Output\Verbosity;
-use AKlump\CheckPages\Plugin\PluginsManager;
 use AKlump\CheckPages\SerializationTrait;
 use AKlump\CheckPages\Service\DispatcherFactory;
 use AKlump\CheckPages\Storage;
@@ -36,7 +37,9 @@ use JsonSchema\Validator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
+use AKlump\CheckPages\Traits\HasConfigTrait;
 
 class Runner {
 
@@ -46,6 +49,9 @@ class Runner {
   use SetTrait;
   use HasMessagesTrait;
   use BaseUrlTrait;
+  use HasConfigTrait {
+    HasConfigTrait::setConfig as traitSetConfig;
+  }
 
   /**
    * The filename without extension or path.
@@ -58,11 +64,16 @@ class Runner {
 
   const OUTPUT_QUIET = 2;
 
-  const LOGGER_PRINTER_BASENAME = 'runner.log';
+  const LOGGER_PRINTER_BASENAME = 'debug.log';
 
   public $totalAssertions = 0;
 
   public $failedAssertionCount = 0;
+
+  /**
+   * @var string
+   */
+  private $id;
 
   protected $totalTestsRun = 0;
 
@@ -82,11 +93,6 @@ class Runner {
    * @var array
    */
   protected $filters = [];
-
-  /**
-   * @var array
-   */
-  protected $resolvePaths = [];
 
   /**
    * @var array
@@ -150,12 +156,11 @@ class Runner {
    */
   private $filtersWereApplied = FALSE;
 
+
   /**
-   * Cache of discovered filepath.
-   *
-   * @var string
+   * @var FilesProviderInterface
    */
-  private $pathToFiles;
+  private $logFiles;
 
   private $input;
 
@@ -167,30 +172,41 @@ class Runner {
   private $dispatcher;
 
   /**
+   * @var \AKlump\CheckPages\Files\LocalFilesProvider
+   */
+  private $files;
+
+  /**
    * App constructor.
    *
    * @param string $root_dir
    *   The system path to this test app root directory.  The schema files, for
    *   example are found in this directory.
    */
-  public function __construct(string $root_dir, InputInterface $input, OutputInterface $output) {
+  public function __construct(InputInterface $input, OutputInterface $output) {
     $this->input = $input;
     $this->output = $output;
-
-    $this->rootDir = $root_dir;
-    $this->addResolveDirectory($this->rootDir);
-    if (is_dir($this->rootDir . '/tests')) {
-      $this->addResolveDirectory($this->rootDir . '/tests');
+    $this->outputMode = Runner::OUTPUT_NORMAL;
+    if ($this->getOutput()->isQuiet()) {
+      $this->outputMode = Runner::OUTPUT_QUIET;
     }
-    $manager = new PluginsManager($this, $this->rootDir . '/plugins');
-    $this->schema = [];
-    $schema_path = $this->rootDir . '/' . static::SCHEMA_VISIT . '.json';
-    if (file_exists($schema_path)) {
-      $this->schema = json_decode(file_get_contents($schema_path), TRUE);
-    }
-    $manager->setSchema($this->schema);
   }
 
+  /**
+   * @param \AKlump\CheckPages\Files\FilesProviderInterface $files ;
+   *
+   * @return self
+   *   Self for chaining.
+   */
+  public function setFiles(FilesProviderInterface $files): self {
+    $this->files = $files;
+
+    return $this;
+  }
+
+  public function getFiles(): ?FilesProviderInterface {
+    return $this->files;
+  }
 
   /**
    * Echo a message.
@@ -249,10 +265,6 @@ class Runner {
     $printers[] = new LoggerPrinter(self::LOGGER_PRINTER_BASENAME, $this);
 
     return new MultiPrinter($printers);
-  }
-
-  public function getRootDir(): string {
-    return $this->rootDir;
   }
 
   /**
@@ -322,30 +334,21 @@ class Runner {
   }
 
   /**
-   * Set the runner information.
+   * @return string
+   *   The id or name of the runner.
+   */
+  public function id(): string {
+    return $this->id;
+  }
+
+  /**
+   * @param string $id
    *
-   * @param string $basename
-   *   The basename of the runner.
-   * @param array $options
-   *   The runner options.
-   *
-   * @return $this
+   * @return
    *   Self for chaining.
    */
-  public function setBasename(string $basename): Runner {
-    if (strstr($basename, '/') !== FALSE) {
-      throw new \InvalidArgumentException(sprintf('::setRunner() only takes a basename, not a full path; change "%s" to "%s"', $basename, basename($basename)));
-    }
-    $this->runner = [
-      'name' => $basename,
-    ];
-
-    $this->outputMode = Runner::OUTPUT_NORMAL;
-    if ($this->getOutput()->isQuiet()) {
-      $this->outputMode = Runner::OUTPUT_QUIET;
-    }
-
-    $this->sourceCode = new SourceCodeOutput($this);
+  public function setId(string $id): self {
+    $this->id = $id;
 
     return $this;
   }
@@ -359,12 +362,24 @@ class Runner {
   }
 
   public function loadConfig(string $resolve_config_path) {
-    $config_path = $this->resolveFile($resolve_config_path);
-    $config = Yaml::parseFile($config_path);
-    if ($config) {
-      $this->setConfig($config);
-      $this->configPath = $config_path;
+    $config_path = $this->files->tryResolveFile($resolve_config_path, [
+      'yaml',
+      'yml',
+    ])[0];
+    try {
+      $config = Yaml::parseFile($config_path);
+      if (!$config || !is_array($config)) {
+        throw new ParseException('');
+      }
     }
+    catch (ParseException $exception) {
+      throw new StopRunnerException(sprintf('Failed to load configuration from "%s" due to a parse error.', $resolve_config_path), 0, $exception);
+    }
+    $this->setConfig($config);
+    $this->configPath = $config_path;
+
+    $this->getDispatcher()
+      ->dispatch(new RunnerEvent($this), Event::CONFIG_LOADED);
 
     return $this;
   }
@@ -381,24 +396,12 @@ class Runner {
    * @see load_config()
    */
   public function setConfig(array $config): Runner {
-    $this->config = $config;
+    $this->traitSetConfig($config);
     if (isset($config['base_url'])) {
       $this->setBaseUrl($config['base_url']);
     }
 
     return $this;
-  }
-
-  /**
-   * Return the runtime configuration values.
-   *
-   * @return array
-   *   The configuration array.
-   *
-   * @see ::getInput()->getOptions() for CLI options.
-   */
-  public function getConfig(): array {
-    return $this->config;
   }
 
   /**
@@ -486,75 +489,28 @@ class Runner {
     });
   }
 
-  public function getTestOptions(): array {
-    return $this->options;
+  /**
+   * @return \AKlump\CheckPages\Plugin\src\Option[]
+   */
+  public function getRuntimeOptions(): array {
+    return $this->runtimeOptions;
   }
 
   /**
-   * Add a custom command.
+   * Add a runtime option name.
    *
-   * @param string $name
-   *   The unique command name.
-   * @param array $callbacks
+   * @param string $selector
+   *   The runtime selector, which must not have been added yet.
    *
-   * @return \AKlump\CheckPages\Parts\Runner
-   *   Self for chaining.
+   * @return void
+   *
+   * @throws \RuntimeException If $selector has previously been added.
    */
-  public function addTestOption(string $name, array $callbacks): self {
-    $this->options[$name] = ['name' => $name, 'hooks' => []];
-    foreach ($callbacks as $hook => $callback) {
-      $callback_reflection = new \ReflectionFunction($callback);
-      $arguments = array_map(function ($param) {
-        $type = $param->getType();
-
-        return [
-          $type ? $type->getName() : '',
-          $param->getName(),
-        ];
-      }, $callback_reflection->getParameters());
-      $this->options[$name]['hooks'][$hook] = [
-        'name' => $hook,
-        'arguments' => $arguments,
-        'callback' => $callback,
-      ];
+  public function tryAddRuntimeOption(string $selector) {
+    if (in_array($selector, $this->runtimeOptions)) {
+      throw new \RuntimeException(sprintf('The custom option "%s" has already been added to this runner.', $selector));
     }
-
-    return $this;
-  }
-
-  /**
-   * @param string $path
-   *   An absolute path to a directory to be used for resolving paths.
-   *
-   * @return \AKlump\CheckPages\Parts\Runner
-   *   Self for chaining.
-   */
-  public function addResolveDirectory(string $path): self {
-    $path = rtrim($path, '/');
-    if (!in_array($path, $this->resolvePaths)) {
-      $this->resolvePaths[] = $path;
-    }
-
-    return $this;
-  }
-
-  public function getResolveDirectories(): array {
-    return $this->resolvePaths;
-  }
-
-  /**
-   * Get the resolved test filepath.
-   *
-   * @return string
-   *   The resolved test filepath.
-   */
-  public function getRunnerPath(): string {
-    try {
-      return $this->resolveFile((string) $this->runner['name']);
-    }
-    catch (\Exception $exception) {
-      return '';
-    }
+    $this->runtimeOptions[] = $selector;
   }
 
   /**
@@ -566,12 +522,8 @@ class Runner {
    * @throws \AKlump\CheckPages\Exceptions\TestFailedException If the runner stopped
    *   before it was finished due to a failure.
    */
-  public function executeRunner() {
+  public function executeRunner(string $runner_path) {
     try {
-      $this->deleteFiles([self::LOGGER_PRINTER_BASENAME]);
-
-      $runner_path = $this->getRunnerPath();
-
       $filter_message = '';
       if (count($this->filters)) {
         $filter_message = '?' . urldecode(http_build_query($this->filters));
@@ -590,15 +542,16 @@ class Runner {
       require $runner_path;
 
       if (count($this->filters) > 0 && !$this->filtersWereApplied) {
-        $this->echo(new Message(
+        $this->echo(new Message([''], MessageType::INFO, Verbosity::VERBOSE));
+        $this->getMessenger()->deliver(new Message(
           [
-            '',
+            basename($runner_path),
             sprintf('There are no suites in %s that match at least one of your filters.', basename($runner_path)),
             'This can happen if you have not added `run_suite()` with a path to the intended suite(s).',
             '',
           ],
-          MessageType::ERROR
-        ));
+          MessageType::INFO, Verbosity::VERBOSE
+        ), Flags::INVERT_FIRST_LINE);
       }
 
       if ($this->failedTestCount) {
@@ -612,6 +565,7 @@ class Runner {
       $this->setFailed();
     }
 
+    // TODO I'm not sure this should be called when an exception is thrown.
     $this->getDispatcher()
       ->dispatch(new RunnerEvent($this), Event::RUNNER_FINISHED);
 
@@ -635,12 +589,15 @@ class Runner {
 
     // Allow the modification of the runner config before the suite is run.
     $this->getDispatcher()
-      ->dispatch(new RunnerEvent($this), Event::RUNNER_CONFIG);
+      ->dispatch(new RunnerEvent($this), Event::RUNNER_STARTED);
 
     // TODO Might be worth moving this out of this method to src/SuiteValidator.php...
     $ignored_suite_paths = array_filter(array_map(function ($suite_to_ignore) {
       try {
-        return $this->resolveFile($suite_to_ignore);
+        return $this->files->tryResolveFile($suite_to_ignore, [
+          'yaml',
+          'yml',
+        ])[0];
       }
       catch (UnresolvablePathException $exception) {
 
@@ -649,7 +606,7 @@ class Runner {
         // can't find it.  Return NULL, which will be filtered out.
         return NULL;
       }
-    }, $this->getConfig()['suites_to_ignore'] ?? []));
+    }, $this->get('suites_to_ignore') ?? []));
 
     if (!$this->applyFilters([$suite])) {
       return;
@@ -710,7 +667,7 @@ class Runner {
           // plugins is easier.
           $test->setFailed();
           $test
-            ->addMessage(new \AKlump\CheckPages\Output\Message([$exception->getMessage()], \AKlump\Messaging\MessageType::ERROR));
+            ->addMessage(new Message([$exception->getMessage()], MessageType::ERROR));
         }
       }
 
@@ -773,90 +730,6 @@ class Runner {
   }
 
   /**
-   * Resolve a partial path to an absolute when possible.
-   *
-   * @param array $extensions
-   *   One or more extensions that should be considered.  Only files with one of
-   *   these extension will be resolved.  These should not contain dots.
-   * @param string $path
-   *   This can be a resolvable path or an absolute path; if it's an absolute
-   *   path, it will simply be returned.
-   * @param string &$resolved_path
-   *   This variable will be set with the parents used to resolve $path.
-   *
-   * @return string
-   *   The resolved full path to a file if it exists.
-   *
-   * @throws \AKlump\CheckPages\Exceptions\UnresolvablePathException
-   *   If the path cannot be resolved.
-   */
-  public function resolveFile(string $path, string &$resolved_path = '', array $extensions = [
-    'yml',
-    'yaml',
-  ]
-  ) {
-    if (substr($path, 0, 1) === '/' && file_exists($path)) {
-      $resolved_path = dirname($path);
-
-      return $path;
-    }
-
-    // If $path has an extension it will trump $extensions.
-    $ext = pathinfo($path, PATHINFO_EXTENSION);
-    if ($ext) {
-      $path = substr($path, 0, -1 * (strlen($ext) + 1));
-      $extensions = [$ext];
-    }
-
-    $candidates = [['', $path]];
-    foreach ($this->resolvePaths as $resolve_path) {
-      $resolve_path = rtrim($resolve_path, '/');
-      $candidates[] = [$resolve_path, $resolve_path . '/' . $path];
-      foreach ($extensions as $extension) {
-        $candidates[] = [
-          $resolve_path,
-          $resolve_path . '/' . $path . '.' . trim($extension, '.'),
-        ];
-      }
-    }
-    while (($try = array_shift($candidates))) {
-      list($resolved_path, $try) = $try;
-      if (is_file($try)) {
-        return $try;
-      }
-    }
-    throw new UnresolvablePathException($path);
-  }
-
-  /**
-   * Resolve a path.
-   *
-   * @param string $path
-   * @param string &$resolved_path
-   *   This variable will be set with the parents used to resolve $path.
-   *
-   * @return string
-   *   The resolved full path to a file if it exists.
-   *
-   * @throws \AKlump\CheckPages\Exceptions\UnresolvablePathException
-   *   If the path cannot be resolved.
-   */
-  public function resolve(string $path, &$resolved_path = NULL) {
-    $candidates = [['', $path]];
-    foreach ($this->resolvePaths as $resolve_path) {
-      $resolve_path = rtrim($resolve_path, '/');
-      $candidates[] = [$resolve_path, $resolve_path . '/' . $path];
-    }
-    while (($try = array_shift($candidates))) {
-      list($resolved_path, $try) = $try;
-      if (file_exists($try)) {
-        return $try;
-      }
-    }
-    throw new UnresolvablePathException($path);
-  }
-
-  /**
    * Validate a suite for correct syntax.
    *
    * @param \AKlump\CheckPages\Parts\Suite $suite
@@ -869,14 +742,14 @@ class Runner {
     $data = Yaml::parse($suite_yaml, YAML::PARSE_OBJECT_FOR_MAP);
 
     // Do not validate $data properties that have been added using add_test_option().
-    $path_to_schema = $this->rootDir . '/' . $schema_basename;
+    $path_to_schema = $this->files->tryResolveFile($schema_basename)[0];
     $schema = json_decode(file_get_contents($path_to_schema));
 
     // Dynamically add permissive items for every test option.  These have been
     // added on the fly and do not have schema support, as plugins do.
-    foreach ($this->getTestOptions() as $test_option) {
+    foreach ($this->getRuntimeOptions() as $selector) {
       $schema->items->anyOf[] = (object) [
-        'required' => [$test_option['name']],
+        'required' => [$selector],
         'additionalProperties' => TRUE,
       ];
     }
@@ -891,11 +764,11 @@ class Runner {
         "Suite Group\\ID:",
         strval($suite),
         '',
-      ], MessageType::ERROR, $directive), \AKlump\CheckPages\Output\Flags::INVERT_FIRST_LINE);
+      ], MessageType::ERROR, $directive), Flags::INVERT_FIRST_LINE);
 
       $this->echo(new Message([
         "Test Configuration:",
-      ], MessageType::ERROR, $directive), \AKlump\CheckPages\Output\Flags::INVERT_FIRST_LINE);
+      ], MessageType::ERROR, $directive), Flags::INVERT_FIRST_LINE);
 
       $this->echo(new Message([
         json_encode($data, JSON_PRETTY_PRINT),
@@ -906,11 +779,11 @@ class Runner {
         'Schema Path:',
         $path_to_schema,
         '',
-      ], MessageType::ERROR, $directive), \AKlump\CheckPages\Output\Flags::INVERT_FIRST_LINE);
+      ], MessageType::ERROR, $directive), Flags::INVERT_FIRST_LINE);
 
       $this->echo(new Message([
         "Schema Validation Errors:",
-      ], MessageType::ERROR, $directive), \AKlump\CheckPages\Output\Flags::INVERT_FIRST_LINE);
+      ], MessageType::ERROR, $directive), Flags::INVERT_FIRST_LINE);
 
       foreach ($validator->getErrors() as $error) {
         $this->echo(new Message([
@@ -943,14 +816,10 @@ class Runner {
     try {
       $storage_name = '';
       $subdir = '/storage/';
-      $path_to_files = $this->getPathToFilesDirectory();
+      $path_to_files = $this->getLogFiles();
       if ($path_to_files) {
-        $files = new Files($this);
-        $path_to_storage = $files->prepareDirectory("$path_to_files/$subdir");
-        if (is_dir($path_to_storage)) {
-          $storage_name = pathinfo($this->runner['name'], PATHINFO_FILENAME);
-          $storage_name = rtrim($path_to_storage, '/') . "/$storage_name";
-        }
+        $path_to_storage = $this->tryResolveDir("$path_to_files/$subdir");
+        $storage_name = rtrim($path_to_storage, '/') . "/" . $this;
       }
     }
     catch (\Exception $exception) {
@@ -968,68 +837,32 @@ class Runner {
   }
 
   /**
-   * Return the path to the files, if it exists.
+   * Return a files provider for writing log files.
    *
-   * @return string
-   *   The path to the files directory or empty string.
+   * @return \AKlump\CheckPages\Files\FilesProviderInterface
+   *   An instance for writing files.
    */
-  public function getPathToFilesDirectory(): string {
-    if (NULL === $this->pathToFiles) {
-      $config = $this->getConfig();
-      if (count($config) === 0) {
+  public function getLogFiles(): ?FilesProviderInterface {
+    if (NULL === $this->logFiles) {
+      if (!$this->has('files')) {
         // This happens if this gets called before config is loaded; in such
-        // case we do not want to alter $this->pathToFiles yet; the hope is to
+        // case we do not want to alter $this->logFiles yet; the hope is to
         // catch it the next time--after config has been loaded.
-        return '';
+        return NULL;
       }
-      if (empty($config['files'])) {
-        $this->pathToFiles = '';
+      try {
+        $log_files_path = $this->get('files') . '/' . $this;
+        $log_files_path = $this->files
+                            ->tryCreateDir($log_files_path)
+                            ->tryResolveDir($log_files_path)[0];
+        $this->logFiles = new LocalFilesProvider($log_files_path);
       }
-      else {
-        try {
-          $this->pathToFiles = $this->resolve($config['files']);
-        }
-        catch (\Exception $exception) {
-          $this->pathToFiles = '';
-        }
-      }
-    }
-
-    return $this->pathToFiles;
-  }
-
-  public function getPathToRunnerFilesDirectory(): string {
-    $runner_files_path = '';
-    $path_to_files = $this->getPathToFilesDirectory();
-    if ($path_to_files) {
-      $runner_files_path = $path_to_files . '/' . pathinfo($this->runner['name'], PATHINFO_FILENAME);
-      if (!is_dir($runner_files_path)) {
-        mkdir($runner_files_path, 0775, TRUE);
+      catch (\InvalidArgumentException $exception) {
+        $this->logFiles = NULL;
       }
     }
 
-    return $runner_files_path;
-  }
-
-  /**
-   * @param array $filenames
-   *   Relative paths (or globs) to be deleted.
-   *
-   * @return void
-   */
-  public function deleteFiles(array $filenames): void {
-    $path_to_files = $this->getPathToRunnerFilesDirectory();
-    if (!$path_to_files) {
-      return;
-    }
-    foreach ($filenames as $filename) {
-      $files = glob(rtrim($path_to_files, '/') . '/' . ltrim($filename, '/'));
-      foreach ($files as $file) {
-        if ($path_to_files && strstr($file, $path_to_files) !== FALSE) {
-          unlink($file);
-        }
-      }
-    }
+    return $this->logFiles;
   }
 
   /**
@@ -1042,37 +875,31 @@ class Runner {
    *
    * @return string The absolute filepath to the written file.
    */
-  public function writeToFile(string $name, array $lines, string $mode = 'a+'
-  ): string {
-    $path_to_files = $this->getPathToRunnerFilesDirectory();
-    if (!$path_to_files) {
+  public function writeToFile(string $relative_path_to_file, array $lines, string $mode = 'a+'): string {
+    if (!$this->getLogFiles()) {
       return '';
     }
-    if (empty($this->writeToFileResources[$name])) {
-      $path = [];
-      $path[] = pathinfo($name, PATHINFO_FILENAME);
-      $extension = pathinfo($name, PATHINFO_EXTENSION) ?? '';
-      $extension = $extension ?: 'txt';
-      $path = implode('-', $path) . ".$extension";
 
-      $dirname = dirname($name);
-      if ($dirname) {
-        $path = "$dirname/$path";
-        if (!is_dir($path_to_files . '/' . $dirname)) {
-          mkdir($path_to_files . '/' . $dirname, 0755, TRUE);
-        }
-      }
-
-      $handle = fopen($path_to_files . '/' . $path, $mode);
-      $this->writeToFileResources[$name] = [
+    // Keep track of our open resources, opening only once.
+    if (empty($this->writeToFileResources[$relative_path_to_file])) {
+      $absolute_path = $this->getLogFiles()
+                         ->tryCreateDir(dirname($relative_path_to_file))
+                         ->tryResolveFile($relative_path_to_file, [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
+      $handle = fopen($absolute_path, $mode);
+      $this->writeToFileResources[$relative_path_to_file] = [
         $handle,
-        $path_to_files . '/' . $path,
+        $absolute_path,
       ];
     }
-    list($handle, $filepath) = $this->writeToFileResources[$name];
+
+    list($handle, $filepath) = $this->writeToFileResources[$relative_path_to_file];
     fwrite($handle, implode(PHP_EOL, $lines) . PHP_EOL);
 
     return $filepath;
+  }
+
+  public function __toString() {
+    return $this->id();
   }
 
   /**

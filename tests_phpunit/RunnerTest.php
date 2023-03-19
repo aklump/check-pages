@@ -12,8 +12,36 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class RunnerTest extends TestCase {
 
+  /**
+   * Provides data for testAddSuiteIdFilter.
+   */
+  public function dataForTestAddSuiteIdFilterProvider() {
+    $tests = [];
+    $tests[] = [
+      'lorem.yml',
+      'lorem.yaml',
+      'foo,bar',
+    ];
+
+    return $tests;
+  }
+
+  public function testAddSuiteFilterAllowsDots() {
+    $runner = $this->getRunner();
+    $result = $runner->addSuiteIdFilter('live.canonical');
+    $this->assertSame($runner, $result);
+  }
+
+  /**
+   * @dataProvider dataForTestAddSuiteIdFilterProvider
+   */
+  public function testAddSuiteIdFilterThrowsBadValues(string $filter) {
+    $this->expectException(\InvalidArgumentException::class);
+    $this->getRunner()->addSuiteIdFilter($filter);
+  }
+
   public function testSetKeyValuePairReturnsMessageAndSetsAsExpected() {
-    $suite = new Suite('', [], $this->getRunner());
+    $suite = new Suite('test', [], $this->getRunner());
     $message = $suite->getRunner()
       ->setKeyValuePair($suite->variables(), 'foo', 'bar');
     $this->assertIsString($message);
@@ -28,6 +56,6 @@ final class RunnerTest extends TestCase {
     $output = $this->getMockBuilder(OutputInterface::class)
       ->getMock();
 
-    return new Runner('', $input, $output);
+    return new Runner($input, $output);
   }
 }

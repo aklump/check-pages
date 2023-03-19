@@ -3,18 +3,18 @@
 namespace AKlump\CheckPages\Plugin;
 
 use AKlump\CheckPages\Exceptions\BadSyntaxException;
-use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\Files\FilesProviderInterface;
 use Symfony\Component\Yaml\Yaml;
 
 final class Importer {
 
   /**
-   * @var \AKlump\CheckPages\Parts\Runner
+   * @var \AKlump\CheckPages\Files\FilesProviderInterface
    */
-  private $runner;
+  private $files;
 
-  public function __construct(Runner $runner) {
-    $this->runner = $runner;
+  public function __construct(FilesProviderInterface $files) {
+    $this->files = $files;
   }
 
   public function resolveImports(array &$test): void {
@@ -32,12 +32,18 @@ final class Importer {
 
   public function loadImport(string $import): array {
     try {
-      $path_to_import_file = $this->runner->resolveFile($import);
+      $path_to_import_file = $this->files->tryResolveFile($import, [
+        'yaml',
+        'yml',
+      ])[0];
     }
     catch (\Exception $exception) {
       $info = pathinfo($import);
       $underscored = $info['dirname'] . '/_' . $info['basename'];
-      $path_to_import_file = $this->runner->resolveFile($underscored);
+      $path_to_import_file = $this->files->tryResolveFile($underscored, [
+        'yaml',
+        'yml',
+      ])[0];
     }
 
     $loaded = Yaml::parseFile($path_to_import_file);

@@ -4,6 +4,12 @@
         {
             "required": [
                 "header",
+                "set"
+            ]
+        },
+        {
+            "required": [
+                "header",
                 "contains"
             ]
         },
@@ -17,12 +23,6 @@
             "required": [
                 "header",
                 "is"
-            ]
-        },
-        {
-            "required": [
-                "header",
-                "set"
             ]
         },
         {

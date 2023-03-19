@@ -33,9 +33,6 @@
                 "plugins/style/",
                 "plugins/value/",
                 "plugins/xpath/"
-            ],
-            "AKlump\\CheckPages\\Plugin\\Options\\": [
-                "plugins/options/src/"
             ]
         }
     },
@@ -56,10 +53,7 @@
         "guzzlehttp/guzzle": "^6.3|^7.0",
         "justinrainbow/json-schema": "^5.2",
         "laminas/laminas-xml2json": "^3.2",
-        "midweste/objectpath": "^1.0",
-        "opis/json-schema": "^2.3",
         "php": ">=7.2",
-        "php-jsonpointer/php-jsonpointer": "^4.0",
         "ralouphie/mimey": "^2.1",
         "shanethehat/pretty-xml": "^1.0",
         "spatie/browsershot": "^3.57",

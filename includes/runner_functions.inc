@@ -5,9 +5,11 @@
  * These are functions available for writing tests.
  */
 
-use AKlump\CheckPages\Event\SuiteEventInterface;
+use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
+use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Parts\Suite;
 use MidwestE\ObjectPath;
 
@@ -22,7 +24,9 @@ use MidwestE\ObjectPath;
  */
 function load_config(string $config, bool $allow_override = TRUE) {
   global $container;
-  $runner = $container->get('runner');
+
+  /** @var \AKlump\CheckPages\Files\FilesProviderInterface $files_readonly */
+  $files = $container->get('runner')->getFiles();
 
   $input = $container->get('input');
   if ($allow_override && ($override = $input->getOption('config'))) {
@@ -33,13 +37,13 @@ function load_config(string $config, bool $allow_override = TRUE) {
     // to allow "--config=foo" instead.  That's the reason for the next few
     // lines.  July 16, 2021 at 11:23:12 AM PDT, aklump.
     try {
-      $runner->resolveFile($override);
+      $files->tryResolveFile($override, ['yaml', 'yml'])[0];
     }
     catch (\Exception $exception) {
       $override = 'config/' . $override;
     }
     try {
-      $runner->resolveFile($override);
+      $files->tryResolveFile($override, ['yaml', 'yml'])[0];
     }
     catch (\Exception $exception) {
       // If the presumption failed, then we just rollback.
@@ -48,7 +52,7 @@ function load_config(string $config, bool $allow_override = TRUE) {
 
     $config = $override;
   }
-  $runner->loadConfig($config);
+  $container->get('runner')->loadConfig($config);
 }
 
 /**
@@ -88,66 +92,9 @@ function config_get($config_path) {
  */
 function add_directory(string $absolute_path_to_dir) {
   global $container;
-  $runner = $container->get('runner');
-
-  if (substr($absolute_path_to_dir, 0, 1) !== '/') {
-    throw new \InvalidArgumentException(sprintf('To add a directory, it must begin with a "/"; "%s" does not.', $absolute_path_to_dir));
-  }
-  $directory = rtrim(realpath($absolute_path_to_dir), '/');
-  if (!$directory || !is_dir($directory)) {
-    throw new \InvalidArgumentException("\"$absolute_path_to_dir\" must be an existing directory.");
-  }
-  $runner->addResolveDirectory($directory);
-}
-
-/**
- * Add a custom test option and processing.
- *
- * This is a powerful means of customizing this project for a given use case.
- *
- * @param string $name
- *   The name of the test option, which will be used as the key in each test
- *   YAML array.
- * @param array $callbacks
- *   An array keyed by the method from \AKlump\CheckPages\Plugin\LegacyPluginInterface
- *   which should trigger the callback, the value is a callback that will
- *   receive the arguments provided in the test suite yaml file as the value of
- *   $name + the arguments of the given method + an array of contextual info,
- *   including the test running instance.  Basically everything you might need
- *   to customize the runner, suite, test, or assertions.
- *
- * @deprecated This needs to be renamed, i.e. "listen", "create_plugin".
- */
-function add_test_option(string $name, array $callbacks) {
-  global $container;
-  $runner = $container->get('runner');
-  $runner->addTestOption($name, $callbacks);
-}
-
-/**
- * Subscribe a callback to an event class.
- *
- * @param string|array $event_classname
- *   If string, one of the \Drupal\check_pages\Event\Events constants.
- *   e.g."\Drupal\check_pages\Event\Events::SUITE_LOADED" ; if array
- *   [$event_classname, $priority].
- * @param $callback
- *   The function to call on event.
- *
- * @return $this
- *   Self for chaining.
- *
- * @link https://symfony.com/doc/current/event_dispatcher.html
- */
-function respond_to($event, callable $callback) {
-  global $container;
-  if (!is_array($event)) {
-    $event = [$event, 0];
-  }
-  list($event, $priority) = $event;
   $container->get('runner')
-    ->getDispatcher()
-    ->addListener($event, $callback, $priority);
+    ->getFiles()
+    ->addResolveDir($absolute_path_to_dir);
 }
 
 /**
@@ -174,49 +121,58 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
   $runtime_config = array_merge($base_config, $runtime_config);
   $runner->setConfig($runtime_config);
 
-  // Process a glob string if present.
-  if (strstr($path_to_suite, '*') !== FALSE) {
-
+  // Expand a suite identified using a glob character
+  $has_glob_char = function (string $path) {
+    return strstr($path, '*') !== FALSE;
+  };
+  if ($has_glob_char($path_to_suite)) {
+    if (!$has_glob_char(basename($path_to_suite))) {
+      throw new StopRunnerException(sprintf('Suite globs are only supported in the basename, check "%s" directory globbing', $path_to_suite));
+    }
+    // Determine if we have to add the parent directory or not.
     if (strstr($path_to_suite, '/') !== FALSE) {
-      $directory = dirname($path_to_suite);
-      $directory = $runner->resolve($directory);
-      $runner->addResolveDirectory($directory);
+      $glob_parent_dir = $runner->getFiles()
+                           ->tryResolveDir(dirname($path_to_suite))[0];
+      $runner->getFiles()->addResolveDir($glob_parent_dir);
     }
+    $suites = $runner->getFiles()->tryResolveFile($path_to_suite, [
+      'yml',
+      'yaml',
+    ]);
 
-    $suites = [];
-    foreach ($runner->getResolveDirectories() as $resolve_directory) {
-      $pattern = $resolve_directory . '/' . $path_to_suite;
-      $matches = glob($pattern);
-      if ($matches) {
-        $suites = array_filter($matches, function ($path) {
-          return preg_match('/\.yml$/', $path);
-        });
-        break;
-      }
-    }
     if (count($suites) === 0) {
       throw new StopRunnerException(sprintf('The glob "%s" returned no files.', $path_to_suite));
     }
   }
   else {
-    $suites = [$path_to_suite];
+    $suites = $runner->getFiles()->tryResolveFile($path_to_suite, [
+      'yml',
+      'yaml',
+    ]);
   }
 
   foreach ($suites as $path_to_suite) {
 
     // This is a little redundant, but we make sure it's in there.  It will be
     // de-duped by Runner, so no problem calling multiple times.
-    $runner->addResolveDirectory(dirname($path_to_suite));
+    $runner->getFiles()->addResolveDir(dirname($path_to_suite));
 
     // We also have to make sure the directory above the (group) directory is a
     // resolve directory so we can resolve by group/suite and not just suite.
     // If we did not do this, then you could not resolve with a value of
     // "group/suite".
-    $runner->addResolveDirectory(dirname($path_to_suite, 2));
+    $runner->getFiles()->addResolveDir(dirname($path_to_suite, 2));
 
-    $resolved_path = '';
-    $path_to_suite = $runner->resolveFile($path_to_suite, $resolved_path);
-    $suite_id = pathinfo(substr($path_to_suite, strlen($resolved_path) + 1), PATHINFO_FILENAME);
+
+    $path_to_suite = $runner->getFiles()->tryResolveFile($path_to_suite, [
+      'yaml',
+      'yml',
+    ])[0];
+    $resolved_directory = $runner->getFiles()->tryResolveFile($path_to_suite, [
+      'yaml',
+      'yml',
+    ], FilesProviderInterface::RESOLVE_TO_RESOLVE_DIRS)[0];
+    $suite_id = pathinfo(substr($path_to_suite, strlen($resolved_directory) + 1), PATHINFO_FILENAME);
 
     $suite_config = Symfony\Component\Yaml\Yaml::parseFile($path_to_suite);
     if (!is_array($suite_config)) {
@@ -256,22 +212,27 @@ function with_extras(string $extras_filename, array $config) {
  */
 function add_mixin(string $mixin, array $mixin_config = []) {
   global $container;
-  $runner = $container->get('runner');
+
+  /** @var \AKlump\CheckPages\Files\FilesProviderInterface $files */
+  $files = $container->get('runner')->getFiles();
   try {
-    $require_path = $runner->resolveFile("$mixin.php");
+    $require_path = $files->tryResolveFile($mixin, ['php'])[0];
   }
   catch (UnresolvablePathException $exception) {
     $require_path = NULL;
   }
   if (is_null($require_path)) {
     try {
-      $require_path = $runner->resolveFile("mixins/$mixin.php");
+      $require_path = $files->tryResolveFile("mixins/$mixin", ['php'])[0];
     }
     catch (\Exception $exception) {
       throw new StopRunnerException(sprintf('Cannot add mixin "%s"; the path does not resolve.', $mixin), $exception->getCode(), $exception);
     }
   }
   try {
+    // Some variables are available in the require files:
+    $runner = $container->get('runner');
+
     require_once $require_path;
   }
   catch (\Exception $exception) {
@@ -282,36 +243,138 @@ function add_mixin(string $mixin, array $mixin_config = []) {
 }
 
 /**
- * Register a custom test parameter.
+ * Add a runtime option with multiple events.
+ *
+ * This is a powerful means of customizing this project for a given use case.
+ *
+ * @param string $selector
+ *   The name of the test option, which will be used as the key in each test
+ *   YAML array.
+ * @param array $callbacks
+ *   An array keyed by the event name for when the callback is triggered, the
+ *   value is a callback that will receive the arguments provided in the test
+ *   suite yaml file as the value of $selector + the arguments of the
+ *   given method + an array of contextual info, including the test running
+ *   instance.  Basically everything you might need to customize the runner,
+ *   suite, test, or assertions.
+ *
+ * @return void
+ *
+ * @see \AKlump\CheckPages\Event
+ */
+function add_test_option(string $selector, array $callbacks): void {
+  global $container;
+
+  /** @var \AKlump\CheckPages\Parts\Runner $runner */
+  $runner = $container->get('runner');
+  $runner->tryAddRuntimeOption($selector);
+
+  /** @var $legacy_map Maps old event names to new. */
+  $legacy_map = [
+    // TODO This has not been written yet. Mar 14, 2023, aklump
+    // 'onLoadSuite' => Event::SUITE_LOADED,
+    'onBeforeTest' => Event::TEST_CREATED,
+    'onBeforeDriver' => Event::TEST_STARTED,
+    'onBeforeRequest' => Event::REQUEST_CREATED,
+    'onAfterRequest' => Event::REQUEST_FINISHED,
+    'onBeforeAssert' => Event::ASSERT_CREATED,
+    'onAfterAssert' => Event::ASSERT_FINISHED,
+  ];
+
+  foreach ($callbacks as $event_name => $callback) {
+    if (!in_array($event_name, $legacy_map)) {
+      // Not a new event, maybe it's legacy...
+      if (isset($legacy_map[$event_name])) {
+        $event_name = $legacy_map[$event_name];
+      }
+      else {
+        // ...nope, we don't know what it is.
+        throw new \InvalidArgumentException(sprintf('The event "%s" is unknown.', $event_name));
+      }
+    }
+
+    respond_to($event_name, function ($event) use ($callback, $selector, $event_name) {
+      $test_option_value = NULL;
+      if ($event instanceof TestEventInterface) {
+        $test = $event->getTest();
+        // This validates that the callback should be called because the
+        // name is present in the test configuration.
+        if (!$test->has($selector)) {
+          return;
+        }
+        $test_option_value = $test->get($selector);
+      }
+
+      if ($event_name == 'onBeforeAssert' && $event instanceof Event\AssertEventInterface) {
+        $assert = $event->getAssert();
+        $search_value = $assert->options;
+        $assert->setSearch('options', $search_value);
+      }
+
+      $callback($test_option_value, $event);
+    });
+  }
+}
+
+/**
+ * Add a runtime option to be executed against a suite.
  *
  * This function can be used as syntatic sugar around more complete configs,
  * because it can be used to rewrite an alias, or shorthand--more readable test
  * config--into the necessary configuration needed to run the test.  A common
  * use-case is abstracting API calls.
  *
- * @param string $test_parameter
- *   The key that will be added to the test to indicate this shorthand should be
- *   used called.
+ * @param string $selector
+ *   The key that will be added to the test to indicate this shorthand callback
+ *   should be used.
  * @param callable $callback
- *   Will receive ($shorthand_value, \AKlump\CheckPages\Parts\Test $test) as
+ *   Will receive ($selector, \AKlump\CheckPages\Parts\Test $test) as
  *   arguments.  It should return void. If mutating the test config, then it
  *   should call $test->setConfig() with the new config.  Or if it's expanding
  *   one to many tests it should use $test->getSuite()->replaceTestWithMultiple().
  *
  * @return void
  */
-function add_shorthand(string $test_parameter, callable $callback) {
+function add_shorthand(string $selector, callable $callback) {
   global $container;
-  $container->get('runner')->addTestOption($test_parameter, [
-    'onLoadSuite' => function (SuiteEventInterface $event) use ($callback, $test_parameter) {
-      foreach ($event->getSuite()->getTests() as $test) {
-        $test_config = $test->getConfig();
-        if (isset($test_config[$test_parameter])) {
-          $shorthand = $test_config[$test_parameter];
-          unset($test_config[$test_parameter]);
-          $callback($shorthand, $test);
-        }
+  $container->get('runner')->tryAddRuntimeOption($selector);
+
+  respond_to(Event::SUITE_LOADED, function ($event) use ($callback, $selector) {
+    foreach ($event->getSuite()->getTests() as $test) {
+      if (!$test->has($selector)) {
+        continue;
       }
-    },
-  ]);
+      $shorthand = $test->get($selector);
+      $test_config = $test->getConfig();
+      unset($test_config[$selector]);
+      $test->setConfig($test_config);
+      $callback($shorthand, $test);
+    }
+  });
+}
+
+/**
+ * Subscribe a callback to an event class.
+ *
+ * @param string|array $event_name
+ *   If string, one of the \Drupal\check_pages\Event\Events constants.
+ *   e.g."\Drupal\check_pages\Event\Events::SUITE_LOADED" ; if array
+ *   [$event_classname, $priority].
+ * @param $callback
+ *   The function to call on event.
+ *
+ * @return $this
+ *   Self for chaining.
+ *
+ * @link https://symfony.com/doc/current/event_dispatcher.html
+ */
+function respond_to($event, callable $callback) {
+  global $container;
+  if (!is_array($event)) {
+    $event = [$event, 0];
+  }
+  list($event, $priority) = $event;
+  $container->get('runner')
+    ->getDispatcher()
+    ->addListener($event, $callback, $priority);
 }
