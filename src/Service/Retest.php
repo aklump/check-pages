@@ -3,7 +3,10 @@
 namespace AKlump\CheckPages\Service;
 
 use AKlump\CheckPages\Event\RunnerEventInterface;
+use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
@@ -18,75 +21,37 @@ final class Retest implements EventSubscriberInterface {
 
   use HasRunnerTrait;
 
-  private static $skipSuites;
-
   /**
    * Return the full filepath the the CSV file.
    *
    * @return string
    *   Absolute path to the results log file.
    */
-  public function getTrackingFilePath(): string {
+  private function getFilepathToResults(): string {
     return $this->getRunner()->getLogFiles()
              ->tryResolveFile('results.csv', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
   }
 
-  /**
-   * Get an array of group/suite to ignore based on $runner context.
-   *
-   * @return array;
-   */
-  public function getSuitesToIgnore(): array {
-    $tracking_path = $this->getTrackingFilePath();
-    $list = [];
-    if (!$tracking_path) {
-      return $list;
+  private function readResults(): array {
+    $filepath = $this->getFilepathToResults();
+    $fp = fopen($filepath, 'r');
+    $data = [];
+    while (($csv = fgetcsv($fp))) {
+      list($datum['group'], $datum['suite'], , $datum['result']) = $csv;
+      $data[] = $datum;
     }
+    fclose($fp);
 
-    $input = $this->getRunner()->getInput();
-    $retesting = $input->getOption('retest');
-    $continuing = $input->getOption('continue');
-    if ((!$retesting && !$continuing) || !file_exists($tracking_path)) {
-      return $list;
-    }
-
-    $skip_if_continuing = [];
-    $suites = [];
-    $suites_with_failures = [];
-    $fp = fopen($tracking_path, 'r');
-    while (($data = fgetcsv($fp))) {
-      list($g, $s, , $result) = $data;
-      $cid = "$g/$s";
-      $suites[$cid] = $cid;
-      if (!in_array($cid, $skip_if_continuing)) {
-        $skip_if_continuing[] = $cid;
-      }
-      if ($result !== Test::PASSED && !in_array($cid, $suites_with_failures)) {
-        $suites_with_failures[] = $cid;
-      }
-    }
-
-    if ($retesting) {
-      $list = array_diff($suites, $suites_with_failures);
-    }
-    elseif ($continuing) {
-      // We may not have completed the final suite listed, therefor we will
-      // repeat it from the top.
-      array_pop($skip_if_continuing);
-
-      $list = $skip_if_continuing;
-    }
-
-    return array_values($list);
+    return $data;
   }
 
-  public function writeResults(Test $test) {
-    $tracking_path = $this->getTrackingFilePath();
-    if (!$tracking_path || !file_exists($tracking_path)) {
+  private function writeTestResult(Test $test) {
+    $filepath = $this->getFilepathToResults();
+    if (!$filepath || !file_exists($filepath)) {
       return;
     }
 
-    $fh = fopen($tracking_path, 'r+');
+    $fh = fopen($filepath, 'r+');
     $written = FALSE;
     $pointer = ftell($fh);
     while (($data = fgetcsv($fh))) {
@@ -136,11 +101,11 @@ final class Retest implements EventSubscriberInterface {
       'filter',
       'group',
     ])) {
-      $tracking_path = $this->getTrackingFilePath();
-      if ($tracking_path) {
+      $filepath = $this->getFilepathToResults();
+      if ($filepath) {
         // With no options, we need to set up a clean slate by truncated our
         // tracking file.  That way continue will work correctly.
-        fclose(fopen($tracking_path, 'w'));
+        fclose(fopen($filepath, 'w'));
       }
     }
 
@@ -152,10 +117,60 @@ final class Retest implements EventSubscriberInterface {
         ],
         MessageType::INFO
       ),
-        \AKlump\CheckPages\Output\Flags::INVERT_FIRST_LINE
+        Flags::INVERT_FIRST_LINE
       );
     }
 
+  }
+
+  private function filterByResult(array $results, string $test_result): array {
+    return array_values(array_filter($results, function ($datum) use ($test_result) {
+      return $datum['result'] === $test_result;
+    }));
+  }
+
+  /**
+   * Filter to group/suite results that have not a single failed test.
+   *
+   * @param array $results
+   *
+   * @return array
+   *   The filtered set of totally passed group/suite $results.
+   */
+  private function getOnlyPassedSuites(array $results): array {
+    $pass_results = $this->filterByResult($results, Test::PASSED);
+    $fail_results = $this->filterByResult($results, Test::FAILED);
+    $fail_results = $this->flattenResults($fail_results);
+
+    return array_filter($pass_results, function (array $data) use ($fail_results) {
+      $foo = $this->flattenResults([$data]);
+
+      return !array_intersect($foo, $fail_results);
+    });
+  }
+
+  private function getOnlyFullyCompletedSuites(array $results) {
+    $most_recent = NULL;
+    do {
+      $foo = end($results);
+      $a = $this->flattenResults([$foo]);
+      if (!isset($most_recent)) {
+        $most_recent = $a;
+        continue;
+      }
+      array_pop($results);
+    } while ($results && $a === $most_recent);
+
+    return $results;
+
+  }
+
+  private function flattenResults(array $results): array {
+    $results = array_map(function ($datum) {
+      return ltrim($datum['group'] . '/' . $datum['suite'], '/');
+    }, $results);
+
+    return array_values(array_unique($results));
   }
 
   /**
@@ -163,14 +178,33 @@ final class Retest implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      Event::RUNNER_STARTED => [
+      Event::CONFIG_LOADED => [
         function (RunnerEventInterface $event) {
-          $retest = new self();
-          $runner = $event->getRunner();
-          $retest->setRunner($runner);
-
           static $suites_to_ignore;
-          $suites_to_ignore = $suites_to_ignore ?? $retest->getSuitesToIgnore();
+
+          $runner = $event->getRunner();
+          $retest = new self();
+          $retest->setRunner($event->getRunner());
+
+          if (!isset($suites_to_ignore)) {
+            $suites_to_ignore = [];
+            $input = $runner->getInput();
+            $results = $retest->readResults();
+
+            $is_retesting = $input->getOption('retest');
+            $is_continuing = $input->getOption('continue');
+            if ($is_retesting && $is_continuing) {
+              throw new StopRunnerException("You may not combine --retest and --continue; pick one.");
+            }
+            elseif ($is_retesting) {
+              $results = $retest->getOnlyPassedSuites($results);
+            }
+            elseif ($is_continuing) {
+              $results = $retest->getOnlyFullyCompletedSuites($results);
+            }
+            $suites_to_ignore = $retest->flattenResults($results);
+          }
+
           if ($suites_to_ignore) {
             $config = $runner->getConfig();
             $config['suites_to_ignore'] = array_values(array_unique(array_merge($config['suites_to_ignore'], $suites_to_ignore)));
@@ -185,19 +219,19 @@ final class Retest implements EventSubscriberInterface {
         },
       ],
       Event::TEST_PASSED => [
-        function (Event\TestEventInterface $event) {
+        function (TestEventInterface $event) {
           $retest = new self();
           $retest
             ->setRunner($event->getTest()->getRunner())
-            ->writeResults($event->getTest());
+            ->writeTestResult($event->getTest());
         },
       ],
       Event::TEST_FAILED => [
-        function (Event\TestEventInterface $event) {
+        function (TestEventInterface $event) {
           $retest = new self();
           $retest
             ->setRunner($event->getTest()->getRunner())
-            ->writeResults($event->getTest());
+            ->writeTestResult($event->getTest());
         },
       ],
     ];
