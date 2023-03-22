@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Options;
 
 use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
+use AKlump\CheckPages\Files\FilesProviderInterface;
 
 class AuthenticateProviderFactory {
 
@@ -18,7 +19,7 @@ class AuthenticateProviderFactory {
    * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
    *   If the class cannot be determined based on context.
    */
-  public function get(string $path_to_users_list, string $absolute_login_url): AuthenticationInterface {
+  public function get(FilesProviderInterface $log_files, string $path_to_users_list, string $absolute_login_url): AuthenticationInterface {
     static $classnames;
     $cid = parse_url($absolute_login_url, PHP_URL_HOST);
     if (empty($classnames[$cid])) {
@@ -41,7 +42,7 @@ class AuthenticateProviderFactory {
       throw new StopRunnerException(sprintf('Unable to determine authentication class; cannot authenticate against %s', $absolute_login_url));
     }
 
-    return new $classnames[$cid]($path_to_users_list, $absolute_login_url);
+    return new $classnames[$cid]($log_files, $path_to_users_list, $absolute_login_url);
   }
 
 }

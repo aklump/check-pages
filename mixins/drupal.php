@@ -39,11 +39,24 @@
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
+use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Options\AuthenticateDrupalBase;
 use AKlump\CheckPages\Options\AuthenticateProviderFactory;
 use AKlump\LoftLib\Bash\Color;
+use AKlump\CheckPages\Parts\Test;
 
-$_get_session = function (string $username, \AKlump\CheckPages\Parts\Test $test) use ($mixin_config) {
+/** @var \AKlump\CheckPages\Parts\Runner $runner */
+/** @var array $mixin_config */
+
+/**
+ * @param string $username
+ * @param \AKlump\CheckPages\Parts\Test $test
+ *
+ * @return array|mixed
+ * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
+ */
+$_get_session = function (string $username, Test $test) use ($mixin_config) {
   $runner = $test->getRunner();
 
   static $sessions;
@@ -66,12 +79,16 @@ $_get_session = function (string $username, \AKlump\CheckPages\Parts\Test $test)
     if (empty($mixin_config['users'])) {
       throw new \RuntimeException('Missing value for "users" in the drupal mixin.');
     }
-    $path_to_users_list = $runner->getFiles()->tryResolveFile($mixin_config['users'], ['yaml', 'yml'])[0];
+    $path_to_users_list = $runner->getFiles()
+                            ->tryResolveFile($mixin_config['users'], [
+                              'yaml',
+                              'yml',
+                            ])[0];
     $login_url = $mixin_config['login_url'] ?? '/user/login';
     $absolute_login_url = $runner->withBaseUrl($login_url);
 
     $factory = new AuthenticateProviderFactory();
-    $auth = $factory->get($path_to_users_list, $absolute_login_url);
+    $auth = $factory->get($runner->getLogFiles(), $path_to_users_list, $absolute_login_url);
 
     $user = $auth->getUser($username);
     $auth->login($user);
@@ -129,8 +146,31 @@ add_test_option('user', [
     $session = $_get_session($username, $event->getTest());
     $event->getDriver()->setHeader('Cookie', $session['cookie']);
   },
-
 ]);
+
+/**
+ * Remove any log files for a fresh slate.
+ */
+respond_to(Event::SUITE_LOADED, function (SuiteEventInterface $suite_event) {
+  try {
+    $log_files = $suite_event->getSuite()
+      ->getRunner()
+      ->getLogFiles();
+
+    if (strstr(AuthenticateDrupalBase::LOG_FILE_PATH, '/') !== FALSE) {
+      $top_dir = explode('/', AuthenticateDrupalBase::LOG_FILE_PATH)[0];
+      $filepath = $log_files->tryResolveDir($top_dir)[0];
+      $log_files->tryEmptyDir($filepath);
+    }
+    else {
+      $filepath = $log_files->tryResolveFile(AuthenticateDrupalBase::LOG_FILE_PATH)[0];
+      unlink($filepath);
+    }
+  }
+  catch (\Exception $exception) {
+    // Purposefully left blank, because there is nothing to clear out.
+  }
+});
 
 /**
  * Delete any sessions that were captured in Storage.  This is more reliable

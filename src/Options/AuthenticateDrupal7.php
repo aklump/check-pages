@@ -2,11 +2,14 @@
 
 namespace AKlump\CheckPages\Options;
 
+use AKlump\CheckPages\Files\FilesProviderInterface;
+
 final class AuthenticateDrupal7 extends AuthenticateDrupalBase {
 
   /**
    * AuthenticateDrupal8 constructor.
    *
+   * @param \AKlump\CheckPages\Files\FilesProviderInterface $log_files
    * @param string $path_to_users_login_data
    *   The resolved path to the JSON or YAML file for the users.
    * @param string $absolute_login_url
@@ -18,12 +21,13 @@ final class AuthenticateDrupal7 extends AuthenticateDrupalBase {
    *   The value of the hidden input name=form_id.
    */
   public function __construct(
+    FilesProviderInterface $log_files,
     string $path_to_users_login_data,
     string $absolute_login_url,
     string $form_selector = 'form[action="/user/login"]',
     string $form_id = 'user_login'
   ) {
-    parent::__construct($path_to_users_login_data, $absolute_login_url, $form_selector, $form_id);
+    parent::__construct($log_files, $path_to_users_login_data, $absolute_login_url, $form_selector, $form_id);
   }
 
   public function login(UserInterface $user) {

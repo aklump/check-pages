@@ -19,6 +19,7 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Files\HttpLogging;
 use AKlump\CheckPages\Files\LocalFilesProvider;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
@@ -56,7 +57,6 @@ respond_to(Event::SUITE_FINISHED, function (Event\SuiteEventInterface $event) us
   }
 });
 
-
 final class PhpStormHttpMixin {
 
   /**
@@ -83,45 +83,10 @@ final class PhpStormHttpMixin {
   }
 
   public function export(Test $test, RequestDriverInterface $driver): string {
-    $url = $test->getAbsoluteUrl();
-    if (!$url) {
-      return '';
-    }
     $config = $test->getConfig();
 
-    $export = [];
-    $export[] = '### ' . ($config['why'] ?? '');
-
-    // @link https://www.jetbrains.com/help/phpstorm/exploring-http-syntax.html#enable-disable-saving-cookies
-    $export[] = '// @no-cookie-jar';
-
-    $export[] = sprintf('%s %s', strtoupper($config['request']['method'] ?? 'GET'), $url);
-
-    foreach ($driver->getHeaders() as $key => $value) {
-      $export[] = sprintf('%s: %s', $key, $value);
-    }
-
-    if (!empty($config['request']['body'])) {
-      $content_type = $driver->getHeaders()['content-type'] ?? 'application/octet-stream';
-      $export[] = PHP_EOL . $this->getStringBody($content_type, $config['request']['body']);
-    }
-
-    return implode(PHP_EOL, $export) . PHP_EOL . PHP_EOL;
+    return HttpLogging::request($config['why'] ?? '', $config['request']['method'] ?? 'get', $test->getAbsoluteUrl(), $driver->getHeaders(), $config['request']['body'] ?? '');
   }
 
-  private function getStringBody($content_type, $body) {
-    if (!is_string($body)) {
-      switch ($content_type) {
-        case 'application/json':
-          $body = json_encode($body);
-          break;
 
-        default:
-          $body = http_build_query($body);
-          break;
-      }
-    }
-
-    return strval($body);
-  }
 }

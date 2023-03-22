@@ -7,6 +7,11 @@ namespace AKlump\CheckPages\Service;
  */
 class RequestHistory {
 
+  /**
+   * @var string
+   */
+  private $cookie;
+
   /** @var string */
   private $body;
 
@@ -18,8 +23,9 @@ class RequestHistory {
    */
   private $currentUrl;
 
-  public function __construct(int $max_redirects) {
+  public function __construct(int $max_redirects, string $cookie = '') {
     $this->maxRedirects = $max_redirects;
+    $this->cookie = $cookie;
   }
 
   /**
@@ -43,6 +49,9 @@ class RequestHistory {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_HEADER, 1);
     curl_setopt($ch, CURLOPT_NOBODY, 1);
+    if ($this->cookie) {
+      curl_setopt($ch, CURLOPT_COOKIE, $this->cookie);
+    }
     $body = curl_exec($ch);
     curl_close($ch);
     $response = preg_split('/^[\n\r]+$/im', $body);

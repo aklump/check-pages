@@ -8,4 +8,4 @@ documentation/README.md
 /files/*
 /.phpunit.result.cache
 plugins/*/composer.lock
-/example/logfiles/
+/example/tests/logfiles/

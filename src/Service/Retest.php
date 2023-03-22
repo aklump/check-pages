@@ -28,19 +28,24 @@ final class Retest implements EventSubscriberInterface {
    *   Absolute path to the results log file.
    */
   private function getFilepathToResults(): string {
-    return $this->getRunner()->getLogFiles()
-             ->tryResolveFile('results.csv', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
+    $log_files = $this->getRunner()->getLogFiles();
+    $filepath = $log_files->tryResolveFile('results.csv', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
+    $log_files->tryCreateDir(dirname($filepath));
+
+    return $filepath;
   }
 
   private function readResults(): array {
     $filepath = $this->getFilepathToResults();
-    $fp = fopen($filepath, 'r');
     $data = [];
-    while (($csv = fgetcsv($fp))) {
-      list($datum['group'], $datum['suite'], , $datum['result']) = $csv;
-      $data[] = $datum;
+    if (file_exists($filepath)) {
+      $fp = fopen($filepath, 'r');
+      while (($csv = fgetcsv($fp))) {
+        list($datum['group'], $datum['suite'], , $datum['result']) = $csv;
+        $data[] = $datum;
+      }
+      fclose($fp);
     }
-    fclose($fp);
 
     return $data;
   }
@@ -120,7 +125,6 @@ final class Retest implements EventSubscriberInterface {
         Flags::INVERT_FIRST_LINE
       );
     }
-
   }
 
   private function filterByResult(array $results, string $test_result): array {
@@ -201,6 +205,9 @@ final class Retest implements EventSubscriberInterface {
             }
             elseif ($is_continuing) {
               $results = $retest->getOnlyFullyCompletedSuites($results);
+            }
+            else {
+              $results = [];
             }
             $suites_to_ignore = $retest->flattenResults($results);
           }

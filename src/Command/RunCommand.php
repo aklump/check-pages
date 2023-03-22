@@ -186,9 +186,9 @@ class RunCommand extends Command {
 
     }
     else {
-      $suite = $runner->getSuite();
-      if ($suite) {
-        $title = sprintf("Suite: %s", $suite);
+      $last_failed_suite = $runner->getLastFailedSuite();
+      if ($last_failed_suite) {
+        $title = sprintf("Suite: %s", $last_failed_suite);
         $margin = str_repeat(' ', 27);
         $message = new Message([
           "$margin$title$margin",

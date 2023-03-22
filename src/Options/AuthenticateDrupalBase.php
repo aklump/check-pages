@@ -3,9 +3,12 @@
 namespace AKlump\CheckPages\Options;
 
 use AKlump\CheckPages\Browser\GuzzleDriver;
+use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Files\HttpLogging;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Psr7\Response;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Yaml\Yaml;
 
@@ -13,6 +16,8 @@ use Symfony\Component\Yaml\Yaml;
  * Base class for Drupal Authentication.
  */
 abstract class AuthenticateDrupalBase implements AuthenticationInterface {
+
+  const LOG_FILE_PATH = 'drupal/authenticate.http';
 
   /**
    * @var string
@@ -37,6 +42,31 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
   private $response;
 
   /**
+   * @var \AKlump\CheckPages\Files\FilesProviderInterface
+   */
+  protected $logFiles;
+
+  /**
+   * @var string
+   */
+  protected $usersFile;
+
+  /**
+   * @var string
+   */
+  protected $loginUrl;
+
+  /**
+   * @var string
+   */
+  protected $formId;
+
+  /**
+   * @var string
+   */
+  protected $formSelector;
+
+  /**
    * AuthenticateDrupalBase constructor.
    *
    * @param string $path_to_users_login_data
@@ -49,7 +79,8 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
    *   A CSS selector to find the login form on in the DOM of the
    *   $absolute_login_url.
    */
-  public function __construct(string $path_to_users_login_data, string $absolute_login_url, string $form_selector, string $form_id) {
+  public function __construct(FilesProviderInterface $log_files, string $path_to_users_login_data, string $absolute_login_url, string $form_selector, string $form_id) {
+    $this->logFiles = $log_files;
     $this->usersFile = $path_to_users_login_data;
     $this->loginUrl = $absolute_login_url;
     $this->formId = $form_id;
@@ -101,9 +132,13 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     $password = $user->getPassword();
 
     // Scrape the form_build_id, which is necessary lest the form not submit.
-    $authenticator = new GuzzleDriver();
-    $this->response = $authenticator->getClient()->get($this->loginUrl);
+    $log_file_contents = HttpLogging::request('Scrape the login form', 'get', $this->loginUrl);
+    $this->writeLogFile($log_file_contents);
+
+    $guzzle = new GuzzleDriver();
+    $this->response = $guzzle->getClient()->get($this->loginUrl);
     $body = strval($this->response->getBody());
+
     $crawler = new Crawler($body);
     $form_build_id = $crawler->filter($this->formSelector . ' input[name="form_build_id"]')
       ->getNode(0);
@@ -124,17 +159,25 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
         ),
       ];
       $failed = FALSE;
-      $this->response = $authenticator
+
+      $form_params = [
+        'op' => 'Log in',
+        'name' => $username,
+        'pass' => $password,
+        'form_id' => $this->formId,
+        'form_build_id' => $form_build_id,
+      ];
+      $log_file_contents = HttpLogging::request('Submit login form', 'post', $this->loginUrl, [
+        'content-type' => 'application/x-www-form-urlencoded',
+      ], $form_params);
+      $this->writeLogFile($log_file_contents);
+
+      $guzzle = new GuzzleDriver();
+      $this->response = $guzzle
         ->getClient()
         ->request('POST', $this->loginUrl, [
           'cookies' => $jar,
-          'form_params' => [
-            'op' => 'Log in',
-            'name' => $username,
-            'pass' => $password,
-            'form_id' => $this->formId,
-            'form_build_id' => $form_build_id,
-          ],
+          'form_params' => $form_params,
         ]);
     }
     catch (GuzzleException $exception) {
@@ -180,6 +223,14 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     }
   }
 
+  private function writeLogFile(string $contents) {
+    $filepath = $this->logFiles->tryResolveFile(self::LOG_FILE_PATH, [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
+    $this->logFiles->tryCreateDir(dirname($filepath));
+    $fp = fopen($filepath, 'a');
+    fwrite($fp, $contents . PHP_EOL);
+    fclose($fp);
+  }
+
   /**
    * Perform one or more requests to obtain the user ID.
    *
@@ -194,6 +245,12 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     $parts = parse_url($this->loginUrl);
     $url = $parts['scheme'] . '://' . $parts['host'] . '/user';
     try {
+
+      $log_file_contents = HttpLogging::request('Request the user ID', 'get', $url, [
+        'Cookie' => $this->getSessionCookie(),
+      ]);
+      $this->writeLogFile($log_file_contents);
+
       $guzzle = new GuzzleDriver();
       $request_result = $guzzle
         ->setUrl($url)
@@ -242,6 +299,11 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     $parts = parse_url($this->loginUrl);
     $url = $parts['scheme'] . '://' . $parts['host'] . "/user/$uid/edit";
     try {
+      $log_file_contents = HttpLogging::request('Request the user email', 'get', $url, [
+        'Cookie' => $this->getSessionCookie(),
+      ]);
+      $this->writeLogFile($log_file_contents);
+
       $guzzle = new GuzzleDriver();
       $body = strval($guzzle
         ->setUrl($url)
@@ -284,7 +346,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
    * @return \GuzzleHttp\Psr7\Response
    *   The most recent response instance.
    */
-  public function getResponse(): \GuzzleHttp\Psr7\Response {
+  public function getResponse(): Response {
     return $this->response;
   }
 

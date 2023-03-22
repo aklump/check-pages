@@ -177,6 +177,11 @@ class Runner {
   private $files;
 
   /**
+   * @var \AKlump\CheckPages\Parts\Suite
+   */
+  private $lastFailedSuite;
+
+  /**
    * App constructor.
    *
    * @param string $root_dir
@@ -683,6 +688,7 @@ class Runner {
       // Decide if we should stop the runner or not.
       if ($test->hasFailed()) {
         $suite->setFailed();
+        $this->lastFailedSuite = $suite;
         $this->failedTestCount++;
         if ($this->getConfig()['stop_on_failed_test'] ?? FALSE) {
           throw new TestFailedException($test->getConfig());
@@ -894,4 +900,7 @@ class Runner {
     }
   }
 
+  public function getLastFailedSuite(): ?Suite {
+    return $this->lastFailedSuite ?? NULL;
+  }
 }

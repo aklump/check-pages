@@ -32,4 +32,4 @@ suites_to_ignore:
   - suite_dev_only
   - group1/alpha
 
-files: files/local
+files: logfiles

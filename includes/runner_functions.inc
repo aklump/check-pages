@@ -288,16 +288,13 @@ function add_test_option(string $selector, array $callbacks): void {
     'onAfterAssert' => Event::ASSERT_FINISHED,
   ];
 
+  $event_class = new ReflectionClass(Event::class);
+
   foreach ($callbacks as $event_name => $callback) {
-    if (!in_array($event_name, $legacy_map)) {
-      // Not a new event, maybe it's legacy...
-      if (isset($legacy_map[$event_name])) {
-        $event_name = $legacy_map[$event_name];
-      }
-      else {
-        // ...nope, we don't know what it is.
-        throw new \InvalidArgumentException(sprintf('The event "%s" is unknown.', $event_name));
-      }
+
+    $event_name = $legacy_map[$event_name] ?? $event_name;
+    if (!in_array($event_name, $event_class->getConstants())) {
+      throw new \InvalidArgumentException(sprintf('The event "%s" is unknown.', $event_name));
     }
 
     respond_to($event_name, function ($event) use ($callback, $selector, $event_name) {

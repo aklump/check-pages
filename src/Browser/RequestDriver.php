@@ -141,12 +141,12 @@ abstract class RequestDriver implements RequestDriverInterface {
    *    return an empty array.
    */
   public function getHeader($name) {
-    $headers = array_change_key_case($this->getHeaders(), CASE_LOWER);
-    if (empty($headers['content-type'])) {
+    $headers = array_change_key_case($this->getHeaders());
+    if (empty($headers[$name])) {
       return [];
     }
 
-    return [$headers['content-type']];
+    return [$headers[$name]];
   }
 
   public function __toString() {
@@ -195,7 +195,7 @@ abstract class RequestDriver implements RequestDriverInterface {
   }
 
   public function getRequestHistory(): array {
-    $redirection = new RequestHistory(self::MAX_REDIRECTS);
+    $redirection = new RequestHistory(self::MAX_REDIRECTS, $this->getHeader('cookie')[0] ?? '');
     $history = $redirection($this->getUrl());
     $this->redirectCode = $history[0]['status'];
     $final_location = $history[count($history) - 1]['location'];

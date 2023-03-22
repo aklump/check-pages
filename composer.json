@@ -26,16 +26,12 @@
                 "plugins/json_pointer/",
                 "plugins/json_schema/",
                 "plugins/loop/",
-                "plugins/options/",
                 "plugins/path/",
                 "plugins/request/",
                 "plugins/sleep/",
                 "plugins/style/",
                 "plugins/value/",
                 "plugins/xpath/"
-            ],
-            "AKlump\\CheckPages\\Plugin\\Options\\": [
-                "plugins/options/src/"
             ]
         }
     },
