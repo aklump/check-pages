@@ -28,6 +28,12 @@ class BaseUrlTraitTest extends TestCase {
     $this->assertSame('https://www.foo.com/foo.php', $obj->withBaseUrl('https://www.foo.com/foo.php'));
   }
 
+  public function testWithEmptyBaseUrl() {
+    $obj = new BaseUrlTraitTestable();
+    $this->assertSame('/foo.php', $obj->withoutBaseUrl('/foo.php'));
+    $this->assertSame('/foo.php', $obj->withBaseUrl('/foo.php'));
+  }
+
   public function testCreateLocalUrl() {
     $obj = new BaseUrlTraitTestable();
     $obj->setBaseUrl('https://www.foo.com/');

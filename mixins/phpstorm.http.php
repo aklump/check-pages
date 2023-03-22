@@ -5,7 +5,6 @@
  *
  * @code
  *   add_mixin('phpstorm.http', [
- *     'output' => config_get('files') . '/phpstorm',
  *     'single_file' => TRUE,
  *   ]);
  * @endcode
@@ -19,27 +18,15 @@ use AKlump\CheckPages\Browser\RequestDriverInterface;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\Exceptions\StopRunnerException;
-use AKlump\CheckPages\Exceptions\UnresolvablePathException;
+use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Files\LocalFilesProvider;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
 
 /** @var \AKlump\CheckPages\Parts\Runner $runner */
+/** @var array $mixin_config */
 
-//
-// Verify the output directory.
-//
-if (empty($mixin_config['output'])) {
-  throw new StopRunnerException('Missing config value "output".  Please add the directory where .http files will be saved.');
-}
-
-try {
-  $output_dir = $runner->getLogFiles()->tryResolveDir($mixin_config['output'])[0];
-  $mixin = new PhpStormHttpMixin($output_dir, $mixin_config);
-}
-catch (UnresolvablePathException $exception) {
-  throw new StopRunnerException(sprintf('The output directory "%s" cannot be resolved; please ensure it exists and try again.', $mixin_config['output']));
-}
+$mixin = new PhpStormHttpMixin($runner->getLogFiles(), $mixin_config);
 
 respond_to(Event::SUITE_LOADED, function (SuiteEventInterface $event) use ($mixin) {
   fclose(fopen($mixin->getFilepath($event->getSuite()), 'w'));
@@ -75,21 +62,24 @@ final class PhpStormHttpMixin {
   /**
    * @var string
    */
-  private $outputDir;
+  private $logFiles;
 
-  public function __construct(string $output_dir, array $mixin_config) {
+  public function __construct(LocalFilesProvider $log_files, array $mixin_config) {
     $this->options = $mixin_config;
-    $this->outputDir = $output_dir;
+    $this->logFiles = $log_files;
   }
 
   public function getFilepath(Suite $suite): string {
-    $basename = $suite->id();
     if ($this->options['single_file'] ?? FALSE) {
-      $basename = parse_url($suite->getRunner()->getConfig()['base_url'], PHP_URL_HOST);
+      $basename = parse_url($suite->getRunner()->get('base_url'), PHP_URL_HOST);
     }
-    $basename = preg_replace('/[\.\- ]/', '_', $basename);
+    if (empty($basename)) {
+      $basename = $suite->toFilepath();
+    }
+    $filepath = $this->logFiles->tryResolveFile("phpstorm/$basename.http", [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
+    $this->logFiles->tryCreateDir(dirname($filepath));
 
-    return sprintf('%s/%s_%s.http', rtrim($this->outputDir, '/'), $suite->getGroup(), $basename);
+    return $filepath;
   }
 
   public function export(Test $test, RequestDriverInterface $driver): string {

@@ -812,26 +812,7 @@ class Runner {
     if ($this->storage) {
       return $this->storage;
     }
-
-    try {
-      $storage_name = '';
-      $subdir = '/storage/';
-      $path_to_files = $this->getLogFiles();
-      if ($path_to_files) {
-        $path_to_storage = $this->tryResolveDir("$path_to_files/$subdir");
-        $storage_name = rtrim($path_to_storage, '/') . "/" . $this;
-      }
-    }
-    catch (\Exception $exception) {
-      $storage_name = '';
-    }
-
-    if (empty($storage_name)) {
-      $this->echo(new Message([
-        sprintf('To enable disk storage (i.e., sessions) create a writeable directory at %s.', rtrim($this->getConfig()['files'], '/') . $subdir),
-      ], MessageType::TODO, Verbosity::VERBOSE | Verbosity::DEBUG));
-    }
-    $this->storage = new Storage($storage_name);
+    $this->storage = new Storage($this->getLogFiles());
 
     return $this->storage;
   }

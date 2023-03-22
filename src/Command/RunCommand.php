@@ -79,7 +79,7 @@ class RunCommand extends Command {
       }
       $runner->setId(pathinfo($path_to_runner, PATHINFO_FILENAME));
 
-      $this->rootFiles->addResolveDir(realpath(dirname($path_to_runner)));
+      $this->rootFiles->setBaseResolveDir(realpath(dirname($path_to_runner)));
       $runner->setFiles($this->rootFiles);
 
       $dir = $input->getOption('dir');

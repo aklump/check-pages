@@ -41,7 +41,7 @@ class Suite implements PartInterface, \JsonSerializable {
    * @return string
    */
   public function getGroup(): string {
-    return $this->group;
+    return $this->group ?? '';
   }
 
   /**
@@ -149,7 +149,18 @@ class Suite implements PartInterface, \JsonSerializable {
   }
 
   public function __toString() {
-    return $this->getGroup() . '\\' . $this->id();
+    return ltrim($this->getGroup() . '\\' . $this->id(), '\\');
+  }
+
+  /**
+   * @return string
+   *   A string to use as a filepath that represents this suite.
+   */
+  public function toFilepath(): string {
+    $parts = [$this->getGroup(), $this->id()];
+    $parts = preg_replace('/[ .\-\/]/', '_', $parts);
+
+    return ltrim(implode('/', $parts), '/');
   }
 
 }

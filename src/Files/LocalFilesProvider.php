@@ -163,12 +163,12 @@ final class LocalFilesProvider implements FilesProviderInterface, FileLocatorInt
     $this->locatorPaths = $this->locatorPaths ?? [];
     if (!in_array($directory, $this->locatorPaths)) {
       $this->locatorPaths[] = $directory;
-    }
 
-    // They must be in strlen, descending order for correct resolutions.
-    usort($this->locatorPaths, function ($a, $b) {
-      return strlen($b) - strlen($a);
-    });
+      // They must be in strlen, descending order for correct resolutions.
+      usort($this->locatorPaths, function ($a, $b) {
+        return strlen($b) - strlen($a);
+      });
+    }
 
     return $this;
   }

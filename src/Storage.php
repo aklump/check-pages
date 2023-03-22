@@ -2,7 +2,7 @@
 
 namespace AKlump\CheckPages;
 
-use Adam\Bag\Bag;
+use AKlump\CheckPages\Files\FilesProviderInterface;
 
 /**
  * Storage of runner data.
@@ -14,37 +14,27 @@ class Storage implements StorageInterface {
    *
    * @var string
    */
-  protected $diskStorage;
+  protected $filepath;
 
-  private $dataset = [];
+  private $data;
 
-  /**
-   * Storage constructor.
-   *
-   * @param string $path_to_disk_storage
-   *   A fullpath to the JSON file where the persistent storage should be a
-   *   saved.  If it's directory does not exist then the data will not be saved.
-   */
-  public function __construct($path_to_disk_storage) {
-    if (!empty($path_to_disk_storage)) {
-      $this->diskStorage = dirname($path_to_disk_storage) . '/' . pathinfo($path_to_disk_storage, PATHINFO_FILENAME) . '.json';
-      if (file_exists($this->diskStorage)) {
-        $this->dataset = json_decode(file_get_contents($this->diskStorage), TRUE);
-        if (!is_array($this->dataset)) {
-          $this->dataset = [];
-        }
-      }
+  public function __construct(FilesProviderInterface $log_files) {
+    $this->filepath = $log_files->tryResolveFile('storage.json', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
+    $log_files->tryCreateDir(dirname($this->filepath));
+    if (file_exists($this->filepath)) {
+      $data = json_decode(file_get_contents($this->filepath), TRUE);
     }
+    $this->data = isset($data) && is_array($data) ? $data : [];
   }
 
   /**
    * Store contents to disk if storage location is known.
    */
   public function __destruct() {
-    if (!empty($this->diskStorage) && is_dir(dirname($this->diskStorage))) {
-      $data = json_encode($this->dataset);
+    if (!empty($this->filepath) && is_dir(dirname($this->filepath))) {
+      $data = json_encode($this->data);
       if (FALSE !== $data) {
-        file_put_contents($this->diskStorage, $data);
+        file_put_contents($this->filepath, $data);
       }
     }
   }
@@ -53,14 +43,14 @@ class Storage implements StorageInterface {
    * {@inheritdoc}
    */
   public function get($key, $default = NULL) {
-    return $this->dataset[$key] ?? $default;
+    return $this->data[$key] ?? $default;
   }
 
   /**
    * {@inheritdoc}
    */
   public function set($key, $value) {
-    $this->dataset[$key] = $value;
+    $this->data[$key] = $value;
   }
 
 }

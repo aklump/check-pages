@@ -34,7 +34,7 @@ final class SaveResponseToFile implements EventSubscriberInterface {
   ];
 
   private static function getRelativePathBySuite(Suite $suite): string {
-    return 'response/' . $suite->getGroup() . '/' . $suite->id();
+    return 'response/' . $suite->toFilepath();
   }
 
   /**

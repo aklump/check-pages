@@ -109,6 +109,12 @@ function add_directory(string $absolute_path_to_dir) {
 function run_suite(string $path_to_suite, array $runtime_config = []): void {
   global $container;
 
+  // The group will be the same, even if globbing creates multiple suites below.
+  $group = '';
+  if (strpos($path_to_suite, '/') !== FALSE) {
+    $group = dirname($path_to_suite);
+  }
+
   /** @var \AKlump\CheckPages\Parts\Runner $runner */
   $runner = $container->get('runner');
 
@@ -135,53 +141,54 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
                            ->tryResolveDir(dirname($path_to_suite))[0];
       $runner->getFiles()->addResolveDir($glob_parent_dir);
     }
-    $suites = $runner->getFiles()->tryResolveFile($path_to_suite, [
+    $suite_paths = $runner->getFiles()->tryResolveFile($path_to_suite, [
       'yml',
       'yaml',
     ]);
 
-    if (count($suites) === 0) {
+    if (count($suite_paths) === 0) {
       throw new StopRunnerException(sprintf('The glob "%s" returned no files.', $path_to_suite));
     }
   }
   else {
-    $suites = $runner->getFiles()->tryResolveFile($path_to_suite, [
+    $suite_paths = $runner->getFiles()->tryResolveFile($path_to_suite, [
       'yml',
       'yaml',
     ]);
   }
 
-  foreach ($suites as $path_to_suite) {
+  foreach ($suite_paths as $absolute_path) {
 
     // This is a little redundant, but we make sure it's in there.  It will be
     // de-duped by Runner, so no problem calling multiple times.
-    $runner->getFiles()->addResolveDir(dirname($path_to_suite));
+    $runner->getFiles()->addResolveDir(dirname($absolute_path));
 
     // We also have to make sure the directory above the (group) directory is a
     // resolve directory so we can resolve by group/suite and not just suite.
     // If we did not do this, then you could not resolve with a value of
     // "group/suite".
-    $runner->getFiles()->addResolveDir(dirname($path_to_suite, 2));
+    $runner->getFiles()->addResolveDir(dirname($absolute_path, 2));
 
-
-    $path_to_suite = $runner->getFiles()->tryResolveFile($path_to_suite, [
+    $absolute_path = $runner->getFiles()->tryResolveFile($absolute_path, [
       'yaml',
       'yml',
     ])[0];
-    $resolved_directory = $runner->getFiles()->tryResolveFile($path_to_suite, [
+    $resolved_directory = $runner->getFiles()->tryResolveFile($absolute_path, [
       'yaml',
       'yml',
     ], FilesProviderInterface::RESOLVE_TO_RESOLVE_DIRS)[0];
-    $suite_id = pathinfo(substr($path_to_suite, strlen($resolved_directory) + 1), PATHINFO_FILENAME);
+    $suite_id = pathinfo(substr($absolute_path, strlen($resolved_directory) + 1), PATHINFO_FILENAME);
 
-    $suite_config = Symfony\Component\Yaml\Yaml::parseFile($path_to_suite);
+    $suite_config = Symfony\Component\Yaml\Yaml::parseFile($absolute_path);
     if (!is_array($suite_config)) {
       $suite_config = [];
     }
     $suite = new Suite($suite_id, $suite_config, $runner);
-    $suite->setGroup(basename(dirname($path_to_suite)));
+    if ($group) {
+      $suite->setGroup($group);
+    }
 
-    $runner->run($suite, $path_to_suite);
+    $runner->run($suite, $absolute_path);
   }
 }
 

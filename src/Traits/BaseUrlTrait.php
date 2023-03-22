@@ -32,7 +32,7 @@ trait BaseUrlTrait {
    */
   public function withoutBaseUrl(string $url): string {
     $base_url = $this->getBaseUrl();
-    if (strpos($url, $base_url) !== 0) {
+    if ($base_url && strpos($url, $base_url) !== 0) {
 
       $a = parse_url($url) + ['host' => '', 'scheme' => ''];
       $b = parse_url($base_url) + ['host' => '', 'scheme' => ''];

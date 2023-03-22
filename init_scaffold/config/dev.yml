@@ -2,4 +2,4 @@ base_url: http://foo.local
 stop_on_failed_suite: true
 stop_on_failed_test: true
 suites_to_ignore: []
-files: files/dev
+files: logfiles/dev
