@@ -27,7 +27,12 @@ use AKlump\CheckPages\Parts\Test;
 /** @var \AKlump\CheckPages\Parts\Runner $runner */
 /** @var array $mixin_config */
 
-$mixin = new PhpStormHttpMixin($runner->getLogFiles(), $mixin_config);
+$log_files = $runner->getLogFiles();
+if (!$log_files) {
+  throw new \RuntimeException('This mixin must come AFTER load_config(); edit your runner file and move this invocation.');
+}
+
+$mixin = new PhpStormHttpMixin($log_files, $mixin_config);
 
 respond_to(Event::SUITE_LOADED, function (SuiteEventInterface $event) use ($mixin) {
   fclose(fopen($mixin->getFilepath($event->getSuite()), 'w'));
