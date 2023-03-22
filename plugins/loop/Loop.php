@@ -5,7 +5,7 @@ namespace AKlump\CheckPages\Plugin;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Exceptions\BadSyntaxException;
-use AKlump\CheckPages\Exceptions\TestFailedException;
+use AKlump\CheckPages\Exceptions\SuiteFailedException;
 use AKlump\CheckPages\Parts\Test;
 
 /**
@@ -41,8 +41,7 @@ final class Loop implements PluginInterface {
             $loop->expandLoops($event);
           }
           catch (\Exception $e) {
-            throw new TestFailedException($event->getTest()
-              ->getConfig(), $e);
+            throw new SuiteFailedException($event->getSuite(), $e);
           }
         },
         // It's important that loop runs last over others because others may need

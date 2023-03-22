@@ -109,13 +109,8 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           }
           $test = $event->getTest();
           $runner = $test->getRunner();
-          $runner->writeToFile($relative_path, [$content], 'w+');
-
-          $verbosity = Verbosity::VERBOSE;
-          if ($test->hasFailed()) {
-            $verbosity = Verbosity::NORMAL;
-          }
-          $test->addMessage(new Message([$relative_path], MessageType::TODO, $verbosity));
+          $absolute_path = $runner->writeToFile($relative_path, [$content], 'w+');
+          $test->addMessage(new Message([$absolute_path], MessageType::TODO, Verbosity::VERBOSE));
         },
         -1,
       ],

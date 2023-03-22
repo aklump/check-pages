@@ -27,6 +27,7 @@
                 "plugins/json_schema/",
                 "plugins/loop/",
                 "plugins/path/",
+                "plugins/redirect/",
                 "plugins/request/",
                 "plugins/sleep/",
                 "plugins/style/",

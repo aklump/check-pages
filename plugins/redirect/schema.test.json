@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "required": [
+        "redirect"
+      ],
+      "properties": {
+        "redirect": {
+          "$ref": "#/definitions/url"
+        }
+      }
+    },
+    {
+      "required": [
+        "location"
+      ],
+      "properties": {
+        "location": {
+          "$ref": "#/definitions/url"
+        }
+      }
+    }
+  ]
+}

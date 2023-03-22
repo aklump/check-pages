@@ -707,7 +707,7 @@ class Runner {
     }
     $this->dispatcher->dispatch($suite_event, Event::SUITE_FINISHED);
     if ($suite->hasFailed() && ($this->getConfig()['stop_on_failed_suite'] ?? FALSE)) {
-      throw new SuiteFailedException($suite->id());
+      throw new SuiteFailedException($suite);
     }
   }
 

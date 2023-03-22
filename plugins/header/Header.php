@@ -15,7 +15,7 @@ use AKlump\CheckPages\Event\AssertEventInterface;
 /**
  * Implements the Header plugin.
  */
-final class Header implements \AKlump\CheckPages\Plugin\PluginInterface {
+final class Header implements PluginInterface {
 
   const SELECTOR = 'header';
 

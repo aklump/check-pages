@@ -15,6 +15,7 @@ run_suite('json_pointer');
 run_suite('json_schema');
 run_suite('loop');
 run_suite('path');
+run_suite('redirect');
 run_suite('request');
 run_suite('sleep');
 run_suite('style');

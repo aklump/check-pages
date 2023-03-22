@@ -108,74 +108,23 @@ class TestRunner {
 
         $driver->setUrl($runner->withBaseUrl($test->getConfig()['url']));
         $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_READY);
-        $response = $driver
-          ->request($assertions_to_wait_for)
-          ->getResponse();
-        $http_response_code = $response->getStatusCode();
+        $driver->request($assertions_to_wait_for);
       }
       catch (\Exception $exception) {
-        $response = NULL;
-
         if (method_exists($exception, 'getResponse')) {
           $response = $exception->getResponse();
           if ($response) {
             $http_response_code = $response->getStatusCode();
           }
         }
-
         if (empty($http_response_code)) {
           $runner->handleFailedRequestNoResponse($test, $driver, $exception);
         }
       }
 
-
-      // If not specified, then any 2XX will pass.
-      if (empty($test->getConfig()['expect'])) {
-        $test_passed($http_response_code >= 200 && $http_response_code <= 299);
-      }
-      else {
-        if ($test->getConfig()['expect'] >= 300 && $test->getConfig()['expect'] <= 399) {
-          $http_response_code = $driver->getRedirectCode();
-        }
-
-        if (!$test_passed($http_response_code == $test->getConfig()['expect'])) {
-          $test->addMessage(new Message([
-            sprintf('The actual response code %d did not match the expected %d', $http_response_code, $test->getConfig()['expect']),
-          ], MessageType::ERROR, Verbosity::VERBOSE));
-        }
-      }
-
-      if (!$test_passed()) {
-        $test->setFailed();
-      }
       $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_FINISHED);
-
-      // Test the location if asked.
-      $expected_location = NULL;
-      if ($test->has('location')) {
-        $expected_location = $test->get('location') ?? '';
-      }
-      if (empty($expected_location) && $test->has('redirect')) {
-        $expected_location = $test->get('redirect') ?? '';
-      }
-      if (isset($expected_location)) {
-        $test->interpolate($expected_location);
-      }
-
-      $http_location = $driver->getLocation();
-      if (!is_null($expected_location)) {
-        $location_test = $http_location === $expected_location;
-        $test_passed($location_test);
-        if (!$location_test) {
-          $test->addMessage(new Message(
-            [
-              sprintf('The actual "%s" and expected "%s" locations do not match', $http_location, $expected_location),
-            ],
-            MessageType::ERROR,
-            Verbosity::VERBOSE
-          ));
-        }
-      }
+      // This should probably be removed, it's based on legacy code.
+      $test_passed(!$test->hasFailed() || $test->hasPassed());
     }
 
     $assertions = $test->getConfig()['find'] ?? [];

@@ -193,7 +193,7 @@ class RunCommand extends Command {
         $message = new Message([
           "$margin$title$margin",
           '',
-        ], MessageType::INFO);
+        ], MessageType::ERROR);
         $messenger->deliver($message, Flags::INVERT_FIRST_LINE);
       }
 

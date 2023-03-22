@@ -179,36 +179,33 @@ final class PluginsCompiler {
     $this->ensureDir($this->examplesPath . "/web/plugins/");
 
     // Locate the file with the filename of 'test_subject'.
-    $subject = array_values(array_filter(scandir($path_to_plugin), function ($path) {
+    $test_subject_basename = array_values(array_filter(scandir($path_to_plugin), function ($path) {
       return pathinfo($path, PATHINFO_FILENAME) === 'test_subject';
     }))[0] ?? NULL;
 
-    $suite_relative_path_final = NULL;
-    if ($subject) {
-      $extension = pathinfo($subject, PATHINFO_EXTENSION);
-      $suite_relative_path_final = "plugins/$id.$extension";
-      copy("$path_to_plugin/$subject", $this->examplesPath . "/web/${suite_relative_path_final}");
+
+    // Process path changes in server file and copy to web server.
+    if ($test_subject_basename) {
+      $extension = pathinfo($test_subject_basename, PATHINFO_EXTENSION);
+      $final_basename = "plugins/$id.$extension";
+      $test_subject_contents = file_get_contents("$path_to_plugin/$test_subject_basename");
+      $test_subject_contents = str_replace($test_subject_basename, $final_basename, $test_subject_contents);
+      file_put_contents($this->examplesPath . "/web/$final_basename", $test_subject_contents);
     }
 
-    if (!is_file($path_to_plugin . '/suite.yml')) {
-      return FALSE;
+    $plugin_provides_tests = file_exists($path_to_plugin . '/suite.yml');
+
+    // Process path changes YAML suite file and copy.
+    if ($plugin_provides_tests) {
+      $suite_raw_contents = file_get_contents("$path_to_plugin/suite.yml");
+      if (!empty($final_basename)) {
+        $suite_raw_contents = str_replace($test_subject_basename, $final_basename, $suite_raw_contents);
+      }
+      $plugin_suite = Yaml::parse($suite_raw_contents);
+      file_put_contents($this->examplesPath . "/tests/plugins/$id.yml", Yaml::dump($plugin_suite, 6));
     }
 
-    // The test suite.
-    $plugin_suite = Yaml::parseFile($path_to_plugin . '/suite.yml');
-    $plugin_suite = array_map(function (array $test) use ($subject, $suite_relative_path_final) {
-      if (array_key_exists('visit', $test)) {
-        $test['visit'] = str_replace($subject, $suite_relative_path_final, $test['visit']);
-      }
-      if (array_key_exists('url', $test)) {
-        $test['url'] = str_replace($subject, $suite_relative_path_final, $test['url']);
-      }
-
-      return $test;
-    }, $plugin_suite);
-    file_put_contents($this->examplesPath . "/tests/plugins/{$id}.yml", Yaml::dump($plugin_suite, 6));
-
-    return TRUE;
+    return $plugin_provides_tests;
   }
 
   /**
@@ -321,6 +318,10 @@ final class PluginsCompiler {
    * @throws \RuntimeException If the plugin provides any globals.
    */
   private function handleGlobalSchemaProperties(array $schema) {
+    if (empty($schema['properties'])) {
+      return $schema;
+    }
+
     $globals = [
       'why' => '#/definitions/why',
       'extras' => '#/definitions/extras',

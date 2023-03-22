@@ -21,22 +21,6 @@ By saying that the "page loads", we mean that it returns a status code of 200. T
   expect: 200
 ```
 
-## Is an URL Redirecting As Expected?
-
-For pages that redirect you can check for both the status code and the final location.  (`redirect` and `location` may be used interchangeably.)
-
-```yaml
--
-  visit: /moved.php
-  expect: 301
-  location: /location.html
-
--
-  visit: /moved.php
-  expect: 301
-  redirect: /location.html
-```
-
 ## Does the Page Have Certain Content?
 
 Once loaded you can also look for things on the page with `find`. The most simple `find` assertion looks for a substring of text anywhere on the page. The following two examples are identical assertions.
