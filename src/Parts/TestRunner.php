@@ -52,7 +52,9 @@ class TestRunner {
       unset($config);
 
       $yaml_message = $test->getConfig();
-      $yaml_message['find'] = '';
+      if (empty($yaml_message['find'])) {
+        unset($yaml_message['find']);
+      }
       $test->addMessage(new YamlMessage($yaml_message, 0, function ($yaml) {
         // To make the output cleaner we need to remove the printed '' since find
         // is really an array, whose elements are yet to be printed.
@@ -113,9 +115,9 @@ class TestRunner {
     try {
       $assertions = $test->get('find') ?? [];
       if (count($assertions) === 0) {
-        $test->addMessage(new Message([
-          'This test has no assertions.',
-        ], MessageType::DEBUG, Verbosity::DEBUG));
+        //        $test->addMessage(new Message([
+        //          'This test has no assertions.',
+        //        ], MessageType::DEBUG, Verbosity::DEBUG));
       }
       else {
         $id = 0;

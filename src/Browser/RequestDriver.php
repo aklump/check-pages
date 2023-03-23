@@ -94,6 +94,9 @@ abstract class RequestDriver implements RequestDriverInterface {
    * {@inheritdoc}
    */
   public function setUrl(string $url): RequestDriverInterface {
+    if (!preg_match('/^http/i', $url)) {
+      throw new \InvalidArgumentException(sprintf('$url must be an absolute URL; "%s" is not', $url));
+    }
     $this->url = $url;
     $this->location = NULL;
     $this->redirectCode = NULL;

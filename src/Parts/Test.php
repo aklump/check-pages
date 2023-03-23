@@ -45,14 +45,14 @@ class Test implements \JsonSerializable, PartInterface {
   }
 
   /**
-   * Interpolate variables of all scopes on a value.
+   * Sugar coating for getSuite()->interpolate().
    *
    * @param $value
    *
    * @return void
    */
   public function interpolate(&$value): void {
-    $this->getSuite()->variables()->interpolate($value);
+    $this->getSuite()->interpolate($value);
   }
 
   /**

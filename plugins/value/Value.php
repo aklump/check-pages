@@ -57,7 +57,7 @@ final class Value implements PluginInterface {
             );
             $title = $config['why'] ?? $set_message;
             $test->addMessage(new Message([$title],
-              MessageType::INFO,
+              MessageType::DEBUG,
               Verbosity::VERBOSE
             ));
             $test->setPassed();

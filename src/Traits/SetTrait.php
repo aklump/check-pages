@@ -21,12 +21,12 @@ trait SetTrait {
    */
   public function setKeyValuePair(Variables $vars, string $key, $value): string {
     $vars->setItem($key, $value);
-    $message = '${%s} set to "%s"';
+    $message = '$%s set to "%s"';
     if (is_null($value)) {
-      $message = '${%s} set to NULL';
+      $message = '$%s set to NULL';
     }
     elseif (!is_scalar($value)) {
-      $message = '${%s} set.';
+      $message = '$%s set.';
     }
 
     return sprintf($message, $key, $value);

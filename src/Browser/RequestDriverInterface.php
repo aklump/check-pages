@@ -11,13 +11,19 @@ interface RequestDriverInterface {
   public function setBaseUrl(string $base_url): void;
 
   /**
-   * Set the url.
+   * Set the absolute URL of the request.
    *
-   * @param string $url
+   * @param string $absolute_url
    *
    * @return $this
    */
-  public function setUrl(string $url): RequestDriverInterface;
+  public function setUrl(string $absolute_url): RequestDriverInterface;
+
+  /**
+   * @return string
+   *   The absolute URL of the request.
+   */
+  public function getUrl(): string;
 
   /**
    * Perform the HTTP request.

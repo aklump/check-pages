@@ -83,10 +83,8 @@ class AssertRunner {
         $set_feedback = $test->getRunner()->setKeyValuePair($test->getSuite()
           ->variables(), $set, $value);
         $test->addMessage(new Message(
-          [
-            $set_feedback,
-          ],
-          MessageType::INFO,
+          [$set_feedback],
+          MessageType::DEBUG,
           Verbosity::VERBOSE
         ));
       }

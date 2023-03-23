@@ -47,23 +47,14 @@ class Feedback implements EventSubscriberInterface {
   public static function getSubscribedEvents() {
     return [
 
-      Event::RUNNER_STARTED => [
+      Event::RUNNER_CREATED => [
         function (Event\RunnerEvent $event) {
-
-          // Print base URL only when it hasn't been printed, or it's changed.
-          static $base_url;
-          $config_base_url = $event->getRunner()
-                               ->getConfig()['base_url'] ?? NULL;
-          if ($base_url !== $config_base_url) {
-            $base_url = $config_base_url;
-            $event->getRunner()->echo(new Message(
-              [
-                "    $config_base_url ",
-              ],
-              MessageType::INFO,
-              Verbosity::NORMAL
-            ), Flags::INVERT);
-          }
+          $runner = $event->getRunner();
+          $runner->echo(new Message(
+            ["    {$runner->get('base_url')} "],
+            MessageType::INFO,
+            Verbosity::NORMAL
+          ), Flags::INVERT);
         },
       ],
 
@@ -86,16 +77,11 @@ class Feedback implements EventSubscriberInterface {
         },
       ],
 
-      Event::TEST_FAILED => [
-        function (TestEventInterface $event) {
-          $test = $event->getTest();
-          $test->addMessage(new Message(
-            [
-              self::FAILED_PREFIX . $test,
-            ],
-            MessageType::ERROR,
-            Verbosity::NORMAL
-          ));
+      Event::REQUEST_PREPARED => [
+        function (DriverEventInterface $event) {
+          $event->getTest()->addMessage(new Message([
+            $event->getDriver()->getUrl(),
+          ], MessageType::DEBUG, Verbosity::VERBOSE));
         },
       ],
 
@@ -105,22 +91,38 @@ class Feedback implements EventSubscriberInterface {
         },
       ],
 
+      Event::TEST_FAILED => [
+        function (TestEventInterface $event) {
+          $test = $event->getTest();
+          $test->addMessage(new Message([
+            self::FAILED_PREFIX . $test,
+          ], MessageType::ERROR, Verbosity::NORMAL));
+        },
+      ],
+
       Event::SUITE_FAILED => [
         function (Event\SuiteEvent $event) {
           $suite = $event->getSuite();
+          $lines = [strval($suite)];
+          if ($suite->getRunner()->getOutput()->isVerbose()) {
+            $lines[] = '';
+          }
           self::echoSuiteTitle($suite->getRunner()
-            ->getMessenger(), new Message([strval($suite)], MessageType::ERROR), Flags::INVERT_FIRST_LINE);
+            ->getMessenger(), new Message($lines, MessageType::ERROR), Flags::INVERT_FIRST_LINE);
         },
       ],
 
       Event::SUITE_PASSED => [
         function (Event\SuiteEvent $event) {
           $suite = $event->getSuite();
+          $lines = [strval($suite)];
+          if ($suite->getRunner()->getOutput()->isVerbose()) {
+            $lines[] = '';
+          }
           self::echoSuiteTitle($suite->getRunner()
-            ->getMessenger(), new Message([strval($suite)], MessageType::SUCCESS));
+            ->getMessenger(), new Message($lines, MessageType::SUCCESS));
         },
       ],
-
     ];
 
 

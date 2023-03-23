@@ -64,6 +64,17 @@ class Suite implements PartInterface, \JsonSerializable {
     return $this->vars;
   }
 
+  /**
+   * Interpolate variables of all scopes on a value.
+   *
+   * @param $value
+   *
+   * @return void
+   */
+  public function interpolate(&$value): void {
+    $this->variables()->interpolate($value);
+  }
+
   public function getHttpMethods(): array {
     $methods = [];
     foreach ($this->tests as $test) {
