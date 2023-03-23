@@ -36,9 +36,10 @@ switch ($_GET['op'] ?? '') {
 
   default:
     $headers = array_change_key_case(getallheaders());
-    header('content-type: ' . $headers['accept']);
+    $accept = $headers['accept'] ?? 'text/html';
+    header("content-type: $accept");
 
-    switch ($headers['accept']) {
+    switch ($accept) {
       case 'application/json':
         print '{"foo":{"bar":"baz"}}';
         break;
@@ -50,6 +51,10 @@ switch ($_GET['op'] ?? '') {
       case 'application/x+yaml':
       case 'text/yaml':
         print "foo:\n  bar: baz\n";
+        break;
+
+      default:
+        print "Hello world!";
         break;
     }
 
