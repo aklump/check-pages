@@ -127,6 +127,9 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
     }
   }
 
+  /** @var \AKlump\CheckPages\Parts\Runner $runner */
+  $runner = $container->get('runner');
+
   // If there was any runtime config added to the single-instance runner last
   // time, we have to remove that.  We do that by reloading the configuration
   // from the original file and then applying any runtime passed at this time.
@@ -170,9 +173,13 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
 
     // This is a little redundant, but we make sure it's in there.  It will be
     // de-duped by Runner, so no problem calling multiple times.
-    if ($group && basename(dirname($absolute_path)) === $group) {
-      $runner->getFiles()->addResolveDir(dirname($absolute_path));
-    }
+    $runner->getFiles()->addResolveDir(dirname($absolute_path));
+
+    // We also have to make sure the directory above the (group) directory is a
+    // resolve directory so we can resolve by group/suite and not just suite.
+    // If we did not do this, then you could not resolve with a value of
+    // "group/suite".
+    $runner->getFiles()->addResolveDir(dirname($absolute_path, 2));
 
     $absolute_path = $runner->getFiles()->tryResolveFile($absolute_path, [
       'yaml',

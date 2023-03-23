@@ -182,6 +182,11 @@ class Runner {
   private $lastFailedSuite;
 
   /**
+   * @var array|mixed
+   */
+  private $suitesToIgnore = [];
+
+  /**
    * App constructor.
    *
    * @param string $root_dir
@@ -598,6 +603,7 @@ class Runner {
       $this->getDispatcher()
         ->dispatch(new RunnerEvent($this), Event::RUNNER_CREATED);
       $this->runnerCreatedEventDispatched = TRUE;
+      $this->suitesToIgnore = $this->get('suites_to_ignore') ?? [];
     }
 
     // Allow the modification of the runner config before the suite is run.
@@ -626,7 +632,8 @@ class Runner {
         // can't find it.  Return NULL, which will be filtered out.
         return NULL;
       }
-    }, $this->get('suites_to_ignore') ?? []));
+    }, $this->suitesToIgnore));
+
     if (in_array($path_to_suite, $ignored_filepaths)) {
       $status = NULL;
       if ($this->getInput()->getOption('retest')) {
