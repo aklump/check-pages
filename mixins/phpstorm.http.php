@@ -6,6 +6,7 @@
  * @code
  *   add_mixin('phpstorm.http', [
  *     'single_file' => TRUE,
+ *     'exclude_passing' => FALSE,
  *   ]);
  * @endcode
  *

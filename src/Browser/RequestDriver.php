@@ -180,7 +180,7 @@ abstract class RequestDriver implements RequestDriverInterface {
       $this->getRequestHistory();
     }
 
-    return $this->location;
+    return $this->location ?? '';
   }
 
   /**
@@ -197,9 +197,11 @@ abstract class RequestDriver implements RequestDriverInterface {
   public function getRequestHistory(): array {
     $redirection = new RequestHistory(self::MAX_REDIRECTS, $this->getHeader('cookie')[0] ?? '');
     $history = $redirection($this->getUrl());
-    $this->redirectCode = $history[0]['status'];
-    $final_location = $history[count($history) - 1]['location'];
-    $this->location = $this->withoutBaseUrl($final_location);
+    $this->redirectCode = $history[0]['status'] ?? NULL;
+    $final_location = $history[count($history) - 1]['location'] ?? NULL;
+    if ($final_location) {
+      $this->location = $this->withoutBaseUrl($final_location);
+    }
 
     return $history;
   }

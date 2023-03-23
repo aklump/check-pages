@@ -8,6 +8,7 @@ use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\Messaging\MessageType;
@@ -84,7 +85,8 @@ final class Retest implements EventSubscriberInterface {
 
           if ($suites_to_ignore) {
             $config = $runner->getConfig();
-            $config['suites_to_ignore'] = array_values(array_unique(array_merge($config['suites_to_ignore'], $suites_to_ignore)));
+            $config['suites_to_ignore'] = array_merge($config['suites_to_ignore'] ?? [], $suites_to_ignore);
+            $config['suites_to_ignore'] = array_values(array_unique($config['suites_to_ignore']));
             $runner->setConfig($config);
           }
 
@@ -130,6 +132,9 @@ final class Retest implements EventSubscriberInterface {
     $log_files = $this->getRunner()->getLogFiles();
     $filepath = $log_files->tryResolveFile('results.csv', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
     $log_files->tryCreateDir(dirname($filepath));
+    if (!file_exists($filepath)) {
+      touch($filepath);
+    }
 
     return $filepath;
   }
@@ -151,11 +156,18 @@ final class Retest implements EventSubscriberInterface {
 
   private function writeTestResult(Test $test) {
     $filepath = $this->getFilepathToResults();
-    if (!$filepath || !file_exists($filepath)) {
+    if (!$filepath) {
       return;
     }
 
     $fh = fopen($filepath, 'r+');
+    if (!$fh) {
+      // TODO Should this be a log, not a UI output?
+      $this->getRunner()->echo(new Message(
+        [sprintf('Failed to open "%s"', $filepath)],
+        MessageType::ERROR, Verbosity::DEBUG
+      ));
+    }
     $written = FALSE;
     $pointer = ftell($fh);
     while (($data = fgetcsv($fh))) {
