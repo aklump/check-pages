@@ -27,7 +27,6 @@ class TestRunner {
   public function run(Test $test) {
     $runner = $test->getRunner();
     $dispatcher = $runner->getDispatcher();
-
     $dispatcher->dispatch(new TestEvent($test), Event::TEST_STARTED);
 
     $test_passed = function (bool $result = NULL): bool {
@@ -158,7 +157,6 @@ class TestRunner {
     else {
       $test->setFailed();
     }
-
     $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_TEST_FINISHED);
   }
 

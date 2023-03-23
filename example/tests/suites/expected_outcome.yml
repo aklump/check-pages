@@ -1,0 +1,10 @@
+-
+  why: Expect failure because the status will be 200.
+  url: /
+  expect: 201
+  expected outcome: failure
+
+-
+  why: Expect failure because /bar.html does not exist.
+  url: /bar.html
+  expected outcome: failure

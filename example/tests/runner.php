@@ -17,5 +17,6 @@ run_suite('group1/*');
 run_suite('group2/*');
 run_suite('suite');
 run_suite('attributes');
+run_suite('expected_outcome');
 run_suite('suite_dev_only');
 

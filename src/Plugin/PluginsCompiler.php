@@ -325,6 +325,7 @@ final class PluginsCompiler {
     $globals = [
       'why' => '#/definitions/why',
       'extras' => '#/definitions/extras',
+      'expected outcome' => '#/definitions/expected_outcome',
     ];
 
     $properties = [];

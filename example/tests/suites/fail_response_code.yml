@@ -1,3 +1,0 @@
-# Load the homepage of the website and expect the wrong HTTP response code
-- url: /
-  expect: 201

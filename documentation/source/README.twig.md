@@ -86,10 +86,6 @@ If you are new to this project and would like to see a demonstration, it would b
 
         $ ./bin/run_tests.sh
 
-Some failing tests are also available to explore:
-
-    $ ./check_pages failing_tests_runner.php
-
 <sup>1</sup> If you see no _tests_ directory then create one and copy the contents of _examples_ into _tests_. The example _tests_ directory will only be created if you use `create-project` as the installation method.
 
 ### Writing Your First Test Suite

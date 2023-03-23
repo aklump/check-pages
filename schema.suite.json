@@ -24,6 +24,12 @@
       ],
       "pattern": "^/|http|\\${"
     },
+    "expected_outcome": {
+      "type": "string",
+      "enum": [
+        "failure"
+      ]
+    },
     "js": {
       "type": "boolean",
       "description": "Set this to true if you need javascript to run on the page."
@@ -204,6 +210,9 @@
           "why": {
             "$ref": "#/definitions/why"
           },
+          "expected outcome": {
+            "$ref": "#/definitions/expected_outcome"
+          },
           "user": {
             "$ref": "#/definitions/user"
           },
@@ -235,6 +244,9 @@
           },
           "why": {
             "$ref": "#/definitions/why"
+          },
+          "expected outcome": {
+            "$ref": "#/definitions/expected_outcome"
           },
           "user": {
             "$ref": "#/definitions/user"
@@ -268,6 +280,9 @@
           "why": {
             "$ref": "#/definitions/why"
           },
+          "expected outcome": {
+            "$ref": "#/definitions/expected_outcome"
+          },
           "user": {
             "$ref": "#/definitions/user"
           },
@@ -299,6 +314,9 @@
           },
           "why": {
             "$ref": "#/definitions/why"
+          },
+          "expected outcome": {
+            "$ref": "#/definitions/expected_outcome"
           },
           "user": {
             "$ref": "#/definitions/user"
@@ -333,6 +351,9 @@
           "why": {
             "$ref": "#/definitions/why"
           },
+          "expected outcome": {
+            "$ref": "#/definitions/expected_outcome"
+          },
           "user": {
             "$ref": "#/definitions/user"
           },
@@ -365,6 +386,9 @@
           },
           "why": {
             "$ref": "#/definitions/why"
+          },
+          "expected outcome": {
+            "$ref": "#/definitions/expected_outcome"
           },
           "user": {
             "$ref": "#/definitions/user"

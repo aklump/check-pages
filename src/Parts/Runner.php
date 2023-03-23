@@ -676,6 +676,19 @@ class Runner {
         }
       }
 
+      if ($test->has('expected outcome')) {
+        $expected_outcome = $test->get('expected outcome');
+        if ($test->hasFailed() && in_array($expected_outcome, [
+            'fail',
+            'failure',
+          ])) {
+          $test->setPassed();
+          $test->addMessage(new Message([
+            'This test failed as expected.',
+          ], MessageType::SUCCESS, Verbosity::VERBOSE));
+        }
+      }
+
       if ($test->hasFailed()) {
         $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_FAILED);
       }

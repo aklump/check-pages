@@ -22,8 +22,6 @@ class Test implements \JsonSerializable, PartInterface {
 
   const FAILED = 'F';
 
-  const IS_COMPLETE = 'C';
-
   /**
    * @var string
    */

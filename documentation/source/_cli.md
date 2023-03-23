@@ -16,4 +16,4 @@ Combine more than one filter value for an OR selection
 
 Try using the `--response` to see the response source code as well.
 
-    ./check_pages failing_tests_runner.php --response
+    ./check_pages runner.php --response
