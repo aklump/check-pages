@@ -46,7 +46,7 @@ final class SaveResponseToFile implements EventSubscriberInterface {
       //
       // Remove previous files.
       //
-      Event::SUITE_LOADED => [
+      Event::SUITE_STARTED => [
         function (SuiteEventInterface $event) {
           $log_files = $event->getSuite()->getRunner()->getLogFiles();
           if (!$log_files) {
@@ -63,7 +63,7 @@ final class SaveResponseToFile implements EventSubscriberInterface {
       //
       // Write request responses to file.
       //
-      Event::REQUEST_TEST_FINISHED => [
+      Event::TEST_FINISHED => [
         function (DriverEventInterface $event) {
           try {
             $content_type = $event->getDriver()

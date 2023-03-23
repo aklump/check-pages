@@ -8,6 +8,10 @@ title: Overview
 
 ![Check Pages](images/check-pages.jpg)
 
+## Heavy Development
+
+**Use at your own risk. This project is under heavy development and is undergoing changes pretty regularly.**
+
 ## Summary
 
 This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain. You write your tests using YAML and they can be as simple as checking for a 200 HTTP response on the homepage.

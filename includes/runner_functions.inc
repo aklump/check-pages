@@ -279,7 +279,7 @@ function add_test_option(string $selector, array $callbacks): void {
   /** @var $legacy_map Maps old event names to new. */
   $legacy_map = [
     // TODO This has not been written yet. Mar 14, 2023, aklump
-    // 'onLoadSuite' => Event::SUITE_LOADED,
+    // 'onLoadSuite' => Event::SUITE_STARTED,
     'onBeforeTest' => Event::TEST_CREATED,
     'onBeforeDriver' => Event::TEST_STARTED,
     'onBeforeRequest' => Event::REQUEST_CREATED,
@@ -343,7 +343,7 @@ function add_shorthand(string $selector, callable $callback) {
   global $container;
   $container->get('runner')->tryAddRuntimeOption($selector);
 
-  respond_to(Event::SUITE_LOADED, function ($event) use ($callback, $selector) {
+  respond_to(Event::SUITE_STARTED, function ($event) use ($callback, $selector) {
     foreach ($event->getSuite()->getTests() as $test) {
       if (!$test->has($selector)) {
         continue;
@@ -362,7 +362,7 @@ function add_shorthand(string $selector, callable $callback) {
  *
  * @param string|array $event_name
  *   If string, one of the \Drupal\check_pages\Event\Events constants.
- *   e.g."\Drupal\check_pages\Event\Events::SUITE_LOADED" ; if array
+ *   e.g."\Drupal\check_pages\Event\Events::SUITE_STARTED" ; if array
  *   [$event_classname, $priority].
  * @param $callback
  *   The function to call on event.

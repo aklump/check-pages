@@ -5,44 +5,35 @@ namespace AKlump\CheckPages;
 /**
  * Defines the event names dispatched by Check Pages.
  *
- * Constants are listed in sequential order in terms of when they are processed
- * during code flow, in so far as this is possible or applicable.
+ * Constants are not listed in any special order.  See docs for that.
  *
  * @link https://symfony.com/doc/current/components/event_dispatcher.html#naming-conventions
  */
 final class Event {
 
-  /**
-   * Configuration has been loaded.
-   *
-   * @see \load_config()
-   * @see \AKlump\CheckPages\Parts\Runner::loadConfig()
-   */
-  const CONFIG_LOADED = 'config.loaded';
+  const RUNNER_CREATED = 'runner.created';
 
   const RUNNER_STARTED = 'runner.started';
 
-  const SUITE_LOADED = 'suite.loaded';
+  const SUITE_STARTED = 'suite.loaded';
 
   /**
-   * Can be used for fine-tuned validation beyond the json schema.  To
+   * Can be used for fine-tuned validating beyond the json schema.  To
    * invalidate throw a \AKlump\CheckPages\Exceptions\BadSyntaxException.
    */
-  const SUITE_VALIDATION = 'suite.validation';
+  const SUITE_CREATED = 'suite.created';
 
   /**
-   * Can be used for fine-tuned validation beyond the json schema.  To
+   * Can be used for fine-tuned validating beyond the json schema.  To
    * invalidate throw a \AKlump\CheckPages\Exceptions\BadSyntaxException.
    */
-  const TEST_VALIDATION = 'test.validation';
-
   const TEST_CREATED = 'test.created';
 
   const TEST_STARTED = 'test.started';
 
   const REQUEST_CREATED = 'request.created';
 
-  const REQUEST_READY = 'request.ready';
+  const REQUEST_PREPARED = 'request.prepared';
 
   const REQUEST_FINISHED = 'request.finished';
 
@@ -50,13 +41,11 @@ final class Event {
 
   const ASSERT_FINISHED = 'assert.finished';
 
-  const REQUEST_TEST_FINISHED = 'request.test.finished';
+  const TEST_FINISHED = 'test.finished';
 
   const TEST_FAILED = 'test.failed';
 
   const TEST_PASSED = 'test.passed';
-
-  const TEST_FINISHED = 'test.finished';
 
   const SUITE_FAILED = 'suite.failed';
 

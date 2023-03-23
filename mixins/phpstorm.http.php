@@ -34,11 +34,11 @@ if (!$log_files) {
 
 $mixin = new PhpStormHttpMixin($log_files, $mixin_config);
 
-respond_to(Event::SUITE_LOADED, function (SuiteEventInterface $event) use ($mixin) {
+respond_to(Event::SUITE_STARTED, function (SuiteEventInterface $event) use ($mixin) {
   fclose(fopen($mixin->getFilepath($event->getSuite()), 'w'));
 });
 
-respond_to(Event::REQUEST_READY, function (TestEventInterface $event) use ($mixin, $mixin_config) {
+respond_to(Event::REQUEST_PREPARED, function (TestEventInterface $event) use ($mixin, $mixin_config) {
   $http = fopen($mixin->getFilepath($event->getTest()->getSuite()), 'a');
   try {
     $export = $mixin->export(

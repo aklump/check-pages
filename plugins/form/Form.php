@@ -18,7 +18,7 @@ final class Form implements PluginInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      Event::SUITE_LOADED => [
+      Event::SUITE_STARTED => [
 
         /**
          * Look for "form" implementations and modify the suite.

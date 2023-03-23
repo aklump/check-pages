@@ -5,14 +5,16 @@ title: Responding to Events
 
 # Event Responders
 
-To see all events look to `\AKlump\CheckPages\Event`.
+## Events in Execution Order
+
+{% include('_event_list.md') %}
 
 ## Writing a Dynamic Import
 
 In this example a "shorthand" is built that can expand to multiple tests.
 
 ```php
-respond_to(\AKlump\CheckPages\Event::SUITE_LOADED, function (\AKlump\CheckPages\Event\SuiteEventInterface $event) {
+respond_to(\AKlump\CheckPages\Event::SUITE_STARTED, function (\AKlump\CheckPages\Event\SuiteEventInterface $event) {
   $suite = $event->getSuite();
   foreach ($suite->getTests() as $test) {
     $config = $test->getConfig();

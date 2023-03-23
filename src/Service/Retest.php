@@ -22,6 +22,105 @@ final class Retest implements EventSubscriberInterface {
   use HasRunnerTrait;
 
   /**
+   * @var boolean
+   */
+  private static $enabled;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getSubscribedEvents() {
+    return [
+      Event::RUNNER_CREATED => [
+        function (RunnerEventInterface $event) {
+          $runner = $event->getRunner();
+          $input = $runner->getInput();
+
+          // Look to see if the user has passed relevant options.
+          $is_retesting = $input->getOption('retest');
+          $is_continuing = $input->getOption('continue');
+
+          // Do not allow combining options.
+          if ($is_retesting && $is_continuing) {
+            throw new StopRunnerException("You may not combine --retest and --continue; pick one.");
+          }
+
+          $requirements_met = boolval($runner->getLogFiles());
+
+          // Warn the user who uses an option that REQUIRES that we are able to
+          // write log files, by stopping the runner.
+          if (($is_retesting || $is_continuing) && !$requirements_met) {
+            $option = $is_continuing ? 'continue' : 'retest';
+            throw new StopRunnerException(sprintf("--%s failed because log files are not configured correctly.", $option));
+          }
+
+          // The requirements have been met, set this for the other listeners.
+          self::$enabled = $requirements_met;
+
+          if (!$is_continuing && !$is_retesting) {
+            return;
+          }
+
+          static $suites_to_ignore;
+
+          $retest = new self();
+          $retest->setRunner($runner);
+
+          if (!isset($suites_to_ignore)) {
+            $suites_to_ignore = [];
+            $results = $retest->readResults();
+
+            if ($is_retesting) {
+              $results = $retest->getOnlyPassedSuites($results);
+            }
+            elseif ($is_continuing) {
+              $results = $retest->getOnlyFullyCompletedSuites($results);
+            }
+            else {
+              $results = [];
+            }
+            $suites_to_ignore = $retest->flattenResults($results);
+          }
+
+          if ($suites_to_ignore) {
+            $config = $runner->getConfig();
+            $config['suites_to_ignore'] = array_values(array_unique(array_merge($config['suites_to_ignore'], $suites_to_ignore)));
+            $runner->setConfig($config);
+          }
+
+          static $is_first_run;
+          if (FALSE !== $is_first_run) {
+            $retest->onFirstRun();
+            $is_first_run = FALSE;
+          }
+        },
+      ],
+      Event::TEST_PASSED => [
+        function (TestEventInterface $event) {
+          if (!self::$enabled) {
+            return;
+          }
+          $retest = new self();
+          $retest
+            ->setRunner($event->getTest()->getRunner())
+            ->writeTestResult($event->getTest());
+        },
+      ],
+      Event::TEST_FAILED => [
+        function (TestEventInterface $event) {
+          if (!self::$enabled) {
+            return;
+          }
+          $retest = new self();
+          $retest
+            ->setRunner($event->getTest()->getRunner())
+            ->writeTestResult($event->getTest());
+        },
+      ],
+    ];
+  }
+
+  /**
    * Return the full filepath the the CSV file.
    *
    * @return string
@@ -175,73 +274,6 @@ final class Retest implements EventSubscriberInterface {
     }, $results);
 
     return array_values(array_unique($results));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function getSubscribedEvents() {
-    return [
-      Event::CONFIG_LOADED => [
-        function (RunnerEventInterface $event) {
-          static $suites_to_ignore;
-
-          $runner = $event->getRunner();
-          $retest = new self();
-          $retest->setRunner($event->getRunner());
-
-          if (!isset($suites_to_ignore)) {
-            $suites_to_ignore = [];
-            $input = $runner->getInput();
-            $results = $retest->readResults();
-
-            $is_retesting = $input->getOption('retest');
-            $is_continuing = $input->getOption('continue');
-            if ($is_retesting && $is_continuing) {
-              throw new StopRunnerException("You may not combine --retest and --continue; pick one.");
-            }
-            elseif ($is_retesting) {
-              $results = $retest->getOnlyPassedSuites($results);
-            }
-            elseif ($is_continuing) {
-              $results = $retest->getOnlyFullyCompletedSuites($results);
-            }
-            else {
-              $results = [];
-            }
-            $suites_to_ignore = $retest->flattenResults($results);
-          }
-
-          if ($suites_to_ignore) {
-            $config = $runner->getConfig();
-            $config['suites_to_ignore'] = array_values(array_unique(array_merge($config['suites_to_ignore'], $suites_to_ignore)));
-            $runner->setConfig($config);
-          }
-
-          static $is_first_run;
-          if (FALSE !== $is_first_run) {
-            $retest->onFirstRun();
-            $is_first_run = FALSE;
-          }
-        },
-      ],
-      Event::TEST_PASSED => [
-        function (TestEventInterface $event) {
-          $retest = new self();
-          $retest
-            ->setRunner($event->getTest()->getRunner())
-            ->writeTestResult($event->getTest());
-        },
-      ],
-      Event::TEST_FAILED => [
-        function (TestEventInterface $event) {
-          $retest = new self();
-          $retest
-            ->setRunner($event->getTest()->getRunner())
-            ->writeTestResult($event->getTest());
-        },
-      ],
-    ];
   }
 
 }

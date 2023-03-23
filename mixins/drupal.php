@@ -110,7 +110,7 @@ $_get_session = function (string $username, Test $test) use ($mixin_config) {
 };
 
 add_test_option('user', [
-  'onBeforeTest' => function ($username, TestEventInterface $event) use ($_get_session) {
+  Event::TEST_CREATED => function ($username, TestEventInterface $event) use ($_get_session) {
     if (empty($username)) {
       return;
     }
@@ -151,7 +151,7 @@ add_test_option('user', [
 /**
  * Remove any log files for a fresh slate.
  */
-respond_to(Event::SUITE_LOADED, function (SuiteEventInterface $suite_event) {
+respond_to(Event::SUITE_STARTED, function (SuiteEventInterface $suite_event) {
   try {
     $log_files = $suite_event->getSuite()
       ->getRunner()

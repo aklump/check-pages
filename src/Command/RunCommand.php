@@ -131,6 +131,7 @@ class RunCommand extends Command {
     }
 
     $this->echoResults($runner, $timer);
+
     if ($runner->hasPassed()) {
       return Command::SUCCESS;
     }

@@ -66,6 +66,11 @@ class Runner {
 
   const LOGGER_PRINTER_BASENAME = 'debug.log';
 
+  /**
+   * @var bool
+   */
+  private static $runnerCreatedEventDispatched;
+
   public $totalAssertions = 0;
 
   public $failedAssertionCount = 0;
@@ -383,9 +388,6 @@ class Runner {
     $this->setConfig($config);
     $this->configPath = $config_path;
 
-    $this->getDispatcher()
-      ->dispatch(new RunnerEvent($this), Event::CONFIG_LOADED);
-
     return $this;
   }
 
@@ -590,10 +592,23 @@ class Runner {
    * @see run_suite()
    */
   public function run(Suite $suite, string $path_to_suite) {
-    $this->setSuite($suite);
+
+    // This may seem to be located in a strange place, but for a complex set of
+    // reasons having to do with runner functions and test-writing architecture
+    // this is the best choice for this event.  From the perspective of event
+    // handlers this is going to be called the first time a suite is run, which
+    // is roughly equal to the runner being created.  The actual Runner instance
+    // is created sooner, but not effectively used until this point.
+    if (empty(self::$runnerCreatedEventDispatched)) {
+      $this->getDispatcher()
+        ->dispatch(new RunnerEvent($this), Event::RUNNER_CREATED);
+      self::$runnerCreatedEventDispatched = TRUE;
+    }
 
     // Allow the modification of the runner config before the suite is run.
-    $this->getDispatcher()
+    $this
+      ->setSuite($suite)
+      ->getDispatcher()
       ->dispatch(new RunnerEvent($this), Event::RUNNER_STARTED);
 
     // TODO Might be worth moving this out of this method to src/SuiteValidator.php...
@@ -634,7 +649,7 @@ class Runner {
 
     // To invalidate a suite throw an instance of \AKlump\CheckPages\Exceptions\BadSyntaxException.
     $this->getDispatcher()
-      ->dispatch(new SuiteEvent($this->getSuite()), Event::SUITE_VALIDATION);
+      ->dispatch(new SuiteEvent($this->getSuite()), Event::SUITE_CREATED);
 
     // Add the tests to the suite in prep for the plugin hook...
     // If a suite file is empty, then just ignore it.  It's probably a stub file.
@@ -647,13 +662,12 @@ class Runner {
     }
     unset($test_config);
 
-    $this->dispatcher->dispatch(new SuiteEvent($this->getSuite()), Event::SUITE_LOADED);
+    $this->dispatcher->dispatch(new SuiteEvent($this->getSuite()), Event::SUITE_STARTED);
 
     // On return from the hook, we need to reparse to get format for validation.
     $this->validateSuite($suite, static::SCHEMA_VISIT . '.json');
 
     foreach ($suite->getTests() as $test) {
-      $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_VALIDATION);
       $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_CREATED);
 
       // It's possible the test was already run during Event::TEST_CREATED, if
@@ -695,8 +709,6 @@ class Runner {
       elseif ($test->hasPassed()) {
         $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_PASSED);
       }
-
-      $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_FINISHED);
 
       // Decide if we should stop the runner or not.
       if ($test->hasFailed()) {

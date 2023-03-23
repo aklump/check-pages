@@ -1,0 +1,7 @@
+-
+  why: This will be used to fire all events for the documentation compiling.
+  url: /index.php
+  find:
+    -
+      dom: h1
+      count: 1

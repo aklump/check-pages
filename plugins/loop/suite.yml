@@ -1,4 +1,17 @@
 -
+  loop:
+    - /test_subject.html
+-
+  why: Assert url interpolation works with a loop value.
+  url: ${loop.value}
+  find:
+    -
+      dom: h1
+      is: Welcome to the Loop Page
+-
+  end loop:
+
+-
   loop: 4x
 
 -

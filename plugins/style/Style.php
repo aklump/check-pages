@@ -18,13 +18,13 @@ final class Style implements PluginInterface {
 
   public static function getSubscribedEvents() {
     return [
-      Event::TEST_STARTED => [
+      Event::TEST_CREATED => [
         function (TestEventInterface $event) {
           $test = $event->getTest();
-          $config = $test->getConfig();
-          if (empty($config['find'])) {
+          if (!$test->has('find')) {
             return;
           }
+          $config = $test->getConfig();
           $config['extras']['plugin_style'] = [];
           foreach ($config['find'] as $assertion) {
             if (is_array($assertion) && array_key_exists('style', $assertion)) {

@@ -27,21 +27,18 @@ class TestRunner {
   public function run(Test $test) {
     $runner = $test->getRunner();
     $dispatcher = $runner->getDispatcher();
-    $dispatcher->dispatch(new TestEvent($test), Event::TEST_STARTED);
 
-    $test_passed = function (bool $result = NULL): bool {
-      static $state;
-      if (!is_null($result)) {
-        $state = is_null($state) || $state ? $result : FALSE;
-      }
+    // Choose the appropriate Driver for the test.
+    if ($test->getConfig()['js'] ?? FALSE) {
+      $driver = new ChromeDriver();
+    }
+    else {
+      $driver = new GuzzleDriver();
+    }
+    $driver->setBaseUrl($runner->get('base_url') ?? '');
+    $dispatcher->dispatch(new DriverEvent($test, $driver), Event::TEST_STARTED);
 
-      return boolval($state);
-    };
-
-    $base_uri = $runner->getConfig()['base_url'];
-    $driver = new GuzzleDriver();
-    $driver->setBaseUrl($base_uri);
-    $is_http_test = !empty($test->getConfig()['url']);
+    $is_http_test = $test->has('url');
     if ($is_http_test) {
 
       $yaml_message = $test->getConfig();
@@ -51,16 +48,6 @@ class TestRunner {
         // is really an array, whose elements are yet to be printed.
         return str_replace("find: ''", 'find:', $yaml);
       }, MessageType::DEBUG, Verbosity::DEBUG));
-
-      if ($test->getConfig()['js'] ?? FALSE) {
-        try {
-          $driver = new ChromeDriver();
-          $driver->setBaseUrl($base_uri);
-        }
-        catch (\Exception $exception) {
-          throw new TestFailedException($test->getConfig(), $exception);
-        }
-      }
 
       // We now must interpolate the URL, at the very last minute.  All event
       // handlers have until this point to set variables and modify the url for
@@ -77,7 +64,6 @@ class TestRunner {
         if (is_int($timeout)) {
           $driver->setRequestTimeout($timeout);
         }
-
         // Keep this after the timeout so that plugins may override.
         $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
 
@@ -106,7 +92,7 @@ class TestRunner {
         }, $assertions_to_wait_for);
 
         $driver->setUrl($runner->withBaseUrl($test->getConfig()['url']));
-        $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_READY);
+        $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_PREPARED);
         $driver->request($assertions_to_wait_for);
       }
       catch (\Exception $exception) {
@@ -122,42 +108,46 @@ class TestRunner {
       }
 
       $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_FINISHED);
-      // This should probably be removed, it's based on legacy code.
-      $test_passed(!$test->hasFailed() || $test->hasPassed());
     }
 
-    $assertions = $test->getConfig()['find'] ?? [];
-    if (count($assertions) === 0) {
-      $test_passed(TRUE);
-      $test->addMessage(new Message([
-        'This test has no assertions.',
-      ], MessageType::DEBUG, Verbosity::DEBUG));
-    }
-    else {
-      $id = 0;
-      $assert_runner = new AssertRunner($driver);
-      while ($definition = array_shift($assertions)) {
-        if (is_scalar($definition)) {
-          $definition = [Assert::ASSERT_CONTAINS => $definition];
+    try {
+      $assertions = $test->get('find') ?? [];
+      if (count($assertions) === 0) {
+        $test->addMessage(new Message([
+          'This test has no assertions.',
+        ], MessageType::DEBUG, Verbosity::DEBUG));
+      }
+      else {
+        $id = 0;
+        $assert_runner = new AssertRunner($driver);
+        while ($definition = array_shift($assertions)) {
+          if (is_scalar($definition)) {
+            $definition = [Assert::ASSERT_CONTAINS => $definition];
+          }
+
+          $test->interpolate($definition);
+          $test->addMessage(new YamlMessage($definition, 2, NULL, MessageType::DEBUG, Verbosity::DEBUG));
+
+          $assert = $assert_runner->run(new Assert($id, $definition, $test));
+          if ($assert->hasFailed()) {
+            $test->setFailed();
+          }
+          ++$id;
         }
+      }
 
-        $test->interpolate($definition);
-        $test->addMessage(new YamlMessage($definition, 2, NULL, MessageType::DEBUG, Verbosity::DEBUG));
-
-        $assert = $assert_runner->run(new Assert($id, $definition, $test));
-        $test_passed($assert->hasPassed());
-
-        ++$id;
+      // All assertions are done, if we haven't failed by now then the test can
+      // be marked as having passed.
+      if (!$test->hasFailed()) {
+        $test->setPassed();
       }
     }
-
-    if ($test_passed()) {
-      $test->setPassed();
+    catch (\Exception $exception) {
+      throw new TestFailedException($test->getConfig(), $exception);
     }
-    else {
-      $test->setFailed();
+    finally {
+      $dispatcher->dispatch(new DriverEvent($test, $driver), Event::TEST_FINISHED);
     }
-    $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_TEST_FINISHED);
   }
 
 }

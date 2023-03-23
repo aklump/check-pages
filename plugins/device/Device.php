@@ -3,8 +3,9 @@
 namespace AKlump\CheckPages\Plugin;
 
 use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Event\DriverEventInterface;
+use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Parts\SetTrait;
-use AKlump\CheckPages\Parts\Test;
 
 /**
  * Implements the Device plugin.
@@ -23,8 +24,8 @@ final class Device implements PluginInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      Event::TEST_STARTED => [
-        function (Event\TestEventInterface $event) {
+      Event::TEST_CREATED => [
+        function (TestEventInterface $event) {
           $test = $event->getTest();
           if ($test->has('device')) {
             $config = $test->getConfig();
@@ -35,7 +36,7 @@ final class Device implements PluginInterface {
         },
       ],
       Event::REQUEST_CREATED => [
-        function (Event\DriverEventInterface $event) {
+        function (DriverEventInterface $event) {
           $test = $event->getTest();
           if ($test->has('device')) {
             /** @var \AKlump\CheckPages\Browser\HeadlessBrowserInterface $driver */

@@ -284,7 +284,7 @@ final class PluginsManager {
    * @return void
    */
   public function subscribeToEvents(EventDispatcherInterface $dispatcher) {
-    $dispatcher->addListener(Event::SUITE_LOADED, function (Event\SuiteEventInterface $event) {
+    $dispatcher->addListener(Event::SUITE_STARTED, function (Event\SuiteEventInterface $event) {
       $this->defaultEventHandler($event, 'onLoadSuite');
     });
 

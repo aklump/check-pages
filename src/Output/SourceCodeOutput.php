@@ -41,7 +41,7 @@ final class SourceCodeOutput {
         'responseOutput',
       ]);
     $this->runner->getDispatcher()
-      ->addListener(Event::REQUEST_TEST_FINISHED, [
+      ->addListener(Event::TEST_FINISHED, [
         $this,
         'onRequestTestFinished',
       ]);

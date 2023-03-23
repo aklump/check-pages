@@ -3,6 +3,8 @@
 namespace AKlump\CheckPages\Output;
 
 use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Event\DriverEventInterface;
+use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Bash\Color;
@@ -64,13 +66,23 @@ class Feedback implements EventSubscriberInterface {
           }
         },
       ],
-      Event::SUITE_LOADED => [
-        function (Event\SuiteEventInterface $event) {
+
+      Event::SUITE_STARTED => [
+        function (SuiteEventInterface $event) {
           $suite = $event->getSuite();
           self::echoSuiteTitle($suite->getRunner()
             ->getMessenger(), new Message([
             sprintf('%s ...', $suite),
           ], MessageType::INFO, Verbosity::VERBOSE), Flags::INVERT_FIRST_LINE);
+        },
+      ],
+
+      Event::TEST_STARTED => [
+        function (DriverEventInterface $event) {
+          $test = $event->getTest();
+          if ($test->has('why')) {
+            $test->addMessage(new Message([$test->get('why')], MessageType::INFO, Verbosity::VERBOSE));
+          }
         },
       ],
 
@@ -88,7 +100,7 @@ class Feedback implements EventSubscriberInterface {
       ],
 
       Event::TEST_FINISHED => [
-        function (TestEventInterface $event) {
+        function (DriverEventInterface $event) {
           $event->getTest()->echoMessages();
         },
       ],
@@ -97,9 +109,7 @@ class Feedback implements EventSubscriberInterface {
         function (Event\SuiteEvent $event) {
           $suite = $event->getSuite();
           self::echoSuiteTitle($suite->getRunner()
-            ->getMessenger(), new Message([
-            ltrim($suite->getGroup() . '/', '/') . $suite->id(),
-          ], MessageType::ERROR), Flags::INVERT_FIRST_LINE);
+            ->getMessenger(), new Message([strval($suite)], MessageType::ERROR), Flags::INVERT_FIRST_LINE);
         },
       ],
 
@@ -107,21 +117,10 @@ class Feedback implements EventSubscriberInterface {
         function (Event\SuiteEvent $event) {
           $suite = $event->getSuite();
           self::echoSuiteTitle($suite->getRunner()
-            ->getMessenger(), new Message([
-            ltrim($suite->getGroup() . '/', '/') . $suite->id(),
-          ], MessageType::SUCCESS));
+            ->getMessenger(), new Message([strval($suite)], MessageType::SUCCESS));
         },
       ],
 
-      Event::TEST_STARTED => [
-        function (TestEventInterface $event) {
-          $test = $event->getTest();
-          $config = $test->getConfig();
-          if (!empty($config['why'])) {
-            $test->addMessage(new Message([$config['why']], MessageType::INFO, Verbosity::VERBOSE));
-          }
-        },
-      ],
     ];
 
 

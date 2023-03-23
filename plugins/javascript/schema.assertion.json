@@ -1,70 +1,88 @@
 {
-    "type": "object",
-    "anyOf": [
-        {
-            "required": [
-                "javascript"
-            ]
-        },
-        {
-            "required": [
-                "javascript",
-                "set"
-            ]
-        },
-        {
-            "required": [
-                "javascript",
-                "contains"
-            ]
-        },
-        {
-            "required": [
-                "javascript",
-                "not contains"
-            ]
-        },
-        {
-            "required": [
-                "javascript",
-                "is"
-            ]
-        },
-        {
-            "required": [
-                "javascript",
-                "is not"
-            ]
-        },
-        {
-            "required": [
-                "javascript",
-                "matches"
-            ]
-        }
-    ],
-    "additionalProperties": false,
-    "properties": {
-        "set": {
-            "$ref": "#/definitions/value__set"
-        },
-        "javascript": {
-            "$ref": "#/definitions/javascript__javascript"
-        },
-        "contains": {
-            "$ref": "#/definitions/contains"
-        },
-        "not contains": {
-            "$ref": "#/definitions/contains"
-        },
-        "is": {
-            "$ref": "#/definitions/equals"
-        },
-        "is not": {
-            "$ref": "#/definitions/equals"
-        },
-        "matches": {
-            "$ref": "#/definitions/matches"
-        }
+  "type": "object",
+  "anyOf": [
+    {
+      "required": [
+        "javascript"
+      ]
+    },
+    {
+      "required": [
+        "javascript",
+        "set"
+      ]
+    },
+    {
+      "required": [
+        "javascript",
+        "contains"
+      ]
+    },
+    {
+      "required": [
+        "javascript",
+        "not contains"
+      ]
+    },
+    {
+      "required": [
+        "javascript",
+        "is"
+      ]
+    },
+    {
+      "required": [
+        "javascript",
+        "is not"
+      ]
+    },
+    {
+      "required": [
+        "javascript",
+        "matches"
+      ]
+    },
+    {
+      "required": [
+        "javascript",
+        "not matches"
+      ]
+    },
+    {
+      "required": [
+        "javascript",
+        "count"
+      ]
     }
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "javascript": {
+      "$ref": "#/definitions/javascript__javascript"
+    },
+    "set": {
+      "$ref": "#/definitions/value__set"
+    },
+    "contains": {
+      "$ref": "#/definitions/contains"
+    },
+    "not contains": {
+      "$ref": "#/definitions/contains"
+    },
+    "is": {
+      "$ref": "#/definitions/equals"
+    },
+    "is not": {
+      "$ref": "#/definitions/equals"
+    },
+    "matches": {
+      "$ref": "#/definitions/matches"
+    },
+    "not matches": {
+      "$ref": "#/definitions/matches"
+    },
+    "count": {
+      "$ref": "#/definitions/count__count"
+    }
+  }
 }

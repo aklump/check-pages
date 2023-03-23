@@ -37,7 +37,7 @@ The `add_test_option()` function allows you to add customization at the level of
 ```php
 # file: runner.php
 add_test_option('foo', [
-  'onBeforeTest' => function ($option, $event){
+  Event::TEST_CREATED => function ($option, $event){
     // Note, $option === 123
   },
 ]);
@@ -45,7 +45,7 @@ add_test_option('foo', [
 
 The first argument defines the option as it will be used in the suite file, e.g., `foo`. The second argument is an array of callbacks, keyed by one or more of these methods:
 
-{% include('_callbacks.md') %}
+{% include('_event_list.md') %}
 
 These examples show how `$option` can have non-scalar values.
 
@@ -61,18 +61,18 @@ These examples show how `$option` can have non-scalar values.
 
 ```php
 add_test_option('bar', [
-  'onBeforeTest' => function ($option, \AKlump\CheckPages\Event\TestEventInterface $event){
+  Event::TEST_CREATED => function ($option, \AKlump\CheckPages\Event\TestEventInterface $event){
     list($do, $re, $mi) = $option;
     // ...
   },
-  'onBeforeRequest' => function ($option, \AKlump\CheckPages\Event\DriverEventInterface $event){
+  Event::REQUEST_CREATED => function ($option, \AKlump\CheckPages\Event\DriverEventInterface $event){
     list($do, $re, $mi) = $option;
     // ...
   },
 ]);
 
 add_test_option('baz', [
-  'onBeforeTest' => function ($option, \AKlump\CheckPages\Event\TestEventInterface $event){
+  Event::TEST_CREATED => function ($option, \AKlump\CheckPages\Event\TestEventInterface $event){
     if ($option['lorem'] === 'ipsum dolar') {
       // ...
     }
@@ -82,17 +82,17 @@ add_test_option('baz', [
 run_suite('*');
 ```
 
-## `onBeforeTest`
+## `Event::TEST_CREATED`
 
-The `onBeforeTest` callback is the best place to put custom processing if you want to hijack a "test". For example you could use it to set a bunch of custom variables. It's not a test, but a processor, in such a case.
+The `Event::TEST_CREATED` event is the best place to put custom processing if you want to hijack a "test". For example you could use it to set a bunch of custom variables. It's not a test, but a processor, in such a case.
 
 ## Advance to Next Test
 
-In some cases you may want to advance to the next test after you finish executing some code inside of `onBeforeTest` in your custom test option. That is to say, you want to mark the test (option) as passed/complete and stop any further execution on that test config. To do this you should use the `\AKlump\CheckPages\Traits\PassFailTrait::setPassed()` method.
+In some cases you may want to advance to the next test after you finish executing some code inside of `Event::TEST_CREATED` in your custom test option. That is to say, you want to mark the test (option) as passed/complete and stop any further execution on that test config. To do this you should use the `\AKlump\CheckPages\Traits\PassFailTrait::setPassed()` method.
 
 ```php
 add_test_option('event.create', [
-  "onBeforeTest" => function ($option, \AKlump\CheckPages\Event\TestEventInterface $event) {
+  Event::TEST_CREATED => function ($option, \AKlump\CheckPages\Event\TestEventInterface $event) {
   
     // ...
     

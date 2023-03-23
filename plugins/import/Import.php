@@ -16,7 +16,7 @@ final class Import implements PluginInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      Event::SUITE_LOADED => [
+      Event::SUITE_STARTED => [
         function (Event\SuiteEventInterface $event) {
           $suite = $event->getSuite();
           $importer = new Importer($event->getSuite()->getRunner()->getFiles());

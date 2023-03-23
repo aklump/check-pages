@@ -16,7 +16,7 @@ class SuiteValidator implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      Event::TEST_VALIDATION => [
+      Event::TEST_CREATED => [
         function (TestEventInterface $event) {
           $test = $event->getTest();
           $config = $test->getConfig();
@@ -25,7 +25,7 @@ class SuiteValidator implements EventSubscriberInterface {
           }
         },
       ],
-      Event::SUITE_VALIDATION => [
+      Event::SUITE_CREATED => [
         function (SuiteEventInterface $event) {
           $suite = $event->getSuite();
           try {

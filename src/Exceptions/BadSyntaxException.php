@@ -6,7 +6,7 @@ namespace AKlump\CheckPages\Exceptions;
  * Used when a Suite, Test or Assert does not have the correct syntax.
  *
  * This should be thrown during the boostrap of a suite and not after the tests
- * have started.  For example during event responders to the Event::SUITE_LOADED
+ * have started.  For example during event responders to the Event::SUITE_STARTED
  * event.
  */
 class BadSyntaxException extends \LogicException {

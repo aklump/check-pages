@@ -1,9 +1,12 @@
 {
-    "javascript__javascript": {
-        "type": "string",
-        "pattern": ".+",
-        "examples": [
-            "location.hash"
-        ]
-    }
+  "javascript__js": {
+    "type": "boolean"
+  },
+  "javascript__javascript": {
+    "type": "string",
+    "pattern": ".+",
+    "examples": [
+      "location.hash"
+    ]
+  }
 }

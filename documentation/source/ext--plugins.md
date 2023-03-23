@@ -15,7 +15,7 @@ title: Plugins
 
 ## Proper Use of Letter Case
 
-Configuration keys provided by plugins should be lower-cased, space-separated in keeping with human-like syntax.  See `pixel ratio` below for an example.
+Configuration keys provided by plugins should be lower-cased, space-separated in keeping with human-like syntax. See `pixel ratio` below for an example.
 
 **Do not make them mixed- or snake-case.**
 
@@ -26,8 +26,6 @@ Configuration keys provided by plugins should be lower-cased, space-separated in
   device:
     pixel ratio: 2
 ```
-
-
 
 @todo Below here is old, needs update.
 
@@ -111,32 +109,13 @@ _(Inspect plugins to see how these are used. Be aware that some properties are r
 }
 ```
 
+## Disabled
+
+If you rename a plugin directory with a leading underscore, e.g. "foo" to "_foo" then it will be ignored. This is a "disabled plugin".
+
 ## Advanced
 
 The _json_schema_ plugin is a good example of a plugin that totally handles the assertion on it's own. You may want to study that if you need to do something fancy.
-
-You can see the basic strategy here:
-
-1. You may only return `TRUE`, indicating the assertion passed.
-2. If it failed you must throw an exception, the message of which will be printed in the test results as to the reason for the failure.
-
-```php
-public function onBeforeAssert(\AKlump\CheckPages\Event\AssertEventInterface $event) {
-    $assert = $event->getAssert();
-    $response = $event->getReponse();
-
-  $assert->setAssertion(Assert::ASSERT_CALLABLE, function ($assert) {
-    
-    // ... do your fancy assertion
-    
-    if ($it_failed) {
-      throw new \RuntimeException(sprintf('The reason for the failure'));
-    }
-
-    return TRUE;
-  });
-}
-```
 
 ## Testing Plugins
 

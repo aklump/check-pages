@@ -24,7 +24,7 @@ final class Loop implements PluginInterface {
   public static function getSubscribedEvents() {
 
     return [
-      Event::SUITE_LOADED => [
+      Event::SUITE_STARTED => [
         function (SuiteEventInterface $event) {
           $suite_has_loops = FALSE;
           foreach ($event->getSuite()->getTests() as $test) {
