@@ -102,7 +102,7 @@ function add_directory(string $absolute_path_to_dir) {
  *
  * @param string $path_to_suite
  *   This can be a resolvable path or a glob pattern, e.g. 'group/suite',
- *   'group/*', 'suite'.
+ *   'group/*', 'suite'.  Or a resolvable path like "foo/bar/group/suite".
  *
  * @throws \AKlump\CheckPages\Exceptions\SuiteFailedException|\AKlump\CheckPages\Exceptions\TestFailedException
  */
@@ -112,14 +112,19 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
   /** @var \AKlump\CheckPages\Parts\Runner $runner */
   $runner = $container->get('runner');
 
-  if (count(explode('/', $path_to_suite)) > 2) {
-    throw new \InvalidArgumentException(sprintf('$path to suite may only contain a single "/" char indicating the GROUP/SUITE; "%s" is invalid.', $path_to_suite));
-  }
-
-  // The group will be the same, even if globbing creates multiple suites below.
+  // Sniff out the group, which the directory holding the suite file, if
+  // provided, e.g., "group/suite".  $path_to_suite may contain more than
+  // "group/suite", so we will sniff that out too, and add any resolved
+  // directories automatically, as appropriate.  Note: the group will be the
+  // same, even if globbing creates multiple suites.
   $group = '';
   if (strpos($path_to_suite, '/') !== FALSE) {
-    $group = dirname($path_to_suite);
+    $group = basename(dirname($path_to_suite));
+    $resolve_dir = explode($group, $path_to_suite)[0];
+    if ($resolve_dir) {
+      $resolve_dir = $runner->getFiles()->tryResolveDir($resolve_dir)[0];
+      $runner->getFiles()->addResolveDir($resolve_dir);
+    }
   }
 
   // If there was any runtime config added to the single-instance runner last
