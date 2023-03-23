@@ -1,0 +1,4 @@
+-
+  why: Assert "suites_to_ignore" config works and never runs this suite
+  url: /
+  expect: 404

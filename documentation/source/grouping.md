@@ -2,9 +2,7 @@
 
 It may be helpful to combine suites into groups.
 
-This is done by placing one or more suites into a folder. The name of the folder containing the suites is the group ID.
-
-That's it.
+This is done by placing one or more suites into a folder. A group is defined by the folder containing the suite file(s), where the folder is the group. That's it.
 
 You can use the `--group=<GROUP_ID>` to filter by group.
 

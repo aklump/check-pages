@@ -62,26 +62,21 @@ final class Retest implements EventSubscriberInterface {
             return;
           }
 
-          static $suites_to_ignore;
-
           $retest = new self();
           $retest->setRunner($runner);
 
-          if (!isset($suites_to_ignore)) {
-            $suites_to_ignore = [];
-            $results = $retest->readResults();
+          $results = $retest->readResults();
 
-            if ($is_retesting) {
-              $results = $retest->getOnlyPassedSuites($results);
-            }
-            elseif ($is_continuing) {
-              $results = $retest->getOnlyFullyCompletedSuites($results);
-            }
-            else {
-              $results = [];
-            }
-            $suites_to_ignore = $retest->flattenResults($results);
+          if ($is_retesting) {
+            $results = $retest->getOnlyPassedSuites($results);
           }
+          elseif ($is_continuing) {
+            $results = $retest->getOnlyFullyCompletedSuites($results);
+          }
+          else {
+            $results = [];
+          }
+          $suites_to_ignore = $retest->flattenResults($results);
 
           if ($suites_to_ignore) {
             $config = $runner->getConfig();
@@ -90,11 +85,7 @@ final class Retest implements EventSubscriberInterface {
             $runner->setConfig($config);
           }
 
-          static $is_first_run;
-          if (FALSE !== $is_first_run) {
-            $retest->onFirstRun();
-            $is_first_run = FALSE;
-          }
+          $retest->prepareFiles();
         },
       ],
       Event::TEST_PASSED => [
@@ -201,11 +192,11 @@ final class Retest implements EventSubscriberInterface {
   }
 
   /**
-   * Run processes only on the first run.
+   * Prepare the files based on CLI options.
    *
    * @return void
    */
-  private function onFirstRun() {
+  private function prepareFiles() {
     // Setup a clean slate if appropriate; empty the results file when
     // certain options are not being used.
     $options_being_used = array_keys(array_filter($this->getRunner()->getInput()
