@@ -25,6 +25,12 @@
             ],
             "pattern": "^/|http|\\${"
         },
+        "expected_outcome": {
+            "type": "string",
+            "enum": [
+                "failure"
+            ]
+        },
         "js": {
             "type": "boolean",
             "description": "Set this to true if you need javascript to run on the page."
@@ -339,6 +345,9 @@
                 "extras": {
                     "$ref": "#/definitions/extras"
                 },
+                "expected outcome": {
+                    "$ref": "#/definitions/expected_outcome"
+                },
                 "device": {
                     "$ref": "#/definitions/device__device"
                 },
@@ -493,6 +502,9 @@
                 "extras": {
                     "$ref": "#/definitions/extras"
                 },
+                "expected outcome": {
+                    "$ref": "#/definitions/expected_outcome"
+                },
                 "set": {
                     "$ref": "#/definitions/value__set"
                 },
@@ -549,6 +561,9 @@
                 },
                 "extras": {
                     "$ref": "#/definitions/extras"
+                },
+                "expected outcome": {
+                    "$ref": "#/definitions/expected_outcome"
                 },
                 "eval": {
                     "$ref": "#/definitions/evaluate__eval"
@@ -633,13 +648,19 @@
             "type": "string",
             "pattern": ".+",
             "examples": [
-                "value"
+                "X-Timestamp"
             ]
         },
         "header": {
             "title": "Header Plugin Assertion",
             "type": "object",
             "oneOf": [
+                {
+                    "required": [
+                        "header",
+                        "set"
+                    ]
+                },
                 {
                     "required": [
                         "header",
@@ -656,12 +677,6 @@
                     "required": [
                         "header",
                         "is"
-                    ]
-                },
-                {
-                    "required": [
-                        "header",
-                        "set"
                     ]
                 },
                 {
@@ -696,6 +711,9 @@
                 },
                 "extras": {
                     "$ref": "#/definitions/extras"
+                },
+                "expected outcome": {
+                    "$ref": "#/definitions/expected_outcome"
                 },
                 "header": {
                     "$ref": "#/definitions/header__header"
@@ -747,10 +765,16 @@
                 "extras": {
                     "$ref": "#/definitions/extras"
                 },
+                "expected outcome": {
+                    "$ref": "#/definitions/expected_outcome"
+                },
                 "import": {
                     "$ref": "#/definitions/import__import"
                 }
             }
+        },
+        "javascript__js": {
+            "type": "boolean"
         },
         "javascript__javascript": {
             "type": "string",
@@ -803,6 +827,18 @@
                         "javascript",
                         "matches"
                     ]
+                },
+                {
+                    "required": [
+                        "javascript",
+                        "not matches"
+                    ]
+                },
+                {
+                    "required": [
+                        "javascript",
+                        "count"
+                    ]
                 }
             ],
             "additionalProperties": false,
@@ -813,11 +849,14 @@
                 "extras": {
                     "$ref": "#/definitions/extras"
                 },
-                "set": {
-                    "$ref": "#/definitions/value__set"
+                "expected outcome": {
+                    "$ref": "#/definitions/expected_outcome"
                 },
                 "javascript": {
                     "$ref": "#/definitions/javascript__javascript"
+                },
+                "set": {
+                    "$ref": "#/definitions/value__set"
                 },
                 "contains": {
                     "$ref": "#/definitions/contains"
@@ -833,6 +872,12 @@
                 },
                 "matches": {
                     "$ref": "#/definitions/matches"
+                },
+                "not matches": {
+                    "$ref": "#/definitions/matches"
+                },
+                "count": {
+                    "$ref": "#/definitions/count__count"
                 }
             }
         },
@@ -906,6 +951,9 @@
                 "extras": {
                     "$ref": "#/definitions/extras"
                 },
+                "expected outcome": {
+                    "$ref": "#/definitions/expected_outcome"
+                },
                 "pointer": {
                     "$ref": "#/definitions/json_pointer__pointer"
                 },
@@ -954,6 +1002,9 @@
                 "extras": {
                     "$ref": "#/definitions/extras"
                 },
+                "expected outcome": {
+                    "$ref": "#/definitions/expected_outcome"
+                },
                 "schema": {
                     "$ref": "#/definitions/json_schema__schema"
                 },
@@ -969,6 +1020,43 @@
                 "schema"
             ],
             "additionalProperties": false
+        },
+        "loop__loop": {
+            "oneOf": [
+                {
+                    "type": "string",
+                    "pattern": "\\d+\\.\\.\\.\\d+|\\d+x",
+                    "examples": [
+                        "1...10",
+                        "10x"
+                    ]
+                },
+                {
+                    "type": "array",
+                    "minItems": 2,
+                    "examples": [
+                        [
+                            "do",
+                            "re",
+                            "mi"
+                        ]
+                    ]
+                },
+                {
+                    "type": "object",
+                    "minProperties": 2,
+                    "examples": [
+                        {
+                            "h1": "Lorem",
+                            "h2": "Ipsum",
+                            "h3": "Dolar"
+                        }
+                    ]
+                }
+            ]
+        },
+        "loop__end_loop": {
+            "type": "null"
         },
         "path__path": {
             "type": [
@@ -1043,6 +1131,9 @@
                 },
                 "extras": {
                     "$ref": "#/definitions/extras"
+                },
+                "expected outcome": {
+                    "$ref": "#/definitions/expected_outcome"
                 },
                 "set": {
                     "$ref": "#/definitions/value__set"
@@ -1240,6 +1331,9 @@
                 "extras": {
                     "$ref": "#/definitions/extras"
                 },
+                "expected outcome": {
+                    "$ref": "#/definitions/expected_outcome"
+                },
                 "set": {
                     "$ref": "#/definitions/value__set"
                 },
@@ -1306,6 +1400,9 @@
                 },
                 "extras": {
                     "$ref": "#/definitions/extras"
+                },
+                "expected outcome": {
+                    "$ref": "#/definitions/expected_outcome"
                 },
                 "value": {
                     "$ref": "#/definitions/value__value"
@@ -1432,6 +1529,9 @@
                 "extras": {
                     "$ref": "#/definitions/extras"
                 },
+                "expected outcome": {
+                    "$ref": "#/definitions/expected_outcome"
+                },
                 "set": {
                     "$ref": "#/definitions/value__set"
                 },
@@ -1495,6 +1595,9 @@
                     "why": {
                         "$ref": "#/definitions/why"
                     },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
+                    },
                     "user": {
                         "$ref": "#/definitions/user"
                     },
@@ -1526,6 +1629,9 @@
                     },
                     "why": {
                         "$ref": "#/definitions/why"
+                    },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
                     },
                     "user": {
                         "$ref": "#/definitions/user"
@@ -1559,6 +1665,9 @@
                     "why": {
                         "$ref": "#/definitions/why"
                     },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
+                    },
                     "user": {
                         "$ref": "#/definitions/user"
                     },
@@ -1590,6 +1699,9 @@
                     },
                     "why": {
                         "$ref": "#/definitions/why"
+                    },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
                     },
                     "user": {
                         "$ref": "#/definitions/user"
@@ -1624,6 +1736,9 @@
                     "why": {
                         "$ref": "#/definitions/why"
                     },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
+                    },
                     "user": {
                         "$ref": "#/definitions/user"
                     },
@@ -1656,6 +1771,9 @@
                     },
                     "why": {
                         "$ref": "#/definitions/why"
+                    },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
                     },
                     "user": {
                         "$ref": "#/definitions/user"
@@ -1690,6 +1808,9 @@
                     "extras": {
                         "$ref": "#/definitions/extras"
                     },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
+                    },
                     "breakpoint": {
                         "$ref": "#/definitions/breakpoint__breakpoint"
                     }
@@ -1707,6 +1828,9 @@
                     },
                     "extras": {
                         "$ref": "#/definitions/extras"
+                    },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
                     },
                     "cypress": {
                         "type": "string",
@@ -1742,6 +1866,9 @@
                     "extras": {
                         "$ref": "#/definitions/extras"
                     },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
+                    },
                     "device": {
                         "$ref": "#/definitions/device__device"
                     }
@@ -1764,6 +1891,9 @@
                     "extras": {
                         "$ref": "#/definitions/extras"
                     },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
+                    },
                     "eval": {
                         "$ref": "#/definitions/evaluate__eval"
                     }
@@ -1782,6 +1912,9 @@
                     },
                     "extras": {
                         "$ref": "#/definitions/extras"
+                    },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
                     },
                     "url": {
                         "$ref": "#/definitions/url"
@@ -1807,8 +1940,32 @@
                     "extras": {
                         "$ref": "#/definitions/extras"
                     },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
+                    },
                     "import": {
                         "$ref": "#/definitions/import__import"
+                    }
+                }
+            },
+            {
+                "type": "object",
+                "required": [
+                    "js"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
+                    "extras": {
+                        "$ref": "#/definitions/extras"
+                    },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
+                    },
+                    "js": {
+                        "$ref": "#/definitions/javascript__js"
                     }
                 }
             },
@@ -1824,6 +1981,9 @@
                     },
                     "extras": {
                         "$ref": "#/definitions/extras"
+                    },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
                     },
                     "pointer": {
                         "$ref": "#/definitions/json_pointer__pointer"
@@ -1852,44 +2012,42 @@
                     "extras": {
                         "$ref": "#/definitions/extras"
                     },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
+                    },
                     "loop": {
-                        "oneOf": [
-                            {
-                                "type": "string",
-                                "pattern": "\\d+\\.\\.\\.\\d+|\\d+x",
-                                "examples": [
-                                    "1...10",
-                                    "10x"
-                                ]
-                            },
-                            {
-                                "type": "array",
-                                "minItems": 2,
-                                "examples": [
-                                    [
-                                        "do",
-                                        "re",
-                                        "mi"
-                                    ]
-                                ]
-                            },
-                            {
-                                "type": "object",
-                                "minProperties": 2,
-                                "examples": [
-                                    {
-                                        "h1": "Lorem",
-                                        "h2": "Ipsum",
-                                        "h3": "Dolar"
-                                    }
-                                ]
-                            }
-                        ]
+                        "$ref": "#/definitions/loop__loop"
                     },
                     "end loop": {
-                        "type": "null"
+                        "$ref": "#/definitions/loop__end_loop"
                     }
                 }
+            },
+            {
+                "type": "object",
+                "additionalProperties": false,
+                "oneOf": [
+                    {
+                        "required": [
+                            "redirect"
+                        ],
+                        "properties": {
+                            "redirect": {
+                                "$ref": "#/definitions/url"
+                            }
+                        }
+                    },
+                    {
+                        "required": [
+                            "location"
+                        ],
+                        "properties": {
+                            "location": {
+                                "$ref": "#/definitions/url"
+                            }
+                        }
+                    }
+                ]
             },
             {
                 "type": "object",
@@ -1903,6 +2061,9 @@
                     },
                     "extras": {
                         "$ref": "#/definitions/extras"
+                    },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
                     },
                     "sleep": {
                         "$ref": "#/definitions/sleep__sleep"
@@ -1962,6 +2123,9 @@
                     },
                     "extras": {
                         "$ref": "#/definitions/extras"
+                    },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
                     },
                     "value": {
                         "$ref": "#/definitions/value__value"

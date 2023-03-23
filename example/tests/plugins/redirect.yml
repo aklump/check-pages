@@ -1,4 +1,33 @@
-
+-
+    why: 'Demonstrate the Redirect Plugin syntax.'
+-
+    why: 'Asserts based on https://developer.mozilla.org/en-US/docs/Web/HTTP/Status'
+-
+    loop: 200...206
+-
+    why: 'Assert common success codes pass without the "expect" selector.'
+    url: '/plugins/redirect.php?q=${loop.value}'
+-
+    url: '/plugins/redirect.php?q=${loop.value}'
+    expect: '${loop.value}'
+-
+    'end loop': null
+-
+    why: 'Assert common client errors'
+    loop: 400...410
+-
+    url: '/plugins/redirect.php?q=${loop.value}'
+    expect: '${loop.value}'
+-
+    'end loop': null
+-
+    why: 'Assert common server errors'
+    loop: 500...504
+-
+    url: '/plugins/redirect.php?q=${loop.value}'
+    expect: '${loop.value}'
+-
+    'end loop': null
 -
     why: 'Because this project uses different request classes for JS or non, we need to test them both.'
     loop:
@@ -55,4 +84,5 @@
     js: '${loop.value[0]}'
     expect: 301
     location: 'https://github.com/'
-- end loop:
+-
+    'end loop': null

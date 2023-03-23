@@ -52,6 +52,16 @@
   js: true
   find:
     -
+      why: Assert selectors with double quotes work as expected.
+      dom: '[data-page="1"] div'
+      style: color
+      is: 'rgb(255, 0, 0)'
+    -
+      why: Assert selectors with single quotes work as expected.
+      dom: "[data-page='1'] div"
+      style: color
+      is: 'rgb(255, 0, 0)'
+    -
       dom: .visible
       style: display
       matches: /^(?!none).+$/
@@ -94,9 +104,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="demo--sleep.html" class="prev demo--sleep">&laquo;Sleep: Adding a Delay</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--json_schema.html" class="next plugin_json_schema">Testing APIs with JSON Schema&raquo;</a></div>  
+  <div class="pager"><a href="demo--sleep.html" class="prev demo--sleep">&laquo;Sleep: Adding a Delay</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--json_schema.html" class="next plugin_json_schema">Testing APIs with JSON Schema&raquo;</a></div>
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Mon, 13 Mar 2023 21:30:21 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 22 Mar 2023 23:41:16 -0700</p>
   </div>
 </footer>
 

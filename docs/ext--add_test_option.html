@@ -62,7 +62,7 @@ title: Options
 
 <pre><code class="php"># file: runner.php
 add_test_option('foo', [
-  'onBeforeTest' =&gt; function ($option, \AKlump\CheckPages\Parts\Test $test, $context){
+  'onBeforeTest' =&gt; function ($option, $event){
     // Note, $option === 123
   },
 ]);
@@ -70,14 +70,107 @@ add_test_option('foo', [
 
 <p>The first argument defines the option as it will be used in the suite file, e.g., <code>foo</code>. The second argument is an array of callbacks, keyed by one or more of these methods:</p>
 
-<ul>
-<li><code>onLoadSuite(SuiteEventInterface $event, array $context)</code></li>
-<li><code>onBeforeTest($option, TestEventInterface $event, array $context)</code></li>
-<li><code>onBeforeDriver($option, TestEventInterface $event, array $context)</code></li>
-<li><code>onBeforeRequest($option, DriverEventInterface $event, array $context)</code></li>
-<li><code>onBeforeAssert($option, AssertEventInterface $event, array $context)</code></li>
-<li><code>onAssertToString($option, string $stringified, \AKlump\CheckPages\Assert $assert, array $context)</code></li>
-</ul>
+<table>
+<thead>
+<tr>
+  <th>Event order</th>
+  <th>Event</th>
+  <th>Event class</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>1</td>
+  <td>Event::CONFIG_LOADED</td>
+  <td>RunnerEvent</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td>Event::RUNNER_STARTED</td>
+  <td>RunnerEvent</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td>Event::SUITE_VALIDATING</td>
+  <td>SuiteEvent</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>Event::SUITE_STARTED</td>
+  <td>SuiteEvent</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td>Event::TEST_VALIDATING</td>
+  <td>TestEvent</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td>Event::TEST_STARTED</td>
+  <td>DriverEvent</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td>Event::REQUEST_CREATED</td>
+  <td>DriverEvent</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td>Event::REQUEST_PREPARED</td>
+  <td>DriverEvent</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td>Event::REQUEST_FINISHED</td>
+  <td>DriverEvent</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td>Event::ASSERT_CREATED</td>
+  <td>AssertEvent</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td>Event::ASSERT_FINISHED</td>
+  <td>AssertEvent</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td>Event::TEST_FINISHED</td>
+  <td>DriverEvent</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td>Event::TEST_PASSED</td>
+  <td>TestEvent</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td>Event::TEST_FAILED</td>
+  <td>TestEvent</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td>Event::SUITE_PASSED</td>
+  <td>SuiteEvent</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td>Event::SUITE_FAILED</td>
+  <td>SuiteEvent</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td>Event::SUITE_FINISHED</td>
+  <td>SuiteEvent</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td>Event::RUNNER_FINISHED</td>
+  <td>RunnerEvent</td>
+</tr>
+</tbody>
+</table>
 
 <p>These examples show how <code>$option</code> can have non-scalar values.</p>
 
@@ -91,18 +184,18 @@ add_test_option('foo', [
 </code></pre>
 
 <pre><code class="php">add_test_option('bar', [
-  'onBeforeTest' =&gt; function ($option, \AKlump\CheckPages\Parts\Test $test, $context){
+  'onBeforeTest' =&gt; function ($option, \AKlump\CheckPages\Event\TestEventInterface $event){
     list($do, $re, $mi) = $option;
     // ...
   },
-  'onBeforeRequest' =&gt; function ($option, &amp;$driver, array $context){
+  'onBeforeRequest' =&gt; function ($option, \AKlump\CheckPages\Event\DriverEventInterface $event){
     list($do, $re, $mi) = $option;
     // ...
   },
 ]);
 
 add_test_option('baz', [
-  'onBeforeTest' =&gt; function ($option, \AKlump\CheckPages\Parts\Test $test, $context){
+  'onBeforeTest' =&gt; function ($option, \AKlump\CheckPages\Event\TestEventInterface $event){
     if ($option['lorem'] === 'ipsum dolar') {
       // ...
     }
@@ -118,14 +211,14 @@ run_suite('*');
 
 <h2>Advance to Next Test</h2>
 
-<p>In some cases you may want to advance to the next test after you finish executing some code inside of <code>onBeforeTest</code> in your custom test option. That is to say, you want to mark the test (option) as complete and stop any further execution on that test config. To do this you should return the value <code>\AKlump\CheckPages\Parts\Test::IS_COMPLETE</code>. This will mark the test neither passed nor failed, rather it will silently move on.</p>
+<p>In some cases you may want to advance to the next test after you finish executing some code inside of <code>onBeforeTest</code> in your custom test option. That is to say, you want to mark the test (option) as passed/complete and stop any further execution on that test config. To do this you should use the <code>\AKlump\CheckPages\Traits\PassFailTrait::setPassed()</code> method.</p>
 
 <pre><code class="php">add_test_option('event.create', [
-  "onBeforeTest" =&gt; function ($option, \AKlump\CheckPages\Parts\Test $test, array $context) {
+  "onBeforeTest" =&gt; function ($option, \AKlump\CheckPages\Event\TestEventInterface $event) {
 
     // ...
 
-    return \AKlump\CheckPages\Parts\Test::IS_COMPLETE;
+    $event-&gt;getTest()-&gt;setPassed();
   },
 ]);
 </code></pre>
@@ -137,9 +230,9 @@ run_suite('*');
 </div>
 
 <footer>
-  <div class="pager"><a href="ext--shorthand.html" class="prev ext--shorthand">&laquo;Shorthand</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--mixins.html" class="next mixins">Mixins&raquo;</a></div>  
+  <div class="pager"><a href="ext--shorthand.html" class="prev ext--shorthand">&laquo;Shorthand</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--mixins.html" class="next mixins">Mixins&raquo;</a></div>
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Mon, 13 Mar 2023 21:30:23 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 22 Mar 2023 23:41:18 -0700</p>
   </div>
 </footer>
 

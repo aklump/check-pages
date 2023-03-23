@@ -43,8 +43,16 @@ services:
         class: \AKlump\CheckPages\Plugin\Form
         tags:
             - { name: event_subscriber }
+    header.plugin:
+        class: \AKlump\CheckPages\Plugin\Header
+        tags:
+            - { name: event_subscriber }
     import.plugin:
         class: \AKlump\CheckPages\Plugin\Import
+        tags:
+            - { name: event_subscriber }
+    javascript.plugin:
+        class: \AKlump\CheckPages\Plugin\Javascript
         tags:
             - { name: event_subscriber }
     json_pointer.plugin:
@@ -61,6 +69,10 @@ services:
             - { name: event_subscriber }
     path.plugin:
         class: \AKlump\CheckPages\Plugin\Path
+        tags:
+            - { name: event_subscriber }
+    redirect.plugin:
+        class: \AKlump\CheckPages\Plugin\Redirect
         tags:
             - { name: event_subscriber }
     sleep.plugin:

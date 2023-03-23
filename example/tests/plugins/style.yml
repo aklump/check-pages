@@ -3,6 +3,16 @@
     js: true
     find:
         -
+            why: 'Assert selectors with double quotes work as expected.'
+            dom: '[data-page="1"] div'
+            style: color
+            is: 'rgb(255, 0, 0)'
+        -
+            why: 'Assert selectors with single quotes work as expected.'
+            dom: '[data-page=''1''] div'
+            style: color
+            is: 'rgb(255, 0, 0)'
+        -
             dom: .visible
             style: display
             matches: '/^(?!none).+$/'

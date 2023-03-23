@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Filenaming and Organization</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
+</head>
+
+<body class="page--deep--organizing">
+<header>
+  <div class="pager"><a href="deep--variables.html" class="prev deep--variables">&laquo;Variables</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="deep--setup.html" class="next setup">Setup Before Test&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="deep--custom_dirs">Going Deeper</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Filenaming and Organization</h1>
+  <!--searchable_content-->
+
+<p>Given the scenario of a live server, a test server, and a local, development server, you will create three config files respective to each environment.</p>
+
+<pre><code>├── config
+│   ├── dev.yml
+│   ├── live.yml
+│   └── test.yml
+</code></pre>
+
+<p>Then you will create some suites that are to be run on all environments</p>
+
+<pre><code>└── suites
+    ├── bar.yml
+    ├── baz.yml
+    └── foo.yml
+</code></pre>
+
+<p>But let's say you have a suite that should only be run against the live environment. Here's an example that tests proper redirection and SSL prefixing and requires that the <code>url</code> values be absolute links. By definition then this suite should only run against a single server.</p>
+
+<pre><code class="yaml">-
+  why: Assert canonical, secure does not redirect.
+  visit: https://www.mysite.org
+  expect: 200
+  location: https://www.mysite.org
+-
+  loop:
+    - http://www.mysite.org
+    - https://mysite.org
+    - http://mysite.org
+-
+  why: Assert ${loop.value} redirects to SSL, canonical.
+  visit: ${loop.value}
+  expect: 301
+  location: https://www.mysite.org
+-
+  end loop:
+
+</code></pre>
+
+<p>To keep this clear adhere to the following convention.</p>
+
+<h3>Step One</h3>
+
+<p><strong>Prefix the suite with the config filename, e.g. <em>live.redirects.yml</em>.</strong></p>
+
+<pre><code>└── suites
+    ...
+    ├── bar.yml
+    ├── baz.yml
+    ├── dev.redirects.yml
+    ├── foo.yml
+    ├── live.redirects.yml
+    └── test.redirects.yml
+</code></pre>
+
+<h3>Step Two</h3>
+
+<p><strong>List these as <code>suites_to_ignore</code> in the appropriate config files.</strong></p>
+
+<p>In <em>config/dev.yml</em>:</p>
+
+<pre><code class="yaml">suites_to_ignore:
+  - live.redirects
+  - test.redirects
+</code></pre>
+
+<p>In <em>config/live.yml</em>:</p>
+
+<pre><code class="yaml">suites_to_ignore:
+  - dev.redirects
+  - test.redirects
+</code></pre>
+
+<p>In <em>config/test.yml</em>:</p>
+
+<pre><code class="yaml">suites_to_ignore:
+  - dev.redirects
+  - live.redirects
+</code></pre>
+
+<h2>Why Not Use Groups?</h2>
+
+<p>In my experience groups (folders) should not be used to indicate configuration-specific suites, but there is nothing technically stopping this strategy.</p>
+<!--end_searchable_content-->
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="deep--variables.html" class="prev deep--variables">&laquo;Variables</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="deep--setup.html" class="next setup">Setup Before Test&raquo;</a></div>
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 22 Mar 2023 23:41:07 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

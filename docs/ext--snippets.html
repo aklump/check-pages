@@ -34,7 +34,7 @@
 <p>This example shows how to make a request from the body of a <em>Shorthand</em>.</p>
 
 <pre><code class="php">add_shorthand('bundle_access', function ($shorthand, \AKlump\CheckPages\Parts\Test $test) {
-  $url = $test-&gt;getSuite()-&gt;getRunner()-&gt;url('/foo/bar');
+  $url = $test-&gt;getSuite()-&gt;getRunner()-&gt;withBaseUrl('/foo/bar');
   $guzzle = new \AKlump\CheckPages\GuzzleDriver();
   $response = $guzzle-&gt;getClient()-&gt;get($url);
   $data = json_decode($response-&gt;getBody(), TRUE)['data'];
@@ -48,9 +48,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="ext--plugins.html" class="prev ext--plugins">&laquo;Plugins</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--event-responders.html" class="next respond_to">Responding to Events&raquo;</a></div>  
+  <div class="pager"><a href="ext--plugins.html" class="prev ext--plugins">&laquo;Plugins</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--event-responders.html" class="next respond_to">Responding to Events&raquo;</a></div>
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Mon, 13 Mar 2023 21:30:25 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 22 Mar 2023 23:41:21 -0700</p>
   </div>
 </footer>
 

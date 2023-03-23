@@ -25,15 +25,121 @@
 
 <section>
   <h1>Event Responders</h1>
-  <!--searchable_content-->
+  <!--searchable_content--><!--
+id: respond_to
+title: Responding to Events
+-->
 
-<p>To see all events look to <code>\AKlump\CheckPages\Event</code>.</p>
+
+<h2>Events in Execution Order</h2>
+
+<table>
+<thead>
+<tr>
+  <th>Event order</th>
+  <th>Event</th>
+  <th>Event class</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>1</td>
+  <td>Event::CONFIG_LOADED</td>
+  <td>RunnerEvent</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td>Event::RUNNER_STARTED</td>
+  <td>RunnerEvent</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td>Event::SUITE_VALIDATING</td>
+  <td>SuiteEvent</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>Event::SUITE_STARTED</td>
+  <td>SuiteEvent</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td>Event::TEST_VALIDATING</td>
+  <td>TestEvent</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td>Event::TEST_STARTED</td>
+  <td>DriverEvent</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td>Event::REQUEST_CREATED</td>
+  <td>DriverEvent</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td>Event::REQUEST_PREPARED</td>
+  <td>DriverEvent</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td>Event::REQUEST_FINISHED</td>
+  <td>DriverEvent</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td>Event::ASSERT_CREATED</td>
+  <td>AssertEvent</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td>Event::ASSERT_FINISHED</td>
+  <td>AssertEvent</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td>Event::TEST_FINISHED</td>
+  <td>DriverEvent</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td>Event::TEST_PASSED</td>
+  <td>TestEvent</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td>Event::TEST_FAILED</td>
+  <td>TestEvent</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td>Event::SUITE_PASSED</td>
+  <td>SuiteEvent</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td>Event::SUITE_FAILED</td>
+  <td>SuiteEvent</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td>Event::SUITE_FINISHED</td>
+  <td>SuiteEvent</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td>Event::RUNNER_FINISHED</td>
+  <td>RunnerEvent</td>
+</tr>
+</tbody>
+</table>
 
 <h2>Writing a Dynamic Import</h2>
 
 <p>In this example a "shorthand" is built that can expand to multiple tests.</p>
 
-<pre><code class="php">respond_to(\AKlump\CheckPages\Event::SUITE_LOADED, function (\AKlump\CheckPages\Event\SuiteEventInterface $event) {
+<pre><code class="php">respond_to(\AKlump\CheckPages\Event::SUITE_STARTED, function (\AKlump\CheckPages\Event\SuiteEventInterface $event) {
   $suite = $event-&gt;getSuite();
   foreach ($suite-&gt;getTests() as $test) {
     $config = $test-&gt;getConfig();
@@ -68,9 +174,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="ext--snippets.html" class="prev ext--snippets">&laquo;Code Snippets</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div>  
+  <div class="pager"><a href="ext--snippets.html" class="prev ext--snippets">&laquo;Code Snippets</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div>
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Mon, 13 Mar 2023 21:30:23 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 22 Mar 2023 23:41:19 -0700</p>
   </div>
 </footer>
 

@@ -29,6 +29,44 @@
 
 <p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>, and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 
+<h2>[0.18.0] - 2023-03-14</h2>
+
+<h3>Added</h3>
+
+<ul>
+<li>lorem</li>
+</ul>
+
+<h3>Changed</h3>
+
+<ul>
+<li><code>\AKlump\CheckPages\Event::RUNNER_CONFIG</code> -> <code>\AKlump\CheckPages\Event::RUNNER_STARTED</code></li>
+<li><code>resolve</code> -> <code>tryResolveDir</code></li>
+<li><code>resolveFile</code> -> <code>tryResolveFile</code></li>
+<li><code>end_loop</code> changed back to <code>end loop</code></li>
+<li><code>\AKlump\CheckPages\Parts\Runner::url()</code> -> <code>\AKlump\CheckPages\Parts\Runner::withBaseUrl()</code></li>
+</ul>
+
+<h3>Deprecated</h3>
+
+<ul>
+<li>lorem</li>
+</ul>
+
+<h3>Removed</h3>
+
+<h3>Fixed</h3>
+
+<ul>
+<li>An issue with <code>location</code> and multiple redirects where it would not return the final redirect URL, but the first. This will break some tests. You will need to update your tests with the final URL.</li>
+</ul>
+
+<h3>Security</h3>
+
+<ul>
+<li>lorem</li>
+</ul>
+
 <h2>[0.17] - 2022-11-27</h2>
 
 <h3>Removed</h3>
@@ -40,7 +78,7 @@
 <h3>Changed</h3>
 
 <ul>
-<li><code>TEST_FINISHED</code> changed to <code>REQUEST_TEST_FINISHED</code></li>
+<li><code>TEST_FINISHED</code> changed to <code>TEST_FINISHED</code></li>
 <li><code>TEST_FINISHED</code> now is for <code>\AKlump\CheckPages\Event\TestEventInterface</code></li>
 <li>How user feedback is handled and written.</li>
 </ul>
@@ -305,9 +343,9 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
 </div>
 
 <footer>
-  <div class="pager"><a href="xdebug.html" class="prev xdebug">&laquo;Debugging While Running Tests</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cli.html" class="next cli">Command Line Runner&raquo;</a></div>  
+  <div class="pager"><a href="xdebug.html" class="prev xdebug">&laquo;Debugging While Running Tests</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cli.html" class="next cli">Command Line Runner&raquo;</a></div>
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Mon, 13 Mar 2023 21:30:10 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 22 Mar 2023 23:41:04 -0700</p>
   </div>
 </footer>
 

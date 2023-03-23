@@ -6,6 +6,34 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2023-03-14
+
+### Added
+
+- lorem
+
+### Changed
+
+- `\AKlump\CheckPages\Event::RUNNER_CONFIG` -> `\AKlump\CheckPages\Event::RUNNER_STARTED`
+- `resolve` -> `tryResolveDir`
+- `resolveFile` -> `tryResolveFile`
+- `end_loop` changed back to `end loop`
+- `\AKlump\CheckPages\Parts\Runner::url()` -> `\AKlump\CheckPages\Parts\Runner::withBaseUrl()`
+
+### Deprecated
+
+- lorem
+
+### Removed
+
+### Fixed
+
+- An issue with `location` and multiple redirects where it would not return the final redirect URL, but the first. This will break some tests. You will need to update your tests with the final URL.
+
+### Security
+
+- lorem
+
 ## [0.17] - 2022-11-27
 
 ### Removed
@@ -14,7 +42,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
-- `TEST_FINISHED` changed to `REQUEST_TEST_FINISHED`
+- `TEST_FINISHED` changed to `TEST_FINISHED`
 - `TEST_FINISHED` now is for `\AKlump\CheckPages\Event\TestEventInterface`
 - How user feedback is handled and written.
 
