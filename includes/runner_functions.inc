@@ -178,16 +178,13 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
       'yaml',
       'yml',
     ])[0];
-    $resolved_directory = $runner->getFiles()->tryResolveFile($absolute_path, [
-      'yaml',
-      'yml',
-    ], FilesProviderInterface::RESOLVE_TO_RESOLVE_DIRS)[0];
-    $suite_id = pathinfo(substr($absolute_path, strlen($resolved_directory) + 1), PATHINFO_FILENAME);
 
     $suite_config = Symfony\Component\Yaml\Yaml::parseFile($absolute_path);
     if (!is_array($suite_config)) {
       $suite_config = [];
     }
+
+    $suite_id = pathinfo($absolute_path, PATHINFO_FILENAME);
     $suite = new Suite($suite_id, $suite_config, $runner);
     if ($group) {
       $suite->setGroup($group);

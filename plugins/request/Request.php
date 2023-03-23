@@ -47,7 +47,12 @@ final class Request extends LegacyPlugin {
 
     $this->request['method'] = strtoupper($this->config['request']['method'] ?? 'get');
     if (!empty($this->config['request']['headers'])) {
-      $this->request['headers'] = array_combine(array_map('strtolower', array_keys($this->config['request']['headers'])), $this->config['request']['headers']);
+      $headers =& $this->config['request']['headers'];
+      $headers = array_change_key_case($headers);
+      $headers = array_filter($headers, function ($value) {
+        return !empty($value);
+      });
+      $headers = array_map('strval', $headers);
     }
     $this->request['body'] = $this->config['request']['body'] ?? '';
   }
