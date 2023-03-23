@@ -1,4 +1,32 @@
 -
+  set: alpha
+  value: Twilight
+-
+  set: bravo
+  value: ${alpha}
+-
+  visit: /test_subject.html
+  find:
+    -
+      dom: h1
+      is: Twilight
+    -
+      dom: h1
+      is: ${alpha}
+    -
+      dom: h1
+      is: ${bravo}
+    -
+      set: charlie
+      value: ${bravo}
+-
+  visit: /test_subject.html
+  find:
+    -
+      dom: h1
+      is: ${charlie}
+
+-
   why: Demonstrate the Value Plugin syntax using "why".
   value: lorem ipsum dolar
   set: vars.string

@@ -45,7 +45,7 @@ class AssertRunner {
       $assert->setModifer(Assert::MODIFIER_ATTRIBUTE, $config[Assert::MODIFIER_ATTRIBUTE]);
     }
 
-    if ($assert->set) {
+    if ($assert->has('set')) {
       // This may be overridden below if there is more going on than just `set`,
       // and that's totally fine and the way it should be.  However if only
       // setting, we need to know that later own in the flow.
@@ -69,19 +69,19 @@ class AssertRunner {
     $test->getRunner()->getDispatcher()
       ->dispatch(new AssertEvent($assert, $test, $this->driver), Event::ASSERT_FINISHED);
 
-    if ($assert->set) {
+    if ($assert->has('set')) {
+      $set = $assert->get('set');
+      $assert->getTest()->interpolate($set);
       if ($assert->hasFailed()) {
         $test->addMessage(new DebugMessage(
-          [
-            sprintf('Cannot set "%s" because the assertion failed.', $assert->set),
-          ],
+          [sprintf('Cannot set "%s" because the assertion failed.', $set)],
           MessageType::ERROR
         ));
       }
       else {
         $value = $assert->getNeedle();
         $set_feedback = $test->getRunner()->setKeyValuePair($test->getSuite()
-          ->variables(), $assert->get('set'), $value);
+          ->variables(), $set, $value);
         $test->addMessage(new Message(
           [
             $set_feedback,

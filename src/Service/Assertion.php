@@ -168,10 +168,6 @@ class Assertion {
     return $this;
   }
 
-  public function variables(): Variables {
-    return $this->vars;
-  }
-
   public function run(): self {
     if (FALSE === $this->mayRun) {
       throw new \RuntimeException('This instance is has not been configured to run yet.');
@@ -221,7 +217,7 @@ class Assertion {
   }
 
   private function handleSet() {
-    if ($this->assert->set) {
+    if ($this->assert->get('set')) {
       // This may be overridden below if there is more going on than just `set`,
       // and that's totally fine and the way it should be.  However if only
       // setting, we need to know that later own in the flow.
@@ -230,8 +226,8 @@ class Assertion {
   }
 
   private function handleSetValue() {
-    if ($this->hasPassed() && $this->assert->set) {
-      $this->vars->setItem($this->assert->set, $this->assert->getNeedle());
+    if ($this->hasPassed() && $this->assert->get('set')) {
+      $this->vars->setItem($this->assert->get('set'), $this->assert->getNeedle());
     }
   }
 

@@ -62,7 +62,10 @@ final class Request extends LegacyPlugin {
 
     if (!$driver instanceof GuzzleDriver) {
       if ($request_config_keys === ['timeout']
-        || ($request_config_keys === ['method', 'timeout'] && $request_config_keys['method'] === 'get')) {
+        || ($request_config_keys === [
+            'method',
+            'timeout',
+          ] && $request_config_keys['method'] === 'get')) {
         // Allow this combination for any driver because all it's doing is
         // altering the request timeout and the assumption is that all drivers
         // will work with GET.
@@ -100,8 +103,7 @@ final class Request extends LegacyPlugin {
       'headers' => $this->request['headers'] ?? [],
       'body' => $encoded_body,
     ];
-    if ($event->getTest()
-      ->variables()
+    if ($event->getTest()->getSuite()->variables()
       ->needsInterpolation($interpolation_review)) {
       $event->getTest()
         ->addMessage(new DebugMessage([

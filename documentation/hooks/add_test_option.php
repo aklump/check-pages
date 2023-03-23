@@ -30,10 +30,10 @@ $callbacks = array_map(function ($chunk) {
 
 }, $chunks);
 
-$callbacks = str_replace('Suite $', '\\' . Suite::class . ' $', $callbacks);
-$callbacks = str_replace('Test $', '\\' . Test::class . ' $', $callbacks);
-$callbacks = str_replace('Assert $', '\\' . Assert::class . ' $', $callbacks);
-$callbacks = str_replace('ResponseInterface $', '\\' . ResponseInterface::class . ' $', $callbacks);
+$callbacks = str_replace('Suite $', '/' . Suite::class . ' $', $callbacks);
+$callbacks = str_replace('Test $', '/' . Test::class . ' $', $callbacks);
+$callbacks = str_replace('Assert $', '/' . Assert::class . ' $', $callbacks);
+$callbacks = str_replace('ResponseInterface $', '/' . ResponseInterface::class . ' $', $callbacks);
 
 echo $compiler->addInclude('_callbacks.md', $callbacks)
     ->getBasename() . ' has been created.' && exit(0);

@@ -69,7 +69,7 @@ class Runner {
   /**
    * @var bool
    */
-  private static $runnerCreatedEventDispatched;
+  private $runnerCreatedEventDispatched;
 
   public $totalAssertions = 0;
 
@@ -185,6 +185,11 @@ class Runner {
    * @var \AKlump\CheckPages\Parts\Suite
    */
   private $lastFailedSuite;
+
+  /**
+   * @var array
+   */
+  private $ignoredSuitesFilepaths = [];
 
   /**
    * App constructor.
@@ -599,10 +604,29 @@ class Runner {
     // handlers this is going to be called the first time a suite is run, which
     // is roughly equal to the runner being created.  The actual Runner instance
     // is created sooner, but not effectively used until this point.
-    if (empty(self::$runnerCreatedEventDispatched)) {
+    if (empty($this->runnerCreatedEventDispatched)) {
       $this->getDispatcher()
         ->dispatch(new RunnerEvent($this), Event::RUNNER_CREATED);
-      self::$runnerCreatedEventDispatched = TRUE;
+      $this->runnerCreatedEventDispatched = TRUE;
+
+      // This can only be altered by the Event::RUNNER_CREATED, which is called
+      // once, therefore we calculate the paths and set a class property which
+      // is later reviewed.
+      $this->ignoredSuitesFilepaths = array_filter(array_map(function ($suite_to_ignore) {
+        try {
+          return $this->files->tryResolveFile($suite_to_ignore, [
+            'yaml',
+            'yml',
+          ])[0];
+        }
+        catch (UnresolvablePathException $exception) {
+
+          // If we're asked to ignore a suite that can't be resolved, then that is
+          // not an exception in this case, we can easily ignore it because we
+          // can't find it.  Return NULL, which will be filtered out.
+          return NULL;
+        }
+      }, $this->get('suites_to_ignore') ?? []));
     }
 
     // Allow the modification of the runner config before the suite is run.
@@ -611,28 +635,11 @@ class Runner {
       ->getDispatcher()
       ->dispatch(new RunnerEvent($this), Event::RUNNER_STARTED);
 
-    // TODO Might be worth moving this out of this method to src/SuiteValidator.php...
-    $ignored_suite_paths = array_filter(array_map(function ($suite_to_ignore) {
-      try {
-        return $this->files->tryResolveFile($suite_to_ignore, [
-          'yaml',
-          'yml',
-        ])[0];
-      }
-      catch (UnresolvablePathException $exception) {
-
-        // If we're asked to ignore a suite that can't be resolved, then that is
-        // not an exception in this case, we can easily ignore it because we
-        // can't find it.  Return NULL, which will be filtered out.
-        return NULL;
-      }
-    }, $this->get('suites_to_ignore') ?? []));
-
     if (!$this->applyFilters([$suite])) {
       return;
     }
 
-    if (in_array($path_to_suite, $ignored_suite_paths)) {
+    if (in_array($path_to_suite, $this->ignoredSuitesFilepaths)) {
       $status = NULL;
       if ($this->getInput()->getOption('retest')) {
         $status = TRUE;

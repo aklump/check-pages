@@ -41,6 +41,16 @@ class TestRunner {
     $is_http_test = $test->has('url');
     if ($is_http_test) {
 
+      // We now must interpolate the URL, at the very last minute before the
+      // request.  All event handlers have until this point to set variables and
+      // modify the url for interpolation; after this, the URL is going to be
+      // interpolated and set. "url" is a  skipped key when we use
+      // Test::interpolate(), which is why we have to use long-hand here.
+      $config = $test->getConfig();
+      $test->interpolate($config['url']);
+      $test->setConfig($config);
+      unset($config);
+
       $yaml_message = $test->getConfig();
       $yaml_message['find'] = '';
       $test->addMessage(new YamlMessage($yaml_message, 0, function ($yaml) {
@@ -48,16 +58,6 @@ class TestRunner {
         // is really an array, whose elements are yet to be printed.
         return str_replace("find: ''", 'find:', $yaml);
       }, MessageType::DEBUG, Verbosity::DEBUG));
-
-      // We now must interpolate the URL, at the very last minute.  All event
-      // handlers have until this point to set variables and modify the url for
-      // interpolation; after this, the URL is going to be interpolated and set.
-      // "url" is a  skipped key when we use Test::interpolate(), which is why
-      // we have to use long-hand here.
-      $config = $test->getConfig();
-      $test->interpolate($config['url']);
-      $test->setConfig($config);
-      unset($config);
 
       try {
         $timeout = $runner->getConfig()['request_timeout'] ?? NULL;
@@ -71,7 +71,7 @@ class TestRunner {
         // may be created as a result of an asynchronous JS event.  We create an
         // assertion to pass to the driver, which can be used by the driver as a
         // "wait for this assertion to pass" signal.
-        $variables = $test->variables();
+        $variables = $test->getSuite()->variables();
         $assertions_to_wait_for = array_filter($test->getConfig()['find'] ?? [], function ($config) use ($variables) {
 
           // Quick check against certain keys...

@@ -121,20 +121,6 @@ final class AssertionTest extends TestCase {
     return $tests;
   }
 
-  public function testSetValueReturnsInVariablesMethod() {
-    $obj = new Assertion([
-      'dom' => 'h1',
-      'matches' => '/one/i',
-      'set' => 'secondWord',
-    ]);
-    $obj
-      ->setHaystack([
-        '<h1>The One and Only</h1>',
-      ])
-      ->run();
-    $this->assertSame('One', $obj->variables()->getItem('secondWord'));
-  }
-
   /**
    * @dataProvider dataForTestSetGetNeedleProvider
    */
@@ -168,11 +154,6 @@ final class AssertionTest extends TestCase {
     $this->expectException(RuntimeException::class);
     $obj = new Assertion([]);
     $obj->setHaystack([])->run()->run();
-  }
-
-  public function testVariablesReturnsClassInstance() {
-    $obj = new Assertion([]);
-    $this->assertInstanceOf(Variables::class, $obj->variables());
   }
 
 }

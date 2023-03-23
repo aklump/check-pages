@@ -35,8 +35,8 @@ final class Value implements PluginInterface {
       //
       // Handle setting/asserting from test-level.
       //
-      Event::TEST_CREATED => [
-        function (TestEventInterface $event) {
+      Event::TEST_STARTED => [
+        function (Event\DriverEventInterface $event) {
           $test = $event->getTest();
           if (!self::doesApply($test)) {
             return;

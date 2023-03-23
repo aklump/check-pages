@@ -109,14 +109,18 @@ function add_directory(string $absolute_path_to_dir) {
 function run_suite(string $path_to_suite, array $runtime_config = []): void {
   global $container;
 
+  /** @var \AKlump\CheckPages\Parts\Runner $runner */
+  $runner = $container->get('runner');
+
+  if (count(explode('/', $path_to_suite)) > 2) {
+    throw new \InvalidArgumentException(sprintf('$path to suite may only contain a single "/" char indicating the GROUP/SUITE; "%s" is invalid.', $path_to_suite));
+  }
+
   // The group will be the same, even if globbing creates multiple suites below.
   $group = '';
   if (strpos($path_to_suite, '/') !== FALSE) {
     $group = dirname($path_to_suite);
   }
-
-  /** @var \AKlump\CheckPages\Parts\Runner $runner */
-  $runner = $container->get('runner');
 
   // If there was any runtime config added to the single-instance runner last
   // time, we have to remove that.  We do that by reloading the configuration
@@ -161,13 +165,9 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
 
     // This is a little redundant, but we make sure it's in there.  It will be
     // de-duped by Runner, so no problem calling multiple times.
-    $runner->getFiles()->addResolveDir(dirname($absolute_path));
-
-    // We also have to make sure the directory above the (group) directory is a
-    // resolve directory so we can resolve by group/suite and not just suite.
-    // If we did not do this, then you could not resolve with a value of
-    // "group/suite".
-    $runner->getFiles()->addResolveDir(dirname($absolute_path, 2));
+    if ($group && basename(dirname($absolute_path)) === $group) {
+      $runner->getFiles()->addResolveDir(dirname($absolute_path));
+    }
 
     $absolute_path = $runner->getFiles()->tryResolveFile($absolute_path, [
       'yaml',

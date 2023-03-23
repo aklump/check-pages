@@ -45,29 +45,13 @@ class Test implements \JsonSerializable, PartInterface {
   }
 
   /**
-   * Get the test-scoped variables.
-   *
-   * @return \AKlump\CheckPages\Variables
-   */
-  public function variables(): Variables {
-    return $this->vars;
-  }
-
-  /**
    * Interpolate variables of all scopes on a value.
-   *
-   * If you wish to only apply test-scoped variables do like so:
-   *
-   * @code
-   * $this->variables()->interpolate($value)
-   * @endcode
    *
    * @param $value
    *
    * @return void
    */
   public function interpolate(&$value): void {
-    $this->variables()->interpolate($value);
     $this->getSuite()->variables()->interpolate($value);
   }
 
@@ -191,7 +175,7 @@ class Test implements \JsonSerializable, PartInterface {
   }
 
   public function __toString() {
-    return $this->getSuite() . '\\' . $this->id();
+    return $this->getSuite() . '/' . $this->id();
   }
 
   public function echoMessages() {
