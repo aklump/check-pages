@@ -13,12 +13,12 @@ id: cheatsheet
 
 ## Is the Status Code Correct?
 
-By saying that the "page loads", we mean that it returns a status code of 200. The following is exactly the same in function as the previous example. You can assert any HTTP status code by changing the value of `expect`.
+By saying that the "page loads", we mean that it returns a status code of 200. The following is exactly the same in function as the previous example. You can assert any HTTP status code by changing the value of `status`.
 
 ```yaml
 -
   visit: /foo
-  expect: 200
+  status: 200
 ```
 
 ## Does the Page Have Certain Content?

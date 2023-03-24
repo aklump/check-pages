@@ -25,7 +25,7 @@
     visit: '/handlers/path.php?op=rest&id=${resourceId}'
     request:
         method: delete
-    expect: 204
+    status: 204
 -
     visit: '/handlers/path.php?op=items'
     request:

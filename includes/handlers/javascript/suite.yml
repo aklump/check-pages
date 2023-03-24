@@ -1,7 +1,7 @@
 -
   why: Assert javascript is run after the redirect.
   visit: /test_subject.php?redirect
-  expect: 302
+  status: 302
   find:
     -
       javascript: location.search

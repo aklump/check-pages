@@ -68,7 +68,7 @@
 -
     why: 'Demonstrate loop array w/arrays interpolation #${loop.index}.'
     visit: /handlers/loop.html
-    expect: '${loop.value[0]}'
+    status: '${loop.value[0]}'
     find:
         -
             why: 'Assert the page title is correct (using dot syntax).'
@@ -87,7 +87,7 @@
 -
     why: 'Demonstrate loop array w/objects interpolation #${loop.index}.'
     visit: /handlers/loop.html
-    expect: '${loop.value.code}'
+    status: '${loop.value.code}'
     find:
         -
             why: 'Assert the page title is correct.'

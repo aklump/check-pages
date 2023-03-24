@@ -99,7 +99,7 @@
                 }
             ]
         },
-        "expect": {
+        "status": {
             "type": "integer",
             "examples": [
                 200,
@@ -1607,8 +1607,8 @@
                     "visit": {
                         "$ref": "#/definitions/url"
                     },
-                    "expect": {
-                        "$ref": "#/definitions/expect"
+                    "status": {
+                        "$ref": "#/definitions/status"
                     },
                     "location": {
                         "$ref": "#/definitions/url"
@@ -1642,8 +1642,8 @@
                     "visit": {
                         "$ref": "#/definitions/url"
                     },
-                    "expect": {
-                        "$ref": "#/definitions/expect"
+                    "status": {
+                        "$ref": "#/definitions/status"
                     },
                     "redirect": {
                         "$ref": "#/definitions/url"
@@ -1677,8 +1677,8 @@
                     "url": {
                         "$ref": "#/definitions/url"
                     },
-                    "expect": {
-                        "$ref": "#/definitions/expect"
+                    "status": {
+                        "$ref": "#/definitions/status"
                     },
                     "location": {
                         "$ref": "#/definitions/url"
@@ -1712,8 +1712,8 @@
                     "url": {
                         "$ref": "#/definitions/url"
                     },
-                    "expect": {
-                        "$ref": "#/definitions/expect"
+                    "status": {
+                        "$ref": "#/definitions/status"
                     },
                     "redirect": {
                         "$ref": "#/definitions/url"
@@ -1751,8 +1751,8 @@
                     "request": {
                         "$ref": "#/definitions/request_request"
                     },
-                    "expect": {
-                        "$ref": "#/definitions/expect"
+                    "status": {
+                        "$ref": "#/definitions/status"
                     },
                     "find": {
                         "$ref": "#/definitions/find"
@@ -1787,8 +1787,8 @@
                     "request": {
                         "$ref": "#/definitions/request_request"
                     },
-                    "expect": {
-                        "$ref": "#/definitions/expect"
+                    "status": {
+                        "$ref": "#/definitions/status"
                     },
                     "find": {
                         "$ref": "#/definitions/find"

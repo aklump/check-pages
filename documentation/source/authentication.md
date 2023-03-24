@@ -37,7 +37,7 @@ This example will use the `drupal8` built-in authentication provider. _Note: for
    -
      user: member
      visit: /admin
-     expect: 403
+     status: 403
 
    ```
 
@@ -60,10 +60,10 @@ This example will use the `drupal8` built-in authentication provider. _Note: for
    visit: /user/${user.uid}/edit
    -
    visit: /user/${user.uid}/edit
-   expect: 403
+   status: 403
    -
    visit: /user/${user.name}
-   expect: 200
+   status: 200
    ```
 3. It's possible you don't want to use the same _users.yml_ data file for all configurations. To accommodate this you may replace the hardcoded path `config/users.yml` with `config_get('extras.users')` and add the hard-coded path to each of your configuration files.
 

@@ -67,7 +67,7 @@ In this example we'll `GET` a resource ID and store it using `set`, then `DELETE
   url: /api/2/foo/${fooId}
   request:
     method: delete
-  expect: 204
+  status: 204
 ```
 
 ## Scope

@@ -34,7 +34,7 @@ respond_to(\AKlump\CheckPages\Event::SUITE_STARTED, function (\AKlump\CheckPages
           'why' => sprintf('Assert %s returns 405: Method Not Allowed', $method),
           'url' => $config['url'],
           'request' => ['method' => $method],
-          'expect' => 405,
+          'status' => 405,
         ];
       }, $config['http']['methods_not_allowed']));
     }

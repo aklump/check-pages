@@ -1,7 +1,7 @@
 -
   why: Expect failure because the status will be 200.
   url: /
-  expect: 201
+  status: 201
   expected outcome: failure
 
 -

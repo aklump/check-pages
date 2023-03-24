@@ -92,9 +92,9 @@ final class VariablesTest extends TestCase {
   public function testLoopValueWithArray() {
     $var = new Variables();
     $var->setItem('loop.value', ['/admin', 403, 'No Access']);
-    $subject = 'expect: ${loop.value[1]}';
+    $subject = 'status: ${loop.value[1]}';
     $var->interpolate($subject);
-    $this->assertSame('expect: 403', $subject);
+    $this->assertSame('status: 403', $subject);
   }
 
   public function testInterpolateStringWithArray() {

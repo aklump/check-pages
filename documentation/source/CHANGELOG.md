@@ -8,10 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
-- lorem
-
 ### Changed
-
+- `expect` changed to `status`; update all tests.
 - `\AKlump\CheckPages\Event::RUNNER_CONFIG` -> `\AKlump\CheckPages\Event::RUNNER_STARTED`
 - `resolve` -> `tryResolveDir`
 - `resolveFile` -> `tryResolveFile`
@@ -19,8 +17,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `\AKlump\CheckPages\Parts\Runner::url()` -> `\AKlump\CheckPages\Parts\Runner::withBaseUrl()`
 
 ### Deprecated
-
-- lorem
 
 ### Removed
 
@@ -73,7 +69,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     style: display
     ...
   ```
-- If `expect` is not explicitly provided, any value from `200` to `299` will pass the test. Previously the response code would have to be exactly `200` to pass.
+- If `status` is not explicitly provided, any value from `200` to `299` will pass the test. Previously the response code would have to be exactly `200` to pass.
 
 ### Added
 

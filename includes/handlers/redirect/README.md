@@ -7,11 +7,11 @@ For pages that redirect you can check for both the status code and the final loc
 ```yaml
 -
   visit: /moved.php
-  expect: 301
+  status: 301
   location: /location.html
 
 -
   visit: /moved.php
-  expect: 301
+  status: 301
   redirect: /location.html
 ```

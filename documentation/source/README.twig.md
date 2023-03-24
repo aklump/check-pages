@@ -27,7 +27,7 @@ Or ensuring the admin section is protected.
 -
   visit: /admin
   why: Make sure the `/admin` path returns 403 forbidden when not logged in.
-  expect: 403
+  status: 403
 ```
 
 In a third test we can assert there is one logo image on the homepage, like so:

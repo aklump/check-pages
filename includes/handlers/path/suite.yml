@@ -27,7 +27,7 @@
   visit: /test_subject.php?op=rest&id=${resourceId}
   request:
     method: delete
-  expect: 204
+  status: 204
 
 -
   visit: /test_subject.php?op=items

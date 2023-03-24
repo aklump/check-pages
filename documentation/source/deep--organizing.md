@@ -24,7 +24,7 @@ But let's say you have a suite that should only be run against the live environm
 -
   why: Assert canonical, secure does not redirect.
   visit: https://www.mysite.org
-  expect: 200
+  status: 200
   location: https://www.mysite.org
 -
   loop:
@@ -34,7 +34,7 @@ But let's say you have a suite that should only be run against the live environm
 -
   why: Assert ${loop.value} redirects to SSL, canonical.
   visit: ${loop.value}
-  expect: 301
+  status: 301
   location: https://www.mysite.org
 -
   end loop:

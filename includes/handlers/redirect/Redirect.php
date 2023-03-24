@@ -88,7 +88,7 @@ final class Redirect implements \AKlump\CheckPages\Handlers\HandlerInterface {
     $actual_status_first_char = substr($actual_status_code, 0, 1);
 
     $send_message = FALSE;
-    if (!$test->has('expect')) {
+    if (!$test->has('status')) {
       $expected_status_code = '2xx';
       if ($actual_status_first_char !== '2') {
         $test->setFailed();
@@ -96,7 +96,7 @@ final class Redirect implements \AKlump\CheckPages\Handlers\HandlerInterface {
       }
     }
     else {
-      $expected_status_code = $test->get('expect');
+      $expected_status_code = $test->get('status');
       $expected_status_first_char = substr($expected_status_code, 0, 1);
       if ($expected_status_first_char === '3') {
         $actual_status_code = $driver->getRedirectCode();

@@ -5,11 +5,11 @@
 -
     loop: 200...206
 -
-    why: 'Assert common success codes pass without the "expect" selector.'
+    why: 'Assert common success codes pass without the "status" selector.'
     url: '/handlers/redirect.php?q=${loop.value}'
 -
     url: '/handlers/redirect.php?q=${loop.value}'
-    expect: '${loop.value}'
+    status: '${loop.value}'
 -
     'end loop': null
 -
@@ -17,7 +17,7 @@
     loop: 400...410
 -
     url: '/handlers/redirect.php?q=${loop.value}'
-    expect: '${loop.value}'
+    status: '${loop.value}'
 -
     'end loop': null
 -
@@ -25,7 +25,7 @@
     loop: 500...504
 -
     url: '/handlers/redirect.php?q=${loop.value}'
-    expect: '${loop.value}'
+    status: '${loop.value}'
 -
     'end loop': null
 -
@@ -41,7 +41,7 @@
     why: 'Ensure a multiple redirects captures the final location (js ${loop.value[1]})'
     url: /handlers/redirect.php
     js: '${loop.value[0]}'
-    expect: 301
+    status: 301
     location: '/handlers/redirect.php?q=/aliased-path'
     find:
         -
@@ -56,19 +56,19 @@
     why: 'Assert non-redirect to homepage presents expected location.'
     url: /
     js: '${loop.value[0]}'
-    expect: 200
+    status: 200
     location: /
 -
     why: 'Assert redirects with special chars doesn''t loose encoding (js ${loop.value[1]})'
     js: '${loop.value[0]}'
     url: '/handlers/redirect.php?q=/study-guides'
-    expect: 301
+    status: 301
     location: '/library?f[0]=story_type%3A1241&f[1]=story_type%3A1242'
 -
     why: 'Ensure redirects work when javascript is enabled (js ${loop.value[1]})'
     url: /moved.php
     js: '${loop.value[0]}'
-    expect: 301
+    status: 301
     location: /location.html
     find:
         - 'We''ve moved!'
@@ -76,13 +76,13 @@
     why: 'Ensure location works on 403 after 301 (js ${loop.value[1]})'
     url: /forbidden.php
     js: '${loop.value[0]}'
-    expect: 403
+    status: 403
     location: '/forbidden.php?access_denied'
 -
     why: 'Ensure location works with absolute URL (js ${loop.value[1]})'
     url: 'http://github.com'
     js: '${loop.value[0]}'
-    expect: 301
+    status: 301
     location: 'https://github.com/'
 -
     'end loop': null
