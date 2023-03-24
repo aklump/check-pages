@@ -57,10 +57,12 @@ final class Retest implements EventSubscriberInterface {
 
           // The requirements have been met, set this for the other listeners.
           self::$enabled = $requirements_met;
-
           $retest = new self();
           $retest->setRunner($runner);
-          $retest->prepareFiles();
+
+          if (self::$enabled) {
+            $retest->prepareFiles();
+          }
 
           if (!$is_continuing && !$is_retesting) {
             return;
