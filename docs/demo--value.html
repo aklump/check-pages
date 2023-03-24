@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Value Handler</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
+</head>
+
+<body class="page--handler_value">
+<header>
+  <div class="pager"><a href="demo--path.html" class="prev demo--path">&laquo;The Path Handler is for Testing Structured Content</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="dev--code_flow.html" class="next dev--code_flow">Dev  Code Flow&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2">Usage and Examples</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Value Handler</h1>
+  <!--searchable_content-->
+
+<ul>
+<li>Set variables from constant/interpolated values.</li>
+<li>Assert against constant/interpolated values.</li>
+<li>Works outside of HTTP requests.</li>
+</ul>
+
+<p><strong>The real benefit of this plugin comes when you use shorthand, mixins, or plugins to set variables in realtime, as it allows to you to assert against those dynamic values.</strong></p>
+
+<h2>Example Tests</h2>
+
+<pre><code class="yaml">-
+  set: alpha
+  value: Twilight
+-
+  set: bravo
+  value: ${alpha}
+-
+  visit: /test_subject.html
+  find:
+    -
+      dom: h1
+      is: Twilight
+    -
+      dom: h1
+      is: ${alpha}
+    -
+      dom: h1
+      is: ${bravo}
+    -
+      set: charlie
+      value: ${bravo}
+-
+  visit: /test_subject.html
+  find:
+    -
+      dom: h1
+      is: ${charlie}
+
+-
+  why: Demonstrate the Value Handler syntax using "why".
+  value: lorem ipsum dolar
+  set: vars.string
+-
+  value: ${vars.string}
+  is: lorem ipsum dolar
+-
+  value: ${vars.string}
+  is not: foo bar
+-
+  value: ${vars.string}
+  contains: ipsum
+-
+  value: ${vars.string}
+  not contains: alpha
+-
+  value: ${vars.string}
+  matches: /^lorem/
+-
+  value: ${vars.string}
+  not matches: /\d{3}/
+-
+  value: 123
+  set: vars.number
+-
+  value: ${vars.number}
+  is: 123
+-
+  value: ${vars.number}
+  contains: 23
+-
+  value: ${vars.number}
+  matches: /\d{3}/
+
+-
+  url: /test_subject.html
+  find:
+    -
+      why: Assert we can perform an assertion "set".
+      value: Twilight
+      set: control
+    -
+      why: Assert we can interpolate on "value".
+      value: ${control}
+      set: control2
+
+-
+  why: Assert set values persist to the next test.
+  url: /test_subject.html
+  find:
+    -
+      dom: h1
+      is: ${control}
+    -
+      dom: h1
+      is: ${control2}
+
+</code></pre>
+
+<p><em>Provided by the value handler.</em></p>
+<!--end_searchable_content-->
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="demo--path.html" class="prev demo--path">&laquo;The Path Handler is for Testing Structured Content</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="dev--code_flow.html" class="next dev--code_flow">Dev  Code Flow&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Fri, 24 Mar 2023 14:59:54 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

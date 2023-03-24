@@ -10,7 +10,9 @@
 use AKlump\CheckPages\CheckPages;
 use AKlump\LoftLib\Code\Strings;
 
-$path_to_handlers = __DIR__ . '/../../' . CheckPages::DIR_HANDLERS;
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+$path_to_handlers = __DIR__ . '/../../includes/' . CheckPages::DIR_HANDLERS;
 $handlers = scandir($path_to_handlers);
 
 foreach ($handlers as $handler) {

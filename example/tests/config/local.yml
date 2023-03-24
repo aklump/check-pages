@@ -14,9 +14,6 @@ stop_on_failed_test: false
 # argument to run_suite().
 js: false
 
-# The system path to the chrome browser.  This is used for javascript tests.
-chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
-
 # Maximum number of seconds to wait for each request before giving up.  This
 # setting is for all tests; you can override this value on a per-test basis by
 # using `request.timeout`; see the request plugin for more info.

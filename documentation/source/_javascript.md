@@ -2,15 +2,6 @@
 
 * Your testing machine must have Chrome installed.
 
-## Javascript Testing Setup
-
-To support JS testing, you must indicate where your Chrome binary is located in
-your runner configuration file, like so:
-
-```yaml
-chrome: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
-```
-
 ## Enable Javascript per Test
 
 Unless you enable it, or in the case the selector type (i.e., `style`

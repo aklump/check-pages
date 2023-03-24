@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Loops</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
+</head>
+
+<body class="page--handler_loop">
+<header>
+  <div class="pager"><a href="demo--json_pointer.html" class="prev demo--json_pointer">&laquo;JSON Pointer</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--request.html" class="next handler_request">Making Requests Other Than GET&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2">Usage and Examples</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Loops</h1>
+  <!--searchable_content-->
+
+<h2>Variables</h2>
+
+<p>The following loop variables are available. They are only available to be interpolated in tests within the loop.</p>
+
+<h3>Arrays</h3>
+
+<ol>
+<li><code>loop.length</code> <em>int</em> The number of iterations.</li>
+<li><code>loop.last</code> <em>boolean</em> <code>true</code> If the last item in the loop.</li>
+<li><code>loop.index</code> <em>int</em> 1-based index</li>
+<li><code>loop.index0</code> <em>int</em> 0-based index</li>
+<li><code>loop.value</code> <em>mixed</em> Current value</li>
+</ol>
+
+<h3>Maps/Objects</h3>
+
+<ol>
+<li><code>loop.length</code></li>
+<li><code>loop.last</code></li>
+<li><code>loop.property</code></li>
+<li><code>loop.value</code></li>
+</ol>
+
+<h2>Example Tests</h2>
+
+<pre><code class="yaml">-
+  loop:
+    - /test_subject.html
+-
+  why: Assert url interpolation works with a loop value.
+  url: ${loop.value}
+  find:
+    -
+      dom: h1
+      is: Welcome to the Loop Page
+-
+  end loop:
+
+-
+  loop: 4x
+
+-
+  why: $loop[${loop.index}] = ${loop.value}
+  set: value${loop.index}
+  value: ${loop.value}
+
+-
+  end loop:
+
+-
+  loop: 2...4
+
+-
+  why: $loop[${loop.index}] = ${loop.value}
+  visit: /test_subject.html
+  find:
+    -
+      dom: h${loop.value}
+      count: ${loop.index}
+
+-
+  end loop:
+
+-
+  loop:
+    h2: Lorem
+    h3: Ipsum
+    h4: Dolar
+-
+  why: $loop.${loop.property} = ${loop.value}
+  visit: /test_subject.html
+  find:
+    -
+      dom: ${loop.property}
+      text: ${loop.value}
+
+-
+  end loop:
+
+-
+  loop:
+    - blockquote
+    - p
+    - span
+-
+  why: Demonstrate loop array interpolation ($loop[${loop.index}] = ${loop.value})
+  visit: /test_subject.html
+  find:
+    -
+      dom: ${loop.value}
+      count: ${loop.index0}
+
+-
+  end loop:
+
+-
+  loop:
+    - [ 200, Welcome to the Loop Page ]
+    - [ 200, Lorem ]
+
+-
+  why: 'Demonstrate loop array w/arrays interpolation #${loop.index}.'
+  visit: /test_subject.html
+  status: ${loop.value[0]}
+  find:
+    -
+      why: Assert the page title is correct (using dot syntax).
+      dom: h${loop.index}
+      text: ${loop.value.1}
+
+-
+  end loop:
+
+-
+  loop:
+    -
+      code: 200
+      title: Welcome to the Loop Page
+    -
+      code: 200
+      title: Lorem
+
+-
+  why: 'Demonstrate loop array w/objects interpolation #${loop.index}.'
+  visit: /test_subject.html
+  status: ${loop.value.code}
+  find:
+    -
+      why: Assert the page title is correct.
+      dom: h${loop.index}
+      text: ${loop.value.title}
+
+-
+  end loop:
+
+</code></pre>
+
+<p><em>Provided by the loop handler.</em></p>
+<!--end_searchable_content-->
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="demo--json_pointer.html" class="prev demo--json_pointer">&laquo;JSON Pointer</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--request.html" class="next handler_request">Making Requests Other Than GET&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Fri, 24 Mar 2023 14:59:52 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

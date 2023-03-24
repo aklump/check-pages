@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Demo  Dom</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
+</head>
+
+<body class="page--handler_dom">
+<header>
+  <div class="pager"><a href="demo--cypress.html" class="prev demo--cypress">&laquo;Cypress</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--xpath.html" class="next handler_xpath">Demo  Xpath&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2">Usage and Examples</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Demo  Dom</h1>
+  <!--searchable_content--><p>When using <code>is:</code>...</p>
+
+<ul>
+<li>Empty string and null are interchangeable.</li>
+<li>Given <code>&lt;div&gt;&lt;/div&gt;</code> the assertion <code>is: null</code> and <code>is: ''</code> and <code>is:</code> are all going to pass.</li>
+<li>Also, numeric strings and numbers are interchangeable.</li>
+</ul>
+
+<h2>Example Tests</h2>
+
+<pre><code class="yaml">-
+  visit: /test_subject.php
+  find:
+    -
+      dom: nav a
+      attribute: href
+      is: /page2
+      set: url
+    -
+      eval: '"/page2" == "${url}"'
+    -
+      dom: nav a[href="${url}"]
+      text: Page 2
+
+    -
+      why: Make sure no forms appear on the homepage.
+      dom: form
+      count: 0
+
+    -
+      dom: '.block-title'
+      text: Latest Blog Post
+      count: 1
+
+    -
+      dom: '.block-title'
+      text: Not on the Page
+      count: 0
+
+    -
+      dom: '#logo'
+      attribute: title
+      is: An SVG image
+    -
+      why: Find an anchor tag with an href ending in something.
+      dom: a
+      attribute: href
+      matches: /\/bar?/
+    -
+      dom: p
+      count: "&gt;= 2"
+    -
+      dom: p
+      count: "&lt; 2000"
+
+    -
+      why: Assertions in the DOM using CSS selectors.
+      dom: '#logo svg'
+      count: 1
+
+    -
+      why: Notice the use or `text` vs. `is` for accessing the contents of a DOM find as either plaintext or markup respectively.
+      dom: h1.page-title
+      text: About In the Loft Studios
+
+    -
+      dom: h1.page-title
+      is: '&lt;span&gt;About In the Loft Studios&lt;/span&gt;'
+
+    -
+      dom: h1.page-title
+      set: pageTitle
+
+    -
+      dom: h1.page-title
+      is not: '&lt;div&gt;About In the Loft Studios&lt;/div&gt;'
+
+    -
+      why: Case-insensitive RegEx match against the markup of #footer.
+      dom: '#footer'
+      matches: '/in the loft studios/i'
+
+    -
+      why: Showing how to check the hero alt tag two different ways.
+      dom: '[title="An SVG image"]'
+      count: 1
+
+    -
+      dom: '.block-title'
+      text: Quick Start
+
+    -
+      dom: '.block-title'
+      text: Upcoming Events
+
+    -
+      dom: '#footer #copyright'
+      count: 1
+    -
+      why: Capture the timestamp to use in the next assertion.
+      dom: .page-title
+      attribute: data-timestamp
+      matches: /.+/
+      set: currentTime
+    -
+      why: Assert the timestamp in the data attribute matches the subtitle; because the value is dynamic and always changing, the only way to assert against it is to use the set property.
+      dom: h2.page-subtitle
+      matches: /${currentTime}$/
+    -
+      why: Assert using set with matches, sets the matched value, not the original.
+      dom: .progress
+      matches: /^\d+/
+      set: percentage
+    -
+      dom: .empty-tags .null-or-string
+      is: null
+    -
+      dom: .empty-tags .null-or-string
+      is: ''
+    -
+      dom: .empty-tags .null-or-string
+      is:
+    -
+      dom: .empty-tags .null-or-string
+      is not: 0
+    -
+      dom: .empty-tags .number
+      is not: null
+    -
+      dom: .empty-tags .number
+      is not: ''
+    -
+      dom: .empty-tags .number
+      is: 0
+    -
+      dom: .empty-tags .boolean-true
+      is: 'true'
+    -
+      dom: .empty-tags .boolean-false
+      is: 'false'
+    -
+      why: Ensure not contains works when element does not exist
+      dom: .bogus-non-existent-element
+      not contains: spaghetti
+    -
+      why: Ensure not contains works when element does exist
+      dom: .page-title
+      not contains: spaghetti
+-
+  eval: ${percentage} == 89
+
+</code></pre>
+
+<p><em>Provided by the dom handler.</em></p>
+<!--end_searchable_content-->
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="demo--cypress.html" class="prev demo--cypress">&laquo;Cypress</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--xpath.html" class="next handler_xpath">Demo  Xpath&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Fri, 24 Mar 2023 14:59:49 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
