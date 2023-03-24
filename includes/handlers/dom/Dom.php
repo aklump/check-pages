@@ -1,16 +1,15 @@
 <?php
 
-namespace AKlump\CheckPages\Plugin;
+namespace AKlump\CheckPages\Handlers;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use Symfony\Component\DomCrawler\Crawler;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Implements the Dom plugin.
+ * Implements the Dom handler.
  */
-final class Dom implements PluginInterface {
+final class Dom implements HandlerInterface {
 
   /**
    * @var string
@@ -29,7 +28,7 @@ final class Dom implements PluginInterface {
           if ($should_apply) {
             $assert = $event->getAssert();
             $search_value = $assert->{self::SELECTOR};
-            $assert->setSearch(self::getPluginId(), $search_value);
+            $assert->setSearch(self::getId(), $search_value);
             $haystack = $assert->getHaystack();
             if (!$haystack instanceof Crawler) {
               $haystack = new Crawler($haystack);
@@ -42,7 +41,7 @@ final class Dom implements PluginInterface {
     ];
   }
 
-  public static function getPluginId(): string {
+  public static function getId(): string {
     return 'dom';
   }
 
