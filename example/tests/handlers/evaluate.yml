@@ -1,0 +1,33 @@
+-
+    why: 'Demonstrate how to assert an image''s aspect ratio using `eval`.'
+    visit: /handlers/evaluate.html
+    find:
+        -
+            dom: img.tree
+            style: width
+            set: width
+        -
+            dom: img.tree
+            style: height
+            set: height
+        -
+            why: 'Assert image has a landscape aspect ratio.'
+            eval: '${height} < ${width}'
+-
+    why: 'Assert a different image this time.'
+    visit: /handlers/evaluate.html
+    find:
+        -
+            dom: img.lake
+            style: width
+            set: width
+        -
+            dom: img.lake
+            style: height
+            set: height
+        -
+            why: 'Assert image has a tall aspect ratio.'
+            eval: '${height} > ${width}'
+-
+    why: 'Demonstrate eval at the test level'
+    eval: '${height} > ${width}'

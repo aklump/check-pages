@@ -1,9 +1,0 @@
--
-    why: 'Demonstrate the Breakpoint plugin syntax.'
-    url: /plugins/breakpoint.html
--
-    why: 'Stop test execution until user presses a key.'
-    breakpoint: null
--
-    why: 'Show the test continues after breakpoint.'
-    url: /plugins/breakpoint.html

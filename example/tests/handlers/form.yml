@@ -1,0 +1,132 @@
+-
+    why: 'An example to load the page and submit the form.'
+    url: /handlers/form.php
+    form:
+        dom: .form-a
+    find:
+        -
+            dom: .messages
+            text: 'Form A Was Submitted'
+-
+    why: 'Demonstrate using the "submit" to indicate which of several submit buttons.'
+    url: /handlers/form.php
+    form:
+        dom: .form-b
+        submit: .form-save
+    find:
+        -
+            dom: .messages
+            text: 'Save Was Used to Submit'
+-
+    why: 'Demonstrate using the "submit" again, with a different button.'
+    url: /handlers/form.php
+    form:
+        dom: .form-b
+        submit: .form-delete
+    find:
+        -
+            dom: .messages
+            text: 'Delete Was Used to Submit'
+-
+    why: 'Demonstrate submitting values to the form.'
+    url: /handlers/form.php
+    form:
+        dom: .form-b
+        input:
+            -
+                name: message
+                value: 'A Little Extra Message'
+            -
+                why: 'This is not in the form, but it can still be provided without a test error.'
+                name: first_name
+                value: Frank
+    find:
+        -
+            dom: .messages
+            text: 'A Little Extra Message'
+-
+    why: 'Demonstrate submitting values to the form using an import.'
+    url: /handlers/form.php
+    form:
+        dom: .form-b
+        input:
+            -
+                import: imports/form_data
+        find:
+            -
+                dom: .messages
+                text: 'A Little Extra Message'
+-
+    why: 'Demonstrate a form that has an action to another URL.'
+    url: /handlers/form.php
+    form:
+        dom: .form-c
+        input:
+            -
+                name: first_name
+                value: Rachel
+            -
+                name: date
+                value: '2010-01-01'
+    find:
+        -
+            dom: h1
+            text: 'Thank you Rachel, for your submission'
+        -
+            dom: h2
+            text: 'Your membership will begin on 2010-01-01.'
+-
+    set: savedFirstName
+    value: Anne
+-
+    set: savedDate
+    value: '1982-06-30'
+-
+    why: 'Assert interpolation works for input values.'
+    url: /handlers/form.php
+    form:
+        dom: .form-c
+        input:
+            -
+                name: first_name
+                value: '${savedFirstName}'
+            -
+                name: date
+                value: '${savedDate}'
+            -
+                name: shirt_size
+                option: small
+    find:
+        -
+            dom: h1
+            text: 'Thank you Anne, for your submission'
+        -
+            dom: h2
+            text: 'Your membership will begin on 1982-06-30.'
+        -
+            dom: p
+            text: 'Your shirt size is sm.'
+-
+    why: 'Demonstrate textfield default value is submitted.'
+    url: /handlers/form.php
+    form:
+        dom: .drupal-form
+    find:
+        -
+            dom: .messages
+            is: $5.99
+-
+    why: 'Demonstrate how a Drupal form can be submitted w/hidden fields.'
+    url: /handlers/form.php
+    form:
+        dom: .drupal-form
+        input:
+            -
+                name: 'field_amount[0][value]'
+                value: $19.99
+        submit: '#edit-submit'
+    find:
+        -
+            why: 'Assert the new value $19.99 is received by the form handler.'
+            dom: .messages
+            is: $19.99

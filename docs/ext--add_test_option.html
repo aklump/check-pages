@@ -62,7 +62,7 @@ title: Options
 
 <pre><code class="php"># file: runner.php
 add_test_option('foo', [
-  'onBeforeTest' =&gt; function ($option, $event){
+  Event::TEST_CREATED =&gt; function ($option, $event){
     // Note, $option === 123
   },
 ]);
@@ -81,7 +81,7 @@ add_test_option('foo', [
 <tbody>
 <tr>
   <td>1</td>
-  <td>Event::CONFIG_LOADED</td>
+  <td>Event::RUNNER_CREATED</td>
   <td>RunnerEvent</td>
 </tr>
 <tr>
@@ -91,7 +91,7 @@ add_test_option('foo', [
 </tr>
 <tr>
   <td>3</td>
-  <td>Event::SUITE_VALIDATING</td>
+  <td>Event::SUITE_CREATED</td>
   <td>SuiteEvent</td>
 </tr>
 <tr>
@@ -101,7 +101,7 @@ add_test_option('foo', [
 </tr>
 <tr>
   <td>5</td>
-  <td>Event::TEST_VALIDATING</td>
+  <td>Event::TEST_CREATED</td>
   <td>TestEvent</td>
 </tr>
 <tr>
@@ -184,18 +184,18 @@ add_test_option('foo', [
 </code></pre>
 
 <pre><code class="php">add_test_option('bar', [
-  'onBeforeTest' =&gt; function ($option, \AKlump\CheckPages\Event\TestEventInterface $event){
+  Event::TEST_CREATED =&gt; function ($option, \AKlump\CheckPages\Event\TestEventInterface $event){
     list($do, $re, $mi) = $option;
     // ...
   },
-  'onBeforeRequest' =&gt; function ($option, \AKlump\CheckPages\Event\DriverEventInterface $event){
+  Event::REQUEST_CREATED =&gt; function ($option, \AKlump\CheckPages\Event\DriverEventInterface $event){
     list($do, $re, $mi) = $option;
     // ...
   },
 ]);
 
 add_test_option('baz', [
-  'onBeforeTest' =&gt; function ($option, \AKlump\CheckPages\Event\TestEventInterface $event){
+  Event::TEST_CREATED =&gt; function ($option, \AKlump\CheckPages\Event\TestEventInterface $event){
     if ($option['lorem'] === 'ipsum dolar') {
       // ...
     }
@@ -205,16 +205,16 @@ add_test_option('baz', [
 run_suite('*');
 </code></pre>
 
-<h2><code>onBeforeTest</code></h2>
+<h2><code>Event::TEST_CREATED</code></h2>
 
-<p>The <code>onBeforeTest</code> callback is the best place to put custom processing if you want to hijack a "test". For example you could use it to set a bunch of custom variables. It's not a test, but a processor, in such a case.</p>
+<p>The <code>Event::TEST_CREATED</code> event is the best place to put custom processing if you want to hijack a "test". For example you could use it to set a bunch of custom variables. It's not a test, but a processor, in such a case.</p>
 
 <h2>Advance to Next Test</h2>
 
-<p>In some cases you may want to advance to the next test after you finish executing some code inside of <code>onBeforeTest</code> in your custom test option. That is to say, you want to mark the test (option) as passed/complete and stop any further execution on that test config. To do this you should use the <code>\AKlump\CheckPages\Traits\PassFailTrait::setPassed()</code> method.</p>
+<p>In some cases you may want to advance to the next test after you finish executing some code inside of <code>Event::TEST_CREATED</code> in your custom test option. That is to say, you want to mark the test (option) as passed/complete and stop any further execution on that test config. To do this you should use the <code>\AKlump\CheckPages\Traits\PassFailTrait::setPassed()</code> method.</p>
 
 <pre><code class="php">add_test_option('event.create', [
-  "onBeforeTest" =&gt; function ($option, \AKlump\CheckPages\Event\TestEventInterface $event) {
+  Event::TEST_CREATED =&gt; function ($option, \AKlump\CheckPages\Event\TestEventInterface $event) {
 
     // ...
 
@@ -230,9 +230,9 @@ run_suite('*');
 </div>
 
 <footer>
-  <div class="pager"><a href="ext--shorthand.html" class="prev ext--shorthand">&laquo;Shorthand</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--mixins.html" class="next mixins">Mixins&raquo;</a></div>
+  <div class="pager"><a href="ext--shorthand.html" class="prev ext--shorthand">&laquo;Shorthand</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--mixins.html" class="next mixins">Mixins&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 22 Mar 2023 23:41:18 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Fri, 24 Mar 2023 14:40:31 -0700</p>
   </div>
 </footer>
 

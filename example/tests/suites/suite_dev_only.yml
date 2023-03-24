@@ -1,6 +1,0 @@
-- url: /
-
-  # Now that the URL is loaded you may make assertions using simple find, DOM
-  # find, or RegEx matching.
-  find:
-    - This string only shows on the dev site.

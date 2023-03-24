@@ -1,7 +1,0 @@
--
-    why: 'Demonstrate test will fail for non JSON response'
-    url: '/plugins/json.php?q=json__foo.html'
-    find:
-        -
-            pointer: /foo/bar
-            is: baz

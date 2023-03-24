@@ -15,79 +15,79 @@ services:
         class: \AKlump\CheckPages\Service\Retest
         tags:
             - { name: event_subscriber }
-    breakpoint.plugin:
-        class: \AKlump\CheckPages\Plugin\Breakpoint
+    breakpoint.handler:
+        class: \AKlump\CheckPages\Handlers\Breakpoint
         tags:
             - { name: event_subscriber }
-    count.plugin:
-        class: \AKlump\CheckPages\Plugin\Count
+    count.handler:
+        class: \AKlump\CheckPages\Handlers\Count
         tags:
             - { name: event_subscriber }
-    cypress.plugin:
-        class: \AKlump\CheckPages\Plugin\Cypress
+    cypress.handler:
+        class: \AKlump\CheckPages\Handlers\Cypress
         tags:
             - { name: event_subscriber }
-    device.plugin:
-        class: \AKlump\CheckPages\Plugin\Device
+    device.handler:
+        class: \AKlump\CheckPages\Handlers\Device
         tags:
             - { name: event_subscriber }
-    dom.plugin:
-        class: \AKlump\CheckPages\Plugin\Dom
+    dom.handler:
+        class: \AKlump\CheckPages\Handlers\Dom
         tags:
             - { name: event_subscriber }
-    evaluate.plugin:
-        class: \AKlump\CheckPages\Plugin\Evaluate
+    evaluate.handler:
+        class: \AKlump\CheckPages\Handlers\Evaluate
         tags:
             - { name: event_subscriber }
-    form.plugin:
-        class: \AKlump\CheckPages\Plugin\Form
+    form.handler:
+        class: \AKlump\CheckPages\Handlers\Form
         tags:
             - { name: event_subscriber }
-    header.plugin:
-        class: \AKlump\CheckPages\Plugin\Header
+    header.handler:
+        class: \AKlump\CheckPages\Handlers\Header
         tags:
             - { name: event_subscriber }
-    import.plugin:
-        class: \AKlump\CheckPages\Plugin\Import
+    import.handler:
+        class: \AKlump\CheckPages\Handlers\Import
         tags:
             - { name: event_subscriber }
-    javascript.plugin:
-        class: \AKlump\CheckPages\Plugin\Javascript
+    javascript.handler:
+        class: \AKlump\CheckPages\Handlers\Javascript
         tags:
             - { name: event_subscriber }
-    json_pointer.plugin:
-        class: \AKlump\CheckPages\Plugin\JsonPointer
+    json_pointer.handler:
+        class: \AKlump\CheckPages\Handlers\JsonPointer
         tags:
             - { name: event_subscriber }
-    json_schema.plugin:
-        class: \AKlump\CheckPages\Plugin\JsonSchema
+    json_schema.handler:
+        class: \AKlump\CheckPages\Handlers\JsonSchema
         tags:
             - { name: event_subscriber }
-    loop.plugin:
-        class: \AKlump\CheckPages\Plugin\Loop
+    loop.handler:
+        class: \AKlump\CheckPages\Handlers\Loop
         tags:
             - { name: event_subscriber }
-    path.plugin:
-        class: \AKlump\CheckPages\Plugin\Path
+    path.handler:
+        class: \AKlump\CheckPages\Handlers\Path
         tags:
             - { name: event_subscriber }
-    redirect.plugin:
-        class: \AKlump\CheckPages\Plugin\Redirect
+    redirect.handler:
+        class: \AKlump\CheckPages\Handlers\Redirect
         tags:
             - { name: event_subscriber }
-    sleep.plugin:
-        class: \AKlump\CheckPages\Plugin\Sleep
+    sleep.handler:
+        class: \AKlump\CheckPages\Handlers\Sleep
         tags:
             - { name: event_subscriber }
-    style.plugin:
-        class: \AKlump\CheckPages\Plugin\Style
+    style.handler:
+        class: \AKlump\CheckPages\Handlers\Style
         tags:
             - { name: event_subscriber }
-    value.plugin:
-        class: \AKlump\CheckPages\Plugin\Value
+    value.handler:
+        class: \AKlump\CheckPages\Handlers\Value
         tags:
             - { name: event_subscriber }
-    xpath.plugin:
-        class: \AKlump\CheckPages\Plugin\Xpath
+    xpath.handler:
+        class: \AKlump\CheckPages\Handlers\Xpath
         tags:
             - { name: event_subscriber }

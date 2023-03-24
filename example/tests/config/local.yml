@@ -29,7 +29,8 @@ request_timeout: 180
 # suite, or when using groups to differentiate suites of different groups, use
 # the group/suite as shown below.
 suites_to_ignore:
-  - suite_dev_only
-  - group1/alpha
+  - ignored
+  - group1/ignored
+  - group3/ignored
 
 files: logfiles

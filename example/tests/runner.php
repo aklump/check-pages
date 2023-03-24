@@ -13,9 +13,12 @@ add_mixin('mixins/foo', [
   "color" => "blue",
 ]);
 
+add_mixin('phpstorm.http');
+
+run_suite('ignored');
 run_suite('group1/*');
 run_suite('group2/*');
+run_suite('foo/bar/group3/*');
 run_suite('attributes');
 run_suite('expected_outcome');
-run_suite('suite_dev_only');
 

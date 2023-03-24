@@ -1,5 +1,5 @@
 -
-  visit: /plugins/import.html
+  visit: /handlers/import.html
   find:
     -
       dom: h1
@@ -9,7 +9,7 @@
       contains: Ut enim ad minim veniam, quis
 -
   why: Assert interpolation works using outside value.
-  visit: /plugins/import.html
+  visit: /handlers/import.html
   find:
     -
       dom: h1
@@ -20,7 +20,7 @@
   set: localControlValue
 -
   why: Assert interpolation works using outside value.
-  visit: /plugins/import.html
+  visit: /handlers/import.html
   find:
     -
       dom: h1

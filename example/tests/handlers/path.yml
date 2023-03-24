@@ -1,0 +1,118 @@
+-
+    why: 'Assert we can count the root data.'
+    visit: '/handlers/path.php?op=root'
+    find:
+        -
+            why: 'Using an empty string, may be more intuitive for some.'
+            path: ''
+            count: 5
+-
+    why: 'Assert we can store the ID of a REST response resource to use later'
+    visit: '/handlers/path.php?op=rest'
+    find:
+        -
+            path: 0
+            count: 1
+        -
+            path: 0.id
+            is: 144
+            set: resourceId
+        -
+            path: 0.title
+            set: resourceTitle
+-
+    why: 'Assert we can delete the resource by ID stored in previous test.'
+    visit: '/handlers/path.php?op=rest&id=${resourceId}'
+    request:
+        method: delete
+    expect: 204
+-
+    visit: '/handlers/path.php?op=items'
+    request:
+        method: get
+        headers:
+            accept: text/yaml
+    find:
+        -
+            path: items
+            count: 5
+        -
+            path: items
+            count: '>1'
+        -
+            path: items
+            contains: apple
+        -
+            path: items
+            'not contains': fish
+        -
+            path: items.1
+            is: banana
+        -
+            why: 'Use count 0 to detect non-existent index.'
+            path: items.99
+            count: 0
+-
+    visit: /handlers/path.php
+    request:
+        method: GET
+        headers:
+            accept: application/json
+    find:
+        -
+            why: 'Assert accept header is applied by matching JSON.'
+            contains: '{"bar":"baz"}'
+        -
+            path: foo
+            count: 1
+        -
+            path: foo.bar
+            is: baz
+        -
+            path: foo.bar
+            'is not': yaz
+        -
+            path: foo.bar
+            contains: az
+        -
+            path: foo.bar
+            'not contains': alpha
+        -
+            path: foo.bar
+            matches: /^baz$/
+        -
+            path: foo.bar
+            'not matches': /\d+/
+-
+    visit: /handlers/path.php
+    request:
+        method: GET
+        headers:
+            accept: application/json
+    find:
+        - '{"bar":"baz"}'
+        -
+            path: foo.bar
+            is: baz
+-
+    visit: /handlers/path.php
+    request:
+        method: GET
+        headers:
+            accept: application/xml
+    find:
+        - '<?xml version="1.0" encoding="UTF-8" ?>'
+        -
+            path: foo.bar
+            is: baz
+-
+    visit: /handlers/path.php
+    request:
+        method: GET
+        headers:
+            accept: text/yaml
+    find:
+        - 'bar: baz'
+        -
+            path: foo.bar
+            is: baz

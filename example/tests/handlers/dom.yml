@@ -1,0 +1,126 @@
+-
+    visit: /handlers/dom.php
+    find:
+        -
+            dom: 'nav a'
+            attribute: href
+            is: /page2
+            set: url
+        -
+            eval: '"/page2" == "${url}"'
+        -
+            dom: 'nav a[href="${url}"]'
+            text: 'Page 2'
+        -
+            why: 'Make sure no forms appear on the homepage.'
+            dom: form
+            count: 0
+        -
+            dom: .block-title
+            text: 'Latest Blog Post'
+            count: 1
+        -
+            dom: .block-title
+            text: 'Not on the Page'
+            count: 0
+        -
+            dom: '#logo'
+            attribute: title
+            is: 'An SVG image'
+        -
+            why: 'Find an anchor tag with an href ending in something.'
+            dom: a
+            attribute: href
+            matches: '/\/bar?/'
+        -
+            dom: p
+            count: '>= 2'
+        -
+            dom: p
+            count: '< 2000'
+        -
+            why: 'Assertions in the DOM using CSS selectors.'
+            dom: '#logo svg'
+            count: 1
+        -
+            why: 'Notice the use or `text` vs. `is` for accessing the contents of a DOM find as either plaintext or markup respectively.'
+            dom: h1.page-title
+            text: 'About In the Loft Studios'
+        -
+            dom: h1.page-title
+            is: '<span>About In the Loft Studios</span>'
+        -
+            dom: h1.page-title
+            set: pageTitle
+        -
+            dom: h1.page-title
+            'is not': '<div>About In the Loft Studios</div>'
+        -
+            why: 'Case-insensitive RegEx match against the markup of'
+            dom: '#footer'
+            matches: '/in the loft studios/i'
+        -
+            why: 'Showing how to check the hero alt tag two different ways.'
+            dom: '[title="An SVG image"]'
+            count: 1
+        -
+            dom: .block-title
+            text: 'Quick Start'
+        -
+            dom: .block-title
+            text: 'Upcoming Events'
+        -
+            dom: '#footer #copyright'
+            count: 1
+        -
+            why: 'Capture the timestamp to use in the next assertion.'
+            dom: .page-title
+            attribute: data-timestamp
+            matches: /.+/
+            set: currentTime
+        -
+            why: 'Assert the timestamp in the data attribute matches the subtitle; because the value is dynamic and always changing, the only way to assert against it is to use the set property.'
+            dom: h2.page-subtitle
+            matches: '/${currentTime}$/'
+        -
+            why: 'Assert using set with matches, sets the matched value, not the original.'
+            dom: .progress
+            matches: /^\d+/
+            set: percentage
+        -
+            dom: '.empty-tags .null-or-string'
+            is: null
+        -
+            dom: '.empty-tags .null-or-string'
+            is: ''
+        -
+            dom: '.empty-tags .null-or-string'
+            is: null
+        -
+            dom: '.empty-tags .null-or-string'
+            'is not': 0
+        -
+            dom: '.empty-tags .number'
+            'is not': null
+        -
+            dom: '.empty-tags .number'
+            'is not': ''
+        -
+            dom: '.empty-tags .number'
+            is: 0
+        -
+            dom: '.empty-tags .boolean-true'
+            is: 'true'
+        -
+            dom: '.empty-tags .boolean-false'
+            is: 'false'
+        -
+            why: 'Ensure not contains works when element does not exist'
+            dom: .bogus-non-existent-element
+            'not contains': spaghetti
+        -
+            why: 'Ensure not contains works when element does exist'
+            dom: .page-title
+            'not contains': spaghetti
+-
+    eval: '${percentage} == 89'

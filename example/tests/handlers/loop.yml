@@ -1,0 +1,97 @@
+-
+    loop:
+        - /handlers/loop.html
+-
+    why: 'Assert url interpolation works with a loop value.'
+    url: '${loop.value}'
+    find:
+        -
+            dom: h1
+            is: 'Welcome to the Loop Page'
+-
+    'end loop': null
+-
+    loop: 4x
+-
+    why: '$loop[${loop.index}] = ${loop.value}'
+    set: 'value${loop.index}'
+    value: '${loop.value}'
+-
+    'end loop': null
+-
+    loop: 2...4
+-
+    why: '$loop[${loop.index}] = ${loop.value}'
+    visit: /handlers/loop.html
+    find:
+        -
+            dom: 'h${loop.value}'
+            count: '${loop.index}'
+-
+    'end loop': null
+-
+    loop:
+        h2: Lorem
+        h3: Ipsum
+        h4: Dolar
+-
+    why: '$loop.${loop.property} = ${loop.value}'
+    visit: /handlers/loop.html
+    find:
+        -
+            dom: '${loop.property}'
+            text: '${loop.value}'
+-
+    'end loop': null
+-
+    loop:
+        - blockquote
+        - p
+        - span
+-
+    why: 'Demonstrate loop array interpolation ($loop[${loop.index}] = ${loop.value})'
+    visit: /handlers/loop.html
+    find:
+        -
+            dom: '${loop.value}'
+            count: '${loop.index0}'
+-
+    'end loop': null
+-
+    loop:
+        -
+            - 200
+            - 'Welcome to the Loop Page'
+        -
+            - 200
+            - Lorem
+-
+    why: 'Demonstrate loop array w/arrays interpolation #${loop.index}.'
+    visit: /handlers/loop.html
+    expect: '${loop.value[0]}'
+    find:
+        -
+            why: 'Assert the page title is correct (using dot syntax).'
+            dom: 'h${loop.index}'
+            text: '${loop.value.1}'
+-
+    'end loop': null
+-
+    loop:
+        -
+            code: 200
+            title: 'Welcome to the Loop Page'
+        -
+            code: 200
+            title: Lorem
+-
+    why: 'Demonstrate loop array w/objects interpolation #${loop.index}.'
+    visit: /handlers/loop.html
+    expect: '${loop.value.code}'
+    find:
+        -
+            why: 'Assert the page title is correct.'
+            dom: 'h${loop.index}'
+            text: '${loop.value.title}'
+-
+    'end loop': null

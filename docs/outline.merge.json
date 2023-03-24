@@ -62,7 +62,7 @@
             "id": "mixins"
         },
         {
-            "id": "plugins"
+            "id": "handlers"
         }
     ]
 }

@@ -1,0 +1,38 @@
+-
+    why: 'Demo how document.json can use $ref and $def.'
+    url: /handlers/json_schema.json
+    find:
+        -
+            schema: schemas/document.json
+-
+    url: /handlers/json_schema.json
+    find:
+        -
+            schema: schemas/is_object.json
+        -
+            schema: schemas/is_array.json
+            matches: false
+-
+    url: /handlers/json_schema.json
+    find:
+        -
+            schema: schemas/is_array.json
+            path: lorem.ipsum
+-
+    url: /handlers/json_schema.json
+    find:
+        -
+            schema: '{"type":"array"}'
+            path: lorem.ipsum
+-
+    url: /handlers/json_schema.json
+    find:
+        -
+            schema: schemas/is_object.json
+            matches: true
+        -
+            schema: schemas/is_foo.json
+            matches: true
+        -
+            schema: schemas/is_array.json
+            matches: false

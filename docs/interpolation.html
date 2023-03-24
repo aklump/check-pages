@@ -29,10 +29,10 @@
 
 <ul>
 <li>The timing of interpolation can be tricky.</li>
-<li>Since only plugins know what test keys they provide, they MUST handle interpolation on their own test keys.</li>
+<li>Since only handlers know what test keys they provide, they MUST handle interpolation on their own test keys.</li>
 <li>You should set variables on the test, which will persist only for that test. <code>\AKlump\CheckPages\Parts\Test::variables()</code></li>
 <li>You should set variables on suite, which will persist across tests. <code>\AKlump\CheckPages\Parts\Suite::variables</code></li>
-<li>You may also want to use a throw-away instance such as is done in <code>\AKlump\CheckPages\Plugin\LoopCurrentLoop::execute</code></li>
+<li>You may also want to use a throw-away instance such as is done in <code>\AKlump\CheckPages\Handler\LoopCurrentLoop::execute</code></li>
 <li><p>When a plugin interpolates test config, it should probably set the config so that the interpolated values are passed down the execution chain, e.g. taken from the Request plugin:</p>
 
 <pre><code class="php">function (TestEventInterface $event) {
@@ -40,15 +40,15 @@
   $this-&gt;config = $test-&gt;getConfig();
   $test-&gt;interpolate($this-&gt;config['request']);
   $test-&gt;setConfig($this-&gt;config);
-}
+}  
 </code></pre></li>
 </ul>
 
 <h3>Example Implementations</h3>
 
 <ul>
-<li><code>\AKlump\CheckPages\Plugin\Value</code></li>
-<li><code>\AKlump\CheckPages\Plugin\Request</code></li>
+<li><code>\AKlump\CheckPages\Handler\Value</code></li>
+<li><code>\AKlump\CheckPages\Handler\Request</code></li>
 </ul>
 
 <h2>Provide Variables from Configuration Files</h2>
@@ -66,9 +66,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="dates.html" class="prev dates">&laquo;Dates</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="phpstorm.html" class="next phpstorm">PhpStorm Integration&raquo;</a></div>
+  <div class="pager"><a href="dates.html" class="prev dates">&laquo;Dates</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="phpstorm.html" class="next phpstorm">PhpStorm Integration&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 22 Mar 2023 23:41:22 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Fri, 24 Mar 2023 14:40:35 -0700</p>
   </div>
 </footer>
 

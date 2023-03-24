@@ -1,0 +1,9 @@
+-
+    why: 'Demonstrate the Breakpoint handler syntax'
+    url: /handlers/breakpoint.html
+-
+    why: 'Stop test execution until user presses a key.'
+    breakpoint: null
+-
+    why: 'Show the test continues after breakpoint.'
+    url: /handlers/breakpoint.html

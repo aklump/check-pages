@@ -1,0 +1,73 @@
+-
+    why: 'Demonstrate custom request timeout for this test only.'
+    visit: /handlers/request.php
+    request:
+        timeout: 120
+-
+    why: 'Assert ${request.method} returns 405'
+    visit: /handlers/request.php
+    request:
+        methods:
+            - PATCH
+            - DELETE
+            - HEAD
+            - OPTIONS
+            - TRACE
+    expect: 405
+-
+    why: 'Assert request body interpolation is working as expected.'
+    value: bar
+    set: fooValue
+-
+    why: 'Assert post with content-type header and body works as expected.'
+    visit: /handlers/request.php
+    request:
+        method: post
+        headers:
+            content-type: application/json
+        body: '{"foo":"${fooValue}"}'
+    find:
+        - POST
+        - 'content-type: application/json'
+        - '{"foo":"bar"}'
+-
+    why: 'Assert post encodes body object correctly.'
+    visit: /handlers/request.php
+    request:
+        method: post
+        headers:
+            content-type: application/json
+        body:
+            foo: bar
+    find:
+        - POST
+        - 'content-type: application/json'
+        - '{"foo":"bar"}'
+-
+    visit: /handlers/request.php
+    request:
+        method: GET
+        body: 'lorem ipsum'
+    find:
+        - GET
+        - 'lorem ipsum'
+-
+    why: 'Assert put with multiple headers and body works as expected.'
+    visit: /handlers/request.php
+    request:
+        method: PUT
+        headers:
+            content-type: application/x-www-form-urlencoded
+            accept: 'application/json, application/xml'
+        body: 'foo=bar&do=re'
+    find:
+        - PUT
+        - 'content-type: application/x-www-form-urlencoded'
+        - 'accept: application/json, application/xml'
+        - 'foo=bar&do=re'
+-
+    why: 'This will print a debug message in debug mode about un-interpolation.'
+    visit: /handlers/request.php
+    request:
+        method: GET
+        body: 'lorem ${missingVar}'
