@@ -1,5 +1,6 @@
 <?php
 
+use AKlump\CheckPages\CheckPages;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Files\LocalFilesProvider;
@@ -243,13 +244,13 @@ final class LocalFilesProviderTest extends TestCase {
 
   public function testTryResolveDirFindsDirScenarioB() {
     $base_dir = $this->establishTempDir('example/tests');
-    $this->establishTempDir('plugins', $base_dir);
+    $this->establishTempDir(CheckPages::DIR_HANDLERS, $base_dir);
 
     $files = new LocalFilesProvider($base_dir);
     $files->addResolveDir("$base_dir/example/tests");
 
-    $dir = $files->tryResolveDir('plugins')[0];
-    $this->assertSame("$base_dir/plugins", $dir);
+    $dir = $files->tryResolveDir(CheckPages::DIR_HANDLERS)[0];
+    $this->assertSame("$base_dir/". CheckPages::DIR_HANDLERS, $dir);
   }
 
   public function testTryResolveDirFindsDir() {

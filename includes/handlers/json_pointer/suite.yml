@@ -1,0 +1,42 @@
+-
+  why: Demonstrate the Json Handler syntax.
+  url: /test_subject.php?q=json_pointer__luke.json
+  find:
+    -
+      pointer: /height
+      is: 172
+    -
+      pointer: /hair_color
+      set: hairColor
+    -
+      pointer: /skin_color
+      contains: air
+    -
+      pointer: /mass
+      not contains: 6
+    -
+      pointer: /hair_color
+      is: ${hairColor}
+    -
+      pointer: /height
+      is not: 200
+    -
+      pointer: /homeworld
+      matches: /^https:/
+    -
+      pointer: /homeworld
+      not matches: /^https:\/\/swapi\.dev\/api\/films\//
+    -
+      pointer: /films
+      count: 4
+
+-
+  why: Demonstrate the Json Handler syntax with nested data.
+  url: /test_subject.php?q=json_pointer__nested.json
+  find:
+    -
+      pointer: /data/0/categories/0/CategoryID
+      is: 1
+    -
+      pointer: /messages
+      count: 0

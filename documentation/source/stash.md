@@ -4,7 +4,7 @@ id: stash
 
 # Stashing Values
 
-There is a special map key `extras` available on every test, which is ignored by the schema validator and can be used to stash/retrieve arbitrary data by plugins and extension strategies throughout the testing process (and across event handlers).
+There is a special map key `extras` available on every test, which is ignored by the schema validator and can be used to stash/retrieve arbitrary data by handlers and extension strategies throughout the testing process (and across event handlers).
 
 The following example is taken from a mixin that had to move it's shorthand config to the stash and then act upon those values just before the request. You can see how `extras` is used to achieve this.
 

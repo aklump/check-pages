@@ -5,7 +5,7 @@ namespace AKlump\CheckPages\Traits;
 use AKlump\CheckPages\Variables;
 
 /**
- * This is for plugins that use "set:"
+ * This is for handlers that use "set:"
  */
 trait SetTrait {
 

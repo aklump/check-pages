@@ -6,11 +6,11 @@ use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Timer;
 use AKlump\CheckPages\Output\Verbosity;
+use AKlump\CheckPages\Parts\Runner;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
-use AKlump\CheckPages\Output\Timer;
-use AKlump\CheckPages\Parts\Runner;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -55,7 +55,7 @@ class RunCommand extends Command {
     try {
 
       // Now that we have a runner we pass it to the plugins manager to the
-      // dispatcher can be connected to the plugins.
+      // dispatcher can be connected to the handlers.
       $container->get('plugins_manager')->setRunner($runner);
 
       // Pull the timezone from the system running this.

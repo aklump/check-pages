@@ -1,7 +1,6 @@
 <?php
 
-use AKlump\CheckPages\Plugin\Dom;
-use AKlump\CheckPages\Variables;
+use AKlump\CheckPages\Handlers\Dom;
 use PHPUnit\Framework\TestCase;
 use AKlump\CheckPages\Service\Assertion;
 use Symfony\Component\DomCrawler\Crawler;
@@ -36,7 +35,7 @@ final class AssertionTest extends TestCase {
     $tests[] = [
       [
         'xpath' => '(//*[contains(@class, "foo")])[2]',
-        'is' => 're'
+        'is' => 're',
       ],
       ['<div class="foo">do</div><div class="foo">re</div><div class="foo">mi</div>'],
     ];

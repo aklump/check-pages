@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Service;
 
+use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\RunnerEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
@@ -13,7 +14,6 @@ use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\Messaging\MessageType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use AKlump\CheckPages\Event;
 
 /**
  * Provides the ability to repeat failed tests or continue from the last suite.

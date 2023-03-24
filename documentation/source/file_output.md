@@ -13,7 +13,7 @@ File output is enabled in the runner configuration file. Two things are required
 files: files/dev
 ```
 
-Once you have this enabled, plugins may make use of this for file output during testing.
+Once you have this enabled, handlers may make use of this for file output during testing.
 
 ## Core Usage
 

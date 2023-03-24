@@ -4,9 +4,9 @@ namespace AKlump\CheckPages\Output;
 
 use AKlump\LoftLib\Bash\Color;
 use AKlump\Messaging\MessageInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use AKlump\Messaging\MessengerInterface;
 use AKlump\Messaging\MessageType;
+use AKlump\Messaging\MessengerInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Echos test feedback to the CLI console.

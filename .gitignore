@@ -7,5 +7,5 @@ documentation/core
 documentation/README.md
 /files/*
 /.phpunit.result.cache
-plugins/*/composer.lock
+handlers/*/composer.lock
 /example/tests/logfiles/

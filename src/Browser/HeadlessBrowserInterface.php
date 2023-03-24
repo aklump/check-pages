@@ -28,7 +28,7 @@ interface HeadlessBrowserInterface {
    * @return \AKlump\CheckPages\Browser\HeadlessBrowserInterface Self for chaining.
    *   Self for chaining.
    *
-   * @see \AKlump\CheckPages\Plugin\Dom
+   * @see \AKlump\CheckPages\Handlers\Dom;
    */
   public function addStyleRequest(string $dom_query_selector, string $style_name): HeadlessBrowserInterface;
 

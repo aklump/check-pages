@@ -8,11 +8,10 @@ use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\LoftLib\Bash\Color;
+use AKlump\Messaging\Processors\Messenger;
 use AKlump\Messaging\MessageInterface;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
-use AKlump\Messaging\Processors\Messenger;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**

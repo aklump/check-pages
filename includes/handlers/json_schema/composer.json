@@ -1,0 +1,9 @@
+{
+    "autoload": {
+        "AKlump\\CheckPages\\Handlers\\": "."
+    },
+    "require": {
+        "opis/json-schema": "^2.3",
+        "midweste/objectpath": "^1.0"
+    }
+}

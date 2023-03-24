@@ -23,7 +23,7 @@ final class PluginsManager {
   /**
    * @var array
    */
-  private $testPluginsDir;
+  private $pathToHandlers;
 
   /**
    * @var array
@@ -40,8 +40,8 @@ final class PluginsManager {
   /**
    * Keyed by assertion id for a given test, each value is an array of plugins.
    *
-   * This maps the plugins to the given assertions, whereas $activeTestPlugins
-   * maps the plugins to the test.  The distinction is important.
+   * This maps the handlers to the given assertions, whereas $activeTestPlugins
+   * maps the handlers to the test.  The distinction is important.
    *
    * @var array
    */
@@ -50,16 +50,17 @@ final class PluginsManager {
   /**
    * PluginsManager constructor.
    *
-   * @param string $path_to_plugins
-   *   Path to the directory containing all plugins.
+   * @param string $path_to_handlers
+   *   Path to the directory containing all handlers.
    */
-  public function __construct(string $path_to_plugins) {
-    $this->testPluginsDir = rtrim($path_to_plugins, '/');
+  public function __construct(string $path_to_handlers) {
+    $this->pathToHandlers = $path_to_handlers;
   }
 
   public function setRunner(Runner $runner): PluginsManager {
     $this->runner = $runner;
     $this->subscribeToEvents($this->runner->getDispatcher());
+
     return $this;
   }
 
@@ -74,15 +75,15 @@ final class PluginsManager {
   }
 
   /**
-   * Return a list of all plugins.
+   * Return a list of all handlers.
    *
    * @return array
    *   Each element is keyed with:
    *   - id string Plugin id.
    *   - filepath string Path to the plugin directory.
    */
-  public function getAllPlugins(): array {
-    $basepath = $this->testPluginsDir;
+  public function getAllHandlers(): array {
+    $basepath = $this->pathToHandlers;
     $directory_listing = scandir($basepath);
     $plugins = [];
     foreach ($directory_listing as $basename) {
@@ -100,7 +101,7 @@ final class PluginsManager {
           'id' => $id,
           'path' => $filepath,
           'autoload' => $filepath . "/$filename.php",
-          'classname' => '\\AKlump\\CheckPages\\Plugin\\' . $filename,
+          'classname' => '\\AKlump\\CheckPages\\Handlers\\' . $filename,
         ];
       }
     }
@@ -109,7 +110,7 @@ final class PluginsManager {
   }
 
   /**
-   * Delegate to all plugins the handling of an assert.
+   * Delegate to all the handling of an assert.
    *
    * @param \AKlump\CheckPages\Assert $assert
    * @param array $needle
@@ -120,7 +121,7 @@ final class PluginsManager {
    */
   public function handleAssert(Assert $assert, array $needle, ResponseInterface $response) {
     $validator = new Validator();
-    foreach ($this->getAllPlugins() as $plugin) {
+    foreach ($this->getAllHandlers() as $plugin) {
       $plugin_schema = $this->getPluginSchema($plugin['id']);
 
       // Convert to an object for the validator needs it so.
@@ -131,7 +132,7 @@ final class PluginsManager {
         // This means that this plugin's schema matches $needle, therefore this
         // plugin should handle the assert.  We will allow more than one plugin
         // to handle an assert, if it's schema matches.
-        $instance = $this->getPluginInstance($plugin['id']);
+        $instance = $this->getHandlerInstance($plugin['id']);
         if ($instance instanceof LegacyPluginInterface) {
           $instance->handleAssert($assert, $needle, $response);
         }
@@ -142,7 +143,7 @@ final class PluginsManager {
   /**
    * Return a new plugin instance by ID.
    *
-   * @param string $plugin_id
+   * @param string $handler_id
    *   The plugin ID.
    *
    * @return \AKlump\CheckPages\Plugin\LegacyPluginInterface|\Symfony\Component\EventDispatcher\EventSubscriberInterface
@@ -151,34 +152,34 @@ final class PluginsManager {
    * @throws \RuntimeException
    *   If the class cannot be instantiated.
    */
-  public function getPluginInstance(string $plugin_id) {
-    $plugins = $this->getAllPlugins();
-    foreach ($plugins as $plugin) {
-      if ($plugin['id'] === $plugin_id) {
-        require_once $plugin['autoload'];
+  public function getHandlerInstance(string $handler_id) {
+    $handlers = $this->getAllHandlers();
+    foreach ($handlers as $handler) {
+      if ($handler['id'] === $handler_id) {
+        require_once $handler['autoload'];
 
-        return new $plugin['classname']($this->runner);
+        return new $handler['classname']($this->runner);
       }
     }
-    throw new \RuntimeException(sprintf('Could not instantiate plugin %s', $plugin_id['id']));
+    throw new \RuntimeException(sprintf('Could not instantiate plugin %s', $handler_id['id']));
   }
 
   /**
    * Get plugin's JSON schema for a single assertion.
    *
-   * @param string $plugin_id
+   * @param string $handler_id
    *   The plugin ID.
    *
    * @return array
    *   The JSON schema for a single assertion handled by this plugin.
    */
-  private function getPluginSchema(string $plugin_id): array {
-    $schema = $this->schema['definitions'][$plugin_id] ?? NULL;
+  private function getPluginSchema(string $handler_id): array {
+    $schema = $this->schema['definitions'][$handler_id] ?? NULL;
     if (!$schema) {
-      throw new \RuntimeException(sprintf('Missing schema for plugin "%s".', $plugin_id));
+      throw new \RuntimeException(sprintf('Missing schema for plugin "%s".', $handler_id));
     }
     $schema['definitions'] = $this->schema['definitions'];
-    unset($schema['definitions'][$plugin_id]);
+    unset($schema['definitions'][$handler_id]);
 
     return $schema;
   }
@@ -186,14 +187,14 @@ final class PluginsManager {
   /**
    * Tell if a plugin provides a schema or not.
    *
-   * @param string $plugin_id
+   * @param string $handler_id
    *
    * @return bool
    *   True if it does.
    */
-  private function hasSchema(string $plugin_id): bool {
+  private function hasSchema(string $handler_id): bool {
     try {
-      $this->getPluginSchema($plugin_id);
+      $this->getPluginSchema($handler_id);
 
       return TRUE;
     }
@@ -207,7 +208,7 @@ final class PluginsManager {
    */
   public function onBeforeDriver(TestEventInterface $event) {
     $config = $event->getTest()->getConfig();
-    $all_plugins = $this->getAllPlugins();
+    $all_plugins = $this->getAllHandlers();
 
     /** @var array assertionPlugins These will be captured here and used in subsequent methods. */
     $this->assertionPlugins = [];
@@ -215,7 +216,7 @@ final class PluginsManager {
     $this->testPlugins = [];
 
     foreach ($all_plugins as $plugin) {
-      $instance = $this->getPluginInstance($plugin['id']);
+      $instance = $this->getHandlerInstance($plugin['id']);
       if (!$instance instanceof LegacyPluginInterface) {
         continue;
       }
@@ -268,8 +269,8 @@ final class PluginsManager {
    * {@inheritdoc}
    */
   public function defaultEventHandler($event, $method) {
-    foreach ($this->getAllPlugins() as $plugin) {
-      $instance = $this->getPluginInstance($plugin['id']);
+    foreach ($this->getAllHandlers() as $plugin) {
+      $instance = $this->getHandlerInstance($plugin['id']);
       if ($instance instanceof LegacyPluginInterface) {
         $instance->$method($event);
       }
@@ -292,8 +293,8 @@ final class PluginsManager {
     //    $events = new \ReflectionClass(Event::CLASS);
     //    foreach ($events->getConstants() as $method => $event_name) {
     //      $method = 'on' . Strings::upperCamel(strtolower($method));
-    //      foreach ($this->getAllPlugins() as $data) {
-    //        $plugin_instance = $this->getPluginInstance($data['id']);
+    //      foreach ($this->getAllHandlers() as $data) {
+    //        $plugin_instance = $this->getHandlerInstance($data['id']);
     //        if (method_exists($plugin_instance, $method)) {
     //          $dispatcher->addListener($event_name, function ($event) use ($method, $plugin_instance) {
     //            $plugin_instance->$method($event);
@@ -304,8 +305,8 @@ final class PluginsManager {
 
     $dispatcher->addListener(Event::TEST_CREATED, function (TestEventInterface $event) {
       $config = $event->getTest()->getConfig();
-      foreach ($this->getAllPlugins() as $plugin) {
-        $instance = $this->getPluginInstance($plugin['id']);
+      foreach ($this->getAllHandlers() as $plugin) {
+        $instance = $this->getHandlerInstance($plugin['id']);
         if ($instance instanceof LegacyPluginInterface && $instance->applies($config)) {
           return $instance->onBeforeTest($event);
         }

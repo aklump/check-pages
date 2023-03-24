@@ -27,6 +27,7 @@ use AKlump\CheckPages\Service\DispatcherFactory;
 use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
 use AKlump\CheckPages\Traits\BaseUrlTrait;
+use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\HasSuiteTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Traits\SetTrait;
@@ -39,7 +40,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
-use AKlump\CheckPages\Traits\HasConfigTrait;
 
 class Runner {
 
@@ -685,7 +685,7 @@ class Runner {
           // We have to catch this here, because of the dispatching and decision
           // on what to do about it that is determined below looking at
           // configuration.  Also we will add a error message so that writing
-          // plugins is easier.
+          // handlers is easier.
           $test->setFailed();
           $test
             ->addMessage(new Message([$exception->getMessage()], MessageType::ERROR));
@@ -779,7 +779,7 @@ class Runner {
     $schema = json_decode(file_get_contents($path_to_schema));
 
     // Dynamically add permissive items for every test option.  These have been
-    // added on the fly and do not have schema support, as plugins do.
+    // added on the fly and do not have schema support, as handlers do.
     foreach ($this->getRuntimeOptions() as $selector) {
       $schema->items->anyOf[] = (object) [
         'required' => [$selector],

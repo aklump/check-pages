@@ -7,9 +7,7 @@ use AKlump\CheckPages\Browser\ChromeDriver;
 use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEvent;
-use AKlump\CheckPages\Event\TestEvent;
 use AKlump\CheckPages\Exceptions\TestFailedException;
-use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Output\YamlMessage;
 use AKlump\CheckPages\Service\Assertion;
@@ -66,7 +64,7 @@ class TestRunner {
         if (is_int($timeout)) {
           $driver->setRequestTimeout($timeout);
         }
-        // Keep this after the timeout so that plugins may override.
+        // Keep this after the timeout so that handlers may override.
         $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
 
         // In some cases the first assertion is looking for a dom element that
