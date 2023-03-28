@@ -364,7 +364,7 @@
             "$ref": "#/definitions/url"
           },
           "request": {
-            "$ref": "#/definitions/request_request"
+            "$ref": "#/definitions/request__request"
           },
           "status": {
             "$ref": "#/definitions/status"
@@ -400,7 +400,7 @@
             "$ref": "#/definitions/url"
           },
           "request": {
-            "$ref": "#/definitions/request_request"
+            "$ref": "#/definitions/request__request"
           },
           "status": {
             "$ref": "#/definitions/status"

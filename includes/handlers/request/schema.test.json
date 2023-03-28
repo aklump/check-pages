@@ -1,0 +1,12 @@
+{
+    "type": "object",
+    "required": [
+        "request"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "request": {
+            "$ref": "#/definitions/request__request"
+        }
+    }
+}

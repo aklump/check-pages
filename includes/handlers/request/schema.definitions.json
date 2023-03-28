@@ -1,0 +1,80 @@
+{
+  "request__method": {
+    "oneOf": [
+      {
+        "type": "string",
+        "pattern": "^\\${"
+      },
+      {
+        "type": "string",
+        "enum": [
+          "delete",
+          "get",
+          "head",
+          "options",
+          "patch",
+          "post",
+          "put",
+          "trace",
+          "DELETE",
+          "GET",
+          "HEAD",
+          "OPTIONS",
+          "PATCH",
+          "POST",
+          "PUT",
+          "TRACE"
+        ]
+      }
+    ]
+  },
+  "request__request": {
+    "type": "object",
+    "additionalProperties": false,
+    "anyOf": [
+      {
+        "required": [
+          "timeout"
+        ]
+      },
+      {
+        "required": [
+          "method"
+        ]
+      },
+      {
+        "required": [
+          "methods"
+        ]
+      }
+    ],
+    "properties": {
+      "timeout": {
+        "type": "integer"
+      },
+      "method": {
+        "$ref": "#/definitions/request__method"
+      },
+      "methods": {
+        "type": "array",
+        "minItems": 2,
+        "items": {
+          "$ref": "#/definitions/request__method"
+        }
+      },
+      "headers": {
+        "type": "object",
+        "items": {
+          "type": "string"
+        }
+      },
+      "body": {
+        "type": [
+          "string",
+          "object",
+          "array"
+        ]
+      }
+    }
+  }
+}

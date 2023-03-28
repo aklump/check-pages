@@ -65,7 +65,7 @@ final class Feedback implements EventSubscriberInterface {
         },
       ],
 
-      Event::SUITE_STARTED => [
+      Event::SUITE_CREATED => [
         function (SuiteEventInterface $event) {
           $suite = $event->getSuite();
           self::echoSuiteTitle($suite->getRunner()

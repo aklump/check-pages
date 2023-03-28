@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Service;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\RunnerEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Exceptions\BadSyntaxException;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Output\Flags;
@@ -43,7 +44,7 @@ final class Retest implements EventSubscriberInterface {
 
           // Do not allow combining options.
           if ($is_retesting && $is_continuing) {
-            throw new StopRunnerException("You may not combine --retest and --continue; pick one.");
+            throw new BadSyntaxException("You may not combine --retest and --continue; pick one.");
           }
 
           $requirements_met = boolval($runner->getLogFiles());
@@ -250,10 +251,10 @@ final class Retest implements EventSubscriberInterface {
     $fail_results = $this->filterByResult($results, Test::FAILED);
     $fail_results = $this->flattenResults($fail_results);
 
-    return array_filter($pass_results, function (array $data) use ($fail_results) {
-      $foo = $this->flattenResults([$data]);
+    return array_filter($pass_results, function (array $candidate_datum) use ($fail_results) {
+      $candidate = $this->flattenResults([$candidate_datum])[0];
 
-      return !array_intersect($foo, $fail_results);
+      return !in_array($candidate, $fail_results);
     });
   }
 

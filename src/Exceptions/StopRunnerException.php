@@ -2,6 +2,11 @@
 
 namespace AKlump\CheckPages\Exceptions;
 
+/**
+ * You probably don't want to throw this, maybe TestFailedException instead.
+ * This should never be thrown once a test has started and before it has
+ * stopped.
+ */
 class StopRunnerException extends \Exception {
 
   public function __construct(

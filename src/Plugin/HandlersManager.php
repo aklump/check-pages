@@ -79,7 +79,7 @@ final class HandlersManager {
     $handlers = $this->getAllHandlers();
     foreach ($handlers as $handler) {
       if ($handler['id'] === $handler_id) {
-        if (!class_exists($handler)) {
+        if (!class_exists($handler['classname'])) {
           require_once $handler['autoload'];
         }
 

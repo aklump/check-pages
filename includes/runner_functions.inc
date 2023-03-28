@@ -9,7 +9,6 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
-use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Parts\Suite;
 use MidwestE\ObjectPath;
 
@@ -112,24 +111,6 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
   /** @var \AKlump\CheckPages\Parts\Runner $runner */
   $runner = $container->get('runner');
 
-  // Sniff out the group, which the directory holding the suite file, if
-  // provided, e.g., "group/suite".  $path_to_suite may contain more than
-  // "group/suite", so we will sniff that out too, and add any resolved
-  // directories automatically, as appropriate.  Note: the group will be the
-  // same, even if globbing creates multiple suites.
-  $group = '';
-  if (strpos($path_to_suite, '/') !== FALSE) {
-    $group = basename(dirname($path_to_suite));
-    $resolve_dir = explode($group, $path_to_suite)[0];
-    if ($resolve_dir) {
-      $resolve_dir = $runner->getFiles()->tryResolveDir($resolve_dir)[0];
-      $runner->getFiles()->addResolveDir($resolve_dir);
-    }
-  }
-
-  /** @var \AKlump\CheckPages\Parts\Runner $runner */
-  $runner = $container->get('runner');
-
   // If there was any runtime config added to the single-instance runner last
   // time, we have to remove that.  We do that by reloading the configuration
   // from the original file and then applying any runtime passed at this time.
@@ -172,7 +153,8 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
   foreach ($suite_paths as $absolute_path) {
 
     // This is a little redundant, but we make sure it's in there.  It will be
-    // de-duped by Runner, so no problem calling multiple times.
+    // de-duped by Runner, so no problem calling multiple times.  This allows
+    // resolution of paths only by the suite ID, a.k.a., the basename.
     $runner->getFiles()->addResolveDir(dirname($absolute_path));
 
     // We also have to make sure the directory above the (group) directory is a
@@ -191,11 +173,9 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
       $suite_config = [];
     }
 
-    $suite_id = pathinfo($absolute_path, PATHINFO_FILENAME);
-    $suite = new Suite($suite_id, $suite_config, $runner);
-    if ($group) {
-      $suite->setGroup($group);
-    }
+    $parsed = Suite::parsePath($absolute_path);
+    $suite = new Suite($parsed['id'], $suite_config, $runner);
+    $suite->setGroup($parsed['group']);
 
     $runner->run($suite, $absolute_path);
   }

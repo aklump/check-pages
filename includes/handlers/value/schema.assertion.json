@@ -1,20 +1,5 @@
 {
-    "type": "object",
-    "oneOf": [
-        {
-            "required": [
-                "value",
-                "set"
-            ]
-        }
-    ],
-    "additionalProperties": false,
-    "properties": {
-        "value": {
-            "$ref": "#/definitions/value__value"
-        },
-        "set": {
-            "$ref": "#/definitions/value__set"
-        }
-    }
+  "value": {
+    "$ref": "#/definitions/value__handler"
+  }
 }

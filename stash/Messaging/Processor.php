@@ -16,6 +16,9 @@ final class Processor {
   public static function tree(array $lines) {
     $prefix = '├── ';
     foreach ($lines as &$line) {
+      if (empty(trim($line))) {
+        $prefix = '│   ';
+      }
       $line = $prefix . $line;
       $prefix = '│   ';
     }

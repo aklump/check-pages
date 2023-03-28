@@ -5,37 +5,61 @@ namespace AKlump\CheckPages\Parts;
 use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Browser\ChromeDriver;
 use AKlump\CheckPages\Browser\GuzzleDriver;
+use AKlump\CheckPages\Browser\RequestDriverInterface;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEvent;
-use AKlump\CheckPages\Exceptions\TestFailedException;
+use AKlump\CheckPages\Event\TestEvent;
+use AKlump\CheckPages\Exceptions\RequestTimedOut;
+use AKlump\CheckPages\Output\DebugMessage;
+use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Output\YamlMessage;
 use AKlump\CheckPages\Service\Assertion;
 use AKlump\Messaging\MessageType;
 
-class TestRunner {
+final class TestRunner {
+
+  /**
+   * @var \AKlump\CheckPages\Browser\ChromeDriver|\AKlump\CheckPages\Browser\GuzzleDriver
+   */
+  private $driver;
+
+  /**
+   * @var \AKlump\CheckPages\Parts\Test
+   */
+  private $test;
+
+  public function __construct(Test $test) {
+    $this->test = $test;
+    if ($test->get('js') ?? FALSE) {
+      $this->driver = new ChromeDriver();
+    }
+    else {
+      $this->driver = new GuzzleDriver();
+    }
+  }
+
+  public function getDriver(): RequestDriverInterface {
+    return $this->driver;
+  }
 
   /**
    * Run a given test.
    *
-   * @param \AKlump\CheckPages\Parts\Test $test
-   *
-   * @throws \AKlump\CheckPages\Exceptions\TestFailedException
+   * @return \AKlump\CheckPages\Parts\TestRunner
+   *   Self for chaining.
    */
-  public function run(Test $test) {
+  public function run(): TestRunner {
+    $test = $this->test;
     $runner = $test->getRunner();
     $dispatcher = $runner->getDispatcher();
 
-    // Choose the appropriate Driver for the test.
-    if ($test->getConfig()['js'] ?? FALSE) {
-      $driver = new ChromeDriver();
-    }
-    else {
-      $driver = new GuzzleDriver();
-    }
-    $driver->setBaseUrl($runner->get('base_url') ?? '');
-    $dispatcher->dispatch(new DriverEvent($test, $driver), Event::TEST_STARTED);
+    $this->getDriver()->setBaseUrl($runner->get('base_url') ?? '');
+    $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::TEST_STARTED);
 
+    //
+    // Do the HTTP part of the test.
+    //
     $is_http_test = $test->has('url');
     if ($is_http_test) {
 
@@ -45,27 +69,36 @@ class TestRunner {
       // interpolated and set. "url" is a  skipped key when we use
       // Test::interpolate(), which is why we have to use long-hand here.
       $config = $test->getConfig();
+
+      // Do not interpolate 'find' yet!!!
       $test->interpolate($config['url']);
       $test->setConfig($config);
       unset($config);
 
       $yaml_message = $test->getConfig();
+
+      // BEWARE REFACTORING THIS.  READ THE COMMENTS BELOW ABOUT FIND
+      // INTERPOLATION TIMING.
       if (empty($yaml_message['find'])) {
         unset($yaml_message['find']);
       }
+      else {
+        $yaml_message['find'] = '';
+      }
       $test->addMessage(new YamlMessage($yaml_message, 0, function ($yaml) {
-        // To make the output cleaner we need to remove the printed '' since find
-        // is really an array, whose elements are yet to be printed.
+        // To make the output cleaner we need to remove the printed '' since
+        // find is really an array, whose elements are yet to be printed, and
+        // which will be printed further down.
         return str_replace("find: ''", 'find:', $yaml);
       }, MessageType::DEBUG, Verbosity::DEBUG));
 
       try {
         $timeout = $runner->getConfig()['request_timeout'] ?? NULL;
         if (is_int($timeout)) {
-          $driver->setRequestTimeout($timeout);
+          $this->getDriver()->setRequestTimeout($timeout);
         }
         // Keep this after the timeout so that handlers may override.
-        $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_CREATED);
+        $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_CREATED);
 
         // In some cases the first assertion is looking for a dom element that
         // may be created as a result of an asynchronous JS event.  We create an
@@ -91,63 +124,108 @@ class TestRunner {
           return Assertion::create($config);
         }, $assertions_to_wait_for);
 
-        $driver->setUrl($runner->withBaseUrl($test->getConfig()['url']));
-        $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_PREPARED);
-        $driver->request($assertions_to_wait_for);
+        $this->getDriver()
+          ->setUrl($runner->withBaseUrl($test->getConfig()['url']));
+        $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_PREPARED);
+        $this->getDriver()->request($assertions_to_wait_for);
       }
-      catch (\Exception $exception) {
-        if (method_exists($exception, 'getResponse')) {
-          $response = $exception->getResponse();
-          if ($response) {
-            $http_response_code = $response->getStatusCode();
-          }
+      catch (RequestTimedOut $exception) {
+        $test->setFailed();
+        $test->addMessage(new Message([$exception->getMessage()], MessageType::ERROR, Verbosity::VERBOSE));
+        $test->addMessage(new DebugMessage(
+            [
+              sprintf('Try setting a value higher than %d for "request_timeout" in %s, or at the test level.', $this->getDriver()
+                ->getRequestTimeout(), basename($runner->getLoadedConfigPath())),
+            ],
+            MessageType::TODO)
+        );
+      }
+      $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_FINISHED);
+    }
+
+    //
+    // Do the assertions.
+    //
+    $assertions = $test->get('find') ?? [];
+    if (!$test->hasFailed() && count($assertions) > 0) {
+      $id = 0;
+      $assert_runner = new AssertRunner($this->getDriver());
+      while ($definition = array_shift($assertions)) {
+        if (is_scalar($definition)) {
+          $definition = [Assert::ASSERT_CONTAINS => $definition];
         }
-        if (empty($http_response_code)) {
-          $runner->handleFailedRequestNoResponse($test, $driver, $exception);
+        $test->interpolate($definition);
+        $test->addMessage(new YamlMessage($definition, 2, NULL, MessageType::DEBUG, Verbosity::DEBUG));
+        $assert = $assert_runner->run(new Assert($id, $definition, $test));
+        if ($assert->hasFailed()) {
+          $test->setFailed();
         }
+        ++$id;
       }
-
-      $dispatcher->dispatch(new DriverEvent($test, $driver), Event::REQUEST_FINISHED);
     }
 
-    try {
-      $assertions = $test->get('find') ?? [];
-      if (count($assertions) === 0) {
-        //        $test->addMessage(new Message([
-        //          'This test has no assertions.',
-        //        ], MessageType::DEBUG, Verbosity::DEBUG));
-      }
-      else {
-        $id = 0;
-        $assert_runner = new AssertRunner($driver);
-        while ($definition = array_shift($assertions)) {
-          if (is_scalar($definition)) {
-            $definition = [Assert::ASSERT_CONTAINS => $definition];
+    return $this;
+  }
+
+  /**
+   * Process a test after running it.
+   *
+   * @return bool
+   *   The runtime test result.  This may be an inversion of the result as
+   *   stored in the test object (which is the truth) because of the inversion
+   *   concept of "expected outcome".
+   */
+  public function processResult(): bool {
+    $test = $this->test;
+
+    // Assume the best in people.
+    if (!$test->hasFailed()) {
+      $test->setPassed();
+    }
+
+    $dispatcher = $test->getRunner()->getDispatcher();
+
+    $runtime_test_result = !$test->hasFailed();
+
+    // Allow the result to be inverted by the test config.  This will cause the
+    // opposite events to be called, but does not actually change the test value
+    // on the object instance.
+    if ($test->has('expected outcome')) {
+      $expected_outcome = $test->get('expected outcome');
+      if (!$runtime_test_result && in_array($expected_outcome, [
+          'fail',
+          'failure',
+        ])) {
+        $runtime_test_result = TRUE;
+
+        // Make all error messages success messages so as not to catch the eye.
+        $messages = array_map(function (Message $message) {
+          $type = $message->getMessageType();
+          if ($type === MessageType::ERROR) {
+            $message->setMessageType(MessageType::SUCCESS);
           }
 
-          $test->interpolate($definition);
-          $test->addMessage(new YamlMessage($definition, 2, NULL, MessageType::DEBUG, Verbosity::DEBUG));
+          return $message;
+        }, $test->getMessages());
+        $test->setMessages($messages);
 
-          $assert = $assert_runner->run(new Assert($id, $definition, $test));
-          if ($assert->hasFailed()) {
-            $test->setFailed();
-          }
-          ++$id;
-        }
-      }
-
-      // All assertions are done, if we haven't failed by now then the test can
-      // be marked as having passed.
-      if (!$test->hasFailed()) {
-        $test->setPassed();
+        $test->addMessage(new Message([
+          'This test failed as expected.',
+        ], MessageType::SUCCESS, Verbosity::VERBOSE));
       }
     }
-    catch (\Exception $exception) {
-      throw new TestFailedException($test->getConfig(), $exception);
+
+    if ($runtime_test_result) {
+      $dispatcher->dispatch(new TestEvent($test), Event::TEST_PASSED);
     }
-    finally {
-      $dispatcher->dispatch(new DriverEvent($test, $driver), Event::TEST_FINISHED);
+    else {
+      $dispatcher->dispatch(new TestEvent($test), Event::TEST_FAILED);
+      $test->getSuite()->setFailed();
     }
+
+    $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::TEST_FINISHED);
+
+    return $runtime_test_result;
   }
 
 }

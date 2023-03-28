@@ -2,14 +2,16 @@
 
 namespace AKlump\CheckPages\Parts;
 
+use AKlump\CheckPages\Interfaces\HasConfigInterface;
 use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Variables;
 use AKlump\Messaging\HasMessagesTrait;
 use AKlump\Messaging\Processor;
+use JsonSerializable;
 
-class Test implements \JsonSerializable, PartInterface {
+class Test implements JsonSerializable, PartInterface, HasConfigInterface {
 
   use HasRunnerTrait;
   use HasMessagesTrait;
@@ -32,9 +34,19 @@ class Test implements \JsonSerializable, PartInterface {
   protected $badges = [];
 
   /**
-   * @var \AKlump\CheckPages\Parts\Variables
+   * @var \AKlump\CheckPages\Variables
    */
   protected $vars;
+
+  /**
+   * @var \AKlump\CheckPages\Parts\Suite
+   */
+  private $suite;
+
+  /**
+   * @var string
+   */
+  private $id;
 
   public function __construct(string $id, array $config, Suite $suite) {
     $this->suite = $suite;
@@ -87,17 +99,14 @@ class Test implements \JsonSerializable, PartInterface {
    * @param string $badge
    *   Usually an emoji, but may be combined with (colored) text as appropriate.
    *
-   * @return $this
-   *   Self for chaining.
+   * @return void
    */
-  public function addBadge(string $badge) {
+  public function addBadge(string $badge): void {
     $this->badges[] = $badge;
     $this->badges = array_unique($this->badges);
-
-    return $this;
   }
 
-  public function setConfig(array $config): self {
+  public function setConfig(array $config): void {
     unset($this->title);
 
     // Cast find to an array if needed.
@@ -111,8 +120,6 @@ class Test implements \JsonSerializable, PartInterface {
     }, array_keys($config));
     $config = array_combine($keys, $config);
     $this->traitSetConfig($config);
-
-    return $this;
   }
 
   public function id(): string {
@@ -127,7 +134,9 @@ class Test implements \JsonSerializable, PartInterface {
    *   this: $this->getRunner()->withBaseUrl($this->getRelativeUrl()).
    */
   public function getRelativeUrl(): string {
-    return $this->getRunner()->withoutBaseUrl($this->get('url'));
+    $url = $this->get('url') ?? '';
+
+    return $this->getRunner()->withoutBaseUrl($url);
   }
 
   /**

@@ -2,12 +2,14 @@
 
 namespace AKlump\CheckPages\Parts;
 
+use AKlump\CheckPages\Interfaces\HasConfigInterface;
 use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Variables;
+use JsonSerializable;
 
-class Suite implements PartInterface, \JsonSerializable {
+class Suite implements PartInterface, JsonSerializable, HasConfigInterface {
 
   use PassFailTrait;
   use HasRunnerTrait;
@@ -25,6 +27,21 @@ class Suite implements PartInterface, \JsonSerializable {
   protected $group;
 
   protected $vars;
+
+  /**
+   * Parse suite identifiers from it's absolute filepath.
+   *
+   * @param string $absolute_path
+   *
+   * @return array
+   *   An array with keys: "group" and "id".
+   */
+  public static function parsePath(string $absolute_path): array {
+    return [
+      'group' => basename(dirname($absolute_path)),
+      'id' => pathinfo($absolute_path, PATHINFO_FILENAME),
+    ];
+  }
 
   public function __construct(string $id, array $suite_config, Runner $runner) {
     $this->vars = new Variables();

@@ -11,6 +11,9 @@ use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
+use DateTimeZone;
+use Exception;
+use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -46,11 +49,11 @@ class RunCommand extends Command {
       ->addOption('continue', NULL, InputOption::VALUE_NONE, 'Execute runner beginning with the most recently executed suite, inclusive.');
   }
 
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     global $container;
 
     // Pull the timezone from the system running this.
-    $timezone = new \DateTimeZone(exec('date +%Z'));
+    $timezone = new DateTimeZone(exec('date +%Z'));
     $timer = new Timer($timezone);
     $timer->start();
 
@@ -65,8 +68,6 @@ class RunCommand extends Command {
       /** @var \AKlump\CheckPages\Plugin\HandlersManager $plugins_manager */
       $plugins_manager = $container->get('handlers_manager');
       $plugins_manager->setRunner($runner);
-
-
 
       $messenger = $runner->getMessenger();
 
@@ -90,7 +91,7 @@ class RunCommand extends Command {
       $dir = $input->getOption('dir');
       if ($dir) {
         if (!is_dir($dir)) {
-          throw new \InvalidArgumentException("\"$dir\" must be an existing directory.");
+          throw new InvalidArgumentException("\"$dir\" must be an existing directory.");
         }
 
         // This path to suites needs to overwrite that from runner directory above.
@@ -112,7 +113,7 @@ class RunCommand extends Command {
 
       $runner->executeRunner($path_to_runner);
     }
-    catch (\Exception $exception) {
+    catch (Exception $exception) {
       $runner->setFailed();
 
       //      $suite = $runner->getSuite();
@@ -188,8 +189,6 @@ class RunCommand extends Command {
       ],
         MessageType::SUCCESS
       );
-      $messenger->deliver($message, Flags::INVERT_FIRST_LINE);
-
     }
     else {
       $last_failed_suite = $runner->getLastFailedSuite();
@@ -218,8 +217,8 @@ class RunCommand extends Command {
         ],
         MessageType::ERROR
       );
-      $messenger->deliver($message, Flags::INVERT_FIRST_LINE);
     }
+    $messenger->deliver($message, Flags::INVERT_FIRST_LINE);
   }
 
   private function echoTimer(MessengerInterface $messenger, Timer $timer) {

@@ -12,10 +12,6 @@ use AKlump\CheckPages\Parts\SetTrait;
  */
 final class Header implements HandlerInterface {
 
-  const SELECTOR = 'header';
-
-  const SEARCH_TYPE = 'header';
-
   /**
    * {@inheritdoc}
    */

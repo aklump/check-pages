@@ -1,4 +1,20 @@
 -
+  set: paragraphInnerText
+  value: Sunshine
+-
+  loop:
+    - /test_subject.html
+-
+  url: ${loop.value}
+  find:
+    -
+      why: Assert variables set outside of the loop get interpolated inside of the loop, in the assertions.
+      dom: p
+      is: ${paragraphInnerText}
+-
+  end loop:
+
+-
   loop:
     - /test_subject.html
 -

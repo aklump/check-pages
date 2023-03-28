@@ -36,8 +36,8 @@ interface RequestDriverInterface {
    * @return \AKlump\CheckPages\Browser\RequestDriverInterface
    *   Self for chaining.
    *
-   * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
-   *   If the request fails for any reason.
+   * @throws \AKlump\CheckPages\Exceptions\RequestTimedOut
+   * @throws \RuntimeException
    *
    * @see \AKlump\CheckPages\Browser\RequestDriverInterface::getResponse();
    */
@@ -108,16 +108,16 @@ interface RequestDriverInterface {
   /**
    * Set the maximum seconds to wait for a request.
    *
-   * @param int $request_timeout
+   * @param int $timeout_in_seconds
    *
    * @return \AKlump\CheckPages\RequestDriverInterface
    *   Self for chaining.
    */
-  public function setRequestTimeout(int $request_timeout): RequestDriverInterface;
+  public function setRequestTimeout(int $timeout_in_seconds): RequestDriverInterface;
 
   /**
    * @return int
-   *   The number of seconds to wait for the page to fully load before timeout.
+   *   Total seconds to wait before cancelling request.
    */
   public function getRequestTimeout(): int;
 

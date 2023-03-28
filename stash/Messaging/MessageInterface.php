@@ -12,6 +12,8 @@ interface MessageInterface {
    */
   public function getMessage(): array;
 
+  public function setMessage(array $message): void;
+
   /**
    * Get the message type.
    *
@@ -20,6 +22,8 @@ interface MessageInterface {
    * @see \AKlump\Messaging\MessageType
    */
   public function getMessageType(): string;
+
+  public function setMessageType(string $type): void;
 
   /**
    * @return string

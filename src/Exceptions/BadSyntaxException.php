@@ -2,6 +2,8 @@
 
 namespace AKlump\CheckPages\Exceptions;
 
+use AKlump\CheckPages\Interfaces\HasConfigInterface;
+
 /**
  * Used when a Suite, Test or Assert does not have the correct syntax.
  *
@@ -27,7 +29,7 @@ class BadSyntaxException extends \LogicException {
     if ($context_object) {
       $prefix = new \ReflectionClass($context_object);
       $prefix = $prefix->getShortName() . ' ' . BadSyntaxException::PREFIX;
-      if (method_exists($context_object, 'getConfig')) {
+      if ($context_object instanceof HasConfigInterface) {
         $config = "\n" . json_encode($context_object->getConfig(), JSON_PRETTY_PRINT);
       }
     }

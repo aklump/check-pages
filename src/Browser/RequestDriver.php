@@ -42,7 +42,7 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * @var int
    */
-  protected $requestTimeout = 20;
+  protected $requestTimeoutInSeconds = 20;
 
   /**
    * Keep protected so children can set if they want.
@@ -169,8 +169,8 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * {@inheritdoc}
    */
-  public function setRequestTimeout(int $request_timeout): RequestDriverInterface {
-    $this->requestTimeout = $request_timeout;
+  public function setRequestTimeout(int $timeout_in_seconds): RequestDriverInterface {
+    $this->requestTimeoutInSeconds = $timeout_in_seconds;
 
     return $this;
   }
@@ -213,7 +213,7 @@ abstract class RequestDriver implements RequestDriverInterface {
    * {@inheritdoc}
    */
   public function getRequestTimeout(): int {
-    return $this->requestTimeout;
+    return $this->requestTimeoutInSeconds;
   }
 
   /**

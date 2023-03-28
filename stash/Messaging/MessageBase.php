@@ -32,6 +32,14 @@ abstract class MessageBase implements MessageInterface {
     return $this->messageType;
   }
 
+  public function setMessage(array $message): void {
+    $this->message = $message;
+  }
+
+  public function setMessageType(string $type): void {
+    $this->messageType = $type;
+  }
+
   /**
    * @return array
    */

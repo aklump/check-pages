@@ -4,6 +4,8 @@ namespace AKlump\CheckPages\Handlers;
 
 use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Interfaces\HasConfigInterface;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Test;
@@ -12,18 +14,12 @@ use AKlump\Messaging\MessageType;
 
 /**
  * Implements the Value handler.
+ *
+ * // TODO Separate out the "set" portion to it's own handler?
  */
 final class Value implements HandlerInterface {
 
   use SetTrait;
-
-  public static function doesApply($context): bool {
-    if ($context instanceof Assert || $context instanceof Test) {
-      return array_key_exists('value', $context->getConfig());
-    }
-
-    return FALSE;
-  }
 
   /**
    * {@inheritdoc}
@@ -31,88 +27,187 @@ final class Value implements HandlerInterface {
   public static function getSubscribedEvents() {
     return [
 
-      //
-      // Handle setting/asserting from test-level.
-      //
-      Event::TEST_STARTED => [
-        function (Event\DriverEventInterface $event) {
+      Event::TEST_CREATED => [
+        function (TestEventInterface $event) {
           $test = $event->getTest();
-          if (!self::doesApply($test)) {
+          if (!$test->has('value')) {
             return;
           }
 
-          $config = $test->getConfig();
-          $test->interpolate($config['value']);
+          // Mark test as passed if it's only going to set a value.  Setting of
+          // the value to the variables will happen in the TEST_FINISHED event.
+          $obj = new self();
+          if ($obj->isOnlySet($test)) {
 
-          // Handle a test-level setter.
-          $set_message = '';
-          if (array_key_exists('set', $config)) {
-            $test->interpolate($config['set']);
-            $obj = new self();
-            $set_message = $obj->setKeyValuePair(
-              $test->getSuite()->variables(),
-              $config['set'],
-              $config['value']
-            );
-            $title = $config['why'] ?? $set_message;
-            $test->addMessage(new Message([$title],
-              MessageType::DEBUG,
-              Verbosity::VERBOSE
-            ));
             $test->setPassed();
+
+            return;
           }
 
-          // Handle a test-level assertion.
-          $test_level_assertion = array_intersect_key([
-            'is' => Assert::ASSERT_EQUALS,
-            'is not' => Assert::ASSERT_NOT_EQUALS,
-            'contains' => Assert::ASSERT_CONTAINS,
-            'not contains' => Assert::ASSERT_NOT_CONTAINS,
-            'matches' => Assert::ASSERT_MATCHES,
-            'not matches' => Assert::ASSERT_NOT_MATCHES,
-          ], $config);
-          if ($test_level_assertion) {
-            $type = key($test_level_assertion);
-            $definition = [
-              $type => $config['value'],
-            ];
-            $assert = new Assert('value', $definition, $test);
-            $assert->setHaystack([$config['value']]);
-            $assert->setAssertion($test_level_assertion[$type], $config[$type]);
-            $assert->run();
+          // Otherwise create a runtime assert, run it and mark the test with
+          // the result of the run.
+          $assert = $obj->createAssertFromTest($test);
+          $assert->run();
+          $test->addMessage(new Message([strval($assert)],
+            MessageType::INFO,
+            Verbosity::VERBOSE
+          ));
 
-            $test->addMessage(new Message([
-              ltrim($set_message . '. ', '. ') . $assert,
-            ],
-              MessageType::INFO,
-              Verbosity::VERBOSE
-            ));
-
-            if ($assert->hasPassed()) {
-              $test->setPassed();
-            }
-            elseif ($assert->hasFailed()) {
-              $test->setFailed();
-            }
+          if ($assert->hasPassed()) {
+            $test->setPassed();
+          }
+          elseif ($assert->hasFailed()) {
+            $test->setFailed();
           }
         },
         -10,
       ],
+
+      Event::TEST_FINISHED => [
+        function (TestEventInterface $event) {
+          $test = $event->getTest();
+          if (!$test->has(Assert::ASSERT_SETTER)) {
+            return;
+          }
+          $suite = $test->getSuite();
+          $config = $test->getConfig();
+          $suite->interpolate($config['value']);
+          $set_message = '';
+          if ($test->has(Assert::ASSERT_SETTER)) {
+            $suite->interpolate($config[Assert::ASSERT_SETTER]);
+            $handler = new self();
+            $set_message = $handler->setKeyValuePair(
+              $suite->variables(),
+              $config[Assert::ASSERT_SETTER],
+              $config['value']
+            );
+          }
+
+          // TODO Echo the why?
+          $test->addMessage(new Message([$set_message], MessageType::DEBUG, Verbosity::VERBOSE));
+        },
+      ],
+
       Event::ASSERT_CREATED => [
         function (Event\AssertEventInterface $event) {
           $assert = $event->getAssert();
-          if (!self::doesApply($assert)) {
+
+          $obj = new self();
+          if ($obj->isOnlySet($assert)) {
+            // Because this only a set event, we will mark this passed so the
+            // assert doesn't run.  However we'll wait to set the value until
+            // the closing event, because if this is NOT only a set event then
+            // the value may need to be interpolated based on other things.
+            $assert->setPassed();
+            $assert->setNeedle($assert->get('value'));
+
             return;
           }
-          $event->getAssert()->setHaystack([$assert->value]);
+
+          if (!$assert->has('value')) {
+            return;
+          }
+
+          // See if we're supposed to do a match by removing set and value to
+          // see if there is still something there.  This is a more liberal than
+          // looking for specific keys and we rely on the schema to validate
+          // before this point.
+          $test = $assert->getTest();
+          $suite = $test->getSuite();
+          $config = $assert->getConfig();
+          unset($config[Assert::ASSERT_SETTER]);
+          unset($config['value']);
+          if (!empty($config)) {
+            $value = $assert->get('value');
+            $suite->interpolate($value);
+            $assert->setHaystack([$value]);
+          }
+
         },
         -10,
+      ],
+
+      Event:: ASSERT_FINISHED => [
+        function (Event\AssertEventInterface $event) {
+          $assert = $event->getAssert();
+          if (!$assert->has(Assert::ASSERT_SETTER)) {
+            return;
+          }
+
+          //
+          // If "set" is present then we will take the value of the needle and
+          // set it to the name identified by "set".
+          //
+          $test = $event->getTest();
+          $data = [
+            'name' => $assert->get(Assert::ASSERT_SETTER),
+            'value' => $assert->getNeedle(),
+          ];
+          $test->interpolate($data);
+          $set_feedback = $test->getRunner()->setKeyValuePair($test->getSuite()
+            ->variables(), $data['name'], $data['value']);
+          $test->addMessage(new Message(
+            [$set_feedback],
+            MessageType::DEBUG,
+            Verbosity::VERBOSE
+          ));
+        },
       ],
     ];
   }
 
   public static function getId(): string {
     return 'value';
+  }
+
+  private static function getAssertTypeMap(): array {
+    // @see schema.definitions.json
+    return [
+      'is' => Assert::ASSERT_EQUALS,
+      'is not' => Assert::ASSERT_NOT_EQUALS,
+      'contains' => Assert::ASSERT_CONTAINS,
+      'not contains' => Assert::ASSERT_NOT_CONTAINS,
+      'matches' => Assert::ASSERT_MATCHES,
+      'not matches' => Assert::ASSERT_NOT_MATCHES,
+    ];
+  }
+
+  /**
+   * @param \AKlump\CheckPages\Interfaces\HasConfigInterface $context
+   *
+   * @return bool
+   *   True if $context is purely a set event, that is the value is not to be
+   *   searched or analyzed.
+   *   keys: value and set.
+   */
+  private function isOnlySet(HasConfigInterface $context): bool {
+    $config = $context->getConfig();
+    $assert_type = array_intersect_key(self::getAssertTypeMap(), $config);
+
+    return $context->has(Assert::ASSERT_SETTER) && $context->has('value') && empty($assert_type);
+  }
+
+  private function createAssertFromTest(Test $test): Assert {
+    $test = clone $test;
+    $config = $test->getConfig();
+    $test->interpolate($config);
+    $test->setConfig($config);
+
+    $assert_type = array_intersect_key(self::getAssertTypeMap(), $config);
+    if (!$assert_type) {
+      throw new \InvalidArgumentException('$test does not contain an assertable configuration');
+    }
+
+    $assert_type = key($assert_type);
+    $assert = new Assert(self::getId(), [
+      $assert_type => $test->get('value'),
+    ], $test);
+    $assert->setHaystack([$config['value']]);
+
+    $expected_value = $test->get($assert_type);;
+    $assert->setAssertion(self::getAssertTypeMap()[$assert_type], $expected_value);
+
+    return $assert;
   }
 
 }

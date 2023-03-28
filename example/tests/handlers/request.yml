@@ -1,8 +1,26 @@
 -
-    why: 'Demonstrate custom request timeout for this test only.'
-    visit: /handlers/request.php
+    loop:
+        -
+            - true
+            - w/Javascript
+        -
+            - false
+            - 'No JS'
+-
+    why: '${loop.value[1]}: Assert a shorter timeout than request delay will fail the test.'
+    'expected outcome': failure
+    js: '${loop.value[0]}'
+    visit: '/handlers/request.php?timeout=3'
     request:
-        timeout: 120
+        timeout: 1
+-
+    why: '${loop.value[1]}: Assert the same request delay without larger timeout passes the test.'
+    js: '${loop.value[0]}'
+    visit: '/handlers/request.php?timeout=3'
+    request:
+        timeout: 30
+-
+    'end loop': null
 -
     why: 'Assert ${request.method} returns 405'
     visit: /handlers/request.php

@@ -3,12 +3,13 @@
 namespace AKlump\CheckPages\Browser;
 
 
-use AKlump\CheckPages\Exceptions\StopRunnerException;
+use AKlump\CheckPages\Exceptions\RequestTimedOut;
 use AKlump\CheckPages\Response;
 use AKlump\CheckPages\Service\Assertion;
+use Exception;
 use HeadlessChromium\BrowserFactory;
+use HeadlessChromium\Exception\OperationTimedOut;
 use HeadlessChromium\Page;
-use Psr\Http\Message\ResponseInterface;
 
 /*
  * @url https://github.com/chrome-php/chrome
@@ -92,7 +93,7 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
           $computed_styles[$selector][$style_name] = $this->page->evaluate($eval)
             ->getReturnValue();
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
           $class = get_class($e);
           // Catch exceptions long enough to add context.
           $message = sprintf('%s.  Evaluated code: %s', $e->getMessage(), $eval);
@@ -156,9 +157,8 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
         }, $response['headers'])
       );
     }
-    catch (\Exception $e) {
-      $message = sprintf("Test failure in %s(): %s", __METHOD__, $e->getMessage());
-      throw new StopRunnerException($message, $e->getCode(), $e);
+    catch (OperationTimedOut $exception) {
+      throw new RequestTimedOut($exception->getMessage(), $exception->getCode(), $exception);
     }
     finally {
       $browser->close();

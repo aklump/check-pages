@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages;
 
 use AKlump\CheckPages\Exceptions\TestFailedException;
+use AKlump\CheckPages\Interfaces\HasConfigInterface;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
@@ -11,7 +12,7 @@ use Symfony\Component\DomCrawler\Crawler;
 /**
  * Handle the search and asserts.
  */
-final class Assert {
+final class Assert implements HasConfigInterface {
 
   use PassFailTrait;
   use HasConfigTrait;
@@ -35,11 +36,6 @@ final class Assert {
    * @var string
    */
   const ASSERT_SETTER = 'set';
-
-  /**
-   * @var string
-   */
-  const ASSERT_COUNT = 'count';
 
   /**
    * @var string
@@ -204,7 +200,7 @@ final class Assert {
    *
    * @return mixed|null
    *
-   * @deprecated 
+   * @deprecated
    */
   public function __get($key) {
     return $this->getConfig()[$key] ?? NULL;

@@ -5,13 +5,12 @@ namespace AKlump\CheckPages\Handlers;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
-use AKlump\CheckPages\Handlers\Importer;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Implements the Form handler.
  */
-final class Form implements \AKlump\CheckPages\Handlers\HandlerInterface {
+final class Form implements HandlerInterface {
 
   /**
    * {@inheritdoc}

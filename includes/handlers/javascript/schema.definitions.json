@@ -1,6 +1,17 @@
 {
   "javascript__js": {
-    "type": "boolean"
+    "type": [
+      "boolean",
+      "string"
+    ],
+    "examples": [
+      true,
+      false,
+      "true",
+      "false",
+      "TRUE",
+      "FALSE"
+    ]
   },
   "javascript__javascript": {
     "type": "string",

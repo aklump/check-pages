@@ -6,6 +6,7 @@ use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEvent;
+use AKlump\CheckPages\Interfaces\HasConfigInterface;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
@@ -41,7 +42,7 @@ use Symfony\Component\DomCrawler\Crawler;
  * if ($obj->hasPassed()) { ...
  * @endcode
  */
-class Assertion {
+class Assertion implements HasConfigInterface {
 
   /**
    * @var \Symfony\Component\EventDispatcher\EventDispatcher
@@ -217,7 +218,7 @@ class Assertion {
   }
 
   private function handleSet() {
-    if ($this->assert->get('set')) {
+    if ($this->assert->get(Assert::ASSERT_SETTER)) {
       // This may be overridden below if there is more going on than just `set`,
       // and that's totally fine and the way it should be.  However if only
       // setting, we need to know that later own in the flow.

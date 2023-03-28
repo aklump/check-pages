@@ -1,11 +1,10 @@
 <?php
 
-namespace AKlump\CheckPages\Traits;
+namespace AKlump\CheckPages\Interfaces;
 
+use AKlump\CheckPages\Parts\Test;
 
-trait HasConfigTrait {
-
-  private $hasConfigTraitConfig;
+interface HasConfigInterface {
 
   /**
    * @return array
@@ -13,19 +12,7 @@ trait HasConfigTrait {
    * @see \AKlump\CheckPages\Traits\HasConfigTrait::get()
    * @see \AKlump\CheckPages\Traits\HasConfigTrait::has()
    */
-  public function getConfig(): array {
-    return $this->hasConfigTraitConfig ?? [];
-  }
-
-  /**
-   * @param array $config
-   *
-   * @return self
-   *   Self for chaining.
-   */
-  public function setConfig(array $config): void {
-    $this->hasConfigTraitConfig = $config;
-  }
+  public function getConfig(): array;
 
   /**
    * Get the value of a configuration key
@@ -37,9 +24,7 @@ trait HasConfigTrait {
    *
    * @see \AKlump\CheckPages\Traits\HasConfigTrait::get()
    */
-  public function get(string $config_key) {
-    return $this->getConfig()[$config_key] ?? NULL;
-  }
+  public function get(string $config_key);
 
   /**
    * Check if a configuration key exists.
@@ -50,8 +35,7 @@ trait HasConfigTrait {
    * @return bool
    *   True if the configuration has that key.
    */
-  public function has(string $config_key): bool {
-    return array_key_exists($config_key, $this->getConfig());
-  }
+  public function has(string $config_key): bool;
 
+  public function setConfig(array $config): void;
 }
