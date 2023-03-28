@@ -15,7 +15,7 @@ final class AppCompiler {
   private $masterSchemaPath;
 
   /**
-   * @var \AKlump\CheckPages\Plugin\PluginsManager
+   * @var \AKlump\CheckPages\Plugin\HandlersManager
    */
   private $pluginsManager;
 
@@ -48,7 +48,7 @@ final class AppCompiler {
   /**
    * AppCompiler constructor.
    *
-   * @param \AKlump\CheckPages\Plugin\PluginsManager $plugins_manager
+   * @param \AKlump\CheckPages\Plugin\HandlersManager $plugins_manager
    * @param string $master_schema_path
    * @param string $generated_schema_path
    * @param string $master_services_path
@@ -58,7 +58,7 @@ final class AppCompiler {
    * @param string $examples_path
    */
   public function __construct(
-    \AKlump\CheckPages\Plugin\PluginsManager $plugins_manager,
+    \AKlump\CheckPages\Plugin\HandlersManager $plugins_manager,
     string $master_schema_path,
     string $generated_schema_path,
     string $master_services_path,
@@ -312,9 +312,6 @@ final class AppCompiler {
     if ($before !== md5(json_encode($this->schema))) {
       $this->saveJson($this->generatedSchemaPath, $this->schema);
     }
-
-    // Update the schema in the plugins manager.
-    $this->pluginsManager->setSchema($this->loadJson($this->generatedSchemaPath));
   }
 
   /**

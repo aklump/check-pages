@@ -15,8 +15,7 @@ else {
 use AKlump\CheckPages\CheckPages;
 use AKlump\CheckPages\Command\RunCommand;
 use AKlump\CheckPages\Files\LocalFilesProvider;
-use AKlump\CheckPages\Parts\Runner;
-use AKlump\CheckPages\Plugin\PluginsManager;
+use AKlump\CheckPages\Plugin\HandlersManager;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -38,12 +37,8 @@ $composer_json = $root_files->tryResolveFile('composer.json')[0];
 $version = json_decode(file_get_contents($composer_json))->version ?? '';
 $application->setVersion($version);
 
-$path_to_plugins = realpath($root_files->tryResolveDir('includes/' . CheckPages::DIR_HANDLERS)[0]);
-$plugins_manager = new PluginsManager($path_to_plugins);
-$schema_path = $root_files->tryResolveFile(Runner::SCHEMA_VISIT, ['json'])[0];
-$schema = json_decode(file_get_contents($schema_path), TRUE);
-$plugins_manager->setSchema($schema);
-$container->set('plugins_manager', $plugins_manager);
+$path_to_handlers = realpath($root_files->tryResolveDir('includes/' . CheckPages::DIR_HANDLERS)[0]);
+$container->set('handlers_manager', new HandlersManager($path_to_handlers));
 
 $application->add(new RunCommand($root_files));
 
@@ -52,9 +47,6 @@ foreach ($application->all() as $command) {
   if ($command->getName() === 'run') {
     $command->addOption('debug', NULL, InputOption::VALUE_OPTIONAL);
   }
-
-  // TODO setup an event for plugins to add options to a command.
-  // @see \AKlump\CheckPages\Parts\Runner::getDispatcher()
 }
 
 $application->run();

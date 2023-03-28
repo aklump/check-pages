@@ -49,6 +49,11 @@ class RunCommand extends Command {
   protected function execute(InputInterface $input, OutputInterface $output) {
     global $container;
 
+    // Pull the timezone from the system running this.
+    $timezone = new \DateTimeZone(exec('date +%Z'));
+    $timer = new Timer($timezone);
+    $timer->start();
+
     // Keep outside of try, because the catch needs this instance.
     $runner = new Runner($input, $output);
 
@@ -56,12 +61,12 @@ class RunCommand extends Command {
 
       // Now that we have a runner we pass it to the plugins manager to the
       // dispatcher can be connected to the handlers.
-      $container->get('plugins_manager')->setRunner($runner);
 
-      // Pull the timezone from the system running this.
-      $timezone = new \DateTimeZone(exec('date +%Z'));
-      $timer = new Timer($timezone);
-      $timer->start();
+      /** @var \AKlump\CheckPages\Plugin\HandlersManager $plugins_manager */
+      $plugins_manager = $container->get('handlers_manager');
+      $plugins_manager->setRunner($runner);
+
+
 
       $messenger = $runner->getMessenger();
 

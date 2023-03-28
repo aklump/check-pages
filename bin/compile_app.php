@@ -8,14 +8,14 @@
 
 use AKlump\CheckPages\CheckPages;
 use AKlump\CheckPages\Parts\Runner;
-use AKlump\CheckPages\Plugin\PluginsManager;
+use AKlump\CheckPages\Plugin\HandlersManager;
 use AKlump\CheckPages\Service\AppCompiler;
 
 const ROOT = __DIR__ . '/../';
 
 require_once ROOT . '/vendor/autoload.php';
 $compiler = new AppCompiler(
-  new PluginsManager(realpath(ROOT . '/includes/' . CheckPages::DIR_HANDLERS)),
+  new HandlersManager(realpath(ROOT . '/includes/' . CheckPages::DIR_HANDLERS)),
   ROOT . '/schema.suite.json',
   ROOT . '/' . Runner::SCHEMA_VISIT . '.json',
   ROOT . '/services.yml',

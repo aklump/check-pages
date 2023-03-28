@@ -7,17 +7,23 @@ use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\Parts\Test;
+use AKlump\CheckPages\SerializationTrait;
 use AKlump\LoftLib\Bash\Color;
 use AKlump\Messaging\Processors\Messenger;
 use AKlump\Messaging\MessageInterface;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Provides user feedback based on output verbosity.
  */
-class Feedback implements EventSubscriberInterface {
+final class Feedback implements EventSubscriberInterface {
+
+  use SerializationTrait;
 
   /**
    * This must be a background color.
@@ -29,6 +35,8 @@ class Feedback implements EventSubscriberInterface {
   const COLOR_PENDING = 'purple';
 
   const COLOR_PENDING_BG = 'magenta';
+
+  const SOURCE_CODE_MESSAGE_TYPE = MessageType::INFO;
 
   /**
    * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
@@ -78,15 +86,118 @@ class Feedback implements EventSubscriberInterface {
 
       Event::REQUEST_PREPARED => [
         function (DriverEventInterface $event) {
-          $event->getTest()->addMessage(new Message([
-            $event->getDriver()->getUrl(),
-          ], MessageType::DEBUG, Verbosity::VERBOSE));
+          $test = $event->getTest();
+
+          //
+          // The URL.
+          //
+          $url = $test->getHttpMethod() . ' ' . $test->getAbsoluteUrl();
+          if (trim($url)) {
+            $test->addMessage(new Message([
+              $url,
+            ], self::SOURCE_CODE_MESSAGE_TYPE, Verbosity::VERBOSE | Verbosity::REQUEST | Verbosity::HEADERS | Verbosity::RESPONSE));
+          }
+
+          $input = $test->getRunner()->getInput();
+          //          $show = new VerboseDirective(strval($input->getOption('show')));
+          $handler = new self();
+          $driver = $event->getDriver();
+
+          //
+          // Request Headers
+          //
+          //          if ($show->showSendHeaders()) {
+          $headers = $driver->getHeaders();
+          $headers = $handler->prepareHeadersMessage($headers);
+          if ($headers) {
+            $test->addMessage(new Message(
+              array_merge($headers, ['']),
+              self::SOURCE_CODE_MESSAGE_TYPE,
+              Verbosity::HEADERS
+            ));
+          }
+          //          }
+
+          //
+          // Request Body
+          //
+          $request_body = $handler->prepareContentMessage($input, strval($driver), $handler->getContentType($driver));
+          if ($request_body) {
+            $test->addMessage(new Message([
+              $request_body,
+              '',
+            ], self::SOURCE_CODE_MESSAGE_TYPE, Verbosity::REQUEST));
+          }
         },
       ],
 
-      Event::TEST_FINISHED => [
+      Event::REQUEST_FINISHED => [
         function (DriverEventInterface $event) {
-          $event->getTest()->echoMessages();
+          $test = $event->getTest();
+
+          $message_type = self::SOURCE_CODE_MESSAGE_TYPE;
+          if ($test->hasFailed()) {
+            $message_type = MessageType::ERROR;
+          }
+
+          $driver = $event->getDriver();
+          $input = $test->getRunner()->getInput();
+
+          //
+          // Request
+          //
+          //          $url = $test->getHttpMethod() . ' ' . $test->getAbsoluteUrl();
+          //          if (trim($url)) {
+          //            $test->addMessage(new Message([
+          //              $url,
+          //            ], $message_type));
+          //          }
+
+          //          $handler = new self();
+          //          $headers = $driver->getHeaders();
+          //          $headers = $handler->prepareHeadersMessage($headers);
+          //          if ($headers) {
+          //            $test->addMessage(new DebugMessage(['Response Headers']));
+          //            $test->addMessage(new Message(
+          //              array_merge($headers, ['']),
+          //              $message_type,
+          //              Verbosity::HEADERS
+          //            ));
+          //          }
+          //
+          //          $body = $handler->prepareContentMessage($input, strval($driver), $handler->getContentType($driver));
+          //          if ($body) {
+          //            $test->addMessage(new DebugMessage(['Response Body']));
+          //            $test->addMessage(new Message([
+          //              $body,
+          //              '',
+          //            ], MessageType::DEBUG,
+          //              Verbosity::REQUEST
+          //            ));
+          //          }
+
+          //
+          // Response
+          //
+          $handler = new self();
+          $response = $event->getDriver()->getResponse();
+
+          $headers = $response->getHeaders();
+          $headers = $handler->prepareHeadersMessage($headers);
+          if ($headers) {
+            $test->addMessage(new Message(
+              array_merge($headers, ['']),
+              $message_type,
+              Verbosity::HEADERS
+            ));
+          }
+
+          $lines = [];
+          $lines[] = $handler->getResponseHttpStatusLine($test, $response);
+          $lines[] = $handler->prepareContentMessage($input, $response->getBody(), $handler->getContentType($driver));
+          if (array_filter($lines)) {
+            $test->addMessage(new Message(array_merge($lines, ['']), $message_type, Verbosity::RESPONSE));
+          }
         },
       ],
 
@@ -96,6 +207,16 @@ class Feedback implements EventSubscriberInterface {
           $test->addMessage(new Message([
             self::FAILED_PREFIX . $test,
           ], MessageType::ERROR, Verbosity::NORMAL));
+        },
+      ],
+
+      Event::TEST_FINISHED => [
+        function (TestEventInterface $event) {
+          $test = $event->getTest();
+
+          // This will add some space before the next test is run.
+          $test->addMessage(new Message([''], MessageType::INFO, Verbosity::VERBOSE));
+          $test->echoMessages();
         },
       ],
 
@@ -344,4 +465,95 @@ class Feedback implements EventSubscriberInterface {
     }
   }
 
+  /**
+   * @param \AKlump\CheckPages\Parts\Test $test
+   * @param \Psr\Http\Message\ResponseInterface $response
+   *
+   * @return string
+   *   A string that shows the response info.
+   */
+  private function getResponseHttpStatusLine(Test $test, ResponseInterface $response) {
+    return sprintf('%s/%s %d %s',
+      strtoupper(parse_url($test->getAbsoluteUrl(), PHP_URL_SCHEME)),
+      $response->getProtocolVersion(),
+      $response->getStatusCode(),
+      $response->getReasonPhrase()
+    );
+  }
+
+  /**
+   * Convert headers to message lines.
+   *
+   * @param array $raw_headers
+   *
+   * @return array
+   *   An array ready for \AKlump\Messaging\MessageInterface(
+   */
+  private function prepareHeadersMessage(array $raw_headers): array {
+    $raw_headers = array_filter($raw_headers);
+    if (empty($raw_headers)) {
+      return [];
+    }
+
+    $lines = [];
+    foreach ($raw_headers as $name => $value) {
+      if (!is_array($value)) {
+        $value = [$value];
+      }
+      foreach ($value as $item) {
+        $lines[] = sprintf('%s: %s', $name, $item);
+      }
+    }
+
+    return $lines;
+  }
+
+  /**
+   * Format content per content type for message lines.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param string $content
+   * @param string $content_type
+   *
+   * @return string
+   *   An array ready for \AKlump\Messaging\MessageInterface
+   */
+  private function prepareContentMessage(InputInterface $input, string $content, string $content_type): string {
+    $content = $this->truncate($input, $content);
+    if ($content) {
+      try {
+        // Make JSON content type pretty-printed for readability.
+        if (strstr($content_type, 'json')) {
+          $data = $this->deserialize($content, $content_type);
+          $content = json_encode($data, JSON_PRETTY_PRINT);
+        }
+      }
+      catch (\Exception $exception) {
+        // Purposely left blank.
+      }
+    }
+
+    return $content;
+  }
+
+  /**
+   * Truncate $string when appropriate.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param string $string
+   *
+   * @return string
+   *   The truncated string.
+   */
+  private function truncate(InputInterface $input, string $string): string {
+    $string = trim($string);
+    if ($string) {
+      $length = $input->getOption('truncate');
+      if ($length > 0 && strlen($string) > $length) {
+        return substr($string, 0, $length) . '...';
+      }
+    }
+
+    return $string;
+  }
 }

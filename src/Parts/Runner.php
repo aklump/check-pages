@@ -2,7 +2,6 @@
 
 namespace AKlump\CheckPages\Parts;
 
-use AKlump\CheckPages\Browser\RequestDriverInterface;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\RunnerEvent;
 use AKlump\CheckPages\Event\SuiteEvent;
@@ -14,7 +13,6 @@ use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Files\LocalFilesProvider;
 use AKlump\CheckPages\Output\ConsoleEchoPrinter;
-use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\CheckPages\Output\DevNullPrinter;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\LoggerPrinter;
@@ -587,8 +585,10 @@ class Runner {
    * @param \AKlump\CheckPages\Parts\Suite $suite
    * @param string $path_to_suite
    *
+   * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
    * @throws \AKlump\CheckPages\Exceptions\SuiteFailedException
    * @throws \AKlump\CheckPages\Exceptions\TestFailedException
+   *
    * @see run_suite()
    */
   public function run(Suite $suite, string $path_to_suite) {
@@ -672,14 +672,14 @@ class Runner {
     foreach ($suite->getTests() as $test) {
       $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_CREATED);
 
+      $test_runner = new TestRunner($test);
+
       // It's possible the test was already run during Event::TEST_CREATED, if
       // that handle has set the results, then the test should be considered
       // complete.
       if (!$test->hasFailed() && !$test->hasPassed()) {
         try {
-          $test_runner = new TestRunner();
-          $test_runner->run($test);
-          $this->totalTestsRun++;
+          $test_runner->run();
         }
         catch (TestFailedException $exception) {
           // We have to catch this here, because of the dispatching and decision
@@ -687,79 +687,57 @@ class Runner {
           // configuration.  Also we will add a error message so that writing
           // handlers is easier.
           $test->setFailed();
-          $test
-            ->addMessage(new Message([$exception->getMessage()], MessageType::ERROR));
+          $test->addMessage(new Message([$exception->getMessage()], MessageType::ERROR));
         }
       }
+      $runtime_test_result = $test_runner->processResult();
+      $this->totalTestsRun++;
 
-      if ($test->has('expected outcome')) {
-        $expected_outcome = $test->get('expected outcome');
-        if ($test->hasFailed() && in_array($expected_outcome, [
-            'fail',
-            'failure',
-          ])) {
-          $test->setPassed();
-          $test->addMessage(new Message([
-            'This test failed as expected.',
-          ], MessageType::SUCCESS, Verbosity::VERBOSE));
-        }
-      }
-
-      if ($test->hasFailed()) {
-        $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_FAILED);
-      }
-      elseif ($test->hasPassed()) {
-        $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_PASSED);
-      }
-
-      // Decide if we should stop the runner or not.
-      if ($test->hasFailed()) {
-        $suite->setFailed();
-        $this->lastFailedSuite = $suite;
+      if (FALSE === $runtime_test_result) {
         $this->failedTestCount++;
-        if ($this->getConfig()['stop_on_failed_test'] ?? FALSE) {
+        if ($this->get('stop_on_failed_test') ?? FALSE) {
           throw new TestFailedException($test->getConfig());
         }
       }
     }
 
-    // Handle end-of-suite events.
-    $suite_event = new SuiteEvent($this->getSuite());
-    if ($suite->hasFailed()) {
-      $this->dispatcher->dispatch($suite_event, Event::SUITE_FAILED);
+    $runtime_suite_result = $this->processResult($suite);
+    if (!$runtime_suite_result) {
       $this->failedSuiteCount++;
-    }
-    else {
-      $this->dispatcher->dispatch($suite_event, Event::SUITE_PASSED);
-    }
-    $this->dispatcher->dispatch($suite_event, Event::SUITE_FINISHED);
-    if ($suite->hasFailed() && ($this->getConfig()['stop_on_failed_suite'] ?? FALSE)) {
-      throw new SuiteFailedException($suite);
+      if ($this->get('stop_on_failed_suite') ?? FALSE) {
+        throw new SuiteFailedException($suite);
+      }
     }
   }
 
   /**
-   * @param \AKlump\CheckPages\Parts\Test $test
-   * @param \AKlump\CheckPages\Browser\RequestDriverInterface $driver
-   * @param $exception
+   * Process the results of a suite at the end of it's lifecycle.
    *
-   * @return mixed
-   * @throws \AKlump\CheckPages\Exceptions\TestFailedException
+   * @param \AKlump\CheckPages\Parts\Suite $suite
+   *
+   * @return bool
+   *   True if the suite should be seen as successful.
    */
-  public function handleFailedRequestNoResponse(Test $test, RequestDriverInterface $driver, $exception) {
-    // Try to be helpful with suggestions on mitigation of errors.
-    $message = $exception->getMessage();
-    if (strstr($message, 'timed out') !== FALSE) {
-      $test->addMessage(new DebugMessage(
-          [
-            sprintf('Try setting a value higher than %d for "request_timeout" in %s, or at the test level.', $driver->getRequestTimeout(), basename($this->configPath)),
-          ],
-          MessageType::TODO)
-      );
-    }
-    $test->setFailed();
+  private function processResult(Suite $suite): bool {
 
-    throw new TestFailedException($test->getConfig(), $exception);
+    // Assume the best in people.
+    if (!$suite->hasFailed()) {
+      $suite->setPassed();
+    }
+
+    $dispatcher = $this->dispatcher;
+
+    if ($suite->hasPassed()) {
+      $dispatcher->dispatch(new SuiteEvent($suite), Event::SUITE_PASSED);
+    }
+    else {
+      $this->lastFailedSuite = $suite;
+      $dispatcher->dispatch(new SuiteEvent($suite), Event::SUITE_FAILED);
+    }
+
+    $dispatcher->dispatch(new SuiteEvent($suite), Event::SUITE_FINISHED);
+
+    return $suite->hasPassed();
   }
 
   /**
