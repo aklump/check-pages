@@ -99,34 +99,33 @@ final class TestRunner {
         }
         // Keep this after the timeout so that handlers may override.
         $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_CREATED);
+        $this->getDriver()
+          ->setUrl($runner->withBaseUrl($test->getConfig()['url']));
+        // TODO Do we really need this event?
+        $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_PREPARED);
 
         // In some cases the first assertion is looking for a dom element that
         // may be created as a result of an asynchronous JS event.  We create an
         // assertion to pass to the driver, which can be used by the driver as a
         // "wait for this assertion to pass" signal.
         $variables = $test->getSuite()->variables();
-        $assertions_to_wait_for = array_filter($test->getConfig()['find'] ?? [], function ($config) use ($variables) {
 
-          // Quick check against certain keys...
+        $assertions_to_wait_for = [];
+        foreach (($test->get('find') ?? []) as $config) {
           if (!is_array($config)
             || !array_intersect_key(array_flip(['dom', 'xpath']), $config)
             || array_intersect_key(array_flip(['style']), $config)
           ) {
-            return FALSE;
+            continue;
           }
 
-          // ... now make sure it is fully interpolated.
           $variables->interpolate($config);
-
-          return $variables->needsInterpolation($config) === FALSE;
-        });
-        $assertions_to_wait_for = array_map(function (array $config) {
-          return Assertion::create($config);
-        }, $assertions_to_wait_for);
-
-        $this->getDriver()
-          ->setUrl($runner->withBaseUrl($test->getConfig()['url']));
-        $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_PREPARED);
+          // If the selector is not fully interpolated then we cannot wait for
+          // it, so that's why we do this check here.
+          if (!$variables->needsInterpolation($config)) {
+            $assertions_to_wait_for[] = Assertion::create($config);
+          }
+        }
         $this->getDriver()->request($assertions_to_wait_for);
       }
       catch (RequestTimedOut $exception) {

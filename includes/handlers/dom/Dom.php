@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Handlers;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
+use AKlump\CheckPages\Exceptions\TestFailedException;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -16,6 +17,10 @@ final class Dom implements HandlerInterface {
    */
   const SELECTOR = 'dom';
 
+  public static function getId(): string {
+    return 'dom';
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -23,12 +28,16 @@ final class Dom implements HandlerInterface {
     return [
       Event::ASSERT_CREATED => [
         function (AssertEventInterface $event) {
-          $config = $event->getAssert()->getConfig();
-          $should_apply = array_key_exists(self::SELECTOR, $config);
-          if ($should_apply) {
-            $assert = $event->getAssert();
-            $search_value = $assert->{self::SELECTOR};
+          $assert = $event->getAssert();
+          if (!$assert->has(self::SELECTOR)) {
+            return;
+          }
+          try {
+            $search_value = $assert->get(self::SELECTOR);
+            $assert->getTest()->interpolate($search_value);
             $assert->setSearch(self::getId(), $search_value);
+
+            // Replace the current haystack with whatever we find at our DOM.
             $haystack = $assert->getHaystack();
             if (!$haystack instanceof Crawler) {
               $haystack = new Crawler($haystack);
@@ -36,13 +45,12 @@ final class Dom implements HandlerInterface {
             $haystack = $haystack->filter($search_value);
             $assert->setHaystack($haystack);
           }
+          catch (\Exception $e) {
+            throw new TestFailedException($event->getTest()->getConfig(), $e);
+          }
         },
       ],
     ];
-  }
-
-  public static function getId(): string {
-    return 'dom';
   }
 
 }
