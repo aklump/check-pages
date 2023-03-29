@@ -79,7 +79,7 @@ final class Feedback implements EventSubscriberInterface {
         function (DriverEventInterface $event) {
           $test = $event->getTest();
           if ($test->has('why')) {
-            $test->addMessage(new Message([$test->get('why')], MessageType::INFO, Verbosity::VERBOSE));
+            $test->addMessage(new Message(['🔎 ' . $test->get('why')], MessageType::INFO, Verbosity::VERBOSE));
           }
         },
       ],
