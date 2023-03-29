@@ -40,7 +40,7 @@ final class Javascript implements HandlerInterface {
           foreach (($config['find'] ?? []) as $assertion) {
             if (is_array($assertion) && array_key_exists(self::SELECTOR, $assertion)) {
               $config['js'] = TRUE;
-              $config['extra']['plugin_javascript'][] = $assertion;
+              $config['extras']['plugin_javascript'][] = $assertion;
             }
           }
           $test->setConfig($config);
@@ -49,7 +49,7 @@ final class Javascript implements HandlerInterface {
       Event::REQUEST_CREATED => [
         function (DriverEventInterface $event) {
           $config = $event->getTest()->getConfig();
-          $assertions = $config['extra']['plugin_javascript'] ?? [];
+          $assertions = $config['extras']['plugin_javascript'] ?? [];
           $driver = $event->getDriver();
           if (empty($assertions) || !$driver instanceof HeadlessBrowserInterface) {
             return;
@@ -68,7 +68,7 @@ final class Javascript implements HandlerInterface {
             return;
           }
           $assertions = $event->getTest()
-                          ->getConfig()['extra']['plugin_javascript'] ?? [];
+                          ->getConfig()['extras']['plugin_javascript'] ?? [];
           if (empty($assertions)) {
             return;
           }

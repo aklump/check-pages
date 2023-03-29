@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Browser;
 use AKlump\CheckPages\Response;
 use AKlump\CheckPages\Service\RequestHistory;
 use AKlump\CheckPages\Traits\BaseUrlTrait;
+use AKlump\Messaging\MessengerInterface;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 
@@ -57,6 +58,11 @@ abstract class RequestDriver implements RequestDriverInterface {
    * @var int
    */
   private $redirectCode;
+
+  /**
+   * @var \AKlump\Messaging\MessengerInterface
+   */
+  private $messenger;
 
   /**
    * {@inheritdoc}
@@ -166,6 +172,10 @@ abstract class RequestDriver implements RequestDriverInterface {
     return implode(PHP_EOL, $string) . PHP_EOL;
   }
 
+  public function getMessenger(): ?MessengerInterface {
+    return $this->messenger ?? NULL;
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -221,6 +231,12 @@ abstract class RequestDriver implements RequestDriverInterface {
    */
   public function getResponse(): ResponseInterface {
     return $this->response ?? new Response('', 0);
+  }
+
+  public function setMessenger(MessengerInterface $messenger): RequestDriverInterface {
+    $this->messenger = $messenger;
+
+    return $this;
   }
 
 }

@@ -127,6 +127,10 @@ class Assertion implements HasConfigInterface {
     $this->mayRun = FALSE;
   }
 
+  public function __toString() {
+    return json_encode($this->getConfig());
+  }
+
   /**
    * Entry point for static use, see class comments for code example.
    *

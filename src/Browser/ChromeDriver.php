@@ -4,8 +4,12 @@ namespace AKlump\CheckPages\Browser;
 
 
 use AKlump\CheckPages\Exceptions\RequestTimedOut;
+use AKlump\CheckPages\Output\Icons;
+use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Response;
 use AKlump\CheckPages\Service\Assertion;
+use AKlump\Messaging\MessageType;
 use Exception;
 use HeadlessChromium\BrowserFactory;
 use HeadlessChromium\Exception\OperationTimedOut;
@@ -191,6 +195,8 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
    *   HTML for the page.
    */
   private function getPageContents(array $assertions = NULL): string {
+    $messenger = $this->getMessenger();
+    $next_message_time = NULL;
     $this->limits['time'] = time() + $this->getRequestTimeout();
     do {
       $page_contents = $this->page->getHtml();
@@ -199,9 +205,20 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
         // there is time left.
         return $assertion->runAgainst($page_contents) === FALSE;
       });
-      $remaining_time = $this->limits['time'] - time();
-      $remaining_memory = $this->limits['memory'] - memory_get_usage();
-    } while (!empty($assertions) && $remaining_time && $remaining_memory);
+      $remaining_time = max(0, $this->limits['time'] - time());
+      $remaining_memory = max(0, $this->limits['memory'] - memory_get_usage());
+
+      if ($messenger) {
+        if (is_null($next_message_time) || $remaining_time < $next_message_time) {
+          $next_message_time = $remaining_time - 10;
+          $lines = array_map(function (Assertion $assert) {
+            return '├── ' . Icons::CLOCK . 'Waiting for: ' . $assert;
+          }, $assertions);
+          $messenger->deliver(new Message($lines, MessageType::INFO, Verbosity::VERBOSE));
+        }
+      }
+
+    } while (!empty($assertions) && $remaining_time > 0 && $remaining_memory > 0);
 
     return $page_contents;
   }

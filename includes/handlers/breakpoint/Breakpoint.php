@@ -10,7 +10,7 @@ use AKlump\Messaging\MessageType;
 /**
  * Implements the Breakpoint handler.
  */
-final class Breakpoint implements \AKlump\CheckPages\Handlers\HandlerInterface {
+final class Breakpoint implements HandlerInterface {
 
   /**
    * {@inheritdoc}

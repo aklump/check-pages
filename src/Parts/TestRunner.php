@@ -37,6 +37,7 @@ final class TestRunner {
     else {
       $this->driver = new GuzzleDriver();
     }
+    $this->driver->setMessenger($test->getRunner()->getMessenger());
   }
 
   public function getDriver(): RequestDriverInterface {

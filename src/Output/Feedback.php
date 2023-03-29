@@ -30,7 +30,7 @@ final class Feedback implements EventSubscriberInterface {
    *
    * @var string
    */
-  const FAILED_PREFIX = '🚫 FAILED: ';
+  const FAILED_PREFIX = Icons::NO . 'FAILED: ';
 
   const COLOR_PENDING = 'purple';
 
@@ -79,7 +79,7 @@ final class Feedback implements EventSubscriberInterface {
         function (DriverEventInterface $event) {
           $test = $event->getTest();
           if ($test->has('why')) {
-            $test->addMessage(new Message(['🔎 ' . $test->get('why')], MessageType::INFO, Verbosity::VERBOSE));
+            $test->addMessage(new Message([Icons::SPYGLASS . ' ' . $test->get('why')], MessageType::INFO, Verbosity::VERBOSE));
           }
         },
       ],
@@ -91,7 +91,7 @@ final class Feedback implements EventSubscriberInterface {
           //
           // The URL.
           //
-          $url = $test->getHttpMethod() . ' ' . $test->getAbsoluteUrl();
+          $url = Icons::GLOBE . $test->getHttpMethod() . ' ' . $test->getAbsoluteUrl();
           if (trim($url)) {
             $test->addMessage(new Message([
               $url,
@@ -361,7 +361,7 @@ final class Feedback implements EventSubscriberInterface {
     $messenger->addProcessor(function (array $lines, MessageInterface $message) {
       switch ($message->getMessageType()) {
         case MessageType::SUCCESS:
-          $lines[0] = '👍  ' . $lines[0];
+          $lines[0] = Icons::THUMBS_UP . $lines[0];
           break;
 
         case MessageType::ERROR:
@@ -369,7 +369,7 @@ final class Feedback implements EventSubscriberInterface {
           break;
 
         default:
-          $lines[0] = '🔎  ' . $lines[0];
+          $lines[0] = Icons::SPYGLASS . $lines[0];
           break;
       }
 
@@ -387,7 +387,7 @@ final class Feedback implements EventSubscriberInterface {
     //      switch ($message->getMessageType()) {
     //        case MessageType::SUCCESS:
     //          Feedback::$suiteTitle->overwrite([
-    //            '👍  ' . Color::wrap('green', $title),
+    //            Icons::THUMBS_UP . Color::wrap('green', $title),
     //          ]);
     //          break;
     //
@@ -399,7 +399,7 @@ final class Feedback implements EventSubscriberInterface {
     //
     //        case MessageType::TODO:
     //          Feedback::$suiteTitle->overwrite([
-    //            '🔎  ' . Color::wrap(Feedback::COLOR_PENDING, $title),
+    //            Icons::SPYGLASS . Color::wrap(Feedback::COLOR_PENDING, $title),
     //          ]);
     //          break;
     //      }
@@ -443,21 +443,21 @@ final class Feedback implements EventSubscriberInterface {
       return;
     }
     if (TRUE === $status) {
-      self::$testTitle->overwrite(($icon ?? '👍  ') . Color::wrap('green', $title));
+      self::$testTitle->overwrite(($icon ?? Icons::THUMBS_UP) . Color::wrap('green', $title));
       //      self::$testResult->overwrite([
       //        Color::wrap('green', $status_text ?? '└── Passed.'),
       //        '',
       //      ]);
     }
     elseif (FALSE === $status) {
-      self::$testTitle->overwrite(($icon ?? '🚫  ') . Color::wrap('white on red', $title));
+      self::$testTitle->overwrite(($icon ?? Icons::NO) . Color::wrap('white on red', $title));
       //      self::$testResult->overwrite([
       //        Color::wrap('red', $status_text ?? '└── Failed.'),
       //        '',
       //      ]);
     }
     else {
-      self::$testTitle->overwrite(($icon ?? '🔎  ') . Color::wrap(Feedback::COLOR_PENDING, $title));
+      self::$testTitle->overwrite(($icon ?? Icons::SPYGLASS) . Color::wrap(Feedback::COLOR_PENDING, $title));
       //      self::$testResult->overwrite([
       //        Color::wrap(Feedback::COLOR_PENDING, $status_text ?? '└── Pending...'),
       //        '',

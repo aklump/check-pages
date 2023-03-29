@@ -4,6 +4,7 @@
 namespace AKlump\CheckPages\Browser;
 
 
+use AKlump\Messaging\MessengerInterface;
 use Psr\Http\Message\ResponseInterface;
 
 interface RequestDriverInterface {
@@ -120,5 +121,9 @@ interface RequestDriverInterface {
    *   Total seconds to wait before cancelling request.
    */
   public function getRequestTimeout(): int;
+
+  public function getMessenger(): ?MessengerInterface;
+
+  public function setMessenger(MessengerInterface $messenger): RequestDriverInterface;
 
 }
