@@ -23,9 +23,23 @@ class RequestHistory {
    */
   private $currentUrl;
 
-  public function __construct(int $max_redirects, string $cookie = '') {
+  /**
+   * @var bool
+   */
+  private $allowInvalidCert;
+
+  /**
+   * @param int $max_redirects
+   * @param bool $allow_invalid_cert
+   *   True to allow invalid certificates, see also CURLOPT_SSL_VERIFYPEER,
+   *   CURLOPT_SSL_VERIFYHOST.
+   * @param string $cookie
+   *   In the form of "NAME=VALUE"
+   */
+  public function __construct(int $max_redirects, bool $allow_invalid_cert, string $cookie = '') {
     $this->maxRedirects = $max_redirects;
     $this->cookie = $cookie;
+    $this->allowInvalidCert = $allow_invalid_cert;
   }
 
   /**
@@ -49,10 +63,19 @@ class RequestHistory {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_HEADER, 1);
     curl_setopt($ch, CURLOPT_NOBODY, 1);
+    if ($this->allowInvalidCert) {
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    }
     if ($this->cookie) {
       curl_setopt($ch, CURLOPT_COOKIE, $this->cookie);
     }
     $body = curl_exec($ch);
+    if (FALSE === $body) {
+      $error = curl_error($ch);
+      curl_close($ch);
+      throw new \RuntimeException(sprintf("Failed to get request history due to CURL error: %s", $error));
+    }
     curl_close($ch);
     $response = preg_split('/^[\n\r]+$/im', $body);
 
