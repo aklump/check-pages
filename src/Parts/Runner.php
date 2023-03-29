@@ -749,8 +749,35 @@ class Runner {
    * @return array
    */
   protected function validateSuite(Suite $suite, string $schema_basename): array {
-    $suite_yaml = Yaml::dump($suite->jsonSerialize());
-    $data = Yaml::parse($suite_yaml, YAML::PARSE_OBJECT_FOR_MAP);
+
+    $validation_checksum = '';
+    $return_value = [];
+    $generate_return_value = function ($data) use (&$validation_checksum, &$return_value) {
+      $return_json = json_encode($data);
+      $validation_checksum = md5($return_json);
+      $return_value = json_decode($return_json, TRUE);
+    };
+
+    $data = $suite->jsonSerialize();
+    $generate_return_value($data);
+
+    $validation_log_path = $this->getLogFiles()
+                             ->tryResolveFile('validated_suites.json', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
+    $validated_suites = [];
+    if (file_exists($validation_log_path)) {
+      $validated_suites = json_decode(file_get_contents($validation_log_path), TRUE);
+      $validated_suites = $validated_suites ?? [];
+      $validation_lookup_map = array_column($validated_suites, 'checksum', 'id');
+      $stored_checksum = $validation_lookup_map[$suite->toFilepath()] ?? NULL;
+      if ($stored_checksum === $validation_checksum) {
+
+        // The validation step in some suites can take a long time, by checksum
+        // caching we can speed up test execution and only valid when the suite
+        // changes.  As an example the test suite at the time of this writing
+        // drops from 2.4 minutes down to 1.3 minutes.
+        return $return_value;
+      }
+    }
 
     // Do not validate $data properties that have been added using add_test_option().
     $path_to_schema = $this->files->tryResolveFile($schema_basename)[0];
@@ -766,9 +793,10 @@ class Runner {
     }
 
     $validator = new Validator();
+    $suite_yaml = Yaml::dump($suite->jsonSerialize());
+    $data = Yaml::parse($suite_yaml, YAML::PARSE_OBJECT_FOR_MAP);
     $validator->validate($data, $schema);
     if (!$validator->isValid()) {
-
       $directive = Verbosity::DEBUG;
 
       $this->echo(new Message([
@@ -807,7 +835,14 @@ class Runner {
     }
 
     // Convert to arrays, we only needed objects for the validation.
-    return json_decode(json_encode($data), TRUE);
+    $generate_return_value($data);
+    $validated_suites[] = [
+      'id' => $suite->toFilepath(),
+      'checksum' => $validation_checksum,
+    ];
+    file_put_contents($validation_log_path, json_encode($validated_suites));
+
+    return $return_value;
   }
 
   /**
