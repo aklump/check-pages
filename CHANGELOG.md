@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 ### Changed
+
+- `add_shorthand` callback arguments. The arguments have changed to ($shorthand, Test $test) and the testconfig no longer contains the shorthand $test_parameter key. You will probably have to change your implementations.
 - `expect` changed to `status`; update all tests.
 - `\AKlump\CheckPages\Event::RUNNER_CONFIG` -> `\AKlump\CheckPages\Event::RUNNER_STARTED`
 - `resolve` -> `tryResolveDir`
