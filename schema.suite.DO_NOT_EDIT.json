@@ -774,7 +774,18 @@
             }
         },
         "javascript__js": {
-            "type": "boolean"
+            "type": [
+                "boolean",
+                "string"
+            ],
+            "examples": [
+                true,
+                false,
+                "true",
+                "false",
+                "TRUE",
+                "FALSE"
+            ]
         },
         "javascript__javascript": {
             "type": "string",
@@ -1193,7 +1204,7 @@
                 }
             ]
         },
-        "request_request": {
+        "request__request": {
             "type": "object",
             "additionalProperties": false,
             "anyOf": [
@@ -1382,8 +1393,7 @@
             "pattern": ".+",
             "examples": []
         },
-        "value": {
-            "title": "Value Plugin Assertion",
+        "value__handler": {
             "type": "object",
             "oneOf": [
                 {
@@ -1391,25 +1401,76 @@
                         "value",
                         "set"
                     ]
+                },
+                {
+                    "required": [
+                        "value",
+                        "is"
+                    ]
+                },
+                {
+                    "required": [
+                        "value",
+                        "is not"
+                    ]
+                },
+                {
+                    "required": [
+                        "value",
+                        "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "value",
+                        "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "value",
+                        "matches"
+                    ]
+                },
+                {
+                    "required": [
+                        "value",
+                        "not matches"
+                    ]
                 }
             ],
             "additionalProperties": false,
             "properties": {
-                "why": {
-                    "$ref": "#/definitions/why"
-                },
-                "extras": {
-                    "$ref": "#/definitions/extras"
-                },
-                "expected outcome": {
-                    "$ref": "#/definitions/expected_outcome"
-                },
                 "value": {
                     "$ref": "#/definitions/value__value"
                 },
                 "set": {
                     "$ref": "#/definitions/value__set"
+                },
+                "contains": {
+                    "$ref": "#/definitions/contains"
+                },
+                "not contains": {
+                    "$ref": "#/definitions/contains"
+                },
+                "is": {
+                    "$ref": "#/definitions/equals"
+                },
+                "is not": {
+                    "$ref": "#/definitions/equals"
+                },
+                "matches": {
+                    "$ref": "#/definitions/matches"
+                },
+                "not matches": {
+                    "$ref": "#/definitions/matches"
                 }
+            }
+        },
+        "value": {
+            "title": "Value Plugin Assertion",
+            "value": {
+                "$ref": "#/definitions/value__handler"
             }
         },
         "xpath__xpath": {
@@ -1749,7 +1810,7 @@
                         "$ref": "#/definitions/url"
                     },
                     "request": {
-                        "$ref": "#/definitions/request_request"
+                        "$ref": "#/definitions/request__request"
                     },
                     "status": {
                         "$ref": "#/definitions/status"
@@ -1785,7 +1846,7 @@
                         "$ref": "#/definitions/url"
                     },
                     "request": {
-                        "$ref": "#/definitions/request_request"
+                        "$ref": "#/definitions/request__request"
                     },
                     "status": {
                         "$ref": "#/definitions/status"
@@ -2052,6 +2113,27 @@
             {
                 "type": "object",
                 "required": [
+                    "request"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
+                    "extras": {
+                        "$ref": "#/definitions/extras"
+                    },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
+                    },
+                    "request": {
+                        "$ref": "#/definitions/request__request"
+                    }
+                }
+            },
+            {
+                "type": "object",
+                "required": [
                     "sleep"
                 ],
                 "additionalProperties": false,
@@ -2071,86 +2153,8 @@
                 }
             },
             {
-                "type": "object",
-                "oneOf": [
-                    {
-                        "required": [
-                            "value",
-                            "set"
-                        ]
-                    },
-                    {
-                        "required": [
-                            "value",
-                            "is"
-                        ]
-                    },
-                    {
-                        "required": [
-                            "value",
-                            "is not"
-                        ]
-                    },
-                    {
-                        "required": [
-                            "value",
-                            "contains"
-                        ]
-                    },
-                    {
-                        "required": [
-                            "value",
-                            "not contains"
-                        ]
-                    },
-                    {
-                        "required": [
-                            "value",
-                            "matches"
-                        ]
-                    },
-                    {
-                        "required": [
-                            "value",
-                            "not matches"
-                        ]
-                    }
-                ],
-                "additionalProperties": false,
-                "properties": {
-                    "why": {
-                        "$ref": "#/definitions/why"
-                    },
-                    "extras": {
-                        "$ref": "#/definitions/extras"
-                    },
-                    "expected outcome": {
-                        "$ref": "#/definitions/expected_outcome"
-                    },
-                    "value": {
-                        "$ref": "#/definitions/value__value"
-                    },
-                    "set": {
-                        "$ref": "#/definitions/value__set"
-                    },
-                    "contains": {
-                        "$ref": "#/definitions/contains"
-                    },
-                    "not contains": {
-                        "$ref": "#/definitions/contains"
-                    },
-                    "is": {
-                        "$ref": "#/definitions/equals"
-                    },
-                    "is not": {
-                        "$ref": "#/definitions/equals"
-                    },
-                    "matches": {
-                        "$ref": "#/definitions/matches"
-                    },
-                    "not matches": {
-                        "$ref": "#/definitions/matches"
-                    }
+                "value": {
+                    "$ref": "#/definitions/value__handler"
                 }
             }
         ]

@@ -7,9 +7,15 @@
             style: width
             set: width
         -
+            value: '${width}'
+            is: 200px
+        -
             dom: img.tree
             style: height
             set: height
+        -
+            value: '${height}'
+            is: 113px
         -
             why: 'Assert image has a landscape aspect ratio.'
             eval: '${height} < ${width}'
@@ -22,9 +28,15 @@
             style: width
             set: width
         -
+            value: '${width}'
+            is: 100px
+        -
             dom: img.lake
             style: height
             set: height
+        -
+            value: '${height}'
+            is: 142px
         -
             why: 'Assert image has a tall aspect ratio.'
             eval: '${height} > ${width}'

@@ -51,10 +51,24 @@
 <h2>Example Tests</h2>
 
 <pre><code class="yaml">-
-  why: Demonstrate custom request timeout for this test only.
-  visit: /test_subject.php
+  loop:
+    - [ true, w/Javascript ]
+    - [ false, No JS ]
+-
+  why: '${loop.value[1]}: Assert a shorter timeout than request delay will fail the test.'
+  expected outcome: failure
+  js: '${loop.value[0]}'
+  visit: /test_subject.php?timeout=3
   request:
-    timeout: 120
+    timeout: 1
+-
+  why: '${loop.value[1]}: Assert the same request delay without larger timeout passes the test.'
+  js: '${loop.value[0]}'
+  visit: /test_subject.php?timeout=3
+  request:
+    timeout: 30
+-
+  end loop:
 
 -
   why: Assert ${request.method} returns 405
@@ -139,7 +153,7 @@
 <footer>
   <div class="pager"><a href="demo--loop.html" class="prev demo--loop">&laquo;Loops</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--redirect.html" class="next handler_redirect">Redirect&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Fri, 24 Mar 2023 14:59:53 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Tue, 28 Mar 2023 20:28:44 -0700</p>
   </div>
 </footer>
 

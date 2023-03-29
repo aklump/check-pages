@@ -20,6 +20,7 @@
             set: charlie
             value: '${bravo}'
 -
+    why: 'Assert we can interpolate with an assertion-level setter from previously.'
     visit: /handlers/value.html
     find:
         -

@@ -14,8 +14,6 @@ use AKlump\Messaging\MessageType;
 
 /**
  * Implements the Value handler.
- *
- * // TODO Separate out the "set" portion to it's own handler?
  */
 final class Value implements HandlerInterface {
 

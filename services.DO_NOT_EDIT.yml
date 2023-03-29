@@ -75,6 +75,10 @@ services:
         class: \AKlump\CheckPages\Handlers\Redirect
         tags:
             - { name: event_subscriber }
+    request.handler:
+        class: \AKlump\CheckPages\Handlers\Request
+        tags:
+            - { name: event_subscriber }
     sleep.handler:
         class: \AKlump\CheckPages\Handlers\Sleep
         tags:

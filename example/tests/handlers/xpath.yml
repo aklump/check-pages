@@ -1,4 +1,7 @@
 -
+    set: blogPostTitle
+    value: '(//*[contains(@class, "block-title")])[3]'
+-
     visit: /handlers/xpath.html
     find:
         -
@@ -7,6 +10,10 @@
             text: 'Latest Blog Post'
         -
             xpath: '(//*[contains(@class, "block-title")])[3]'
+            is: 'Latest Blog Post'
+        -
+            why: 'Assert we can use variables in the selector.'
+            xpath: '${blogPostTitle}'
             is: 'Latest Blog Post'
         -
             xpath: '(//*[contains(@class, "block-title")])[3]'

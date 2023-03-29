@@ -53,6 +53,22 @@
 <h2>Example Tests</h2>
 
 <pre><code class="yaml">-
+  set: paragraphInnerText
+  value: Sunshine
+-
+  loop:
+    - /test_subject.html
+-
+  url: ${loop.value}
+  find:
+    -
+      why: Assert variables set outside of the loop get interpolated inside of the loop, in the assertions.
+      dom: p
+      is: ${paragraphInnerText}
+-
+  end loop:
+
+-
   loop:
     - /test_subject.html
 -
@@ -175,7 +191,7 @@
 <footer>
   <div class="pager"><a href="demo--json_pointer.html" class="prev demo--json_pointer">&laquo;JSON Pointer</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--request.html" class="next handler_request">Making Requests Other Than GET&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Fri, 24 Mar 2023 14:59:52 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Tue, 28 Mar 2023 20:28:43 -0700</p>
   </div>
 </footer>
 
