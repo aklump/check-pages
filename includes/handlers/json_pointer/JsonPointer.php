@@ -17,14 +17,6 @@ final class JsonPointer implements HandlerInterface {
 
   use SerializationTrait;
 
-  public static function doesApply($context): bool {
-    if ($context instanceof Assert) {
-      return array_key_exists('pointer', $context->getConfig());
-    }
-
-    return FALSE;
-  }
-
   /**
    * {@inheritdoc}
    */
@@ -32,7 +24,7 @@ final class JsonPointer implements HandlerInterface {
     return [
       Event::ASSERT_CREATED => [
         function (AssertEventInterface $event) {
-          if (!self::doesApply($event->getAssert())) {
+          if (!$event->getAssert()->has('pointer')) {
             return;
           }
           try {
@@ -54,12 +46,12 @@ final class JsonPointer implements HandlerInterface {
    */
   protected function setHaystack(AssertEventInterface $event) {
     $assert = $event->getAssert();
-    $assert->setSearch($this->getId(), $assert->pointer);
+    $assert->setSearch($this->getId(), $assert->get('pointer'));
     $json = $assert->getHaystack()[0] ?? NULL;
     try {
       $assert->setHaystack([]);
       $pointer = new Pointer($json);
-      $haystack = $pointer->get($assert->pointer);
+      $haystack = $pointer->get($assert->get('pointer'));
       $haystack = $this->valueToArray($haystack);
       $assert->setHaystack($haystack);
     }
