@@ -11,8 +11,11 @@
     visit: '/handlers/path.php?op=rest'
     find:
         -
-            path: 0
+            path: null
             count: 1
+        -
+            path: 0
+            count: 2
         -
             path: 0.id
             is: 144
@@ -33,6 +36,31 @@
         headers:
             accept: text/yaml
     find:
+        -
+            why: 'Assert empty values work as expected.'
+            path: id
+            is: null
+        -
+            path: id
+            is: ''
+        -
+            path: id
+            is: null
+        -
+            path: group
+            is: null
+        -
+            path: group
+            is: ''
+        -
+            path: group
+            is: null
+        -
+            path: group
+            'is not': false
+        -
+            path: group
+            'is not': 0
         -
             path: items
             count: 5

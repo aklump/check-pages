@@ -1,4 +1,4 @@
-/vendor/
+vendor/
 /tests/
 /.idea/
 /example/tests/files

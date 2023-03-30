@@ -39,3 +39,21 @@
         -
             pointer: /messages
             count: 0
+        -
+            pointer: /data/0/age
+            is: null
+        -
+            pointer: /data/0/age
+            is: ''
+        -
+            pointer: /data/0/age
+            is: null
+        -
+            pointer: /data/1/age
+            is: null
+        -
+            pointer: /data/1/age
+            is: ''
+        -
+            pointer: /data/1/age
+            is: null

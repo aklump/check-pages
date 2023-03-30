@@ -26,7 +26,7 @@ switch ($_GET['op'] ?? '') {
 
   case 'items':
     header('content-type: application/json');
-    print '{"items":["apple","banana","carrot","daikon","eggplant"]}';
+    print '{"items":["apple","banana","carrot","daikon","eggplant"], "id":null,"group":""}';
     exit(0);
 
   case 'root':

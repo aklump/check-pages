@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c46849ab9244db1ddb19cc9b690aa0e7",
+    "content-hash": "dd34866541ad7982bf9cfa6bf55181a1",
     "packages": [
         {
             "name": "aklump/data",
@@ -165,6 +165,63 @@
                 "source": "https://github.com/minkphp/Mink/tree/v1.10.0"
             },
             "time": "2022-03-28T14:22:43+00:00"
+        },
+        {
+            "name": "binary-cube/dot-array",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/binary-cube/dot-array.git",
+                "reference": "6dd32e9c5a7409d335deec1a616699f102a66b89"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/binary-cube/dot-array/zipball/6dd32e9c5a7409d335deec1a616699f102a66b89",
+                "reference": "6dd32e9c5a7409d335deec1a616699f102a66b89",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "phpmd/phpmd": "*",
+                "phpstan/phpstan": "*",
+                "phpunit/phpunit": "~7.0",
+                "squizlabs/php_codesniffer": "3.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "BinaryCube\\DotArray\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Banciu N. Cristian Mihai",
+                    "homepage": "https://binary-cube.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Navigate through array using JSON Dot notation path.",
+            "keywords": [
+                "array",
+                "dot",
+                "dot-array",
+                "dotarray",
+                "php-array",
+                "php-array-json-path"
+            ],
+            "support": {
+                "issues": "https://github.com/binary-cube/dot-array/issues?state=open",
+                "source": "https://github.com/binary-cube/dot-array"
+            },
+            "time": "2019-03-02T07:27:11+00:00"
         },
         {
             "name": "chrome-php/chrome",
