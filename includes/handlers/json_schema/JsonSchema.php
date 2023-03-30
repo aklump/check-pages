@@ -32,14 +32,6 @@ final class JsonSchema implements HandlerInterface {
    */
   private $jsonSchemas;
 
-  public static function doesApply($context): bool {
-    if ($context instanceof Assert) {
-      return array_key_exists('schema', $context->getConfig());
-    }
-
-    return FALSE;
-  }
-
   /**
    * {@inheritdoc}
    */
@@ -47,7 +39,7 @@ final class JsonSchema implements HandlerInterface {
     return [
       Event::ASSERT_CREATED => [
         function (AssertEventInterface $event) {
-          if (!self::doesApply($event->getAssert())) {
+          if (!$event->getAssert()->has('schema')) {
             return;
           }
           try {

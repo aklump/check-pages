@@ -1,5 +1,5 @@
 {
     "require": {
-        "midweste/objectpath": "^1.0"
+        "binary-cube/dot-array": "^1.1"
     }
 }

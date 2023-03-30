@@ -4,10 +4,9 @@ namespace AKlump\CheckPages\Handlers;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
-use AKlump\CheckPages\Parts\SetTrait;
-use AKlump\CheckPages\Plugin\TestFailedException;
+use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\SerializationTrait;
-use MidwestE\ObjectPath;
+use BinaryCube\DotArray\DotArray;
 
 /**
  * Implements the Json Pointer handler.
@@ -16,6 +15,10 @@ final class Path implements HandlerInterface {
 
   use SerializationTrait;
 
+  public static function getId(): string {
+    return 'path';
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -23,7 +26,11 @@ final class Path implements HandlerInterface {
     return [
       Event::ASSERT_CREATED => [
         function (AssertEventInterface $event) {
-          if (!self::doesApply($event->getAssert())) {
+          $assert = $event->getAssert();
+          // Take a look at json_schema, which uses "path" as well.  It will
+          // have handled this event already so we have to make sure we're not
+          // trying to process that here.
+          if (!$assert->has('path') || $assert->has('schema')) {
             return;
           }
           try {
@@ -45,44 +52,23 @@ final class Path implements HandlerInterface {
    */
   protected function setHaystack(AssertEventInterface $event) {
     $assert = $event->getAssert();
-    $assert->setSearch($this->getId(), $assert->path);
+    $assert->setSearch($this->getId(), $assert->get('path'));
     $response_body = $assert->getHaystack()[0] ?? '';
-
     if (!empty($response_body)) {
       $content_type = $this->getContentType($event->getDriver()
         ->getResponse());
       $data = $this->deserialize($response_body, $content_type);
-      if (is_array($data)) {
-        $assert->setHaystack($data);
+      $path = $assert->get('path');
+      $data = $this->valueToArray($data);
+      $dot = DotArray::create($data);
+      $value = $dot->get($path);
+      $exists = $dot->has($path);
+      if (!$exists) {
+        $value = [];
       }
-      if ($assert->path) {
-        $object_path = new ObjectPath($data);
-        if (!$object_path->exists($assert->path)) {
-          $assert->setHaystack([]);
-        }
-        else {
-          $haystack = $object_path->get($assert->path);
-          $haystack = $this->valueToArray($haystack);
-          $assert->setHaystack($haystack);
-        }
-      }
+      $haystack = $this->valueToArray($value);
+      $assert->setHaystack($haystack);
     }
-  }
-
-  public static function getId(): string {
-    return 'path';
-  }
-
-  public static function doesApply($context): bool {
-    if ($context instanceof \AKlump\CheckPages\Assert) {
-      $config = $context->getConfig();
-    }
-    if (empty($config)) {
-      return FALSE;
-    }
-    // This is a hack for now because json_schema also uses the 'path'; need
-    // to find a better detection method.
-    return array_key_exists('path', $config) && !array_key_exists('schema', $config);
   }
 
 }
