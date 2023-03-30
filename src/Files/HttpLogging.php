@@ -28,16 +28,18 @@ class HttpLogging {
       if (!is_string($request_body_or_data)) {
         switch ($content_type) {
           case 'application/json':
-            $export[] = PHP_EOL . json_encode($request_body_or_data);
+            $request_body_or_data = json_encode($request_body_or_data);
             break;
 
           default:
-            $export[] = PHP_EOL . http_build_query($request_body_or_data);
+            $request_body_or_data = http_build_query($request_body_or_data);
             break;
         }
       }
+      $export[] = PHP_EOL . $request_body_or_data;
     }
 
     return implode(PHP_EOL, $export) . PHP_EOL . PHP_EOL;
   }
+
 }
