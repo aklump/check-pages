@@ -15,3 +15,8 @@ For pages that redirect you can check for both the status code and the final loc
   status: 301
   redirect: /location.html
 ```
+
+## Provides Variables
+
+`redirect.status`
+`redirect.location`

@@ -8,14 +8,16 @@ use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
-use AKlump\CheckPages\Parts\SetTrait;
+use AKlump\CheckPages\Traits\SetTrait;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\Messaging\MessageType;
 
 /**
  * Implements the Redirect handler.
  */
-final class Redirect implements \AKlump\CheckPages\Handlers\HandlerInterface {
+final class Redirect implements HandlerInterface {
+
+  use SetTrait;
 
   //  const SELECTOR = 'redirect';
 
@@ -46,6 +48,16 @@ final class Redirect implements \AKlump\CheckPages\Handlers\HandlerInterface {
             $handler->checkStatusCode($test, $driver);
             if ($test->has('redirect') || $test->has('location')) {
               $handler->checkRedirect($test, $driver);
+            }
+
+            // When the dev is expecting a redirect, we will capture the
+            // redirect information into variables.
+            if ($test->has('status') && strval($test->get('status'))[0] === '3') {
+              $variables = $test->getSuite()->variables();
+              $lines = [];
+              $lines[] = $handler->setKeyValuePair($variables, 'redirect.location', $driver->getLocation());
+              $lines[] = $handler->setKeyValuePair($variables, 'redirect.status', $driver->getRedirectCode());
+              $test->addMessage(new Message($lines, MessageType::DEBUG, Verbosity::VERBOSE));
             }
           }
           catch (\Exception $e) {

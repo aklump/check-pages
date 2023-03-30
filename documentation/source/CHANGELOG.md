@@ -4,11 +4,32 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- There is an issue with the JS browser that looses the session cookie if the url has a redirect. When the browser redirects to the new URL, the session will be lost. I believe it's a bug in this library: https://github.com/chrome-php/chrome. If you're trying to assert w/javascript on a redirected URL, the work around is to use two tests where the first does not use javascript and captures the variable `${redirect.location}` which you can then use in the subsequent test, which uses the JS browser.
+
+  ```yaml
+  -
+    user: foo_user
+    js: false
+    visit: /my-current-cycle
+    status: 302
+  
+  -
+    why: Assert chart print link button appears on my-current-cycle page
+    user: foo_user
+    js: true
+    visit: "${redirect.location}"
+    find: ...
+   
+  ```
+
 ## [0.18.0] - 2023-03-14
 
 ### Added
 
 ### Changed
+
 - `expect` changed to `status`; update all tests.
 - `\AKlump\CheckPages\Event::RUNNER_CONFIG` -> `\AKlump\CheckPages\Event::RUNNER_STARTED`
 - `resolve` -> `tryResolveDir`

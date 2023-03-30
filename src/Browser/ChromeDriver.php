@@ -120,6 +120,8 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
     $browser = $browserFactory->createBrowser([
       'ignoreCertificateErrors' => $this->allowInvalidCertificate(),
       'headers' => $this->getHeaders(),
+//      'debugLogger' => 'php://stdout',
+//      'headless' => FALSE,
     ]);
 
     try {
@@ -131,6 +133,8 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
       }
 
       $response = [];
+
+      // TODO Pass a session ID?
       $this->page->getSession()
         ->once("method:Network.responseReceived", function (array $params) use (&$response): void {
           $response['status'] = $params['response']['status'] ?? '';
