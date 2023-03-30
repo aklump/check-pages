@@ -19,7 +19,7 @@ class Storage implements StorageInterface {
   private $data;
 
   public function __construct(FilesProviderInterface $log_files) {
-    $this->filepath = $log_files->tryResolveFile('storage.json', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
+    $this->filepath = $log_files->tryResolveFile('cache/storage.json', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
     $log_files->tryCreateDir(dirname($this->filepath));
     if (file_exists($this->filepath)) {
       $data = json_decode(file_get_contents($this->filepath), TRUE);

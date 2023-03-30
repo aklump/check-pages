@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Handlers;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Output\Icons;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\Messaging\MessageType;
@@ -37,7 +38,7 @@ final class Sleep implements HandlerInterface {
           }
           $test->addMessage(new Message(
             [
-              '😴 ' . $title,
+              Icons::SLEEP . $title,
             ],
             MessageType::INFO,
             Verbosity::VERBOSE

@@ -19,8 +19,6 @@ final class Redirect implements HandlerInterface {
 
   use SetTrait;
 
-  //  const SELECTOR = 'redirect';
-
   /**
    * {@inheritdoc}
    */
@@ -57,7 +55,7 @@ final class Redirect implements HandlerInterface {
               $lines = [];
               $lines[] = $handler->setKeyValuePair($variables, 'redirect.location', $driver->getLocation());
               $lines[] = $handler->setKeyValuePair($variables, 'redirect.status', $driver->getRedirectCode());
-              $test->addMessage(new Message($lines, MessageType::DEBUG, Verbosity::VERBOSE));
+              $test->addMessage(new Message($lines, MessageType::DEBUG, Verbosity::DEBUG));
             }
           }
           catch (\Exception $e) {

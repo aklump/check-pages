@@ -188,10 +188,14 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface {
   }
 
   public function echoMessages() {
+    $messages = $this->getMessages();
+    if (empty($messages)) {
+      return;
+    }
     $messenger = $this->getRunner()->getMessenger()
       ->addProcessor([Processor::class, 'wordWrap'])
       ->addProcessor([Processor::class, 'tree']);
-    foreach ($this->getMessages() as $message) {
+    foreach ($messages as $message) {
       $messenger->deliver($message);
     }
     $this->setMessages([]);

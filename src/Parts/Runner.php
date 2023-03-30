@@ -600,6 +600,10 @@ class Runner {
     // is roughly equal to the runner being created.  The actual Runner instance
     // is created sooner, but not effectively used until this point.
     if (empty($this->runnerCreatedEventDispatched)) {
+      $cache_filepath = $this->getLogFiles()
+                          ->tryResolveDir('cache', FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
+      $this->getLogFiles()->tryCreateDir($cache_filepath);
+
       $this->getDispatcher()
         ->dispatch(new RunnerEvent($this), Event::RUNNER_CREATED);
       $this->runnerCreatedEventDispatched = TRUE;
@@ -762,7 +766,7 @@ class Runner {
     $generate_return_value($data);
 
     $validation_log_path = $this->getLogFiles()
-                             ->tryResolveFile('validated_suites.json', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
+                             ->tryResolveFile('cache/validated_suites.json', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
     $validated_suites = [];
     if (file_exists($validation_log_path)) {
       $validated_suites = json_decode(file_get_contents($validation_log_path), TRUE);

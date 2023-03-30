@@ -79,7 +79,14 @@ final class Feedback implements EventSubscriberInterface {
         function (DriverEventInterface $event) {
           $test = $event->getTest();
           if ($test->has('why')) {
-            $test->addMessage(new Message([Icons::SPYGLASS . ' ' . $test->get('why')], MessageType::INFO, Verbosity::VERBOSE));
+            $test->addMessage(new Message([
+              // This is top margin to create visual space between tests in
+              // order to get it's own prefix, it needs to be it's own message.
+              '',
+            ], MessageType::INFO, Verbosity::VERBOSE));
+            $test->addMessage(new Message([
+              Icons::SPYGLASS . $test->get('why'),
+            ], MessageType::INFO, Verbosity::VERBOSE));
           }
         },
       ],
@@ -206,16 +213,13 @@ final class Feedback implements EventSubscriberInterface {
           $test = $event->getTest();
           $test->addMessage(new Message([
             self::FAILED_PREFIX . $test,
-          ], MessageType::ERROR, Verbosity::NORMAL));
+          ], MessageType::ERROR, Verbosity::VERBOSE));
         },
       ],
 
       Event::TEST_FINISHED => [
         function (TestEventInterface $event) {
           $test = $event->getTest();
-
-          // This will add some space before the next test is run.
-          $test->addMessage(new Message([''], MessageType::INFO, Verbosity::VERBOSE));
           $test->echoMessages();
         },
       ],
@@ -228,7 +232,7 @@ final class Feedback implements EventSubscriberInterface {
             $lines[] = '';
           }
           self::echoSuiteTitle($suite->getRunner()
-            ->getMessenger(), new Message($lines, MessageType::ERROR), Flags::INVERT_FIRST_LINE);
+            ->getMessenger(), new Message($lines, MessageType::ERROR, Verbosity::NORMAL), Flags::INVERT_FIRST_LINE);
         },
       ],
 

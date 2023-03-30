@@ -10,11 +10,13 @@ class Icons {
 
   const THUMBS_UP = '👍 ';
 
-  const CLOCK = '⏱  ';
+  const CLOCK = '⏱ ';
 
   const SPYGLASS = '🔎 ';
 
-  const NO = '🚫  ';
+  const NO = '🚫 ';
 
-  const GLOBE = '🌍  ';
+  const GLOBE = '🌐 ';
+
+  const SLEEP = '😴 ';
 }

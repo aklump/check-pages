@@ -43,7 +43,6 @@ trait BaseUrlTrait {
       return $url;
     }
 
-
     return substr($url, strlen($base_url));
   }
 

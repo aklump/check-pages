@@ -82,7 +82,7 @@ final class Value implements HandlerInterface {
           }
 
           // TODO Echo the why?
-          $test->addMessage(new Message([$set_message], MessageType::DEBUG, Verbosity::VERBOSE));
+          $test->addMessage(new Message([$set_message], MessageType::DEBUG, Verbosity::DEBUG));
         },
       ],
 
@@ -147,7 +147,7 @@ final class Value implements HandlerInterface {
           $test->addMessage(new Message(
             [$set_feedback],
             MessageType::DEBUG,
-            Verbosity::VERBOSE
+            Verbosity::DEBUG
           ));
         },
       ],
