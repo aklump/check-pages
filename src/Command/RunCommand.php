@@ -177,7 +177,8 @@ class RunCommand extends Command {
 
     $total_assertion_count = $runner->getTotalAssertionsRun();
     $ok = $runner->hasPassed() || 100 === $percentage;
-    if ($ok) {
+    $flags = Flags::INVERT_FIRST_LINE;
+    if ($total_test_count > 0 && $ok) {
       $message = new Message([
         sprintf("OK (%d test%s, %d assertion%s)",
           $total_test_count,
@@ -204,21 +205,26 @@ class RunCommand extends Command {
 
       // Sometimes a test fails without an assertion failing, e.g. the HTTP response code.
       $failed_count = max($runner->getTotalFailedTests(), $runner->getTotalFailedAssertions(), intval($runner->hasFailed()));
-      $message = new Message(
-        [
-          'FAILURES!',
-          '',
-          sprintf('Tests: %d, Assertions: %d, Failures: %d',
-            $total_test_count,
-            $total_assertion_count,
-            $failed_count
-          ),
-          '',
-        ],
-        MessageType::ERROR
-      );
+      $lines = [
+        '',
+        sprintf('Tests: %d, Assertions: %d, Failures: %d',
+          $total_test_count,
+          $total_assertion_count,
+          $failed_count
+        ),
+        '',
+      ];
+
+      if ($failed_count > 0) {
+        array_unshift($lines, 'FAILURES!');
+      }
+      else {
+        $flags = NULL;
+      }
+
+      $message = new Message($lines, MessageType::ERROR);
     }
-    $messenger->deliver($message, Flags::INVERT_FIRST_LINE);
+    $messenger->deliver($message, $flags);
   }
 
   private function echoTimer(MessengerInterface $messenger, Timer $timer) {

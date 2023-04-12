@@ -56,6 +56,12 @@ final class TestRunner {
     $dispatcher = $runner->getDispatcher();
 
     $this->getDriver()->setBaseUrl($runner->get('base_url') ?? '');
+
+    $config = $test->getConfig();
+    $test->interpolate($config['why']);
+    $test->setConfig($config);
+    unset($config);
+
     $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::TEST_STARTED);
 
     //
