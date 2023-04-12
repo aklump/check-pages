@@ -15,6 +15,10 @@ services:
         class: \AKlump\CheckPages\Service\Retest
         tags:
             - { name: event_subscriber }
+    suite_index:
+        class: \AKlump\CheckPages\Service\SuiteIndexService
+        tags:
+            - { name: event_subscriber }
     breakpoint.handler:
         class: \AKlump\CheckPages\Handlers\Breakpoint
         tags:
