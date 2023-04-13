@@ -20,17 +20,13 @@ final class Breakpoint implements HandlerInterface {
       Event::TEST_CREATED => [
         function (TestEventInterface $event) {
           $test = $event->getTest();
-          $config = $test->getConfig();
-          $output = $test->getRunner()->getOutput();
-          $is_breakpoint = array_key_exists('breakpoint', $config);
-          if ($is_breakpoint) {
-            $test->setPassed();
-          }
-          $should_apply = $is_breakpoint && $output->isDebug();
-          if (!$should_apply) {
+          $debugging_enabled = $test->getRunner()
+            ->getInput()
+            ->getOption('break');
+          if (!$debugging_enabled || !$test->has('breakpoint')) {
             return;
           }
-
+          $test->setPassed();
           $description = $test->getDescription();
           if (!$description) {
             $description = 'Press any key';
