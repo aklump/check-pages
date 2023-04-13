@@ -178,8 +178,11 @@ title: Foods
   visit: /test_subject.php?op=rest
   find:
     -
-      path: 0
+      path:
       count: 1
+    -
+      path: 0
+      count: 2
     -
       path: 0.id
       is: 144
@@ -202,6 +205,31 @@ title: Foods
     headers:
       accept: text/yaml
   find:
+    -
+      why: Assert empty values work as expected.
+      path: id
+      is: null
+    -
+      path: id
+      is: ''
+    -
+      path: id
+      is:
+    -
+      path: group
+      is: null
+    -
+      path: group
+      is: ''
+    -
+      path: group
+      is:
+    -
+      path: group
+      is not: false
+    -
+      path: group
+      is not: 0
     -
       path: items
       count: 5
@@ -303,7 +331,7 @@ title: Foods
 <footer>
   <div class="pager"><a href="demo--javascript.html" class="prev demo--javascript">&laquo;Testing with Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--value.html" class="next handler_value">Value Handler&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Tue, 28 Mar 2023 20:28:43 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 12 Apr 2023 20:49:22 -0700</p>
   </div>
 </footer>
 

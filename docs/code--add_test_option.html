@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Mixin Code Example</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
+</head>
+
+<body class="page--code--add_test_option">
+<header>
+  <div class="pager"><a href="dev--output.html" class="prev dev--output">&laquo;Developers Note: User Messages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="forms--drupal.html" class="next forms--drupal">Testing Forms&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="code--add_test_option">Code</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Mixin Code Example</h1>
+  <!--searchable_content-->
+
+<p><em>runner.php</em></p>
+
+<pre><code class="php">add_mixin('bulk_delete');
+</code></pre>
+
+<p><em>bulk_delete.php</em></p>
+
+<pre><code class="php">&lt;?php
+
+/**
+ * @file
+ * Provide a test option to bulk delete resources.
+ */
+
+use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Event\TestEventInterface;
+
+add_test_option('bulk delete', [
+
+  Event::TEST_CREATED =&gt; function ($resource_to_delete, TestEventInterface $event) {
+    $test = $event-&gt;getTest();
+    $get_collection_config = [
+        'url' =&gt; sprintf('/api/2.1/json/%s', $resource_to_delete),
+        'request' =&gt; ['method' =&gt; 'get'],
+      ] + $test-&gt;getConfig();
+    $test-&gt;setConfig($get_collection_config);
+  },
+
+  Event::REQUEST_FINISHED =&gt; function ($resource_to_delete, Event\DriverEventInterface $event) {
+    $body = $event-&gt;getDriver()-&gt;getResponse()-&gt;getBody();
+    $data = json_decode($body, TRUE);
+    $items = $data['collection']['items'] ?? [];
+    if (empty($items)) {
+      return;
+    }
+    $test = $event-&gt;getTest();
+    $test_config = $test-&gt;getConfig();
+
+    // This will iterate on the resource collection and create a single test for
+    // each, which will delete that single resource.
+    foreach ($items as $item) {
+      $delete_single_resource_config = bulk_delete_get_delete_config($resource_to_delete, $item['data']['id']);
+      // This will add the "user" key, for example.
+      $delete_single_resource_config += $test_config;
+      unset($delete_single_resource_config['bulk delete']);
+      $test-&gt;getSuite()-&gt;addTestByConfig($delete_single_resource_config);
+    }
+  },
+]);
+
+/**
+ * @param string $resource
+ *   The resource to delete, e.g. 'pages', 'members'.
+ * @param int $id
+ *   The resource ID.
+ *
+ * @return array
+ */
+function bulk_delete_get_delete_config(string $resource, int $id): array {
+  return [
+    'why' =&gt; sprintf('Delete %s with ID: %d', rtrim($resource, 's'), $id),
+    'url' =&gt; sprintf('/api/2.1/json/%s', $resource),
+    'request' =&gt; [
+      'method' =&gt; 'post',
+      'body' =&gt; json_encode([
+        'collection' =&gt; [
+          'items' =&gt; [
+            [
+              'action' =&gt; 'delete',
+              'data' =&gt; ['id' =&gt; $id],
+            ],
+          ],
+        ],
+      ]),
+    ],
+  ];
+}
+</code></pre>
+
+<p><em>suite.yml</em></p>
+
+<pre><code class="yml">-
+  user: site_test_user
+  bulk delete: pages
+</code></pre>
+<!--end_searchable_content-->
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="dev--output.html" class="prev dev--output">&laquo;Developers Note: User Messages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="forms--drupal.html" class="next forms--drupal">Testing Forms&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 12 Apr 2023 20:49:05 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

@@ -9,3 +9,4 @@ documentation/README.md
 /.phpunit.result.cache
 handlers/*/composer.lock
 /example/tests/logfiles/
+/documentation/event_hook/logfiles/
