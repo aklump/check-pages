@@ -7,6 +7,7 @@ use AKlump\CheckPages\Browser\RequestDriverInterface;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Exceptions\BadSyntaxException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\CheckPages\SerializationTrait;
@@ -139,7 +140,13 @@ final class Request implements HandlerInterface {
               $headers = array_filter($headers, function ($value) {
                 return !empty($value);
               });
-              $headers = array_map('strval', $headers);
+              $headers = array_map(function ($header) {
+                if (!is_scalar($header)) {
+                  throw new BadSyntaxException('Request header values must be strings.');
+                }
+
+                return strval($header);
+              }, $headers);
             }
             $interpolation_review['headers'] = $headers;//
             // Body
@@ -159,7 +166,7 @@ final class Request implements HandlerInterface {
             }//
             // Set the timeout on the request.
             //
-            $timeout = $config[self::SELECTOR]['timeout'] ?? null;
+            $timeout = $config[self::SELECTOR]['timeout'] ?? NULL;
             if (is_numeric($timeout)) {
               $driver->setRequestTimeout($timeout);
             }
