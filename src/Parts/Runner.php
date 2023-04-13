@@ -673,7 +673,7 @@ class Runner {
     // On return from the hook, we need to reparse to get format for validation.
     $this->validateSuite($suite, static::SCHEMA_VISIT . '.json');
 
-    foreach ($suite->getTests() as $test) {
+    while ($test = $suite->getNextPendingTest()) {
       $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_CREATED);
 
       $test_runner = new TestRunner($test);
