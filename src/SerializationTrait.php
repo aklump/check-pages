@@ -135,14 +135,10 @@ trait SerializationTrait {
    * @return array
    */
   protected function valueToArray($value): array {
-    if (is_object($value)) {
-      $value = json_decode(json_encode($value), TRUE);
+    if (is_scalar($value) || is_null($value)) {
+      return [$value];
     }
-    if (is_array($value)) {
-      return $value;
-    }
-
-    return [$value];
+    return json_decode(json_encode($value), TRUE);
   }
 
   protected function typecastNumbers($value) {
