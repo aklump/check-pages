@@ -6,7 +6,9 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Exceptions\BadSyntaxException;
 use AKlump\CheckPages\Exceptions\SuiteFailedException;
+use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
+use Exception;
 
 /**
  * Implements the Sleep handler.
@@ -26,8 +28,9 @@ final class Loop implements HandlerInterface {
     return [
       Event::SUITE_STARTED => [
         function (SuiteEventInterface $event) {
+          $suite = $event->getSuite();
           $suite_has_loops = FALSE;
-          foreach ($event->getSuite()->getTests() as $test) {
+          foreach ($suite->getTests() as $test) {
             if ($test->has('loop') || $test->has('end loop')) {
               $suite_has_loops = TRUE;
               break;
@@ -38,10 +41,10 @@ final class Loop implements HandlerInterface {
           }
           try {
             $loop = new self();
-            $loop->expandLoops($event);
+            $loop->expandLoops($suite);
           }
-          catch (\Exception $e) {
-            throw new SuiteFailedException($event->getSuite(), $e);
+          catch (Exception $e) {
+            throw new SuiteFailedException($suite, $e);
           }
         },
         // It's important that loop runs last over others because others may need
@@ -54,13 +57,11 @@ final class Loop implements HandlerInterface {
   /**
    * Event handler to expand loops.
    *
-   * @param \AKlump\CheckPages\Event\SuiteEventInterface $event
+   * @param \AKlump\CheckPages\Parts\Suite $suite
    *
    * @return void
-   * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
    */
-  public function expandLoops(SuiteEventInterface $event) {
-    $suite = $event->getSuite();
+  public function expandLoops(Suite $suite) {
     $this->currentLoop = NULL;
     foreach ($suite->getTests() as $test) {
       $this->beHelpful($test);
@@ -70,6 +71,7 @@ final class Loop implements HandlerInterface {
         }
         try {
           $this->currentLoop = new LoopCurrentLoop($test->get('loop'));
+          $suite->removeTest($test);
         }
         catch (BadSyntaxException $exception) {
 
@@ -77,7 +79,6 @@ final class Loop implements HandlerInterface {
           $message = str_replace(BadSyntaxException::PREFIX, '', $exception->getMessage());
           throw new BadSyntaxException($message, $test);
         }
-        $suite->removeTest($test);
       }
       elseif ($test->has('end loop')) {
         if (!$this->currentLoop) {
