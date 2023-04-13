@@ -2,7 +2,6 @@
 
 namespace AKlump\CheckPages\Handlers;
 
-use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;

@@ -4,7 +4,6 @@ namespace AKlump\CheckPages\Service;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\RunnerEventInterface;
-use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;

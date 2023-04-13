@@ -19,6 +19,10 @@ services:
         class: \AKlump\CheckPages\Service\SuiteIndexService
         tags:
             - { name: event_subscriber }
+    config_secrets:
+        class: \AKlump\CheckPages\Service\ConfigSecretsService
+        tags:
+            - { name: event_subscriber }
     breakpoint.handler:
         class: \AKlump\CheckPages\Handlers\Breakpoint
         tags:
