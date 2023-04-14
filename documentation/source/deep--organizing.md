@@ -60,30 +60,30 @@ To keep this clear adhere to the following convention.
 
 ### Step Two
 
-**List these as `suites_to_ignore` in the appropriate config files.**
+**List these as `suites_to_ignore` in the appropriate config files.  Use globbing for simplicity.**
 
 In _config/dev.yml_:
 
 ```yaml
 suites_to_ignore:
-  - live.redirects
-  - test.redirects
+  - live.*
+  - test.*
 ```
 
 In _config/live.yml_:
 
 ```yaml
 suites_to_ignore:
-  - dev.redirects
-  - test.redirects
+  - dev.*
+  - test.*
 ```
 
 In _config/test.yml_:
 
 ```yaml
 suites_to_ignore:
-  - dev.redirects
-  - live.redirects
+  - dev.*
+  - live.*
 ```
 
 ## Why Not Use Groups?

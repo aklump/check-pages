@@ -622,21 +622,24 @@ class Runner {
 
     // This section has to exist down here because the path resolution may have
     // changed since the RUNNER_CREATE event was first called, don't move up.
-    $ignored_filepaths = array_filter(array_map(function ($suite_to_ignore) {
+    $ignored_filepaths = [];
+    foreach ($this->suitesToIgnore as $suite_to_ignore) {
       try {
-        return $this->files->tryResolveFile($suite_to_ignore, [
+        // We may have glob expansion.
+        $ignored_filepaths = array_merge($ignored_filepaths, $this->files->tryResolveFile($suite_to_ignore, [
           'yaml',
           'yml',
-        ])[0];
+        ]));
       }
       catch (UnresolvablePathException $exception) {
 
         // If we're asked to ignore a suite that can't be resolved, then that is
         // not an exception in this case, we can easily ignore it because we
         // can't find it.  Return NULL, which will be filtered out.
-        return NULL;
+        continue;
       }
-    }, $this->suitesToIgnore));
+    }
+    $ignored_filepaths = array_unique($ignored_filepaths);
 
     if (in_array($path_to_suite, $ignored_filepaths)) {
       $status = NULL;

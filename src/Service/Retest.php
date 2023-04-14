@@ -87,8 +87,6 @@ final class Retest implements EventSubscriberInterface {
             $config['suites_to_ignore'] = array_values(array_unique($config['suites_to_ignore']));
             $runner->setConfig($config);
           }
-
-
         },
       ],
       Event::TEST_PASSED => [
