@@ -6,7 +6,7 @@ use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Browser\RequestDriverInterface;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEvent;
-use AKlump\CheckPages\Output\DebugMessage;
+use AKlump\CheckPages\Output\Feedback;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Traits\HasTestTrait;
@@ -79,7 +79,7 @@ class AssertRunner {
         $why = "{$config['why']} $why";
       }
       $test->addMessage(new Message(
-          [$why],
+          [Feedback::FAILED_PREFIX . $why],
           MessageType::ERROR,
           Verbosity::VERBOSE
         )

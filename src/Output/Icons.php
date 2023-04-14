@@ -10,7 +10,7 @@ class Icons {
 
   const THUMBS_UP = '👍 ';
 
-  const CLOCK = '⏱ ';
+  const CLOCK = '⏱  ';
 
   const SPYGLASS = '🔎 ';
 

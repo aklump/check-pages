@@ -26,11 +26,9 @@ final class Feedback implements EventSubscriberInterface {
   use SerializationTrait;
 
   /**
-   * This must be a background color.
-   *
-   * @var string
+   * Keep the "fail" word for fast text searching through logs.
    */
-  const FAILED_PREFIX = Icons::NO . 'FAILED: ';
+  const FAILED_PREFIX = Icons::NO . 'FAIL: ';
 
   const COLOR_PENDING = 'purple';
 
