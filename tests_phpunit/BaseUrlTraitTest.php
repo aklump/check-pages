@@ -14,18 +14,24 @@ class BaseUrlTraitTest extends TestCase {
     $this->assertSame('http://github.com', $obj->withoutBaseUrl('http://github.com'));
   }
 
-  public function testProtocolMismatchThrows() {
-    $this->expectException(\InvalidArgumentException::class);
+  public function testProtocolMismatchReturnsTheArgument() {
     $obj = new BaseUrlTraitTestable();
     $obj->setBaseUrl('https://www.foo.com/');
-    $obj->withoutBaseUrl('http://www.foo.com/foo.php');
+    $this->assertSame('http://www.foo.com/foo.php', $obj->withoutBaseUrl('http://www.foo.com/foo.php'));
   }
 
   public function testCreateAbsoluteUrl() {
     $obj = new BaseUrlTraitTestable();
     $obj->setBaseUrl('https://www.foo.com/');
     $this->assertSame('https://www.foo.com/foo.php', $obj->withBaseUrl('/foo.php'));
+
+    // Assert already absolute with the base URL.
     $this->assertSame('https://www.foo.com/foo.php', $obj->withBaseUrl('https://www.foo.com/foo.php'));
+
+    // Assert different scheme
+    $this->assertSame('http://www.foo.com/foo.php', $obj->withBaseUrl('http://www.foo.com/foo.php'));
+    // Assert different host.
+    $this->assertSame('https://trees.com/index.php', $obj->withBaseUrl('https://trees.com/index.php'));
   }
 
   public function testWithEmptyBaseUrl() {

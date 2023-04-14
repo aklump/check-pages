@@ -33,13 +33,6 @@ trait BaseUrlTrait {
   public function withoutBaseUrl(string $url): string {
     $base_url = $this->getBaseUrl();
     if ($base_url && strpos($url, $base_url) !== 0) {
-
-      $a = parse_url($url) + ['host' => '', 'scheme' => ''];
-      $b = parse_url($base_url) + ['host' => '', 'scheme' => ''];
-      if ($a['host'] === $b['host'] && $a['scheme'] !== $b['scheme']) {
-        throw new \InvalidArgumentException("It looks like you're trying to create a local URL with the wrong HTTPS schema, the base_url and the url need to have the same scheme if they have the same host.");
-      }
-
       return $url;
     }
 
@@ -47,9 +40,13 @@ trait BaseUrlTrait {
   }
 
   public function withBaseUrl(string $url): string {
+    $url_scheme = parse_url($url, PHP_URL_SCHEME);
+    $base_scheme = parse_url($this->getBaseUrl(), PHP_URL_SCHEME);
     $url_host = parse_url($url, PHP_URL_HOST);
     $base_host = parse_url($this->getBaseUrl(), PHP_URL_HOST);
-    if ($url_host && $url_host !== $base_host) {
+    $a = $url_scheme . $url_host;
+    $b = $base_scheme . $base_host;
+    if ($a && $a !== $b) {
       return $url;
     }
 
