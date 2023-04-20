@@ -11,9 +11,8 @@
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\RunnerEvent;
 
-$event_list = [];
-$event_class = new ReflectionClass(Event::class);
-
+// You must make sure these are set to the extreme event names otherwise the
+// documentation will be incorrect.
 $script_control = [
   'first_event' => Event::RUNNER_CREATED,
   'last_event' => Event::RUNNER_FINISHED,
@@ -35,16 +34,18 @@ respond_to([
   unset($config['files']);
   $runner->setConfig($config);
   $event_list = [
-    [
+    $first_event => [
       'order' => 1,
       'event' => $first_event,
       'class' => get_class($event),
     ],
   ];
 
-  $event_class = new \ReflectionClass(Event::class);
   $dispatcher = $runner->getDispatcher();
+
+  $event_class = new \ReflectionClass(Event::class);
   $event_constants = $event_class->getConstants();
+
   $total_events = count($event_constants);
   foreach ($event_constants as $event_name) {
     if ($event_name === $first_event) {
@@ -54,6 +55,11 @@ respond_to([
       if (isset($event_list[$name])) {
         return;
       }
+
+      if ($e instanceof Event\TestEvent && $e->getTest()->hasFailed()) {
+        throw new \RuntimeException(sprintf('%s: The event list documentation failed to generate, probably because the test server is not running. Run %s and re-compile.', $e->getTest(), './bin/start_test_server.sh'));
+      }
+
       $event_list[$name] = [
         'order' => count($event_list) + 1,
         'event' => $name,
