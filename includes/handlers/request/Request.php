@@ -131,11 +131,11 @@ final class Request implements HandlerInterface {
             $driver->setMethod($http_method);
             $interpolation_review['method'] = $http_method;
 
-            //
-            // Headers
-            //
             $headers = $config[self::SELECTOR]['headers'] ?? [];
             if ($headers) {
+              $test->interpolate($headers);
+              $interpolation_review['headers'] = $headers;
+
               $headers = array_change_key_case($headers);
               $headers = array_filter($headers, function ($value) {
                 return !empty($value);
@@ -147,14 +147,22 @@ final class Request implements HandlerInterface {
 
                 return strval($header);
               }, $headers);
+
+              foreach ($headers as $key => $value) {
+                $driver->setHeader($key, $value);
+              }
             }
-            $interpolation_review['headers'] = $headers;//
-            // Body
-            //
-            $body = $config[self::SELECTOR]['body'] ?? '';
-            $body = $handler->getEncodedBody($headers, $body);
-            $driver->setBody($body);
-            $interpolation_review['body'] = $body;// Interpolation check debugging.  This step will look for
+
+            if (!empty($config[self::SELECTOR]['body'])) {
+              $body = $config[self::SELECTOR]['body'];
+              $test->interpolate($body);
+              $interpolation_review['body'] = $body;
+
+              $body = $handler->getEncodedBody($headers, $body);
+              $driver->setBody($body);
+            }
+
+            // Interpolation check debugging.  This step will look for
             // un-interpolated values in the request and send out a debug message,
             // which may help developers troubleshoot failing tests.
             if ($test->getSuite()->variables()
@@ -163,15 +171,11 @@ final class Request implements HandlerInterface {
                 ->addMessage(new DebugMessage([
                   'Check variables; the request appears to still need interpolation.',
                 ], MessageType::DEBUG));
-            }//
-            // Set the timeout on the request.
-            //
-            $timeout = $config[self::SELECTOR]['timeout'] ?? NULL;
-            if (is_numeric($timeout)) {
-              $driver->setRequestTimeout($timeout);
             }
-            foreach ($headers as $key => $value) {
-              $driver->setHeader($key, $value);
+
+            $request_timeout = $config[self::SELECTOR]['timeout'] ?? NULL;
+            if (is_numeric($request_timeout)) {
+              $driver->setRequestTimeout($request_timeout);
             }
           }
           catch (Exception $e) {
