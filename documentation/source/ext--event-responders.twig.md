@@ -1,11 +1,15 @@
 <!--
-id: respond_to
-title: Responding to Events
+id: events
 -->
+# Events
 
-# Event Responders
+## Event Subscriber Services
 
-## Events in Execution Order
+1. Create a service class that implements `\Symfony\Component\EventDispatcher\EventSubscriberInterface`
+2. Add it to _services.yml_; tag it with `{ name: event_subscriber }`
+3. See the `continue` service for an example.
+
+## All Events in Execution Order
 
 {% include('_event_list.md') %}
 

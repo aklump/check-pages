@@ -42,7 +42,7 @@ Here's the runner implementation:
 ```php
 # file: runner.php
 
-add_shorthand('item.delete', function ($shorthand, $test) {
+add_shorthand('item.delete', function ($shorthand, \AKlump\CheckPages\Parts\Test $test) {
   assert(is_numeric($shorthand));
   $config = $test->getConfig();
   $config['url'] = '/api/items';
@@ -94,7 +94,7 @@ Follow this strategy if you need to keep the value of `$shorthand` in the test, 
 ```php
 # file: runner.php
 
-add_shorthand('foo', function ($shorthand, $test) {
+add_shorthand('foo', function ($shorthand, \AKlump\CheckPages\Parts\Test $test) {
   $config = $test->getConfig();
   $config['extras']['foo'] = $shorthand;
   $test->setConfig($config);
