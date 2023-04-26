@@ -62,7 +62,7 @@ class Runner {
 
   const OUTPUT_QUIET = 2;
 
-  const LOGGER_PRINTER_BASENAME = 'debug.log';
+  const LOGGER_PRINTER_BASENAME = 'check_pages.log';
 
   /**
    * @var bool
