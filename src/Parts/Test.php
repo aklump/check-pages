@@ -102,6 +102,7 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface {
    * @return void
    */
   public function addBadge(string $badge): void {
+    // TODO This is not printing out anymore Apr 26, 2023, aklump
     $this->badges[] = $badge;
     $this->badges = array_unique($this->badges);
   }

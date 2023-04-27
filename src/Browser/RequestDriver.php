@@ -7,7 +7,9 @@ use AKlump\CheckPages\Service\RequestHistory;
 use AKlump\CheckPages\Traits\BaseUrlTrait;
 use AKlump\Messaging\MessengerInterface;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 
 /**
  * Non-Javascript response driver.
@@ -110,6 +112,11 @@ abstract class RequestDriver implements RequestDriverInterface {
     return $this;
   }
 
+  /**
+   * @return string
+   *
+   * @deprecated Use getUri()
+   */
   public function getUrl(): string {
     return $this->url ?? '';
   }
@@ -135,19 +142,7 @@ abstract class RequestDriver implements RequestDriverInterface {
   }
 
   /**
-   * Retrieves a message header value by the given case-insensitive name.
-   *
-   * This method returns an array of all the header values of the given
-   * case-insensitive header name.
-   *
-   * If the header does not appear in the message, this method MUST return an
-   * empty array.
-   *
-   * @param string $name Case-insensitive header field name.
-   *
-   * @return string[] An array of string values as provided for the given
-   *    header. If the header does not appear in the message, this method MUST
-   *    return an empty array.
+   * {@inheritdoc}
    */
   public function getHeader($name) {
     $headers = array_change_key_case($this->getHeaders());
@@ -158,7 +153,18 @@ abstract class RequestDriver implements RequestDriverInterface {
     return [$headers[$name]];
   }
 
-  public function __toString() {
+  /**
+   * {@inheritdoc}
+   */
+  public function hasHeader(string $name) {
+    return array_key_exists($name, array_change_key_case($this->getHeaders()));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBody() {
+    // TODO The interface says this has to return as a StreamResource, how to?
     $string = [];
     if ($this->body) {
       $body = $this->body;
@@ -170,6 +176,10 @@ abstract class RequestDriver implements RequestDriverInterface {
     }
 
     return implode(PHP_EOL, $string) . PHP_EOL;
+  }
+
+  public function __toString() {
+    return $this->getBody();
   }
 
   public function getMessenger(): ?MessengerInterface {
@@ -237,6 +247,67 @@ abstract class RequestDriver implements RequestDriverInterface {
     $this->messenger = $messenger;
 
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getProtocolVersion() {
+    // TODO: Implement getProtocolVersion() method.
+  }
+
+  public function withProtocolVersion(string $version) {
+    // TODO: Implement withProtocolVersion() method.
+  }
+
+  public function getHeaderLine(string $name) {
+    // TODO: Implement getHeaderLine() method.
+  }
+
+  public function withHeader(string $name, $value) {
+    // TODO: Implement withHeader() method.
+  }
+
+  public function withAddedHeader(string $name, $value) {
+    // TODO: Implement withAddedHeader() method.
+  }
+
+  public function withoutHeader(string $name) {
+    // TODO: Implement withoutHeader() method.
+  }
+
+  public function withBody(\Psr\Http\Message\StreamInterface $body) {
+    // TODO: Implement withBody() method.
+  }
+
+  public function getRequestTarget() {
+    // TODO: Implement getRequestTarget() method.
+  }
+
+  public function withRequestTarget(string $requestTarget) {
+    // TODO: Implement withRequestTarget() method.
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMethod() {
+    return $this->method ?? '';
+  }
+
+  public function withMethod(string $method) {
+    // TODO: Implement withMethod() method.
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getUri() {
+    return new Uri($this->url ?? '');
+  }
+
+  public function withUri(UriInterface $uri, bool $preserveHost = FALSE) {
+    // TODO: Implement withUri() method.
   }
 
 }

@@ -5,9 +5,10 @@ namespace AKlump\CheckPages\Browser;
 
 
 use AKlump\Messaging\MessengerInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-interface RequestDriverInterface {
+interface RequestDriverInterface extends RequestInterface {
 
   public function setBaseUrl(string $base_url): void;
 
@@ -23,6 +24,8 @@ interface RequestDriverInterface {
   /**
    * @return string
    *   The absolute URL of the request.
+   *
+   * @deprecated Use (string) self::getUri() instead.
    */
   public function getUrl(): string;
 
@@ -72,31 +75,6 @@ interface RequestDriverInterface {
    * @return int
    */
   public function getRedirectCode(): int;
-
-  /**
-   * Get the request headers.
-   *
-   * @return array
-   *   The headers to be sent with the request.
-   */
-  public function getHeaders(): array;
-
-  /**
-   * Retrieves a message header value by the given case-insensitive name.
-   *
-   * This method returns an array of all the header values of the given
-   * case-insensitive header name.
-   *
-   * If the header does not appear in the message, this method MUST return an
-   * empty array.
-   *
-   * @param string $name Case-insensitive header field name.
-   *
-   * @return string[] An array of string values as provided for the given
-   *    header. If the header does not appear in the message, this method MUST
-   *    return an empty array.
-   */
-  public function getHeader($name);
 
   /**
    * Get the invalid certificate policy.

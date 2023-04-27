@@ -5,6 +5,7 @@ namespace AKlump\CheckPages;
 use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\Messaging\MessengerInterface;
 use Laminas\Xml2Json\Xml2Json;
+use Psr\Http\Message\MessageInterface;
 use Symfony\Component\Yaml\Yaml;
 
 trait SerializationTrait {
@@ -12,23 +13,24 @@ trait SerializationTrait {
   /**
    * Get content type from a response instance.
    *
-   * @param \Psr\Http\Message\ResponseInterface|\AKlump\CheckPages\Browser\RequestDriverInterface $payload
+   * @param \Psr\Http\Message\MessageInterface $http_message
    *
    * @return string
    *   The lower-cased content type, e.g. 'application/json'
    */
-  protected function getContentType($payload): string {
-    $type = $payload->getHeader('content-type')[0] ?? NULL;
-    if (is_null($type)) {
+  protected static function getContentType(MessageInterface $http_message): string {
+    $type = $http_message->getHeader('content-type')[0] ?? NULL;
+    if (empty($type)) {
       $guesser = new HttpContentTypeGuesser();
-      $type = $guesser->guessType($payload);
+      $body = $http_message->getBody();
+      $type = $guesser->guessType($body);
     }
     [$type] = explode(';', $type . ';');
 
     return strtolower($type);
   }
 
-  protected function serialize($data, string $type, MessengerInterface $printer = NULL): string {
+  protected static function serialize($data, string $type, MessengerInterface $printer = NULL): string {
     switch (strtolower($type)) {
       case 'text/html':
       case 'xml':
@@ -75,7 +77,7 @@ trait SerializationTrait {
    *
    * @todo Support other content types.
    */
-  protected function deserialize(string $serial, string $type, MessengerInterface $printer = NULL) {
+  protected static function deserialize(string $serial, string $type, MessengerInterface $printer = NULL) {
     switch (strtolower($type)) {
       case 'text/html':
         return $serial;
@@ -109,7 +111,7 @@ trait SerializationTrait {
           return NULL;
         }
         $data = json_decode($serial, TRUE);
-        $data = $this->typecastNumbers($data);
+        $data = static::typecastNumbers($data);
 
         return json_decode(json_encode($data));
 
@@ -134,19 +136,20 @@ trait SerializationTrait {
    *
    * @return array
    */
-  protected function valueToArray($value): array {
+  protected static function valueToArray($value): array {
     if (is_scalar($value) || is_null($value)) {
       return [$value];
     }
+
     return json_decode(json_encode($value), TRUE);
   }
 
-  protected function typecastNumbers($value) {
+  protected static function typecastNumbers($value) {
     if (!is_array($value)) {
       return is_numeric($value) ? $value * 1 : $value;
     }
     foreach ($value as $k => $v) {
-      $value[$k] = $this->typecastNumbers($v);
+      $value[$k] = static::typecastNumbers($v);
     }
 
     return $value;

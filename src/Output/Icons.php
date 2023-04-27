@@ -17,6 +17,8 @@ class Icons {
   const NO = '🚫 ';
 
   const GLOBE = '🌐 ';
+  const REQUEST = '▲ ';
+  const RESPONSE = '▼ ';
 
   const SLEEP = '😴 ';
 }
