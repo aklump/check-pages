@@ -32,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- _phpstorm.http_ mixin name changed to _http_request_files_; update any `add_mixin()` calls that reference this.
 - Breakpoints will run only when passing `--break`; previously they ran in verbose mode.
 - `expect` changed to `status`; update all tests.
 - `\AKlump\CheckPages\Event::RUNNER_CONFIG` -> `\AKlump\CheckPages\Event::RUNNER_STARTED`

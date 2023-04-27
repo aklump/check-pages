@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Mixins\Drupal;
 
 use AKlump\CheckPages\Helpers\AuthenticateProviderFactory;
 use AKlump\CheckPages\Parts\Test;
+
 final class Session {
 
   /**
@@ -46,8 +47,8 @@ final class Session {
       $login_url = $this->mixinConfig['login_url'] ?? '/user/login';
       $absolute_login_url = $runner->withBaseUrl($login_url);
 
-      $factory = new AuthenticateProviderFactory();
-      $auth = $factory->get($runner->getLogFiles(), $path_to_users_list, $absolute_login_url);
+      $factory = new AuthenticateProviderFactory($test, $path_to_users_list);
+      $auth = $factory($absolute_login_url);
 
       $user = $auth->getUser($username);
       $auth->login($user);

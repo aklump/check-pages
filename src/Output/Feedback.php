@@ -89,7 +89,7 @@ final class Feedback implements EventSubscriberInterface {
       Event::REQUEST_PREPARED => [
         function (DriverEventInterface $event) {
           $test = $event->getTest();
-          $logger = new HttpMessageLogger($test);
+          $logger = new HttpMessageLogger($test->getRunner()->getInput(), $test);
           $logger($event->getDriver(), MessageType::INFO);
         },
       ],
@@ -101,7 +101,7 @@ final class Feedback implements EventSubscriberInterface {
           if ($test->hasFailed()) {
             $message_type = MessageType::ERROR;
           }
-          $logger = new HttpMessageLogger($test);
+          $logger = new HttpMessageLogger($test->getRunner()->getInput(), $test);
           $response = $event->getDriver()->getResponse();
           $logger($response, $message_type);
         },

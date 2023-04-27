@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Handlers;
 use AKlump\CheckPages\Browser\HeadlessBrowserInterface;
 use AKlump\CheckPages\Browser\RequestDriverInterface;
 use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\BadSyntaxException;
@@ -108,7 +109,7 @@ final class Request implements HandlerInterface {
         },
       ],
       Event::REQUEST_CREATED => [
-        function (Event\DriverEventInterface $event) {
+        function (DriverEventInterface $event) {
           $test = $event->getTest();
           if (!$test->has(self::SELECTOR)) {
             return;

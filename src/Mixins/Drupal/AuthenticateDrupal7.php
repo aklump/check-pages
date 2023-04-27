@@ -21,13 +21,14 @@ final class AuthenticateDrupal7 extends AuthenticateDrupalBase {
    *   The value of the hidden input name=form_id.
    */
   public function __construct(
+    \AKlump\CheckPages\HttpClient $http_client,
     FilesProviderInterface $log_files,
     string $path_to_users_login_data,
     string $absolute_login_url,
     string $form_selector = 'form[action="/user/login"]',
     string $form_id = 'user_login'
   ) {
-    parent::__construct($log_files, $path_to_users_login_data, $absolute_login_url, $form_selector, $form_id);
+    parent::__construct($http_client, $log_files, $path_to_users_login_data, $absolute_login_url, $form_selector, $form_id);
   }
 
   public function login(\AKlump\CheckPages\Helpers\UserInterface $user) {

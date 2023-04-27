@@ -5,9 +5,12 @@ namespace AKlump\CheckPages\Mixins\Drupal;
 use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Files\HttpLogging;
+use AKlump\CheckPages\Helpers\UserInterface;
+use AKlump\CheckPages\HttpClient;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Yaml\Yaml;
@@ -79,7 +82,8 @@ abstract class AuthenticateDrupalBase implements \AKlump\CheckPages\Helpers\Auth
    *   A CSS selector to find the login form on in the DOM of the
    *   $absolute_login_url.
    */
-  public function __construct(FilesProviderInterface $log_files, string $path_to_users_login_data, string $absolute_login_url, string $form_selector, string $form_id) {
+  public function __construct(HttpClient $http_client, FilesProviderInterface $log_files, string $path_to_users_login_data, string $absolute_login_url, string $form_selector, string $form_id) {
+    $this->httpClient = $http_client;
     $this->logFiles = $log_files;
     $this->usersFile = $path_to_users_login_data;
     $this->loginUrl = $absolute_login_url;
@@ -90,7 +94,7 @@ abstract class AuthenticateDrupalBase implements \AKlump\CheckPages\Helpers\Auth
   /**
    * @inherit
    */
-  public function getUser(string $username): \AKlump\CheckPages\Helpers\UserInterface {
+  public function getUser(string $username): UserInterface {
     // Load our non-version username/password index.
     switch (pathinfo($this->usersFile, PATHINFO_EXTENSION)) {
       case 'yaml':
@@ -127,7 +131,7 @@ abstract class AuthenticateDrupalBase implements \AKlump\CheckPages\Helpers\Auth
    *
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  public function login(\AKlump\CheckPages\Helpers\UserInterface $user) {
+  public function login(UserInterface $user) {
     $username = $user->getAccountName();
     $password = $user->getPassword();
 
@@ -135,8 +139,7 @@ abstract class AuthenticateDrupalBase implements \AKlump\CheckPages\Helpers\Auth
     $log_file_contents = HttpLogging::request('Scrape the login form', 'get', $this->loginUrl);
     $this->writeLogFile($log_file_contents);
 
-    $guzzle = new GuzzleDriver();
-    $this->response = $guzzle->getClient()->get($this->loginUrl);
+    $this->response = $this->httpClient->sendRequest(new Request('get', $this->loginUrl));
     $body = strval($this->response->getBody());
 
     $crawler = new Crawler($body);
@@ -179,6 +182,11 @@ abstract class AuthenticateDrupalBase implements \AKlump\CheckPages\Helpers\Auth
           'cookies' => $jar,
           'form_params' => $form_params,
         ]);
+
+      //      $this->response = $this->httpClient->sendRequest(new Request('post', $this->loginUrl, [
+      //        'cookies' => $jar,
+      //        'form_params' => $form_params,
+      //      ]));
     }
     catch (GuzzleException $exception) {
       $failed = TRUE;
@@ -241,7 +249,7 @@ abstract class AuthenticateDrupalBase implements \AKlump\CheckPages\Helpers\Auth
    *
    * @see \AKlump\CheckPages\Helpers\AuthenticateDrupalBase::login()
    */
-  protected function requestUserId(\AKlump\CheckPages\Helpers\UserInterface $user): int {
+  protected function requestUserId(UserInterface $user): int {
     $parts = parse_url($this->loginUrl);
     $url = $parts['scheme'] . '://' . $parts['host'] . '/user';
     try {
@@ -251,11 +259,8 @@ abstract class AuthenticateDrupalBase implements \AKlump\CheckPages\Helpers\Auth
       ]);
       $this->writeLogFile($log_file_contents);
 
-      $guzzle = new GuzzleDriver();
-      $request_result = $guzzle
-        ->setUrl($url)
-        ->setHeader('Cookie', $this->getSessionCookie())
-        ->request();
+      $this->httpClient->sendRequest(new Request('get', $url, ['Cookie' => $this->getSessionCookie()]));
+      $request_result = $this->httpClient->getDriver();
 
       // If the user page is not aliased the UID will appear in the location bar.
       $location = $request_result->getLocation();
@@ -291,7 +296,7 @@ abstract class AuthenticateDrupalBase implements \AKlump\CheckPages\Helpers\Auth
    *
    * @see \AKlump\CheckPages\Helpers\AuthenticateDrupalBase::login()
    */
-  protected function requestUserEmail(\AKlump\CheckPages\Helpers\UserInterface $user): string {
+  protected function requestUserEmail(UserInterface $user): string {
     $uid = $user->id();
     if (!$uid) {
       return '';
@@ -304,13 +309,10 @@ abstract class AuthenticateDrupalBase implements \AKlump\CheckPages\Helpers\Auth
       ]);
       $this->writeLogFile($log_file_contents);
 
-      $guzzle = new GuzzleDriver();
-      $body = strval($guzzle
-        ->setUrl($url)
-        ->setHeader('Cookie', $this->getSessionCookie())
-        ->request()
-        ->getResponse()
-        ->getBody());
+      $body = (string) $this->httpClient->sendRequest(new Request('get', $url, [
+        'Cookie' => $this->getSessionCookie(),
+      ]))->getBody();
+
       $crawler = new Crawler($body);
       $email_input = $crawler->filter('input[name="mail"]')->getNode(0);
       if ($email_input) {

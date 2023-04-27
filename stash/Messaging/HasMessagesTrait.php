@@ -2,11 +2,11 @@
 
 namespace AKlump\Messaging;
 
-trait HasMessagesTrait {
+trait HasMessagesTrait  {
 
   private $hasMessagesTraitMessages = [];
 
-  public function addMessage(MessageInterface $message) {
+  public function addMessage(MessageInterface $message): void {
     $this->hasMessagesTraitMessages[] = $message;
   }
 
@@ -14,12 +14,10 @@ trait HasMessagesTrait {
     return $this->hasMessagesTraitMessages;
   }
 
-  public function setMessages(array $messages): self {
+  public function setMessages(array $messages): void {
     $this->hasMessagesTraitMessages = [];
     foreach ($messages as $message) {
       $this->addMessage($message);
     }
-
-    return $this;
   }
 }

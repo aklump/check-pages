@@ -2,9 +2,8 @@
 
 namespace AKlump\CheckPages\Output;
 
-use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\SerializationTrait;
-use AKlump\Messaging\MessageType;
+use AKlump\Messaging\HasMessagesInterface;
 use AKlump\Messaging\Processors\Messenger;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\RequestInterface;
@@ -12,22 +11,36 @@ use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
- * Use this class to write messages and logs for an HTTP request/response.
+ * Use this class to add formatted messages for an HTTP request or response.
  *
  * @code
- * $logger = new HttpMessageLogger($test);
+ * $logger = new HttpMessageLogger($runner->getInput(), $runner);
  * $logger($request, \AKlump\Messaging\MessageType::ERROR);
  * @endcode
+ *
+ * // TODO Does this need to combine with \AKlump\CheckPages\Files\HttpLogging at all?
  */
 final class HttpMessageLogger {
 
   use SerializationTrait;
 
   /**
-   * @param \AKlump\CheckPages\Parts\Test $test
+   * @var \Symfony\Component\Console\Input\InputInterface
    */
-  public function __construct(Test $test) {
-    $this->test = $test;
+  private $input;
+
+  /**
+   * @var \AKlump\Messaging\HasMessagesInterface
+   */
+  private $messageBag;
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \AKlump\Messaging\HasMessagesInterface $message_bag
+   */
+  public function __construct(InputInterface $input, HasMessagesInterface $message_bag) {
+    $this->input = $input;
+    $this->messageBag = $message_bag;
   }
 
   /**
@@ -39,14 +52,11 @@ final class HttpMessageLogger {
    * @return void
    */
   public function __invoke(MessageInterface $http_message, string $log_messages_type) {
-    $test = $this->test;
-    $input = $test->getRunner()->getInput();
-
     if ($http_message instanceof RequestInterface) {
       $content_verbosity = Verbosity::REQUEST;
       $url = Icons::REQUEST . $http_message->getMethod() . ' ' . $http_message->getUri();
       if (trim($url)) {
-        $test->addMessage(new Message(
+        $this->messageBag->addMessage(new Message(
           [$url],
           $log_messages_type,
           Verbosity::VERBOSE | Verbosity::REQUEST | Verbosity::HEADERS | Verbosity::RESPONSE
@@ -60,7 +70,7 @@ final class HttpMessageLogger {
           $http_message->getStatusCode(),
           $http_message->getReasonPhrase()
         );
-      $test->addMessage(new Message(
+      $this->messageBag->addMessage(new Message(
         [$status_line],
         $log_messages_type,
         Verbosity::HEADERS | Verbosity::RESPONSE
@@ -70,7 +80,7 @@ final class HttpMessageLogger {
     $headers = $http_message->getHeaders();
     $headers = self::prepareHeadersMessage($headers);
     if ($headers) {
-      $test->addMessage(new Message(
+      $this->messageBag->addMessage(new Message(
         array_merge($headers, ['']),
         $log_messages_type,
         Verbosity::HEADERS
@@ -79,9 +89,9 @@ final class HttpMessageLogger {
 
     $content = (string) $http_message->getBody();
     $content_type = self::getContentType($http_message);
-    $content_message = [self::prepareContentMessage($input, $content, $content_type)];
+    $content_message = [self::prepareContentMessage($this->input, $content, $content_type)];
     if (array_filter($content_message)) {
-      $test->addMessage(new Message(array_merge($content_message, ['']), $log_messages_type, $content_verbosity));
+      $this->messageBag->addMessage(new Message(array_merge($content_message, ['']), $log_messages_type, $content_verbosity));
     }
   }
 

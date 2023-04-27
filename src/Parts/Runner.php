@@ -29,6 +29,7 @@ use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\HasSuiteTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Traits\SetTrait;
+use AKlump\Messaging\HasMessagesInterface;
 use AKlump\Messaging\HasMessagesTrait;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
@@ -39,7 +40,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
-class Runner {
+class Runner implements HasMessagesInterface {
 
   use PassFailTrait;
   use HasSuiteTrait;

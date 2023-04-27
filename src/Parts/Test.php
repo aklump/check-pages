@@ -3,15 +3,17 @@
 namespace AKlump\CheckPages\Parts;
 
 use AKlump\CheckPages\Interfaces\HasConfigInterface;
+use AKlump\CheckPages\Output\MessageDelivery;
 use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Variables;
+use AKlump\Messaging\HasMessagesInterface;
 use AKlump\Messaging\HasMessagesTrait;
 use AKlump\Messaging\Processor;
 use JsonSerializable;
 
-class Test implements JsonSerializable, PartInterface, HasConfigInterface {
+class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMessagesInterface {
 
   use HasRunnerTrait;
   use HasMessagesTrait;
@@ -190,15 +192,9 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface {
 
   public function echoMessages() {
     $messages = $this->getMessages();
-    if (empty($messages)) {
-      return;
-    }
-    $messenger = $this->getRunner()->getMessenger()
-      ->addProcessor([Processor::class, 'wordWrap'])
-      ->addProcessor([Processor::class, 'tree']);
-    foreach ($messages as $message) {
-      $messenger->deliver($message);
-    }
+    $delivery = new MessageDelivery();
+    $delivery($this->getRunner()->getMessenger(), $messages);
     $this->setMessages([]);
   }
+
 }
