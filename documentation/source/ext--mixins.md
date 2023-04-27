@@ -16,7 +16,7 @@ add_mixin('my_custom_mixin');
 
 ## Explained
 
-Another way to extend _Check Pages_ is to use the `add_mixin()` function. This method is easier and faster than writing a plugin. It is a simple means to share runner customisation across different runners, or even projects. This is the basis for the authentication providers shipped with Check Pages.
+Another way to extend _Check Pages_ is to use the `add_mixin()` function. This method is easier and faster than writing a plugin. It is a simple means to share runner customization across different runners, or even projects. This is the basis for the authentication providers shipped with Check Pages.
 
 ```text
 .
@@ -64,7 +64,15 @@ echo \AKlump\LoftLib\Bash\Color::wrap('blue', 'foo');
 
 ## Namespace
 
-You should use the namespace `AKlump\CheckPages\Mixins` for any class objects you might create.
+Add the `namespace` declaration at the top of your mixin file in this pattern: `AKlump\CheckPages\Mixins\MIXIN_NAME`.
+
+```php
+<?php
+namespace AKlump\CheckPages\Mixins\HttpRequestFiles;
+...
+```
+
+Also, if you create any classes to support your mixin, they should share that same namespace.  You are responsible for setting up the autoloading to ensure your class is found. [Learn about Composer autoloading](https://getcomposer.org/doc/01-basic-usage.md#autoloading).
 
 ## Errors
 

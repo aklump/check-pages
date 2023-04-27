@@ -13,7 +13,7 @@ add_mixin('mixins/foo', [
   "color" => "blue",
 ]);
 
-add_mixin('phpstorm.http');
+add_mixin('http_request_files');
 
 run_suite('ignored');
 run_suite('group1/*');
