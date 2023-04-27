@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\CheckPages\Options;
+namespace AKlump\CheckPages\Helpers;
 
 /**
  * Interface AuthenticationInterface.
@@ -15,7 +15,7 @@ interface AuthenticationInterface {
    * @param string $username
    *   The username to lookup.
    *
-   * @return array
+   * @return \AKlump\CheckPages\Helpers\UserInterface
    *   At least the keys: name and pass.
    */
   public function getUser(string $username): UserInterface;
@@ -23,7 +23,7 @@ interface AuthenticationInterface {
   /**
    * Login a user.
    *
-   * @param \AKlump\CheckPages\Options\UserInterface $user
+   * @param \AKlump\CheckPages\Helpers\UserInterface $user
    *
    * @throws \RuntimeException
    *   If the login failed.

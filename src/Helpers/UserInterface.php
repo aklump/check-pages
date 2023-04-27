@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\CheckPages\Options;
+namespace AKlump\CheckPages\Helpers;
 
 interface UserInterface {
 
@@ -14,7 +14,7 @@ interface UserInterface {
    *   any other display purposes, use
    *   \Drupal\Core\Session\AccountInterface::getDisplayName() instead.
    */
-  public function getAccountName();
+  public function getAccountName(): string;
 
   /**
    * Returns the email address of this account.
@@ -23,7 +23,7 @@ interface UserInterface {
    *   The email address, or NULL if the account is anonymous or the user does
    *   not have an email address.
    */
-  public function getEmail();
+  public function getEmail(): ?string;
 
   /**
    * Returns the user ID or 0 for anonymous.
@@ -31,7 +31,7 @@ interface UserInterface {
    * @return int
    *   The user ID.
    */
-  public function id();
+  public function id(): int;
 
   /**
    * Get the user password.
@@ -39,5 +39,5 @@ interface UserInterface {
    * @return string
    *   The plain-text user password.
    */
-  public function getPassword();
+  public function getPassword(): string;
 }

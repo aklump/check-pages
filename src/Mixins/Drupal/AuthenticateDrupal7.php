@@ -1,12 +1,10 @@
 <?php
 
-namespace AKlump\CheckPages\Options;
+namespace AKlump\CheckPages\Mixins\Drupal;
 
-use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Files\FilesProviderInterface;
-use GuzzleHttp\Exception\ConnectException;
 
-final class AuthenticateDrupal8 extends AuthenticateDrupalBase {
+final class AuthenticateDrupal7 extends AuthenticateDrupalBase {
 
   /**
    * AuthenticateDrupal8 constructor.
@@ -26,30 +24,27 @@ final class AuthenticateDrupal8 extends AuthenticateDrupalBase {
     FilesProviderInterface $log_files,
     string $path_to_users_login_data,
     string $absolute_login_url,
-    string $form_selector = 'form.user-login-form',
-    string $form_id = 'user_login_form'
+    string $form_selector = 'form[action="/user/login"]',
+    string $form_id = 'user_login'
   ) {
     parent::__construct($log_files, $path_to_users_login_data, $absolute_login_url, $form_selector, $form_id);
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getCsrfToken(): string {
-    $parts = parse_url($this->loginUrl);
-    $url = $parts['scheme'] . '://' . $parts['host'] . '/session/token';
-    try {
-      $guzzle = new GuzzleDriver();
-      $response = $guzzle->getClient([
-        'headers' => [
-          'Cookie' => $this->getSessionCookie(),
-        ],
-      ])->get($url);
-
-      return (string) $response->getBody();
+  public function login(\AKlump\CheckPages\Helpers\UserInterface $user) {
+    parent::login($user);
+    if (!$user->id()) {
+      $body = strval($this->getResponse()->getBody());
+      if (preg_match('/"uid"\:"(\d+?)"/', $body, $matches)) {
+        $user->setId(intval($matches[1]));
+      }
     }
-    catch (ConnectException $exception) {
-      return '';
+    if (!$user->getEmail()) {
+      $this->requestUserEmail($user);
     }
   }
+
+  public function getCsrfToken(): string {
+    return '';
+  }
+
 }

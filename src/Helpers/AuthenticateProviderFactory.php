@@ -1,23 +1,26 @@
 <?php
 
-namespace AKlump\CheckPages\Options;
+namespace AKlump\CheckPages\Helpers;
 
 use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Mixins\Drupal\AuthenticateDrupal7;
+use AKlump\CheckPages\Mixins\Drupal\AuthenticateDrupal8;
 
 class AuthenticateProviderFactory {
 
   /**
    * Return the correct AuthenticationInterface instance for the login URL.
    *
+   * @param \AKlump\CheckPages\Files\FilesProviderInterface $log_files
    * @param string $path_to_users_list
    * @param string $absolute_login_url
    *
-   * @return \AKlump\CheckPages\Options\AuthenticationInterface
+   * @return \AKlump\CheckPages\Helpers\AuthenticationInterface
    *
-   * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
-   *   If the class cannot be determined based on context.
+   * @throws \AKlump\CheckPages\Exceptions\StopRunnerException If the class cannot be determined based on context.
+   * @throws \GuzzleHttp\Exception\GuzzleException If the class cannot be determined based on context.
    */
   public function get(FilesProviderInterface $log_files, string $path_to_users_list, string $absolute_login_url): AuthenticationInterface {
     static $classnames;

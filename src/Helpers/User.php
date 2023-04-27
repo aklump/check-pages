@@ -1,8 +1,10 @@
 <?php
 
-namespace AKlump\CheckPages\Options;
+namespace AKlump\CheckPages\Helpers;
 
-class User implements UserInterface, \JsonSerializable {
+use JsonSerializable;
+
+class User implements UserInterface, JsonSerializable {
 
   protected $name;
 
@@ -15,10 +17,10 @@ class User implements UserInterface, \JsonSerializable {
   /**
    * @param mixed $name
    *
-   * @return
+   * @return \AKlump\CheckPages\Helpers\UserInterface
    *   Self for chaining.
    */
-  public function setAccountName($name): self {
+  public function setAccountName($name): UserInterface {
     $this->name = $name;
 
     return $this;
@@ -27,10 +29,10 @@ class User implements UserInterface, \JsonSerializable {
   /**
    * @param mixed $mail
    *
-   * @return
+   * @return \AKlump\CheckPages\Helpers\UserInterface
    *   Self for chaining.
    */
-  public function setEmail($mail): self {
+  public function setEmail($mail): UserInterface {
     $this->mail = $mail;
 
     return $this;
@@ -39,10 +41,10 @@ class User implements UserInterface, \JsonSerializable {
   /**
    * @param mixed $uid
    *
-   * @return
+   * @return \AKlump\CheckPages\Helpers\UserInterface
    *   Self for chaining.
    */
-  public function setId($uid): self {
+  public function setId($uid): UserInterface {
     $this->uid = $uid;
 
     return $this;
@@ -51,10 +53,10 @@ class User implements UserInterface, \JsonSerializable {
   /**
    * @param mixed $pass
    *
-   * @return
+   * @return \AKlump\CheckPages\Helpers\UserInterface
    *   Self for chaining.
    */
-  public function setPassword($pass): self {
+  public function setPassword($pass): UserInterface {
     $this->pass = $pass;
 
     return $this;
@@ -63,21 +65,21 @@ class User implements UserInterface, \JsonSerializable {
   /**
    * @inheritDoc
    */
-  public function getAccountName() {
+  public function getAccountName(): string {
     return $this->name;
   }
 
   /**
    * @inheritDoc
    */
-  public function getEmail() {
+  public function getEmail(): ?string {
     return $this->mail;
   }
 
   /**
    * @inheritDoc
    */
-  public function id() {
+  public function id(): int {
     return $this->uid;
   }
 
@@ -85,7 +87,7 @@ class User implements UserInterface, \JsonSerializable {
     return $this->pass;
   }
 
-  public function jsonSerialize() {
+  public function jsonSerialize(): array {
     return [
       'uid' => $this->id(),
       'name' => $this->getAccountName(),

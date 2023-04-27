@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\CheckPages\Options;
+namespace AKlump\CheckPages\Mixins\Drupal;
 
 use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Files\FilesProviderInterface;
@@ -15,7 +15,7 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * Base class for Drupal Authentication.
  */
-abstract class AuthenticateDrupalBase implements AuthenticationInterface {
+abstract class AuthenticateDrupalBase implements \AKlump\CheckPages\Helpers\AuthenticationInterface {
 
   const LOG_FILE_PATH = 'drupal/authenticate.http';
 
@@ -90,7 +90,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
   /**
    * @inherit
    */
-  public function getUser(string $username): UserInterface {
+  public function getUser(string $username): \AKlump\CheckPages\Helpers\UserInterface {
     // Load our non-version username/password index.
     switch (pathinfo($this->usersFile, PATHINFO_EXTENSION)) {
       case 'yaml':
@@ -104,7 +104,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     }
 
     // Find the account by username.
-    $user_data = array_first(array_filter($users, function ($account) use ($username) {
+    $user_data = \array_first(array_filter($users, function ($account) use ($username) {
       return $account['name'] === $username;
     }));
     if (empty($user_data)) {
@@ -113,7 +113,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     if (empty($user_data['pass'])) {
       throw new \RuntimeException(sprintf('Missing "pass" key for the user "%s" in %s', $username, $this->usersFile));
     }
-    $user = new User();
+    $user = new \AKlump\CheckPages\Helpers\User();
 
     return $user->setPassword($user_data['pass'])->setAccountName($username);
   }
@@ -127,7 +127,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
    *
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  public function login(UserInterface $user) {
+  public function login(\AKlump\CheckPages\Helpers\UserInterface $user) {
     $username = $user->getAccountName();
     $password = $user->getPassword();
 
@@ -201,7 +201,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
       throw new \RuntimeException(implode(PHP_EOL, $failed_message));
     }
 
-    $session_cookie = array_first(array_filter($jar->toArray(), function ($item) {
+    $session_cookie = \array_first(array_filter($jar->toArray(), function ($item) {
       return strpos($item['Name'], 'SESS') !== FALSE;
     }));
     if (empty($session_cookie)) {
@@ -234,14 +234,14 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
   /**
    * Perform one or more requests to obtain the user ID.
    *
-   * @param \AKlump\CheckPages\Options\UserInterface $user
+   * @param \AKlump\CheckPages\Helpers\UserInterface $user
    *
    * @return int
    *   The User ID if it can be deteremine.
    *
-   * @see \AKlump\CheckPages\Options\AuthenticateDrupalBase::login()
+   * @see \AKlump\CheckPages\Helpers\AuthenticateDrupalBase::login()
    */
-  protected function requestUserId(UserInterface $user): int {
+  protected function requestUserId(\AKlump\CheckPages\Helpers\UserInterface $user): int {
     $parts = parse_url($this->loginUrl);
     $url = $parts['scheme'] . '://' . $parts['host'] . '/user';
     try {
@@ -284,14 +284,14 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
   /**
    * Perform one or more requests to obtain the user email.
    *
-   * @param \AKlump\CheckPages\Options\UserInterface $user
+   * @param \AKlump\CheckPages\Helpers\UserInterface $user
    *
    * @return string
    *   The users email if available.
    *
-   * @see \AKlump\CheckPages\Options\AuthenticateDrupalBase::login()
+   * @see \AKlump\CheckPages\Helpers\AuthenticateDrupalBase::login()
    */
-  protected function requestUserEmail(UserInterface $user): string {
+  protected function requestUserEmail(\AKlump\CheckPages\Helpers\UserInterface $user): string {
     $uid = $user->id();
     if (!$uid) {
       return '';
