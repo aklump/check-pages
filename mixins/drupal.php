@@ -60,22 +60,27 @@ $get_session = new Session($mixin_config);
 
 add_test_option('user', [
   Event::TEST_CREATED => function ($username, TestEventInterface $event) use ($get_session) {
-    if (empty($username)) {
-      return;
+    if (!empty($username)) {
+      $session_vars = $get_session($username, $event->getTest());
+      foreach ($session_vars as $name => $value) {
+        $event->getTest()->getSuite()->variables()->setItem($name, $value);
+      }
     }
+  },
 
-    // Add in user-based variables for later interpolation.
-    $test = $event->getTest();
-    $session = $get_session($username, $test);
-
-    // Do not set these on the test, or some interpolation will fail.
-    $test->getSuite()->variables()
-      ->setItem('user.id', $session['account']['uid'])
-      ->setItem('user.uid', $session['account']['uid'])
-      ->setItem('user.mail', $session['account']['mail'])
-      ->setItem('user.name', $session['account']['name'])
-      ->setItem('user.pass', $session['account']['pass'])
-      ->setItem('user.csrf', $session['csrf_token']);
+  /**
+   * This is important because the user scope is only for the test.  If these
+   * aren't removed then it's possible interpolation gets whacked out.  If a
+   * user wants to use one of these values in another test, they must capture
+   * the value and set it.
+   */
+  Event::TEST_FINISHED => function ($username, TestEventInterface $event) use ($get_session) {
+    if (!empty($username)) {
+      $session_vars = $get_session($username, $event->getTest());
+      foreach ($session_vars as $name => $value) {
+        $event->getTest()->getSuite()->variables()->removeItem($name);
+      }
+    }
   },
 
   Event::REQUEST_CREATED => function ($username, DriverEventInterface $event) use ($get_session) {
@@ -95,7 +100,8 @@ add_test_option('user', [
 
     // Add the session cookie header to requests to make them authenticated.
     $session = $get_session($username, $event->getTest());
-    $event->getDriver()->setHeader('Cookie', $session['cookie']);
+    $event->getDriver()
+      ->setHeader('Cookie', $session->getItem('user.session_cookie'));
   },
 ]);
 

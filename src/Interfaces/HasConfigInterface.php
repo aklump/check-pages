@@ -27,6 +27,16 @@ interface HasConfigInterface {
   public function get(string $config_key);
 
   /**
+   * Set a single configure value.
+   *
+   * @param string $config_key
+   * @param mixed $value
+   *
+   * @return void
+   */
+  public function set(string $config_key, $value): void;
+
+  /**
    * Check if a configuration key exists.
    *
    * @param string $config_key

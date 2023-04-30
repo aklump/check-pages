@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Mixins\Drupal;
 
 use AKlump\CheckPages\Helpers\AuthenticateProviderFactory;
 use AKlump\CheckPages\Parts\Test;
+use AKlump\CheckPages\Variables;
 
 final class Session {
 
@@ -16,7 +17,7 @@ final class Session {
     $this->mixinConfig = $mixin_config;
   }
 
-  public function __invoke(string $username, Test $test) {
+  public function __invoke(string $username, Test $test): Variables {
     $runner = $test->getRunner();
 
     static $sessions;
@@ -66,6 +67,19 @@ final class Session {
       $runner->getStorage()->set('drupal.sessions', $sessions);
     }
 
-    return $sessions[$username];
+    // Do not set these on the test, or some interpolation will fail.
+    $variables = new Variables();
+    $variables
+      ->setItem('user.id', $sessions[$username]['account']['uid'])
+      ->setItem('user.uid', $sessions[$username]['account']['uid'])
+      ->setItem('user.mail', $sessions[$username]['account']['mail'])
+      ->setItem('user.name', $sessions[$username]['account']['name'])
+      ->setItem('user.pass', $sessions[$username]['account']['pass'])
+      ->setItem('user.csrf', $sessions[$username]['csrf_token'])
+      ->setItem('user.session_cookie', $sessions[$username]['cookie'])
+      ->setItem('user.session_expires', $sessions[$username]['cookie']);
+
+    return $variables;
   }
+
 }

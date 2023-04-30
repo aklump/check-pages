@@ -5,9 +5,11 @@ namespace AKlump\CheckPages;
 /**
  * Manages test variables.
  */
-final class Variables implements \Countable {
+final class Variables implements \Countable, \JsonSerializable, \Iterator {
 
   private $values = [];
+
+  private $currentKey = 0;
 
   public function setItem(string $key, $value): self {
     if (is_null($value) || is_scalar($value)) {
@@ -115,4 +117,38 @@ final class Variables implements \Countable {
   public function count() {
     return count($this->values);
   }
+
+  public function jsonSerialize() {
+    $data = [];
+    foreach ($this->values as $key => $value) {
+      $data[$key] = $value;
+    }
+
+    return $data;
+  }
+
+  public function current() {
+    return $this->values[$this->key()] ?? NULL;
+  }
+
+  public function next() {
+    ++$this->currentKey;
+  }
+
+  public function key() {
+    $keys = array_keys($this->values);
+
+    return $keys[$this->currentKey];
+  }
+
+  public function valid() {
+    $keys = array_keys($this->values);
+
+    return array_key_exists($this->currentKey, $keys);
+  }
+
+  public function rewind() {
+    $this->currentKey = 0;
+  }
+
 }

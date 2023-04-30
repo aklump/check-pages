@@ -42,12 +42,7 @@ trait HasConfigTrait {
   }
 
   /**
-   * Set a single configuration value.
-   *
-   * @param string $config_key
-   * @param $value
-   *
-   * @return void
+   * {@inheritdoc}
    */
   public function set(string $config_key, $value): void {
     $this->setConfig([$config_key => $value] + $this->getConfig());

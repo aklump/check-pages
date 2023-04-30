@@ -9,6 +9,33 @@ use PHPUnit\Framework\TestCase;
  */
 final class VariablesTest extends TestCase {
 
+  public function testCanIterate() {
+    $var = new Variables();
+    $var->setItem('foo', 1);
+    $var->setItem('bar', 2);
+    $var->setItem('baz', 3);
+    $data = [];
+    foreach ($var as $key => $value) {
+      $data[$key] = $value;
+    }
+    $this->assertCount(3, $data);
+    $this->assertSame(1, $data['foo']);
+    $this->assertSame(2, $data['bar']);
+    $this->assertSame(3, $data['baz']);
+  }
+
+  public function testJsonSerializeReturnsExpectedArray() {
+    $var = new Variables();
+    $var->setItem('foo', 1);
+    $var->setItem('bar', 2);
+    $var->setItem('baz', 3);
+    $data = json_decode(json_encode($var), TRUE);
+    $this->assertSame(1, $data['foo']);
+    $this->assertSame(2, $data['bar']);
+    $this->assertSame(3, $data['baz']);
+    $this->assertCount(3, $data);
+  }
+
   /**
    * Provides data for testNeedsInterpolation.
    */
