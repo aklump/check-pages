@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Command;
 
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\LocalTimezone\LocalTimezone;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Timer;
@@ -53,9 +54,7 @@ class RunCommand extends Command {
   protected function execute(InputInterface $input, OutputInterface $output): int {
     global $container;
 
-    // Pull the timezone from the system running this.
-    $timezone = new DateTimeZone(exec('date +%Z'));
-    $timer = new Timer($timezone);
+    $timer = new Timer(LocalTimezone::get());
     $timer->start();
 
     // Keep outside of try, because the catch needs this instance.
