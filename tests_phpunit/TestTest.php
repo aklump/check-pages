@@ -12,6 +12,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class TestTest extends TestCase {
 
+  public function testSetWhy() {
+    $test = $this->getTestInstance('', ['why' => 'foobar']);
+    $this->assertSame('foobar', $test->get('why'));
+    $test->set('why', 'lorem');
+    $this->assertSame('lorem', $test->get('why'));
+  }
+
   public function testGetRelativeUrl() {
     $test = $this->getTestInstance('', ['url' => '/foo/bar']);
     $this->assertTrue($test->has('url'));

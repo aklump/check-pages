@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Mixins\Drupal;
 
 use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\HttpClient;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
 
@@ -24,7 +25,7 @@ final class AuthenticateDrupal8 extends AuthenticateDrupalBase {
    *   The value of the hidden input name=form_id.
    */
   public function __construct(
-    \AKlump\CheckPages\HttpClient $http_client,
+    HttpClient $http_client,
     FilesProviderInterface $log_files,
     string $path_to_users_login_data,
     string $absolute_login_url,
@@ -41,9 +42,12 @@ final class AuthenticateDrupal8 extends AuthenticateDrupalBase {
     $parts = parse_url($this->loginUrl);
     $url = $parts['scheme'] . '://' . $parts['host'] . '/session/token';
     try {
-      return (string) $this->httpClient->sendRequest(new Request('get', $url, [
-        'Cookie' => $this->getSessionCookie(),
-      ]))->getBody();
+      return (string) $this->httpClient
+        ->setWhyForNextRequestOnly(__METHOD__)
+        ->sendRequest(new Request('get', $url, [
+          'Cookie' => $this->getSessionCookie(),
+        ]))
+        ->getBody();
     }
     catch (ConnectException $exception) {
       return '';

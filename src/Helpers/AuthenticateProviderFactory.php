@@ -7,8 +7,10 @@ use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\HttpClient;
 use AKlump\CheckPages\Mixins\Drupal\AuthenticateDrupal7;
 use AKlump\CheckPages\Mixins\Drupal\AuthenticateDrupal8;
+use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
 use GuzzleHttp\Psr7\Request;
+use ReflectionClass;
 
 class AuthenticateProviderFactory {
 
@@ -38,25 +40,55 @@ class AuthenticateProviderFactory {
     $http_client = new HttpClient($this->test->getRunner(), $this->test);
     $cid = parse_url($absolute_login_url, PHP_URL_HOST);
     if (empty($classnames[$cid])) {
-      $response = $http_client->sendRequest(new Request('get', $absolute_login_url));
-      $generator = $response->getHeader('X-Generator')[0] ?? '';
-      if (preg_match('/Drupal (\d+)/', $generator, $matches)) {
-        list(, $major_version) = $matches;
-        switch ($major_version) {
-          case 7:
-            $classnames[$cid] = AuthenticateDrupal7::class;
-            break;
-          default:
-            $classnames[$cid] = AuthenticateDrupal8::class;
-            break;
-        }
+      $major_version = $this->getMajorDrupalVersion($http_client, $absolute_login_url);
+      switch ($major_version) {
+        case 7:
+          $classnames[$cid] = AuthenticateDrupal7::class;
+          break;
+
+        default:
+          $classnames[$cid] = AuthenticateDrupal8::class;
+          break;
       }
     }
     if (empty($classnames[$cid])) {
       throw new StopRunnerException(sprintf('Unable to determine authentication class; cannot authenticate against %s', $absolute_login_url));
     }
+    $this->addClassContextToHttpClient($http_client, $classnames[$cid]);
 
     return new $classnames[$cid]($http_client, $this->logFiles, $this->pathToUsers, $absolute_login_url);
+  }
+
+  private function getMajorDrupalVersion($http_client, $absolute_login_url): ?int {
+    $this->addClassContextToHttpClient($http_client, __CLASS__);
+    $response = $http_client
+      ->setWhyForNextRequestOnly(__METHOD__)
+      ->sendRequest(new Request('get', $absolute_login_url));
+    $generator = $response->getHeader('X-Generator')[0] ?? '';
+    preg_match('/Drupal (\d+)/', $generator, $matches);
+
+    return intval($matches[1]) ?? NULL;
+  }
+
+  /**
+   * Configure the http client to point to a FQN class.
+   *
+   * @param \AKlump\CheckPages\HttpClient $http_client
+   * @param string $class_name
+   *
+   * @return void
+   * @throws \ReflectionException
+   */
+  private function addClassContextToHttpClient(HttpClient $http_client, string $class_name): void {
+    $ref = new ReflectionClass($class_name);
+    $shortname = $ref->getShortName();
+    $suite_id = $this->test->getSuite()->id() ?: $shortname;
+    $suite = new Suite($suite_id, [], $this->test->getRunner());
+    $suite_group = $this->test->getSuite()->getGroup();
+    if (!empty($suite_group)) {
+      $suite->setGroup($suite_group);
+    }
+    $http_client->dispatchEventsWith(new Test($this->test->id(), ['why' => $class_name], $suite));
   }
 
 }

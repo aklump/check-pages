@@ -3,6 +3,8 @@
 namespace AKlump\CheckPages\Mixins\Drupal;
 
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Helpers\UserInterface;
+use AKlump\CheckPages\HttpClient;
 
 final class AuthenticateDrupal7 extends AuthenticateDrupalBase {
 
@@ -21,7 +23,7 @@ final class AuthenticateDrupal7 extends AuthenticateDrupalBase {
    *   The value of the hidden input name=form_id.
    */
   public function __construct(
-    \AKlump\CheckPages\HttpClient $http_client,
+    HttpClient $http_client,
     FilesProviderInterface $log_files,
     string $path_to_users_login_data,
     string $absolute_login_url,
@@ -31,7 +33,7 @@ final class AuthenticateDrupal7 extends AuthenticateDrupalBase {
     parent::__construct($http_client, $log_files, $path_to_users_login_data, $absolute_login_url, $form_selector, $form_id);
   }
 
-  public function login(\AKlump\CheckPages\Helpers\UserInterface $user) {
+  public function login(UserInterface $user) {
     parent::login($user);
     if (!$user->id()) {
       $body = strval($this->getResponse()->getBody());

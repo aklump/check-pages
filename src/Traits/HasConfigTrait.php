@@ -42,6 +42,18 @@ trait HasConfigTrait {
   }
 
   /**
+   * Set a single configuration value.
+   *
+   * @param string $config_key
+   * @param $value
+   *
+   * @return void
+   */
+  public function set(string $config_key, $value): void {
+    $this->setConfig([$config_key => $value] + $this->getConfig());
+  }
+
+  /**
    * Check if a configuration key exists.
    *
    * @param string $config_key

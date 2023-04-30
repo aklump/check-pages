@@ -5,6 +5,8 @@ namespace AKlump\CheckPages\Files;
 
 class HttpLogging {
 
+  const IGNORED_HEADER_KEYS = ['host'];
+
   public static function request(string $title, string $method, string $url, array $request_headers = [], $request_body_or_data = NULL): string {
     if (!$url) {
       return '';
@@ -20,7 +22,9 @@ class HttpLogging {
 
     $request_headers = array_change_key_case($request_headers);
     foreach ($request_headers as $key => $value) {
-      $export[] = sprintf('%s: %s', $key, $value);
+      if (!in_array($key, self::IGNORED_HEADER_KEYS)) {
+        $export[] = sprintf('%s: %s', $key, $value);
+      }
     }
 
     if (!empty($request_body_or_data)) {

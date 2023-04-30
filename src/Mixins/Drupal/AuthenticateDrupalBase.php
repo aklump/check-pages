@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Mixins\Drupal;
 use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Files\HttpLogging;
+use AKlump\CheckPages\Helpers\AuthenticationInterface;
 use AKlump\CheckPages\Helpers\UserInterface;
 use AKlump\CheckPages\HttpClient;
 use GuzzleHttp\Cookie\CookieJar;
@@ -18,7 +19,7 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * Base class for Drupal Authentication.
  */
-abstract class AuthenticateDrupalBase implements \AKlump\CheckPages\Helpers\AuthenticationInterface {
+abstract class AuthenticateDrupalBase implements AuthenticationInterface {
 
   const LOG_FILE_PATH = 'drupal/authenticate.http';
 
@@ -139,7 +140,9 @@ abstract class AuthenticateDrupalBase implements \AKlump\CheckPages\Helpers\Auth
     $log_file_contents = HttpLogging::request('Scrape the login form', 'get', $this->loginUrl);
     $this->writeLogFile($log_file_contents);
 
-    $this->response = $this->httpClient->sendRequest(new Request('get', $this->loginUrl));
+    $this->response = $this->httpClient
+      ->setWhyForNextRequestOnly(__METHOD__)
+      ->sendRequest(new Request('get', $this->loginUrl));
     $body = strval($this->response->getBody());
 
     $crawler = new Crawler($body);
@@ -259,7 +262,9 @@ abstract class AuthenticateDrupalBase implements \AKlump\CheckPages\Helpers\Auth
       ]);
       $this->writeLogFile($log_file_contents);
 
-      $this->httpClient->sendRequest(new Request('get', $url, ['Cookie' => $this->getSessionCookie()]));
+      $this->httpClient
+        ->setWhyForNextRequestOnly(__METHOD__)
+        ->sendRequest(new Request('get', $url, ['Cookie' => $this->getSessionCookie()]));
       $request_result = $this->httpClient->getDriver();
 
       // If the user page is not aliased the UID will appear in the location bar.
@@ -309,7 +314,9 @@ abstract class AuthenticateDrupalBase implements \AKlump\CheckPages\Helpers\Auth
       ]);
       $this->writeLogFile($log_file_contents);
 
-      $body = (string) $this->httpClient->sendRequest(new Request('get', $url, [
+      $body = (string) $this->httpClient
+        ->setWhyForNextRequestOnly(__METHOD__)
+        ->sendRequest(new Request('get', $url, [
         'Cookie' => $this->getSessionCookie(),
       ]))->getBody();
 

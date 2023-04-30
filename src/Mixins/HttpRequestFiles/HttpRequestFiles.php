@@ -35,9 +35,9 @@ class HttpRequestFiles {
   }
 
   public function export(Test $test, RequestDriverInterface $driver): string {
-    $config = $test->getConfig();
+    $why = $test->getConfig()['why'] ?? '';
 
-    return HttpLogging::request($config['why'] ?? '', $config['request']['method'] ?? 'get', $test->getAbsoluteUrl(), $driver->getHeaders(), $config['request']['body'] ?? '');
+    return HttpLogging::request($why, $driver->getMethod(), (string) $driver->getUri(), $driver->getHeaders(), trim($driver->getBody()));
   }
 
 }
