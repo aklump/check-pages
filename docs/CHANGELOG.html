@@ -32,6 +32,7 @@
 <h2>[Unreleased]</h2>
 
 <ul>
+<li>ability to override the group based on dirname, e.g. <code>run_suite($component_id, 'group_alias');</code></li>
 <li>the log file should not be deleted, only truncated between runners.</li>
 <li>"why" does not work with "import", it needs to be able to be there and override as well.</li>
 <li><p>There is an issue with the JS browser that looses the session cookie if the url has a redirect. When the browser redirects to the new URL, the session will be lost. I believe it's a bug in this library: https://github.com/chrome-php/chrome. If you're trying to assert w/javascript on a redirected URL, the work around is to use two tests where the first does not use javascript and captures the variable <code>${redirect.location}</code> which you can then use in the subsequent test, which uses the JS browser.</p>
@@ -59,6 +60,9 @@ find: ...
 <h3>Changed</h3>
 
 <ul>
+<li>BREAKING CHANGE! The <em>drupal</em> mixin will now remove all suite variables it added at the end of the test. If you want to use them across tests you need to use <code>set</code> on the test.</li>
+<li><em>phpstorm.http</em> mixin name changed to <em>http_request_files</em>; update any <code>add_mixin()</code> calls that reference this.</li>
+<li>Breakpoints will run only when passing <code>--break</code>; previously they ran in verbose mode.</li>
 <li><code>expect</code> changed to <code>status</code>; update all tests.</li>
 <li><code>\AKlump\CheckPages\Event::RUNNER_CONFIG</code> -> <code>\AKlump\CheckPages\Event::RUNNER_STARTED</code></li>
 <li><code>resolve</code> -> <code>tryResolveDir</code></li>
@@ -359,9 +363,9 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
 </div>
 
 <footer>
-  <div class="pager"><a href="xdebug.html" class="prev xdebug">&laquo;Debugging While Running Tests</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cli.html" class="next cli">Command Line Runner&raquo;</a></div>  
+  <div class="pager"><a href="xdebug.html" class="prev xdebug">&laquo;Debugging While Running Tests</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cli.html" class="next cli">Command Line Runner&raquo;</a></div>
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 12 Apr 2023 20:49:01 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Sun, 30 Apr 2023 16:52:53 -0700</p>
   </div>
 </footer>
 

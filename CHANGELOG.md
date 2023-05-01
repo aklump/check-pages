@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+- ability to override the group based on dirname, e.g. `run_suite($component_id, 'group_alias');`
 - the log file should not be deleted, only truncated between runners.
 - "why" does not work with "import", it needs to be able to be there and override as well.
 - There is an issue with the JS browser that looses the session cookie if the url has a redirect. When the browser redirects to the new URL, the session will be lost. I believe it's a bug in this library: https://github.com/chrome-php/chrome. If you're trying to assert w/javascript on a redirected URL, the work around is to use two tests where the first does not use javascript and captures the variable `${redirect.location}` which you can then use in the subsequent test, which uses the JS browser.
@@ -33,6 +35,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- BREAKING CHANGE! The _drupal_ mixin will now remove all suite variables it added at the end of the test. If you want to use them across tests you need to use `set` on the test.
+- _phpstorm.http_ mixin name changed to _http_request_files_; update any `add_mixin()` calls that reference this.
+- Breakpoints will run only when passing `--break`; previously they ran in verbose mode.
 - `expect` changed to `status`; update all tests.
 - `\AKlump\CheckPages\Event::RUNNER_CONFIG` -> `\AKlump\CheckPages\Event::RUNNER_STARTED`
 - `resolve` -> `tryResolveDir`

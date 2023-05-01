@@ -72,7 +72,7 @@
 <p><strong>Prefix the suite with the config filename, e.g. <em>live.redirects.yml</em>.</strong></p>
 
 <pre><code>└── suites
-    ...    
+    ...
     ├── bar.yml
     ├── baz.yml
     ├── dev.redirects.yml
@@ -83,27 +83,27 @@
 
 <h3>Step Two</h3>
 
-<p><strong>List these as <code>suites_to_ignore</code> in the appropriate config files.</strong></p>
+<p><strong>List these as <code>suites_to_ignore</code> in the appropriate config files.  Use globbing for simplicity.</strong></p>
 
 <p>In <em>config/dev.yml</em>:</p>
 
 <pre><code class="yaml">suites_to_ignore:
-  - live.redirects
-  - test.redirects
+  - live.*
+  - test.*
 </code></pre>
 
 <p>In <em>config/live.yml</em>:</p>
 
 <pre><code class="yaml">suites_to_ignore:
-  - dev.redirects
-  - test.redirects
+  - dev.*
+  - test.*
 </code></pre>
 
 <p>In <em>config/test.yml</em>:</p>
 
 <pre><code class="yaml">suites_to_ignore:
-  - dev.redirects
-  - live.redirects
+  - dev.*
+  - live.*
 </code></pre>
 
 <h2>Why Not Use Groups?</h2>
@@ -117,9 +117,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="deep--variables.html" class="prev deep--variables">&laquo;Variables</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="deep--setup.html" class="next setup">Setup Before Test&raquo;</a></div>  
+  <div class="pager"><a href="deep--variables.html" class="prev deep--variables">&laquo;Variables</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="deep--setup.html" class="next setup">Setup Before Test&raquo;</a></div>
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 12 Apr 2023 20:49:08 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Sun, 30 Apr 2023 16:53:02 -0700</p>
   </div>
 </footer>
 

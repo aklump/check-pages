@@ -63,7 +63,7 @@
 
 <pre><code class="php"># file: runner.php
 
-add_shorthand('item.delete', function ($shorthand, $test) {
+add_shorthand('item.delete', function ($shorthand, \AKlump\CheckPages\Parts\Test $test) {
   assert(is_numeric($shorthand));
   $config = $test-&gt;getConfig();
   $config['url'] = '/api/items';
@@ -113,7 +113,7 @@ add_shorthand('item.delete', function ($shorthand, $test) {
 
 <pre><code class="php"># file: runner.php
 
-add_shorthand('foo', function ($shorthand, $test) {
+add_shorthand('foo', function ($shorthand, \AKlump\CheckPages\Parts\Test $test) {
   $config = $test-&gt;getConfig();
   $config['extras']['foo'] = $shorthand;
   $test-&gt;setConfig($config);
@@ -127,9 +127,9 @@ add_shorthand('foo', function ($shorthand, $test) {
 </div>
 
 <footer>
-  <div class="pager"><a href="ext--imports.html" class="prev ext--imports">&laquo;Imports</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--add_test_option.html" class="next options">Options&raquo;</a></div>  
+  <div class="pager"><a href="ext--imports.html" class="prev ext--imports">&laquo;Imports</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--add_test_option.html" class="next options">Options&raquo;</a></div>
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 12 Apr 2023 20:49:33 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Sun, 30 Apr 2023 16:53:32 -0700</p>
   </div>
 </footer>
 

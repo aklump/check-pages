@@ -32,30 +32,11 @@
 <li>An entry in the runner config with the location of the directory as a resolvable path.</li>
 </ol>
 
-<pre><code class="yaml">files: files/dev
+<pre><code class="yaml">files: logfiles/dev
 </code></pre>
 
-<p>Once you have this enabled, handlers may make use of this for file output during testing.</p>
-
-<h2>Core Usage</h2>
-
-<ul>
-<li>Each suite will create a subdirectory by it's filename.</li>
-<li>In that directory the following files will be created:
-
-<ul>
-<li><em>urls.txt</em> a list of urls that failed testing.</li>
-<li><em>failures.txt</em> verbose output of the failures only.</li>
-</ul></li>
-</ul>
-
-<p>Try using <code>tail -f files/SUITE/urls.txt</code> during development.</p>
-
-<h2>Browser Session Storage</h2>
-
-<p>Authentication can slow down your tests. To mitigate this you can create a writeable folder at <em>{config.files}/storage</em> and the session cookies will be written to disk the first time they are obtained from the test subject. After that, authentication will skip the login step and pull the session data from <em>files/storage</em>. Protect the contents of that directory because it contains credentials.</p>
-
-<p>If you do not want this feature, then make sure that there is no directory called <em>storage</em> in the the directory you've defined as your writeable files in the runner config.</p>
+<p>Once you have this enabled, handlers will make use of this directory by writing different files related to the testing.
+When a suite is run, a subdirectory is created within the directory defined by the configuration.</p>
 <!--end_searchable_content-->
 </section>
 
@@ -64,9 +45,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="authentication.html" class="prev authentication">&laquo;Authentication</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="xdebug.html" class="next xdebug">Debugging While Running Tests&raquo;</a></div>  
+  <div class="pager"><a href="authentication.html" class="prev authentication">&laquo;Authentication</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="xdebug.html" class="next xdebug">Debugging While Running Tests&raquo;</a></div>
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 12 Apr 2023 20:49:34 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Sun, 30 Apr 2023 16:53:33 -0700</p>
   </div>
 </footer>
 

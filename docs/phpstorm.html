@@ -10,7 +10,7 @@
 
 <body class="page--phpstorm">
 <header>
-  <div class="pager"><a href="interpolation.html" class="prev interpolation">&laquo;Interpolation</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="services.html" class="next services">Service Classes&raquo;</a></div></header>
+  <div class="pager"><a href="interpolation.html" class="prev interpolation">&laquo;Interpolation</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="stash.html" class="next stash">Stashing Values&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -25,26 +25,24 @@
   <h1>PhpStorm Integration</h1>
   <!--searchable_content-->
 
-<p>You may use the <em>phpstorm.http</em> mixin to export test suites as <a href="https://www.jetbrains.com/help/phpstorm/http-client-in-product-code-editor.html">HTTP Client</a> files.</p>
+<p>You may use the <em>http_request_files</em> mixin to export test suites as <a href="https://www.jetbrains.com/help/phpstorm/http-client-in-product-code-editor.html">HTTP Client</a> files.</p>
 
 <p>To enable this add the following to your runner:</p>
 
-<pre><code class="php">add_mixin('phpstorm.http', [
-  'output' =&gt; config_get('files') . '/phpstorm',
+<pre><code class="php">add_mixin('http_request_files', [
   'single_file' =&gt; TRUE,
   'exclude_passing' =&gt; TRUE,
 ]);
 </code></pre>
 
 <ul>
-<li>As you can see you have to create an output directory as <code>output</code>.</li>
 <li>Each suite will create it's own file unless you set <code>single_file</code> to <code>TRUE</code>.</li>
 <li>Set <code>exclude_passing</code> and only failing tests will be exported.</li>
 </ul>
 
-<p>Each time your run the suite, the file will be recreated.</p>
+<p>Each time your run the suite, the file erased and rewritten.</p>
 
-<p><strong>Be careful with these files because they contain session cookies for any authenticated requests.</strong></p>
+<p><strong>Be careful with these files because they may contain session and other authentication information.</strong></p>
 <!--end_searchable_content-->
 </section>
 
@@ -53,9 +51,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="interpolation.html" class="prev interpolation">&laquo;Interpolation</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="services.html" class="next services">Service Classes&raquo;</a></div>  
+  <div class="pager"><a href="interpolation.html" class="prev interpolation">&laquo;Interpolation</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="stash.html" class="next stash">Stashing Values&raquo;</a></div>
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 12 Apr 2023 20:49:37 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Sun, 30 Apr 2023 16:53:37 -0700</p>
   </div>
 </footer>
 

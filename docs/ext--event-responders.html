@@ -2,13 +2,13 @@
 
 <html>
 <head>
-  <title>Responding to Events</title>
+  <title>Events</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
   <meta name="keywords" content="" />
 </head>
 
-<body class="page--respond_to">
+<body class="page--events">
 <header>
   <div class="pager"><a href="ext--snippets.html" class="prev ext--snippets">&laquo;Code Snippets</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div></header>
 <section class="sub-header">
@@ -24,14 +24,21 @@
   </section>
 
 <section>
-  <h1>Event Responders</h1>
+  <h1>Events</h1>
   <!--searchable_content--><!--
-id: respond_to
-title: Responding to Events
+id: events
 -->
 
 
-<h2>Events in Execution Order</h2>
+<h2>Event Subscriber Services</h2>
+
+<ol>
+<li>Create a service class that implements <code>\Symfony\Component\EventDispatcher\EventSubscriberInterface</code></li>
+<li>Add it to <em>services.yml</em>; tag it with <code>{ name: event_subscriber }</code></li>
+<li>See the <code>continue</code> service for an example.</li>
+</ol>
+
+<h2>All Events in Execution Order</h2>
 
 <table>
 <thead>
@@ -174,9 +181,9 @@ title: Responding to Events
 </div>
 
 <footer>
-  <div class="pager"><a href="ext--snippets.html" class="prev ext--snippets">&laquo;Code Snippets</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div>  
+  <div class="pager"><a href="ext--snippets.html" class="prev ext--snippets">&laquo;Code Snippets</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--javascript2.html" class="next javascript">More Javascript&raquo;</a></div>
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Wed, 12 Apr 2023 20:49:30 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Sun, 30 Apr 2023 16:53:28 -0700</p>
   </div>
 </footer>
 

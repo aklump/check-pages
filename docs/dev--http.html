@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Making HTTP Requests in Your Custom Code</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
+</head>
+
+<body class="page--dev--http">
+<header>
+  <div class="pager"><a href="dev--output.html" class="prev dev--output">&laquo;Developers Note: User Messages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="code--add_test_option.html" class="next code--add_test_option">Mixin Code Example&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="dev--code_flow">Dev</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Making HTTP Requests in Your Custom Code</h1>
+  <!--searchable_content-->
+
+<p>Here's how to use the built-in HTTP Client:</p>
+
+<pre><code class="php">$http_client = new \AKlump\CheckPages\HttpClient($runner, $runner);
+$request = new \GuzzleHttp\Psr7\Request('get', '/');
+$response = $http_client-&gt;sendRequest($request);
+</code></pre>
+
+<p>An example with headers and getting the driver, then location.</p>
+
+<pre><code class="php">$http_client-&gt;sendRequest(new Request('get', $url, ['Cookie' =&gt; $this-&gt;getSessionCookie()]));
+$location = $this-&gt;httpClient-&gt;getDriver()-&gt;getLocation()
+</code></pre>
+
+<p>The messages can be delivered like this:</p>
+
+<pre><code class="php">$delivery = new \AKlump\CheckPages\Output\MessageDelivery();
+$delivery($runner-&gt;getMessenger(), $runner-&gt;getMessages());
+$runner-&gt;setMessages([]);
+</code></pre>
+<!--end_searchable_content-->
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="dev--output.html" class="prev dev--output">&laquo;Developers Note: User Messages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="code--add_test_option.html" class="next code--add_test_option">Mixin Code Example&raquo;</a></div>
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Sun, 30 Apr 2023 16:53:25 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
