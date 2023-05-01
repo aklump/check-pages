@@ -89,7 +89,8 @@ final class Feedback implements EventSubscriberInterface {
       Event::REQUEST_PREPARED => [
         function (DriverEventInterface $event) {
           $test = $event->getTest();
-          $logger = new HttpMessageLogger($test->getRunner()->getInput(), $test);
+          $logger = new HttpMessageLogger($test->getRunner()
+            ->getInput(), $test);
           $logger($event->getDriver(), MessageType::INFO);
         },
       ],
@@ -101,7 +102,8 @@ final class Feedback implements EventSubscriberInterface {
           if ($test->hasFailed()) {
             $message_type = MessageType::ERROR;
           }
-          $logger = new HttpMessageLogger($test->getRunner()->getInput(), $test);
+          $logger = new HttpMessageLogger($test->getRunner()
+            ->getInput(), $test);
           $response = $event->getDriver()->getResponse();
           $logger($response, $message_type);
         },
@@ -110,9 +112,12 @@ final class Feedback implements EventSubscriberInterface {
       Event::TEST_FAILED => [
         function (TestEventInterface $event) {
           $test = $event->getTest();
-          $test->addMessage(new Message([
-            self::FAILED_PREFIX . $test,
-          ], MessageType::ERROR, Verbosity::VERBOSE));
+          $line = self::FAILED_PREFIX . $test;
+          $why = $test->get('why');
+          if ($why) {
+            $line .= ": $why";
+          }
+          $test->addMessage(new Message([$line], MessageType::ERROR, Verbosity::VERBOSE));
         },
       ],
 
