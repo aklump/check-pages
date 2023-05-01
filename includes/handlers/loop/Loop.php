@@ -11,7 +11,7 @@ use AKlump\CheckPages\Parts\Test;
 use Exception;
 
 /**
- * Implements the Sleep handler.
+ * Implements the Loop handler.
  */
 final class Loop implements HandlerInterface {
 
@@ -62,9 +62,10 @@ final class Loop implements HandlerInterface {
    * @return void
    */
   public function expandLoops(Suite $suite) {
+    $this->checkSuiteSyntax($suite);
     $this->currentLoop = NULL;
     foreach ($suite->getTests() as $test) {
-      $this->beHelpful($test);
+      $this->checkTestSyntax($test);
       if ($test->has('loop')) {
         if ($this->currentLoop) {
           throw new BadSyntaxException('Loops may not be nested; you must end the first loop before starting a new one.', $suite);
@@ -98,15 +99,51 @@ final class Loop implements HandlerInterface {
   /**
    * Analyze a test and try to make suggestions if the dev has made a mistake.
    *
+   * - Make sure "end loop" was used and not some likely varient.
+   *
    * @param \AKlump\CheckPages\Parts\Test $test
    *
    * @return void
+   * @throws \AKlump\CheckPages\Exceptions\BadSyntaxException
    */
-  private function beHelpful(Test $test) {
-    $config = $test->getConfig();
-    // Watch for "endloop" (a mistake) instead of "end loop" as a closure.
-    if (array_key_exists('endloop', $config) && count($config) === 1 && is_null($config['endloop']) && $this->currentLoop) {
-      throw new BadSyntaxException('Found "endloop", did you mean "end loop"?');
+  private function checkTestSyntax(Test $test) {
+    if (!$this->currentLoop) {
+      return;
+    }
+    foreach (['endloop', 'end_loop', 'endLoop'] as $key) {
+      if ($test->has($key)) {
+        throw new BadSyntaxException(sprintf('Found "%s", did you mean "end loop"?', $key));
+      }
+    }
+  }
+
+  /**
+   * Check suite loop syntax
+   *
+   * - Make sure all loops are ended.
+   * - Make sure loops are not nested.
+   *
+   * @param \AKlump\CheckPages\Parts\Suite $suite
+   *
+   * @return void
+   *
+   * @throws \AKlump\CheckPages\Exceptions\BadSyntaxException
+   */
+  private function checkSuiteSyntax(Suite $suite): void {
+    $in_loop = FALSE;
+    foreach ($suite->getTests() as $test) {
+      if ($test->has('loop')) {
+        if ($in_loop) {
+          throw new BadSyntaxException("Loops cannot be nested, you must call `end loop` before starting a new loop.");
+        }
+        $in_loop = TRUE;
+      }
+      if ($test->has('end loop')) {
+        $in_loop = FALSE;
+      }
+    }
+    if ($in_loop) {
+      throw new BadSyntaxException("Missing `end loop`.");
     }
   }
 
