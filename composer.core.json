@@ -42,7 +42,8 @@
     "symfony/dom-crawler": "^5.0",
     "symfony/event-dispatcher": "^4.4|^5.4",
     "symfony/expression-language": "^4.4|^5.4",
-    "symfony/yaml": "^3.4|^4.0|^5.0"
+    "symfony/yaml": "^3.4|^4.0|^5.0",
+    "aklump/local-timezone": "^0.0.1"
   },
   "version": "0.17.0",
   "bin": [

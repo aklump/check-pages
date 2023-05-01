@@ -52,9 +52,6 @@ class HttpClient implements ClientInterface {
     $this->setRunner($runner);
     $this->messageBag = $message_bag;
     static::$class_instance_id++;
-
-    // Leverage dispatchEventsWith()'s handling of empty values to defaults.
-    $this->dispatchEventsWith(new Test('', [], new Suite('', [], $this->getRunner())));
   }
 
   /**

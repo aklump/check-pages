@@ -4,7 +4,6 @@ namespace AKlump\CheckPages\Command;
 
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
-use AKlump\LocalTimezone\LocalTimezone;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Timer;
@@ -12,7 +11,7 @@ use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
-use DateTimeZone;
+use AKlump\LocalTimezone\LocalTimezone;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
