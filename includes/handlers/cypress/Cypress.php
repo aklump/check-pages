@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Handlers;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Output\Icons;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\Messaging\MessageType;
@@ -59,7 +60,7 @@ final class Cypress implements HandlerInterface {
             $command[] = sprintf('--env "%s"', $env);
           }
 
-          $test->addMessage(new Message(["Passing to Cypress..."], MessageType::INFO, Verbosity::VERBOSE));
+          $test->addMessage(new Message([Icons::FOOTBALL . "Handoff to Cypress..."], MessageType::INFO, Verbosity::VERBOSE));
           $test->echoMessages();
 
           $command = implode(' ', $command);

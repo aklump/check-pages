@@ -17,8 +17,22 @@ class Icons {
   const NO = '🚫 ';
 
   const GLOBE = '🌐 ';
+
   const REQUEST = '▲ ';
+
   const RESPONSE = '▼ ';
 
   const SLEEP = '😴 ';
+
+  const WAVE = '🙋 ';
+
+  const FEET = '👣 ';
+
+  const STOPLIGHT = '🚦 ';
+
+  const SUITECASE = '🧳 ';
+
+  const FOOTBALL = '🏈 ';
+
+  const HOOK = '🪝 ';
 }
