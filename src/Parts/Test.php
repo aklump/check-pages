@@ -86,9 +86,13 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMe
       $method = $this->getHttpMethod();
       $has_multiple_methods = count($this->getSuite()->getHttpMethods()) > 1;
       $method = $has_multiple_methods ? $method : '';
-      $title = ltrim("$method $url", ' ');
+      if ($url) {
+        $title = ltrim("$method $url", ' ');
+      }
     }
-    $this->interpolate($title);
+    if ($title) {
+      $this->interpolate($title);
+    }
 
     return $title . rtrim(' ' . (implode('', $this->badges)));
   }
@@ -104,7 +108,6 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMe
    * @return void
    */
   public function addBadge(string $badge): void {
-    // TODO This is not printing out anymore Apr 26, 2023, aklump
     $this->badges[] = $badge;
     $this->badges = array_unique($this->badges);
   }

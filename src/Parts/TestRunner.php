@@ -107,7 +107,7 @@ final class TestRunner {
         // Keep this after the timeout so that handlers may override.
         $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_CREATED);
         $this->getDriver()
-          ->setUrl($runner->withBaseUrl($test->getConfig()['url']));
+          ->setUrl($runner->withBaseUrl($test->getConfig()['url'] ?? ''));
         // TODO Do we really need this event?
         $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_PREPARED);
 
