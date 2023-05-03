@@ -87,13 +87,18 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           $mime_type = $mime_type[0];
           $mimes = new MimeTypes();
 
-          $relative_path = self::getRelativePathBySuite($event->getTest()
-            ->getSuite());
-
-          // We cannot use the test ID because it cannot be guaranteed to be
-          // sequential, since tests may be inserted during bootstrap, resulting
-          // in test IDs that are out of sequence.
-          $relative_path .= '_' . str_pad(self::$counter++, 3, 0, STR_PAD_LEFT);
+          $test = $event->getTest();
+          $path_by_suite = self::getRelativePathBySuite($test->getSuite());
+          $relative_path = dirname($path_by_suite);
+          // We cannot use the test ID as a sequence ID because it cannot be
+          // guaranteed to be unique or not empty, since tests may be inserted
+          // during bootstrap, resulting in test IDs that are out of sequence.
+          // Therefore we use our own ad hoc sequence and we put it at the front
+          // to ensure our directory listings appear in sequential order.
+          $relative_path .= '/' . str_pad(self::$counter++, 3, 0, STR_PAD_LEFT);
+          $relative_path .= '_' . basename($path_by_suite);
+          // The test ID is helpful, but not guaranteed to be there.
+          $relative_path .= rtrim('_' . $test->id(), '_');
           $relative_path .= '.' . $mimes->getExtension($mime_type);
 
           $content = $event->getDriver()->getResponse()->getBody();
