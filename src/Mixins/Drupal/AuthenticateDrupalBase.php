@@ -275,12 +275,20 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
 
       // Sometimes it appears in a <link> tag.
       $body = strval($request_result->getResponse()->getBody());
+
+      // Look for the user edit URL pattern, which would probably be in a
+      // primary tab.
+      preg_match_all('/user\/(\d+)\/edit/i', $body, $matches);
+      if (count($matches[1]) === 1) {
+        return intval($matches[1][0]);
+      }
+
       $crawler = new Crawler($body);
       $shortlink = $crawler->filter('link[rel=shortlink]')->getNode(0);
       if ($shortlink) {
-        $shortlink = $shortlink->getAttribute('href');
+        $user_uri = $shortlink->getAttribute('href');
       }
-      if ($shortlink && preg_match('/user\/(\d+)/', $shortlink, $matches)) {
+      if ($user_uri && preg_match('/user\/(\d+)/', $user_uri, $matches)) {
         return intval($matches[1]);
       }
     }
@@ -317,8 +325,8 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
       $body = (string) $this->httpClient
         ->setWhyForNextRequestOnly(__METHOD__)
         ->sendRequest(new Request('get', $url, [
-        'Cookie' => $this->getSessionCookie(),
-      ]))->getBody();
+          'Cookie' => $this->getSessionCookie(),
+        ]))->getBody();
 
       $crawler = new Crawler($body);
       $email_input = $crawler->filter('input[name="mail"]')->getNode(0);
