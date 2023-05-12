@@ -34,7 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - BREAKING CHANGE! The _drupal_ mixin will now remove all suite variables it added at the end of the test. If you want to use them across tests you need to use `set` on the test.
-- _phpstorm.http_ mixin name changed to _http_request_files_; update any `add_mixin()` calls that reference this.
+- _phpstorm.http_ mixin name changed to _http_request_files_; update any `add_mixin()` calls that reference this. Also remove the `output` option which is no longer used.
 - Breakpoints will run only when passing `--break`; previously they ran in verbose mode.
 - `expect` changed to `status`; update all tests.
 - `\AKlump\CheckPages\Event::RUNNER_CONFIG` -> `\AKlump\CheckPages\Event::RUNNER_STARTED`
