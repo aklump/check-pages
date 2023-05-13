@@ -2,19 +2,17 @@
 
 <html>
 <head>
-  <title>Ignore Suites</title>
+  <title>Using With Lando</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
   <meta name="keywords" content="" />
 </head>
 
-<body class="page--config--suites_to_ignore">
+<body class="page--lando">
 <header>
-  <div class="pager"><a href="config--secrets.html" class="prev config--secrets">&laquo;Config Secrets</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="dev--code_flow.html" class="next dev--code_flow">Dev  Code Flow&raquo;</a></div></header>
+  <div class="pager"><a href="suite_index.html" class="prev suite_index">&laquo;Suite Index</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="expected-outcome.html" class="next expected-outcome">When You _Want_ Failure&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
-         &raquo
-                        <a href="config--secrets">Config</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -24,11 +22,20 @@
   </section>
 
 <section>
-  <h1>Ignore Suites</h1>
+  <h1>Using With Lando</h1>
   <!--searchable_content-->
 
+<p>If you get a sockets nto installed error add this:</p>
+
+<pre><code class="yaml">services:
+    build_as_root:
+      - apt-get update
+      - apt-get install -y autoconf
+      - docker-php-ext-install sockets
+</code></pre>
+
 <ul>
-<li>Config items take this form <code>suite</code> or <code>group/suite</code>.</li>
+<li>https://github.com/lando/docs/issues/62#issuecomment-578870310</li>
 </ul>
 <!--end_searchable_content-->
 </section>
@@ -38,9 +45,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="config--secrets.html" class="prev config--secrets">&laquo;Config Secrets</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="dev--code_flow.html" class="next dev--code_flow">Dev  Code Flow&raquo;</a></div>  
+  <div class="pager"><a href="suite_index.html" class="prev suite_index">&laquo;Suite Index</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="expected-outcome.html" class="next expected-outcome">When You _Want_ Failure&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Fri, 12 May 2023 18:20:04 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Fri, 12 May 2023 18:20:25 -0700</p>
   </div>
 </footer>
 

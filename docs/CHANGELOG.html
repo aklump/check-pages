@@ -60,8 +60,9 @@ find: ...
 <h3>Changed</h3>
 
 <ul>
+<li>Minimum PHP is now 7.4.</li>
 <li>BREAKING CHANGE! The <em>drupal</em> mixin will now remove all suite variables it added at the end of the test. If you want to use them across tests you need to use <code>set</code> on the test.</li>
-<li><em>phpstorm.http</em> mixin name changed to <em>http_request_files</em>; update any <code>add_mixin()</code> calls that reference this.</li>
+<li><em>phpstorm.http</em> mixin name changed to <em>http_request_files</em>; update any <code>add_mixin()</code> calls that reference this. Also remove the <code>output</code> option which is no longer used.</li>
 <li>Breakpoints will run only when passing <code>--break</code>; previously they ran in verbose mode.</li>
 <li><code>expect</code> changed to <code>status</code>; update all tests.</li>
 <li><code>\AKlump\CheckPages\Event::RUNNER_CONFIG</code> -> <code>\AKlump\CheckPages\Event::RUNNER_STARTED</code></li>
@@ -363,9 +364,9 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
 </div>
 
 <footer>
-  <div class="pager"><a href="xdebug.html" class="prev xdebug">&laquo;Debugging While Running Tests</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cli.html" class="next cli">Command Line Runner&raquo;</a></div>
+  <div class="pager"><a href="xdebug.html" class="prev xdebug">&laquo;Debugging While Running Tests</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cli.html" class="next cli">Command Line Runner&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Sun, 30 Apr 2023 16:52:53 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Fri, 12 May 2023 18:20:01 -0700</p>
   </div>
 </footer>
 

@@ -27,14 +27,23 @@
   <h1>Making HTTP Requests in Your Custom Code</h1>
   <!--searchable_content-->
 
-<p>Here's how to use the built-in HTTP Client:</p>
+<p>Here's how to use the built-in HTTP Client. As you can see you will need a <code>$runner</code> and a <code>$test</code> instance.</p>
 
-<pre><code class="php">$http_client = new \AKlump\CheckPages\HttpClient($runner, $runner);
-$request = new \GuzzleHttp\Psr7\Request('get', '/');
-$response = $http_client-&gt;sendRequest($request);
+<pre><code class="php">$http_client = new HttpClient($runner, $test);
+$response = $http_client
+  -&gt;dispatchEventsWith($test)
+  -&gt;setWhyForNextRequestOnly('Lorem ipsum dolar')
+  -&gt;sendRequest(new Request('get', '/foo/bar'));
 </code></pre>
 
-<p>An example with headers and getting the driver, then location.</p>
+<p>You can do like the following, however events will not be fired, so BE CAREFUL using this pattern.</p>
+
+<pre><code class="php">$http_client = new HttpClient($runner, $test);
+$response = $http_client
+  -&gt;sendRequest(new Request('get', '/foo/bar'));
+</code></pre>
+
+<p>An example with <code>Cookie</code> header as well as getting the driver, then location.</p>
 
 <pre><code class="php">$http_client-&gt;sendRequest(new Request('get', $url, ['Cookie' =&gt; $this-&gt;getSessionCookie()]));
 $location = $this-&gt;httpClient-&gt;getDriver()-&gt;getLocation()
@@ -54,9 +63,9 @@ $runner-&gt;setMessages([]);
 </div>
 
 <footer>
-  <div class="pager"><a href="dev--output.html" class="prev dev--output">&laquo;Developers Note: User Messages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="code--add_test_option.html" class="next code--add_test_option">Mixin Code Example&raquo;</a></div>
+  <div class="pager"><a href="dev--output.html" class="prev dev--output">&laquo;Developers Note: User Messages</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="code--add_test_option.html" class="next code--add_test_option">Mixin Code Example&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Sun, 30 Apr 2023 16:53:25 -0700</p>
+    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Fri, 12 May 2023 18:20:18 -0700</p>
   </div>
 </footer>
 
