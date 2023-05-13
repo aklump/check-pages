@@ -1,6 +1,7 @@
 vendor/
 /tests/
 /.idea/
+composer.lock
 /example/tests/files
 node_modules/
 documentation/core
