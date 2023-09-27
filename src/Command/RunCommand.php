@@ -221,7 +221,8 @@ class RunCommand extends Command {
         $flags = NULL;
       }
 
-      $message = new Message($lines, MessageType::ERROR);
+      $message_type = $total_test_count > 0 ? MessageType::ERROR : MessageType::INFO;
+      $message = new Message($lines, $message_type);
     }
     $messenger->deliver($message, $flags);
   }
