@@ -45,7 +45,6 @@
     "symfony/yaml": "^3.4|^4.0|^5.0",
     "aklump/local-timezone": "^0.0.1"
   },
-  "version": "0.17.0",
   "bin": [
     "./check_pages",
     "./create_test_directory"
