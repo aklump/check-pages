@@ -2,7 +2,15 @@
 
 namespace AKlump\CheckPages;
 
+use AKlump\CheckPages\AssertType\Contains;
+use AKlump\CheckPages\AssertType\Equals;
+use AKlump\CheckPages\AssertType\Matches;
+use AKlump\CheckPages\AssertType\NotContains;
+use AKlump\CheckPages\AssertType\NotEquals;
+use AKlump\CheckPages\AssertType\NotMatches;
+use AKlump\CheckPages\AssertType\Text;
 use AKlump\CheckPages\Exceptions\TestFailedException;
+use AKlump\CheckPages\Helpers\CrawlerToArray;
 use AKlump\CheckPages\Interfaces\HasConfigInterface;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Traits\HasConfigTrait;
@@ -140,6 +148,12 @@ final class Assert implements HasConfigInterface {
    * @var string
    */
   private $reason = '';
+
+  public function setReason(string $reason): self {
+    $this->reason = $reason;
+
+    return $this;
+  }
 
   /**
    * @var string
@@ -346,52 +360,25 @@ final class Assert implements HasConfigInterface {
     // The asserts run against an array, so if $haystack is a Crawler, it must
     // be converted to an array before the asserts are tested.
     if ($haystack instanceof Crawler) {
-
-      if (!$haystack->getNode(0)) {
-        // It's possible that we're doing a count === 0, in which case this will
-        // not actually be a fail, and will be reversed during the count phase.
-        $haystack = [];
-        $this->reason = sprintf('"%s" does not exist in the DOM.', $this->searchValue);
-        $pass = FALSE;
-      }
-      else {
-        switch ($this->assertType) {
-          case self::ASSERT_TEXT:
-            $haystack = $haystack->each(function ($node) {
-              return trim($node->text());
-            });
-            break;
-
-          case self::ASSERT_CONTAINS:
-          case self::ASSERT_NOT_CONTAINS:
-          case self::ASSERT_MATCHES:
-          case self::ASSERT_NOT_MATCHES:
-          case self::ASSERT_SETTER:
-          case self::ASSERT_EQUALS:
-          case self::ASSERT_NOT_EQUALS:
-            $haystack = $haystack->each(function ($node) {
-              if ($this->modifierType === self::MODIFIER_ATTRIBUTE) {
-                $value = $node->attr($this->modifierValue);
-              }
-              else {
-                $value = $node->html();
-              }
-
-              return trim($value);
-            });
-            break;
-        }
-      }
+      $haystack = (new CrawlerToArray())($this, $haystack, $pass);
     }
 
-    // In order that count works correctly, all of these cases must add to
-    // $countable in whatever length is appropriate as $countable is the subject
-    // of the count assertion.  For example when nodes match by text, then those
-    // matches should be included in countable.
-    $countable = $haystack;
+    // In order that count works correctly, all of these cases must fill
+    // $countable in whatever length is appropriate to that type of assert, as
+    // $countable is the subject of the count assertion.  For example when nodes
+    // match by text, then only those matches should be included in countable.
+    $countable = [];
 
     switch ($this->assertType) {
+
+      case self::ASSERT_SETTER:
+        $countable = $haystack;
+        $pass = TRUE;
+        $this->setNeedleIfNotSet($haystack[0] ?? NULL);
+        break;
+
       case self::ASSERT_CALLABLE:
+        $countable = $haystack;
         try {
           $callback = $this->assertValue;
           $pass = $callback($this);
@@ -406,166 +393,37 @@ final class Assert implements HasConfigInterface {
         }
         break;
 
-      case self::ASSERT_NOT_CONTAINS:
-        $pass = empty($haystack);
-        $countable = [];
-        foreach ($haystack as $item) {
-          $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
-            if (strpos($item_variation, strval($this->assertValue)) === FALSE) {
-              $this->setNeedleIfNotSet($item_variation);
-
-              return TRUE;
-            }
-
-            return FALSE;
-          });
-          if ($result) {
-            $countable[] = $item;
-            $pass = $pass || $result;
-
-          }
-          else {
-            $this->reason = sprintf("The following is not supposed to be found:\n\n>>> %s\n\n", $this->assertValue);
-            break;
-          }
-        }
+      case self::ASSERT_TEXT:
+        $pass = (new Text())($this, $haystack, $countable);
         break;
 
       case self::ASSERT_CONTAINS:
-        $pass = FALSE;
-        $countable = [];
-        foreach ($haystack as $item) {
-          $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
-            if (strpos(strval($item_variation), strval($this->assertValue)) !== FALSE) {
-              $this->setNeedleIfNotSet($item_variation);
-
-              return TRUE;
-            }
-
-            return FALSE;
-          });
-          if ($result) {
-            $countable[] = $item;
-            $pass = $pass || $result;
-          }
-        }
-        if (!$pass) {
-          $this->reason = sprintf("Unable to find:\n\n> %s\n\n", $this->assertValue);
-        }
+        $pass = (new Contains())($this, $haystack, $countable);
         break;
 
-      case self::ASSERT_TEXT:
-        $pass = FALSE;
-        $countable = [];
-        foreach ($haystack as $item) {
-          $item = strip_tags($item);
-          $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
-            if ($item_variation == $this->assertValue) {
-              $this->setNeedleIfNotSet($item_variation);
-
-              return TRUE;
-            }
-
-            return FALSE;
-          });
-          if ($result) {
-            $countable[] = $item;
-            $pass = $pass || $result;
-          }
-        }
-        if (!$pass) {
-          $haystack = implode('", "', $haystack);
-          $this->reason = sprintf("The actual value\n│\n│   \"%s\"\n│\n│   is not the expected\n│\n│   \"%s\"\n│", $haystack, $this->assertValue);
-        }
-        break;
-
-      case self::ASSERT_SETTER:
-        $pass = TRUE;
-        $this->setNeedleIfNotSet($haystack[0] ?? NULL);
+      case self::ASSERT_NOT_CONTAINS:
+        $pass = (new NotContains())($this, $haystack, $countable);
         break;
 
       case self::ASSERT_EQUALS:
-        $pass = FALSE;
-        $countable = [];
-        foreach ($haystack as $item) {
-          $result = $this->equals($item, $this->assertValue);
-          if ($result) {
-            $this->setNeedleIfNotSet($item);
-            $countable[] = $item;
-            $pass = $pass || $result;
-          }
-        }
-        if (!$pass) {
-          $haystack = implode('", "', $haystack);
-          $this->reason = sprintf("The actual value\n│\n│   \"%s\"\n│\n│   is not the expected\n│\n│   \"%s\"\n│", $haystack, $this->assertValue);
-        }
+        $pass = (new Equals())($this, $haystack, $countable);
         break;
 
       case self::ASSERT_NOT_EQUALS:
-        $pass = empty($haystack);
-        $countable = [];
-        foreach ($haystack as $item) {
-          $result = !$this->equals($item, $this->assertValue);
-          if ($result) {
-            $this->setNeedleIfNotSet($item);
-            $countable[] = $item;
-            $pass = $pass || $result;
-          }
-        }
-        if (!$pass) {
-          $haystack = implode('", "', $haystack);
-          $this->reason = sprintf("The actual value\n│\n│   \"%s\"\n│\n│   should not match exactly to\n│\n│   \"%s\"\n│", $haystack, $this->assertValue);
-        }
+        $pass = (new NotEquals())($this, $haystack, $countable);
         break;
 
       case self::ASSERT_MATCHES:
-        $pass = FALSE;
-        $countable = [];
-        $item = '';
-        foreach ($haystack as $item) {
-          $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
-            if (preg_match($this->assertValue, $item_variation, $matches)) {
-              $this->setNeedleIfNotSet($matches[0]);
-
-              return TRUE;
-            }
-
-            return FALSE;
-          });
-          if ($result) {
-            $countable[] = $item;
-            $pass = $pass || $result;
-          }
-        }
-        if (!$pass) {
-          $this->reason = sprintf("Unable to match actual value \"%s\" using \"%s\".", $item, $this->assertValue);
-        }
+        $pass = (new Matches())($this, $haystack, $countable);
         break;
 
       case self::ASSERT_NOT_MATCHES:
-        $pass = empty($haystack);
-        $countable = [];
-        foreach ($haystack as $item) {
-          $result = $this->applyCallbackWithVariations($item, function ($item_variation) {
-            if (!preg_match($this->assertValue, $item_variation)) {
-              $this->setNeedleIfNotSet($item_variation);
-
-              return TRUE;
-            }
-
-            return FALSE;
-          });
-          if ($result) {
-            $countable[] = $item;
-            $pass = $pass || $result;
-          }
-        }
-        if (!$pass) {
-          $this->reason = sprintf("Value \"%s\" should not match RegEx \"%s\".", $item, $this->assertValue);
-        }
+        $pass = (new NotMatches())($this, $haystack, $countable);
         break;
 
       default:
+        // TODO Should we throw if no assert type is defined?
+        $countable = $haystack;
         $pass = FALSE;
         break;
     }
@@ -856,29 +714,6 @@ final class Assert implements HasConfigInterface {
   }
 
   /**
-   * Apply a callback using variations of $item.
-   *
-   * @param $item
-   *   This may contain special characters like &nbps;, which we want to match
-   *   against a ' ' for loose-matching.  This value and variances based on
-   *   string replacements will be passed to $callback.
-   * @param callable $callback
-   *   This should receive one argument and return a true based on comparing
-   *   that item to $this->asserValue.  The callback will be called more than
-   *   once, using variations of $item.  Only one pass is necessary for a true
-   *   response.
-   *
-   * @return bool
-   *   True if the callback returns true at least once.
-   */
-  private function applyCallbackWithVariations($item, callable $callback): bool {
-    return $callback($item)
-
-      // Replace ASCII 160 with 32.
-      || $callback(str_replace(' ', ' ', $item));
-  }
-
-  /**
    * Register a callback to use for altering the stringification of this.
    *
    * @param callable $callback
@@ -893,26 +728,4 @@ final class Assert implements HasConfigInterface {
     return $this;
   }
 
-  /**
-   * Compare $a to $b in a special "equals" fashion.
-   *
-   * @param $a
-   * @param $b
-   *
-   * @return bool
-   */
-  protected function equals($a, $b) {
-    if (is_numeric($a) && is_numeric($b)) {
-      return $a == $b;
-    }
-
-    if (is_null($a)) {
-      $a = '';
-    }
-    if (is_null($b)) {
-      $b = '';
-    }
-
-    return $a === $b;
-  }
 }
