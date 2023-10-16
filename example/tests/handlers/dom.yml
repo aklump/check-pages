@@ -2,6 +2,26 @@
     visit: /handlers/dom.php
     find:
         -
+            why: 'Ensure matches works across multiple dom elements.'
+            dom: .block-title
+            matches: /blog/i
+        -
+            why: 'Ensure not matches works across multiple dom elements.'
+            xpath: '//*[@class="block-title"][1]'
+            'not matches': /blog/i
+        -
+            why: 'Ensure not matches works across multiple dom elements.'
+            xpath: '//*[@class="block-title"][2]'
+            'not matches': /blog/i
+        -
+            why: 'Ensure not matches works across multiple dom elements.'
+            xpath: '//*[@class="block-title"][3]'
+            matches: /blog/i
+        -
+            why: 'Ensure matches works across multiple dom elements.'
+            dom: .block-title
+            matches: /events/i
+        -
             dom: 'nav a'
             attribute: href
             is: /page2
