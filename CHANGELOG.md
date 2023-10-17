@@ -29,12 +29,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
    
   ```
 
-## [0.18.0] - 2023-03-14
-
-### Added
+## [0.18.0] - 2023-10-14
 
 ### Changed
 
+- POTENTIAL BREAKING CHANGE! See section in docs "Understanding How Multiple DOM Elements Are Handled" as some logic has been changed around this topic.
 - Minimum PHP is now 7.4.
 - BREAKING CHANGE! The _drupal_ mixin will now remove all suite variables it added at the end of the test. If you want to use them across tests you need to use `set` on the test.
 - _phpstorm.http_ mixin name changed to _http_request_files_; update any `add_mixin()` calls that reference this. Also remove the `output` option which is no longer used.
@@ -46,17 +45,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `end_loop` changed back to `end loop`
 - `\AKlump\CheckPages\Parts\Runner::url()` -> `\AKlump\CheckPages\Parts\Runner::withBaseUrl()`
 
-### Deprecated
-
-### Removed
-
 ### Fixed
 
 - An issue with `location` and multiple redirects where it would not return the final redirect URL, but the first. This will break some tests. You will need to update your tests with the final URL.
-
-### Security
-
-- lorem
 
 ## [0.17] - 2022-11-27
 

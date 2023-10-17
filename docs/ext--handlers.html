@@ -32,8 +32,9 @@
 
 <ol>
 <li>Inside the handler folder require your dependency with the <code>--no-install</code> flag.</li>
-<li>Do not add <em>HANDLER/composer.lock</em> to the repo.</li>
-<li>Compile the handlers <code>./bin/compile_handlers.php.php</code>.</li>
+<li>Do not add <em>HANDLER/composer.lock</em> to the repo, nor <em>HANDLER/vender/</em>.</li>
+<li>Add your handler's <em>composer.json</em> path to the <code>/extra/merge-plugin/require</code> array.</li>
+<li>Run <code>composer update</code>.</li>
 </ol>
 
 <h2>Proper Use of Letter Case</h2>
@@ -76,7 +77,9 @@
    ├── schema.definitions.json
    ├── schema.assertion.json
    ├── schema.test.json
-   ├── suite.yml
+   ├── src
+   │   └── Alpha.php
+   └── suite.yml
    └── test_subject.html
 </code></pre></li>
 <li><p>Write the <em>suite.yml</em> file which will be run against <em>test_subject.html, test_subject.php, test_subject.json</em>, etc</p></li>
@@ -84,6 +87,13 @@
 suite.yml_.</li>
 <li><em>README.md</em> is optional, but will be added to the Check Pages documentation when it's compiled and should be used to give examples of how the handler should be implemented.</li>
 </ol>
+
+<h3>Handler Objects/Classes</h3>
+
+<ul>
+<li>Each handler will provide it's main class in the namespace <code>AKlump\CheckPages\Handlers</code> with an upper-camel case file matching it's id, e.g. <em>foo_bar/FooBar.php</em>.</li>
+<li>Any additional classes should be namespaced to the handler, e.g. <code>AKlump\CheckPages\Handlers\FooBar</code> and saved to <em>foo_bar/src/Alpha.php</em>`.</li>
+</ul>
 
 <h2>Extending the JSON Schema for Suite Validation</h2>
 
@@ -206,7 +216,7 @@ foreach ([
 <footer>
   <div class="pager"><a href="ext--mixins.html" class="prev ext--mixins">&laquo;Mixins</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="ext--snippets.html" class="next ext--snippets">Code Snippets&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Fri, 12 May 2023 18:20:21 -0700</p>
+    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Mon, 16 Oct 2023 18:42:34 -0700</p>
   </div>
 </footer>
 
