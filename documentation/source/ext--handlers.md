@@ -10,8 +10,9 @@ title: Handlers
 ## Using Composer Dependencies
 
 1. Inside the handler folder require your dependency with the `--no-install` flag.
-3. Do not add _HANDLER/composer.lock_ to the repo.
-2. Compile the handlers `./bin/compile_handlers.php.php`.
+2. Do not add _HANDLER/composer.lock_ to the repo, nor _HANDLER/vender/_.
+3. Add your handler's _composer.json_ path to the `/extra/merge-plugin/require` array.
+4. Run `composer update`.
 
 ## Proper Use of Letter Case
 
@@ -54,7 +55,9 @@ This is the most involved method of extending Check Pages, and offers the greate
        ├── schema.definitions.json
        ├── schema.assertion.json
        ├── schema.test.json
-       ├── suite.yml
+       ├── src
+       │   └── Alpha.php
+       └── suite.yml
        └── test_subject.html
    ```
 
@@ -63,6 +66,11 @@ This is the most involved method of extending Check Pages, and offers the greate
 2. Create _test_subject.html_ or _test_subject.php_ as needed to test _
    suite.yml_.
 3. _README.md_ is optional, but will be added to the Check Pages documentation when it's compiled and should be used to give examples of how the handler should be implemented.
+
+### Handler Objects/Classes
+
+* Each handler will provide it's main class in the namespace `AKlump\CheckPages\Handlers` with an upper-camel case file matching it's id, e.g. _foo_bar/FooBar.php_.
+* Any additional classes should be namespaced to the handler, e.g. `AKlump\CheckPages\Handlers\FooBar` and saved to _foo_bar/src/Alpha.php_`.
 
 ## Extending the JSON Schema for Suite Validation
 

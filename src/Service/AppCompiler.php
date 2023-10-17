@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages\Service;
 
 use AKlump\CheckPages\CheckPages;
+use AKlump\CheckPages\Plugin\HandlersManager;
 use AKlump\LoftLib\Code\Strings;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -53,26 +54,20 @@ final class AppCompiler {
    * @param string $generated_schema_path
    * @param string $master_services_path
    * @param string $generated_services_path
-   * @param string $master_composer_json_path
-   * @param string $generated_composer_json_path
    * @param string $examples_path
    */
   public function __construct(
-    \AKlump\CheckPages\Plugin\HandlersManager $plugins_manager,
+    HandlersManager $plugins_manager,
     string $master_schema_path,
     string $generated_schema_path,
     string $master_services_path,
     string $generated_services_path,
-    string $master_composer_json_path,
-    string $generated_composer_json_path,
     string $examples_path
   ) {
     $this->pluginsManager = $plugins_manager;
 
     $this->masterServicesPath = $master_services_path;
     $this->generatedServicesPath = $generated_services_path;
-    $this->masterComposerJsonPath = $master_composer_json_path;
-    $this->generatedComposerJsonPath = $generated_composer_json_path;
     $this->services = Yaml::parseFile($this->masterServicesPath);
 
     $this->masterSchemaPath = $master_schema_path;
@@ -94,12 +89,12 @@ final class AppCompiler {
    */
   public function compile() {
     $handlers = $this->pluginsManager->getAllHandlers();
-    foreach ($handlers as &$handler) {
-      $this->compileHandler($handler);
+    foreach (array_keys($handlers) as $key) {
+      $this->compileHandler($handlers[$key]);
     }
+
     $this->createTestRunnerPhpFile($handlers);
     $this->generateServicesFile();
-    $this->updateComposerJson();
 
     // This has to come last so handlers may affect the compile files.
     foreach ($handlers as $handler) {
@@ -214,51 +209,6 @@ final class AppCompiler {
     }
 
     return $handler_provides_tests;
-  }
-
-  /**
-   * Add autoloading to composer.json for handlers.
-   *
-   * @return void
-   */
-  private function updateComposerJson() {
-    $unique = function (array &$array) {
-      $array = array_unique($array);
-    };
-    $json = json_decode(file_get_contents($this->masterComposerJsonPath), TRUE);
-    $json['autoload']['psr-4']['AKlump\CheckPages\Handlers\\'] = [];
-    $handlers = $this->pluginsManager->getAllHandlers();
-
-    $autoload_base = 'includes/' . CheckPages::DIR_HANDLERS . '/';
-
-    foreach ($handlers as $handler) {
-      $json['autoload']['psr-4']['AKlump\CheckPages\Handlers\\'][] = $autoload_base . $handler['id'] . '/';
-      $unique($json['autoload']['psr-4']['AKlump\CheckPages\Handlers\\']);
-      if (is_dir($handler['path'] . '/src/')) {
-        $psr_prefix = 'AKlump\CheckPages\Handlers\\' . Strings::upperCamel($handler['id']) . '\\';
-        $json['autoload']['psr-4'][$psr_prefix][] = $autoload_base . $handler['id'] . '/src/';
-        $unique($json['autoload']['psr-4'][$psr_prefix]);
-      }
-      $composer_json = $handler['path'] . '/composer.json';
-      if (file_exists($composer_json)) {
-        $composer_json = file_get_contents($composer_json);
-        $handler_json = json_decode($composer_json, TRUE);
-        if (!$handler_json) {
-          throw new \RuntimeException(sprintf('Invalid contents in %s', $composer_json));
-        }
-        foreach (($handler_json['require'] ?? []) as $package => $version) {
-          if (empty($json['require'][$package])) {
-            $json['require'][$package] = $version;
-          }
-          elseif ($json['require'][$package] !== $version) {
-            throw new \RuntimeException(sprintf('Version conflict for package %s in %s', $package, $handler['id']));
-          }
-        }
-      }
-    }
-    ksort($json['require']);
-
-    file_put_contents($this->generatedComposerJsonPath, json_encode($json, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
   }
 
   /**

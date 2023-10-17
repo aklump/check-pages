@@ -21,8 +21,6 @@ $compiler = new AppCompiler(
   ROOT . '/' . Runner::SCHEMA_VISIT . '.json',
   ROOT . '/services.yml',
   ROOT . '/services.DO_NOT_EDIT.yml',
-  ROOT . '/composer.core.json',
-  ROOT . '/composer.json',
   ROOT . '/example'
 );
 try {

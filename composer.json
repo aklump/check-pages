@@ -1,88 +1,73 @@
 {
-    "name": "aklump/check-pages",
-    "type": "library",
-    "description": "Very simple QA for websites.",
-    "keywords": [],
-    "homepage": "https://github.com/aklump/check-pages",
-    "license": "BSD-3-Clause",
-    "autoload": {
-        "files": [
-            "includes/runner_functions.inc"
-        ],
-        "psr-4": {
-            "AKlump\\Messaging\\": "stash/Messaging/",
-            "AKlump\\CheckPages\\": "src/",
-            "AKlump\\CheckPages\\Handlers\\": [
-                "includes/handlers/breakpoint/",
-                "includes/handlers/count/",
-                "includes/handlers/cypress/",
-                "includes/handlers/device/",
-                "includes/handlers/dom/",
-                "includes/handlers/evaluate/",
-                "includes/handlers/form/",
-                "includes/handlers/header/",
-                "includes/handlers/import/",
-                "includes/handlers/javascript/",
-                "includes/handlers/json_pointer/",
-                "includes/handlers/json_schema/",
-                "includes/handlers/loop/",
-                "includes/handlers/path/",
-                "includes/handlers/redirect/",
-                "includes/handlers/request/",
-                "includes/handlers/sleep/",
-                "includes/handlers/style/",
-                "includes/handlers/value/",
-                "includes/handlers/xpath/"
-            ]
-        }
-    },
-    "authors": [
-        {
-            "name": "Aaron Klump",
-            "email": "sourcecode@intheloftstudios.com"
-        }
+  "name": "aklump/check-pages",
+  "type": "library",
+  "description": "Very simple QA for websites.",
+  "keywords": [],
+  "homepage": "https://github.com/aklump/check-pages",
+  "license": "BSD-3-Clause",
+  "autoload": {
+    "files": [
+      "includes/runner_functions.inc"
     ],
-    "require": {
-        "aklump/local-timezone": "^0.0.1",
-        "aklump/loft-lib": "^1.3",
-        "behat/mink": "^1.8",
-        "binary-cube/dot-array": "^1.1",
-        "chrome-php/chrome": "^1.8",
-        "dmore/chrome-mink-driver": "^2.7",
-        "ext-curl": "*",
-        "ext-dom": "*",
-        "ext-json": "*",
-        "guzzlehttp/guzzle": "^6.3|^7.0",
-        "justinrainbow/json-schema": "^5.2",
-        "laminas/laminas-xml2json": "^3.2",
-        "midweste/objectpath": "^1.0",
-        "opis/json-schema": "^2.3",
-        "php": "^7.4",
-        "php-jsonpointer/php-jsonpointer": "^4.0",
-        "ralouphie/mimey": "^2.1",
-        "shanethehat/pretty-xml": "^1.0",
-        "spatie/browsershot": "^3.57",
-        "symfony/config": "^4.4|^5.4",
-        "symfony/console": "^4.4|^5.4",
-        "symfony/css-selector": "^3.4|^4.0|^5.0",
-        "symfony/dependency-injection": "^4.4|^5.4",
-        "symfony/dom-crawler": "^5.0",
-        "symfony/event-dispatcher": "^4.4|^5.4",
-        "symfony/expression-language": "^4.4|^5.4",
-        "symfony/yaml": "^3.4|^4.0|^5.0"
-    },
-    "bin": [
-        "./check_pages",
-        "./create_test_directory"
-    ],
-    "scripts": {
-        "post-install-cmd": [
-            "./create_test_directory"
-        ]
-    },
-    "require-dev": {
-        "squizlabs/php_codesniffer": "^3.5",
-        "drupal/coder": "^8.3",
-        "phpunit/phpunit": "^9.5"
+    "psr-4": {
+      "AKlump\\Messaging\\": "stash/Messaging/",
+      "AKlump\\CheckPages\\": "src/"
     }
+  },
+  "authors": [
+    {
+      "name": "Aaron Klump",
+      "email": "sourcecode@intheloftstudios.com"
+    }
+  ],
+  "require": {
+    "aklump/local-timezone": "^0.0.1",
+    "aklump/loft-lib": "^2",
+    "behat/mink": "^1.8",
+    "chrome-php/chrome": "^1.8",
+    "dmore/chrome-mink-driver": "^2.7",
+    "ext-curl": "*",
+    "ext-dom": "*",
+    "ext-json": "*",
+    "guzzlehttp/guzzle": "^6.3|^7.0",
+    "justinrainbow/json-schema": "^5.2",
+    "laminas/laminas-xml2json": "^3.2",
+    "php": "^7.4",
+    "ralouphie/mimey": "^2.1",
+    "shanethehat/pretty-xml": "^1.0",
+    "spatie/browsershot": "^3.57",
+    "symfony/config": "^4.4|^5.4",
+    "symfony/console": "^4.4|^5.4",
+    "symfony/css-selector": "^3.4|^4.0|^5.0",
+    "symfony/dependency-injection": "^4.4|^5.4",
+    "symfony/dom-crawler": "^5.0",
+    "symfony/event-dispatcher": "^4.4|^5.4",
+    "symfony/expression-language": "^4.4|^5.4",
+    "symfony/yaml": "^3.4|^4.0|^5.0",
+    "wikimedia/composer-merge-plugin": "^2.1"
+  },
+  "bin": [
+    "./check_pages",
+    "./create_test_directory"
+  ],
+  "scripts": {
+    "post-install-cmd": [
+      "./create_test_directory"
+    ]
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^3.5",
+    "drupal/coder": "^8.3",
+    "phpunit/phpunit": "^9.5",
+    "composer/composer": "^2.6"
+  },
+  "extra": {
+    "merge-plugin": {
+      "require": [
+        "includes/handlers/json_pointer/composer.json",
+        "includes/handlers/json_schema/composer.json",
+        "includes/handlers/path/composer.json"
+      ]
+    }
+  }
 }

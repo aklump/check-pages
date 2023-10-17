@@ -5,21 +5,30 @@
  * Entry file for Check Pages CLI.
  */
 
-if (file_exists(__DIR__ . '/../../autoload.php')) {
-  require __DIR__ . '/../../autoload.php';
-}
-else {
-  require __DIR__ . '/vendor/autoload.php';
-}
-
 use AKlump\CheckPages\CheckPages;
 use AKlump\CheckPages\Command\RunCommand;
 use AKlump\CheckPages\Files\LocalFilesProvider;
+use AKlump\CheckPages\Handlers\AddHandlerAutoloads;
 use AKlump\CheckPages\Plugin\HandlersManager;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+
+foreach ([
+           __DIR__ . '/../../autoload.php',
+           __DIR__ . '/../vendor/autoload.php',
+           __DIR__ . '/vendor/autoload.php',
+         ] as $file) {
+  if (file_exists($file)) {
+    /** @var \Composer\Autoload\ClassLoader $class_loader */
+    $class_loader = require_once $file;
+    break;
+  }
+}
+if (!$class_loader) {
+  throw new \RuntimeException('Missing autoload.php');
+}
 
 global $container;
 $container = new ContainerBuilder();
@@ -38,7 +47,11 @@ $version = json_decode(file_get_contents($composer_json))->version ?? '';
 $application->setVersion($version);
 
 $path_to_handlers = realpath($root_files->tryResolveDir('includes/' . CheckPages::DIR_HANDLERS)[0]);
-$container->set('handlers_manager', new HandlersManager($path_to_handlers));
+$handlers_manger = new HandlersManager($path_to_handlers);
+$container->set('handlers_manager', $handlers_manger);
+
+// TODO Can this be optimized and cached in an autoload.php?
+(new AddHandlerAutoloads($handlers_manger))($class_loader);
 
 $application->add(new RunCommand($root_files));
 
