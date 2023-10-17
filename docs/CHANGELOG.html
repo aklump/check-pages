@@ -53,13 +53,12 @@ find: ...
 </code></pre></li>
 </ul>
 
-<h2>[0.18.0] - 2023-03-14</h2>
-
-<h3>Added</h3>
+<h2>[0.18.0] - 2023-10-14</h2>
 
 <h3>Changed</h3>
 
 <ul>
+<li>POTENTIAL BREAKING CHANGE! See section in docs "Understanding How Multiple DOM Elements Are Handled" as some logic has been changed around this topic.</li>
 <li>Minimum PHP is now 7.4.</li>
 <li>BREAKING CHANGE! The <em>drupal</em> mixin will now remove all suite variables it added at the end of the test. If you want to use them across tests you need to use <code>set</code> on the test.</li>
 <li><em>phpstorm.http</em> mixin name changed to <em>http_request_files</em>; update any <code>add_mixin()</code> calls that reference this. Also remove the <code>output</code> option which is no longer used.</li>
@@ -72,20 +71,10 @@ find: ...
 <li><code>\AKlump\CheckPages\Parts\Runner::url()</code> -> <code>\AKlump\CheckPages\Parts\Runner::withBaseUrl()</code></li>
 </ul>
 
-<h3>Deprecated</h3>
-
-<h3>Removed</h3>
-
 <h3>Fixed</h3>
 
 <ul>
 <li>An issue with <code>location</code> and multiple redirects where it would not return the final redirect URL, but the first. This will break some tests. You will need to update your tests with the final URL.</li>
-</ul>
-
-<h3>Security</h3>
-
-<ul>
-<li>lorem</li>
 </ul>
 
 <h2>[0.17] - 2022-11-27</h2>
@@ -366,7 +355,7 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
 <footer>
   <div class="pager"><a href="xdebug.html" class="prev xdebug">&laquo;Debugging While Running Tests</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="cli.html" class="next cli">Command Line Runner&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Fri, 12 May 2023 18:20:01 -0700</p>
+    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Mon, 16 Oct 2023 18:42:06 -0700</p>
   </div>
 </footer>
 

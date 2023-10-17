@@ -40,6 +40,24 @@
   visit: /moved.php
   status: 301
   redirect: /location.html
+
+# A more complex example with mixed relative and absolute URLs.
+-
+  loop:
+    - /foo
+    - /bar
+    - http://my-domain.org/
+    - https://my-domain.org
+    - https://www.my-domain.org
+-
+  visit: https://www.my-domain.org/${loop.value}
+  status: 301
+  find:
+    -
+      javascript: window.location.href
+      is: https://www.my-domain.org/bar
+-
+  end loop:     
 </code></pre>
 
 <h2>Provides Variables</h2>
@@ -159,7 +177,7 @@
 <footer>
   <div class="pager"><a href="demo--request.html" class="prev demo--request">&laquo;Making Requests Other Than GET</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--sleep.html" class="next handler_sleep">Sleep: Adding a Delay&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 0.17.0 &bull; Last Updated: Fri, 12 May 2023 18:20:15 -0700</p>
+    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Mon, 16 Oct 2023 18:42:26 -0700</p>
   </div>
 </footer>
 

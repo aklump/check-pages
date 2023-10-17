@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Understanding How Multiple DOM Elements Are Handled</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
+</head>
+
+<body class="page--multiple_dom_elements">
+<header>
+  <div class="pager"><a href="testing_legacy.html" class="prev testing_legacy">&laquo;Testing Legacy Sites</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="lando.html" class="next lando">Using With Lando&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Understanding How Multiple DOM Elements Are Handled</h1>
+  <!--searchable_content-->
+
+<p>In this example you see three <code>&lt;h2&gt;</code> elements on <em>index.html</em>.</p>
+
+<pre><code class="html">&lt;body&gt;
+&lt;h2&gt;alpha&lt;/h2&gt;
+&lt;h2&gt;bravo&lt;/h2&gt;
+&lt;h2&gt;charlie&lt;/h2&gt;
+&lt;/body&gt;
+</code></pre>
+
+<p>When using the <code>dom</code> selector, we get back three headings; using these more specific <code>xpath</code> selectors (see below), we get back only one.  Therefore the important thing to fully comprehend when writing tests is:</p>
+
+<p><strong>Given more than one DOM element, <code>matches, contains, etc</code> will pass when at least ONE element passes.</strong></p>
+
+<p><strong>In the same case, <code>not matches, not contains, etc</code> will ONLY pass if ALL of them pass.</strong></p>
+
+<p>With that in mind, a passing test for the above HTML would look like this:</p>
+
+<pre><code class="yaml">-
+  visit: /index.html
+  find:
+    -
+      dom: 'h2'
+      matches: '/charlie/i'
+    -
+      dom: 'h2'
+      not matches: '/delta/i'
+    -
+      dom: '//*h2[1]'
+      not matches: '/charlie/i'
+    -
+      dom: '//*h2[2]'
+      not matches: '/charlie/i'
+    -
+      dom: '//*h2[3]'
+      matches: '/charlie/i'
+</code></pre>
+<!--end_searchable_content-->
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="testing_legacy.html" class="prev testing_legacy">&laquo;Testing Legacy Sites</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="lando.html" class="next lando">Using With Lando&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Mon, 16 Oct 2023 18:42:39 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

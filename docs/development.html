@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Developing Check Pages Locally</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
+</head>
+
+<body class="page--development">
+<header>
+  <div class="pager"><a href="dates.html" class="prev dates">&laquo;Dates</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="interpolation.html" class="next interpolation">Interpolation&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Developing Check Pages Locally</h1>
+  <!--searchable_content-->
+
+<p>If you want to fork and develop check pages locally and use the fork in other local projects. You should setup as described on this page.</p>
+
+<ol>
+<li>Establish a local copy of check_pages.</li>
+<li>Use something like the following in your project that references the local fork, i.e., <code>"$HOME/Code/Packages/php/check-pages/check_pages"</code></li>
+</ol>
+
+<pre><code class="shell">(cd "$app_root" &amp;&amp; "$HOME/Code/Packages/php/check-pages/check_pages" run ./tests_check_pages/runner.php --dir=./tests_check_pages $@)
+</code></pre>
+<!--end_searchable_content-->
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="dates.html" class="prev dates">&laquo;Dates</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="interpolation.html" class="next interpolation">Interpolation&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Mon, 16 Oct 2023 18:42:31 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
