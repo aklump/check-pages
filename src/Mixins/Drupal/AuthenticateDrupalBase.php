@@ -109,9 +109,9 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     }
 
     // Find the account by username.
-    $user_data = \array_first(array_filter($users, function ($account) use ($username) {
+    $user_data = array_values(array_filter($users, function ($account) use ($username) {
       return $account['name'] === $username;
-    }));
+    }))[0] ?? NULL;
     if (empty($user_data)) {
       throw new \RuntimeException(sprintf('No record for user "%s" in %s', $username, $this->usersFile));
     }
@@ -212,9 +212,9 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
       throw new \RuntimeException(implode(PHP_EOL, $failed_message));
     }
 
-    $session_cookie = \array_first(array_filter($jar->toArray(), function ($item) {
+    $session_cookie = array_values(array_filter($jar->toArray(), function ($item) {
       return strpos($item['Name'], 'SESS') !== FALSE;
-    }));
+    }))[0] ?? NULL;
     if (empty($session_cookie)) {
       throw new \RuntimeException(sprintf('Did not obtain session cookie for username "%s".', $username));
     }
