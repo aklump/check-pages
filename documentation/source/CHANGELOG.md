@@ -27,6 +27,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
    
   ```
 
+## [0.19.0] - 2023-10-18
+
+### Added
+
+- `on fail: skip suite`
+- global use as `checkpages` see _install.md_.
+
 ## [0.18.0] - 2023-10-14
 
 ### Changed
