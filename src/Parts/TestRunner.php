@@ -185,7 +185,7 @@ final class TestRunner {
     $test = $this->test;
 
     // Assume the best in people.
-    if (!$test->hasFailed()) {
+    if (!$test->hasFailed() && !$test->isSkipped()) {
       $test->setPassed();
     }
 
@@ -224,14 +224,19 @@ final class TestRunner {
     if ($runtime_test_result) {
       $dispatcher->dispatch(new TestEvent($test), Event::TEST_PASSED);
     }
+    elseif ('skip suite' === $test->get('on fail')) {
+      $test->setIsSkipped(TRUE);
+      $test->getSuite()->setIsSkipped(TRUE);
+      $dispatcher->dispatch(new TestEvent($test), Event::TEST_SKIPPED);
+    }
     else {
-      $dispatcher->dispatch(new TestEvent($test), Event::TEST_FAILED);
       $test->getSuite()->setFailed();
+      $dispatcher->dispatch(new TestEvent($test), Event::TEST_FAILED);
     }
 
     $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::TEST_FINISHED);
 
-    return $runtime_test_result;
+    return $runtime_test_result || $test->isSkipped();
   }
 
 }

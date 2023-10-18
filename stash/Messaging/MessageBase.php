@@ -15,10 +15,6 @@ abstract class MessageBase implements MessageInterface {
 
   public function __construct(array $message, string $message_type) {
     $info = new \ReflectionClass(MessageType::class);
-    $valid_values = $info->getConstants();
-    if (!in_array($message_type, $valid_values)) {
-      throw new \InvalidArgumentException(sprintf('Invalid message type: %s', $message_type));
-    }
     $this->messageType = $message_type;
     $this->message = array_map('strval', array_values($message));
   }

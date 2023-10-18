@@ -47,9 +47,13 @@ final class Event {
 
   const TEST_PASSED = 'test.passed';
 
+  const TEST_SKIPPED = 'test.skipped';
+
   const SUITE_FAILED = 'suite.failed';
 
   const SUITE_PASSED = 'suite.passed';
+
+  const SUITE_SKIPPED = 'suite.skipped';
 
   const SUITE_FINISHED = 'suite.finished';
 

@@ -174,7 +174,7 @@ final class Retest implements EventSubscriberInterface {
           $test->getSuite()->getGroup(),
           $suite_id,
           $test_id,
-          $test->hasFailed() ? Test::FAILED : Test::PASSED,
+          $this->getResultColumnValue($test),
         ]);
         $written = TRUE;
         break;
@@ -186,10 +186,18 @@ final class Retest implements EventSubscriberInterface {
         $test->getSuite()->getGroup(),
         $test->getSuite()->id(),
         $test->id(),
-        $test->hasFailed() ? Test::FAILED : Test::PASSED,
+        $this->getResultColumnValue($test),
       ]);
     }
     fclose($fh);
+  }
+
+  private function getResultColumnValue(Test $test): string {
+    if ($test->isSkipped()) {
+      return Test::SKIPPED;
+    }
+
+    return $test->hasFailed() ? Test::FAILED : Test::PASSED;
   }
 
   /**

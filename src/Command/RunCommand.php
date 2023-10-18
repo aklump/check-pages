@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Command;
 
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Output\Feedback;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Timer;
@@ -173,6 +174,15 @@ class RunCommand extends Command {
         '',
       ]
     ));
+
+    if ($runner->getTotalSkippedSuites() > 0) {
+      $message = new Message([
+        Feedback::SKIPPED_PREFIX . "At least one suite was skipped.",
+        '',
+      ], 'skipped');
+      $messenger->deliver($message);
+    }
+
 
     $total_assertion_count = $runner->getTotalAssertionsRun();
     $ok = $runner->hasPassed() || 100 === $percentage;

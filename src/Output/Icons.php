@@ -16,6 +16,8 @@ class Icons {
 
   const NO = '🚫 ';
 
+  const SEE_NO = '🙈 ';
+
   const GLOBE = '🌐 ';
 
   const REQUEST = '▲ ';

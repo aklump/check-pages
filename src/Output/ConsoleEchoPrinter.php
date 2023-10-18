@@ -53,6 +53,7 @@ final class ConsoleEchoPrinter implements MessengerInterface {
       MessageType::INFO => 'blue',
       MessageType::DEBUG => 'light gray',
       MessageType::TODO => 'orange',
+      'skipped' => 'yellow',
     ];
     $inverted = [
       MessageType::ERROR => 'white on red',
@@ -60,6 +61,7 @@ final class ConsoleEchoPrinter implements MessengerInterface {
       MessageType::INFO => 'white on blue',
       MessageType::DEBUG => 'black on light gray',
       MessageType::TODO => 'white on orange',
+      'skipped' => 'white on yellow',
     ];
 
     $color = $colors[$message->getMessageType()];
@@ -86,6 +88,7 @@ final class ConsoleEchoPrinter implements MessengerInterface {
 
     if ($lines) {
       $flat_message = implode(PHP_EOL, $lines);
+      $color = $color ?? $colors[MessageType::INFO];
       $message = Color::wrap($color, $flat_message);
       $this->output->writeln($message);
     }

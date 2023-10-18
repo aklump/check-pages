@@ -29,6 +29,8 @@ final class Feedback implements EventSubscriberInterface {
    */
   const FAILED_PREFIX = Icons::NO . 'FAIL: ';
 
+  const SKIPPED_PREFIX = Icons::SEE_NO;
+
   const COLOR_PENDING = 'purple';
 
   const COLOR_PENDING_BG = 'magenta';
@@ -137,6 +139,18 @@ final class Feedback implements EventSubscriberInterface {
           }
           self::echoSuiteTitle($suite->getRunner()
             ->getMessenger(), new Message($lines, MessageType::ERROR, Verbosity::NORMAL), Flags::INVERT_FIRST_LINE);
+        },
+      ],
+
+      Event::SUITE_SKIPPED => [
+        function (Event\SuiteEvent $event) {
+          $suite = $event->getSuite();
+          $lines = [strval($suite)];
+          if ($suite->getRunner()->getOutput()->isVerbose()) {
+            $lines[] = '';
+          }
+          self::echoSuiteTitle($suite->getRunner()
+            ->getMessenger(), new Message($lines, 'skipped'));
         },
       ],
 
@@ -274,6 +288,10 @@ final class Feedback implements EventSubscriberInterface {
 
         case MessageType::ERROR:
           $lines[0] = self::FAILED_PREFIX . $lines[0];
+          break;
+
+        case 'skipped':
+          $lines[0] = self::SKIPPED_PREFIX . $lines[0];
           break;
 
         default:

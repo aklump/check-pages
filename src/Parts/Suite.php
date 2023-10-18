@@ -6,6 +6,7 @@ use AKlump\CheckPages\Interfaces\HasConfigInterface;
 use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
+use AKlump\CheckPages\Traits\SkipTrait;
 use AKlump\CheckPages\Variables;
 use JsonSerializable;
 
@@ -14,6 +15,7 @@ class Suite implements PartInterface, JsonSerializable, HasConfigInterface {
   use PassFailTrait;
   use HasRunnerTrait;
   use HasConfigTrait;
+  use SkipTrait;
 
   /**
    * @var Test[]

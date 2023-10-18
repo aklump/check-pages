@@ -7,6 +7,7 @@ use AKlump\CheckPages\Output\MessageDelivery;
 use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
+use AKlump\CheckPages\Traits\SkipTrait;
 use AKlump\CheckPages\Variables;
 use AKlump\Messaging\HasMessagesInterface;
 use AKlump\Messaging\HasMessagesTrait;
@@ -18,6 +19,7 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMe
   use HasRunnerTrait;
   use HasMessagesTrait;
   use PassFailTrait;
+  use SkipTrait;
   use HasConfigTrait {
     HasConfigTrait::setConfig as traitSetConfig;
   }
@@ -25,6 +27,8 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMe
   const PASSED = 'P';
 
   const FAILED = 'F';
+
+  const SKIPPED = 'S';
 
   /**
    * @var string

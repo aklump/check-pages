@@ -1,0 +1,7 @@
+-
+  visit: /
+  on fail: skip suite
+  find:
+    dom: .page-title
+    count: 1000
+

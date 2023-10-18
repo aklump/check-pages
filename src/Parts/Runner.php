@@ -74,6 +74,8 @@ class Runner implements HasMessagesInterface {
 
   public $failedAssertionCount = 0;
 
+  public $skippedSuitesCount = 0;
+
   /**
    * @var string
    */
@@ -302,6 +304,10 @@ class Runner implements HasMessagesInterface {
    */
   public function getTotalFailedAssertions(): int {
     return $this->failedAssertionCount;
+  }
+
+  public function getTotalSkippedSuites(): int {
+    return $this->skippedSuitesCount;
   }
 
   /**
@@ -707,6 +713,11 @@ class Runner implements HasMessagesInterface {
           throw new TestFailedException($test->getConfig());
         }
       }
+
+      if ($test->isSkipped()) {
+        $this->skippedSuitesCount++;
+        break;
+      }
     }
 
     $runtime_suite_result = $this->processResult($suite);
@@ -729,7 +740,7 @@ class Runner implements HasMessagesInterface {
   private function processResult(Suite $suite): bool {
 
     // Assume the best in people.
-    if (!$suite->hasFailed()) {
+    if (!$suite->hasFailed() && !$suite->isSkipped()) {
       $suite->setPassed();
     }
 
@@ -738,6 +749,9 @@ class Runner implements HasMessagesInterface {
     if ($suite->hasPassed()) {
       $dispatcher->dispatch(new SuiteEvent($suite), Event::SUITE_PASSED);
     }
+    elseif ($suite->isSkipped()) {
+      $dispatcher->dispatch(new SuiteEvent($suite), Event::SUITE_SKIPPED);
+    }
     else {
       $this->lastFailedSuite = $suite;
       $dispatcher->dispatch(new SuiteEvent($suite), Event::SUITE_FAILED);
@@ -745,7 +759,7 @@ class Runner implements HasMessagesInterface {
 
     $dispatcher->dispatch(new SuiteEvent($suite), Event::SUITE_FINISHED);
 
-    return $suite->hasPassed();
+    return $suite->hasPassed() || $suite->isSkipped();
   }
 
   /**
