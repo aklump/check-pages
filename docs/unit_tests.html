@@ -2,19 +2,17 @@
 
 <html>
 <head>
-  <title>Ex  Ssl</title>
+  <title>Unit Tests</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
   <meta name="keywords" content="" />
 </head>
 
-<body class="page--ex--ssl">
+<body class="page--unit_tests">
 <header>
-  <div class="pager"><a href="dev--http.html" class="prev dev--http">&laquo;Making HTTP Requests in Your Custom Code</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="code--add_test_option.html" class="next code--add_test_option">Mixin Code Example&raquo;</a></div></header>
+  <div class="pager"><a href="multiple_dom_elements.html" class="prev multiple_dom_elements">&laquo;Understanding How Multiple DOM Elements Are Handled</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="lando.html" class="next lando">Using With Lando&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
-         &raquo
-                        <a href="ex--ssl">Ex</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -24,15 +22,10 @@
   </section>
 
 <section>
-  <h1>Ex  Ssl</h1>
-  <!--searchable_content--><pre><code class="yaml">-
-  why: Test certain anonymous pages are SSL.
-  url: http://www.website.com
-  find:
-    -
-      javascript: window.location.protocol
-      is: 'https:'
-</code></pre>
+  <h1>Unit Tests</h1>
+  <!--searchable_content-->
+
+<p>Currently the way the handler autoloading works, the unit tests do not have access to those classes, therefor if you write a unit test you need to manually add to the <code>autoload-dev</code> array in <em>composer.json</em>.</p>
 <!--end_searchable_content-->
 </section>
 
@@ -41,9 +34,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="dev--http.html" class="prev dev--http">&laquo;Making HTTP Requests in Your Custom Code</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="code--add_test_option.html" class="next code--add_test_option">Mixin Code Example&raquo;</a></div>  
+  <div class="pager"><a href="multiple_dom_elements.html" class="prev multiple_dom_elements">&laquo;Understanding How Multiple DOM Elements Are Handled</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="lando.html" class="next lando">Using With Lando&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Wed, 18 Oct 2023 22:06:21 -0700</p>
+    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Wed, 18 Oct 2023 22:06:33 -0700</p>
   </div>
 </footer>
 
