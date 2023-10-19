@@ -14,6 +14,17 @@
       "AKlump\\CheckPages\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "AKlump\\CheckPages\\Handlers\\": [
+        "includes/handlers/count",
+        "includes/handlers/dom",
+        "includes/handlers/xpath",
+        "includes/handlers/value",
+        "includes/handlers/evaluate"
+      ]
+    }
+  },
   "authors": [
     {
       "name": "Aaron Klump",
