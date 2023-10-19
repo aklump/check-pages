@@ -89,9 +89,9 @@ final class Variables implements \Countable, \JsonSerializable, \Iterator {
         }, array_keys($this->values));
       }
       foreach ($this->values as $k => $v) {
-        $interpolated = str_replace('${' . $k . '}', $v, $value);
+        $interpolated = str_replace('${' . $k . '}', (string) $v, $value);
         if ($value != $interpolated) {
-          if (strcmp($interpolated, $v) === 0) {
+          if (strcmp($interpolated, (string) $v) === 0) {
             $value = $v;
           }
           else {
@@ -114,10 +114,15 @@ final class Variables implements \Countable, \JsonSerializable, \Iterator {
   /**
    * {@inheritdoc}
    */
+  #[\ReturnTypeWillChange]
   public function count() {
     return count($this->values);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  #[\ReturnTypeWillChange]
   public function jsonSerialize() {
     $data = [];
     foreach ($this->values as $key => $value) {
@@ -127,26 +132,31 @@ final class Variables implements \Countable, \JsonSerializable, \Iterator {
     return $data;
   }
 
+  #[\ReturnTypeWillChange]
   public function current() {
     return $this->values[$this->key()] ?? NULL;
   }
 
+  #[\ReturnTypeWillChange]
   public function next() {
     ++$this->currentKey;
   }
 
+  #[\ReturnTypeWillChange]
   public function key() {
     $keys = array_keys($this->values);
 
     return $keys[$this->currentKey];
   }
 
+  #[\ReturnTypeWillChange]
   public function valid() {
     $keys = array_keys($this->values);
 
     return array_key_exists($this->currentKey, $keys);
   }
 
+  #[\ReturnTypeWillChange]
   public function rewind() {
     $this->currentKey = 0;
   }

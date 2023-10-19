@@ -36,7 +36,7 @@ class CrawlerToArray {
             $value = $node->html();
           }
 
-          return trim($value);
+          return is_string($value) ? trim($value) : $value;
         });
         break;
 

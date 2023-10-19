@@ -95,7 +95,7 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           // during bootstrap, resulting in test IDs that are out of sequence.
           // Therefore we use our own ad hoc sequence and we put it at the front
           // to ensure our directory listings appear in sequential order.
-          $relative_path .= '/' . str_pad(self::$counter++, 3, 0, STR_PAD_LEFT);
+          $relative_path .= '/' . str_pad((string) self::$counter++, 3, 0, STR_PAD_LEFT);
           $relative_path .= '_' . basename($path_by_suite);
           // The test ID is helpful, but not guaranteed to be there.
           $relative_path .= rtrim('_' . $test->id(), '_');
