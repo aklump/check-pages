@@ -65,6 +65,24 @@ class Runner implements HasMessagesInterface {
 
   const LOGGER_PRINTER_BASENAME = 'check_pages.log';
 
+  static protected array $state;
+
+  public static function getState(string $key) {
+    return self::$state[$key] ?? NULL;
+  }
+
+  /**
+   * Set a key/value that persists across all suites.
+   *
+   * @param string $key
+   * @param $value
+   *
+   * @return void
+   */
+  public static function setState(string $key, $value): void {
+    self::$state[$key] = $value;
+  }
+
   /**
    * @var bool
    */

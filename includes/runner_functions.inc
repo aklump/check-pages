@@ -9,6 +9,7 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
+use AKlump\CheckPages\Helpers\AssertRunSuiteNotCalled;
 use AKlump\CheckPages\Parts\Suite;
 use MidwestE\ObjectPath;
 
@@ -23,6 +24,10 @@ use MidwestE\ObjectPath;
  */
 function load_config(string $config, bool $allow_override = TRUE) {
   global $container;
+
+  /** @var \AKlump\CheckPages\Parts\Runner $runner */
+  $runner = $container->get('runner');
+  (new AssertRunSuiteNotCalled())($runner, __FUNCTION__);
 
   /** @var \AKlump\CheckPages\Files\FilesProviderInterface $files_readonly */
   $files = $container->get('runner')->getFiles();
@@ -110,6 +115,7 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
 
   /** @var \AKlump\CheckPages\Parts\Runner $runner */
   $runner = $container->get('runner');
+  $runner::setState('run_suite_called', TRUE);
 
   // If there was any runtime config added to the single-instance runner last
   // time, we have to remove that.  We do that by reloading the configuration
@@ -209,6 +215,10 @@ function with_extras(string $extras_filename, array $config) {
 function add_mixin(string $mixin, array $mixin_config = []) {
   global $container;
 
+  /** @var \AKlump\CheckPages\Parts\Runner $runner */
+  $runner = $container->get('runner');
+  (new AssertRunSuiteNotCalled())($runner, __FUNCTION__);
+
   /** @var \AKlump\CheckPages\Files\FilesProviderInterface $files */
   $files = $container->get('runner')->getFiles();
   try {
@@ -263,6 +273,7 @@ function add_test_option(string $selector, array $callbacks): void {
 
   /** @var \AKlump\CheckPages\Parts\Runner $runner */
   $runner = $container->get('runner');
+  (new AssertRunSuiteNotCalled())($runner, __FUNCTION__);
   $runner->tryAddRuntimeOption($selector);
 
   /** @var $legacy_map Maps old event names to new. */
@@ -312,7 +323,7 @@ function add_test_option(string $selector, array $callbacks): void {
 /**
  * Add a runtime option to be executed against a suite.
  *
- * This function can be used as syntatic sugar around more complete configs,
+ * This function can be used as syntactic sugar around more complete configs,
  * because it can be used to rewrite an alias, or shorthand--more readable test
  * config--into the necessary configuration needed to run the test.  A common
  * use-case is abstracting API calls.
@@ -330,7 +341,12 @@ function add_test_option(string $selector, array $callbacks): void {
  */
 function add_shorthand(string $selector, callable $callback) {
   global $container;
-  $container->get('runner')->tryAddRuntimeOption($selector);
+
+  /** @var \AKlump\CheckPages\Parts\Runner $runner */
+  $runner = $container->get('runner');
+  (new AssertRunSuiteNotCalled())($runner, __FUNCTION__);
+
+  $runner->tryAddRuntimeOption($selector);
 
   respond_to(Event::SUITE_STARTED, function ($event) use ($callback, $selector) {
     foreach ($event->getSuite()->getTests() as $test) {
@@ -363,6 +379,11 @@ function add_shorthand(string $selector, callable $callback) {
  */
 function respond_to($event, callable $callback) {
   global $container;
+
+  /** @var \AKlump\CheckPages\Parts\Runner $runner */
+  $runner = $container->get('runner');
+  (new AssertRunSuiteNotCalled())($runner, __FUNCTION__);
+
   if (!is_array($event)) {
     $event = [$event, 0];
   }
