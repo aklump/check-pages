@@ -19,6 +19,13 @@ class MatchesNotMatchesTest extends TestCase {
 
     $tests[] = [
       [TRUE, FALSE],
+      [1, 0],
+      '/t-node--\d+/',
+      ['fc-day-grid-event fc-h-event fc-event fc-start fc-end t-node--3250 is-not-published fc-draggable'],
+    ];
+
+    $tests[] = [
+      [TRUE, FALSE],
       [3, 1],
       '/^foo/',
       ['foodie', 'fool', 'idiot', 'footballer'],
