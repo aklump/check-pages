@@ -429,6 +429,7 @@ final class Assert implements HasConfigInterface {
     }
 
     $this->setHaystack($countable);
+
     if ($pass) {
       $this->setPassed();
     }

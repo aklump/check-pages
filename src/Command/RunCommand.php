@@ -101,13 +101,16 @@ class RunCommand extends Command {
       if ($input->getOption('filter')) {
         $filters = array_filter($input->getOption('filter'));
         foreach ($filters as $filter) {
-          $runner->addSuiteIdFilter($filter);
+          $runner->addFilter($filter);
         }
       }
+
+      // TODO Deprecate this.
       if ($input->getOption('group')) {
+        $output->writeln('<error>--group is deprecated, use the format "--filter={group}/" to filter by group.');
         $groups = array_filter($input->getOption('group'));
         foreach ($groups as $filter) {
-          $runner->addSuiteGroupFilter($filter);
+          $runner->addFilter("$filter/");
         }
       }
 

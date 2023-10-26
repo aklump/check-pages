@@ -1,3 +1,2 @@
-- 'change how the filter option works to be identical to phpunit: https://docs.phpunit.de/en/9.6/textui.html?highlight=filter#command-line-options'
 - move AddHandlerAutoloads to a cached solution.
 - dynamically add the `/extra/merge-plugin/require` section for handlers so they are auto added.

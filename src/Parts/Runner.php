@@ -12,6 +12,7 @@ use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Files\LocalFilesProvider;
+use AKlump\CheckPages\Helpers\FilterSuites;
 use AKlump\CheckPages\Output\ConsoleEchoPrinter;
 use AKlump\CheckPages\Output\DevNullPrinter;
 use AKlump\CheckPages\Output\Flags;
@@ -24,6 +25,7 @@ use AKlump\CheckPages\SerializationTrait;
 use AKlump\CheckPages\Service\DispatcherFactory;
 use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
+use AKlump\CheckPages\SuiteCollection;
 use AKlump\CheckPages\Traits\BaseUrlTrait;
 use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\HasSuiteTrait;
@@ -435,47 +437,21 @@ class Runner implements HasMessagesInterface {
   }
 
   /**
-   * Add a suite name to filter against.
+   * Add a filter to limit what is run.
    *
-   * You may call this more than once to have more than one suite.
+   * Multiple filters will use OR logic.
    *
    * @param string $filter
-   *   The suite name.
+   *   "group/suite_id", "group/", or "/suite_id" or any regex.
    *
    * @return $this
+   *   Self for chaining.
    */
-  public function addSuiteIdFilter(string $filter): Runner {
-    if (preg_match('/\.ya?ml$/', $filter)) {
-      $pathinfo = pathinfo($filter);
-      throw new \InvalidArgumentException(sprintf('Omit the file extension for filter values; use "%s" not "%s".', $pathinfo['filename'], $pathinfo['basename']));
-    }
-    $this->addFilterByType('id', $filter);
+  public function addFilter(string $filter): Runner {
+    $filter = preg_replace('/\.ya?ml$/', '', $filter);
+    $this->filters[] = $filter;
 
     return $this;
-  }
-
-  public function addSuiteGroupFilter(string $filter): Runner {
-    $this->addFilterByType('group', $filter);
-
-    return $this;
-  }
-
-  /**
-   * Add a filter by type and value.
-   *
-   * @param string $type
-   *   E.g. one of 'suite', 'group'.
-   * @param string $value
-   *
-   * @return void
-   */
-  private function addFilterByType(string $type, string $value) {
-    if (strstr($value, ',')) {
-      throw new \InvalidArgumentException(sprintf('$value may not contain a comma; the value %s is invalid.', $value));
-    }
-    if (!isset($this->filters[$type]) || !in_array($value, $this->filters[$type])) {
-      $this->filters[$type][] = $value;
-    }
   }
 
   /**
@@ -487,36 +463,20 @@ class Runner implements HasMessagesInterface {
    * @return \AKlump\CheckPages\Parts\Suite[]
    *   Any suites that match all filters; if no filters, then all suites.
    */
-  private function applyFilters(array $suites): array {
-    if (!count($this->filters)) {
+  public function applyFilters(SuiteCollection $suites): SuiteCollection {
+    $this->filtersWereApplied = FALSE;
+    if (empty($this->filters)) {
       return $suites;
     }
 
-    $id_filters = $this->filters['id'] ?? [];
-    $group_filters = $this->filters['group'] ?? [];
-    $does_match_group = function (Suite $suite) use ($group_filters) {
-      if (empty($group_filters)) {
-        return TRUE;
-      }
+    // Apply multiple using OR.
+    $result = new SuiteCollection();
+    foreach ($this->filters as $filter) {
+      $result = $result->merge((new FilterSuites())($suites, $filter));
+    }
+    $this->filtersWereApplied = $result->count() > 0;
 
-      return in_array($suite->getGroup(), $group_filters);
-    };
-    $does_match_id = function (Suite $suite) use ($id_filters) {
-      if (empty($id_filters)) {
-        return TRUE;
-      }
-
-      return in_array($suite->id(), $id_filters);
-    };
-
-    return array_filter($suites, function (Suite $suite) use ($does_match_group, $does_match_id) {
-      $matched = $does_match_id($suite) && $does_match_group($suite);
-      if ($matched) {
-        $this->filtersWereApplied = TRUE;
-      }
-
-      return $matched;
-    });
+    return $result;
   }
 
   /**
@@ -617,6 +577,10 @@ class Runner implements HasMessagesInterface {
    * @see run_suite()
    */
   public function run(Suite $suite, string $path_to_suite) {
+    $result = $this->applyFilters(new SuiteCollection([$suite]));
+    if ($result->count() == 0) {
+      return;
+    }
 
     // This may seem to be located in a strange place, but for a complex set of
     // reasons having to do with runner functions and test-writing architecture
@@ -640,10 +604,6 @@ class Runner implements HasMessagesInterface {
       ->setSuite($suite)
       ->getDispatcher()
       ->dispatch(new RunnerEvent($this), Event::RUNNER_STARTED);
-
-    if (!$this->applyFilters([$suite])) {
-      return;
-    }
 
     // This section has to exist down here because the path resolution may have
     // changed since the RUNNER_CREATE event was first called, don't move up.

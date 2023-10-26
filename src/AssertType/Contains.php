@@ -3,7 +3,6 @@
 namespace AKlump\CheckPages\AssertType;
 
 use AKlump\CheckPages\Assert;
-use RuntimeException;
 
 class Contains extends LogicBase {
 
@@ -13,8 +12,6 @@ class Contains extends LogicBase {
 
   public function __invoke(Assert $assert, $haystack, array &$countable): bool {
     parent::__invoke($assert, $haystack, $countable);
-    $initial_result = empty($haystack) ? FALSE : NULL;
-    $this->setFinalResult($initial_result);
     $countable = [];
     foreach ($haystack as $item) {
       $passes_test = $this->applyCallbackWithVariations($item, function ($item_variation) use ($assert) {
