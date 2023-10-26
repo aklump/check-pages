@@ -175,17 +175,37 @@ will be set automatically.
 
 ## Filter
 
-Use the `--filter` parameter combined with a suite name to limit the runner to a single suite. This is faster than editing your runner file.
+Use `--filter` to limit which suites are run.
 
-    ./check_pages runner.php --filter=page_header
+The value passed to the filter will be matched against the `$group/$id` of the suite. Behind the scenes it is treated as a regex pattern, if you do not include delimiters, they will be added and case will not matter.
 
-Or the shorthand
-    
-    ./check_pages runner.php -f page_header
+Given the following test suites...
 
-Combine more than one filter value for an OR selection
+```text
+.
+├── api
+│   ├── menus.yml
+│   ├── reports.yml
+│   └── users.yml
+└── ui
+    ├── footer.yml
+    ├── login.yml
+    └── menus.yml
+```
 
-    ./check_pages runner.php -f page_header -f rss
+| CLI                 | Matches                                |
+|---------------------|----------------------------------------|
+| `--filter=ui/`      | ui/footer.yml, ui/login.yml, menus.yml |
+| `--filter=/menus`   | api/menus.yml, ui/menus.yml            |
+| `--filter=ui/menus` | suites/ui/menus.yml                    |
+
+Notice the usage of the `/` separator to control how the group influences the result.
+
+### Complex Filter
+
+It's possible to provide a complex filter that uses `or` logic like this:
+
+    ./check_pages runner.php -f reports -f menus
 
 ## Troubleshooting
 

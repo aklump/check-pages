@@ -29,6 +29,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
    
   ```
 
+## [0.20.0] - 2023-10-26
+
+### Changed
+
+- The `--filter` now works as a regex pattern, similar to PhpUnit. Matches against `$group/$id`; see docs for more info.
+
+### Deprecated
+
+- `--group` is no longer necessary; use `--filter=$group/` instead.
+
 ## [0.19.0] - 2023-10-18
 
 ### Added
