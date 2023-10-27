@@ -25,13 +25,7 @@ class FilterSuites {
 
     /** @var SuiteCollection $result */
     $result = $suites->filter(function (Suite $suite) use ($filter) {
-      $name = $suite->id();
-      $group = $suite->getGroup();
-      if ($group) {
-        $name = "$group/$name";
-      }
-
-      return preg_match($filter, $name);
+      return preg_match($filter, (string) $suite);
     });
 
     return $result;

@@ -12,32 +12,32 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class RunnerTest extends TestCase {
 
-  /**
-   * Provides data for testAddSuiteIdFilter.
-   */
-  public function dataForTestAddSuiteIdFilterProvider() {
+  public function dataFortestAddFiltersWorkIfYamlExtensionIsUsedProvider() {
     $tests = [];
-    $tests[] = [
-      'lorem.yml',
-      'lorem.yaml',
-      'foo,bar',
-    ];
+    $tests[] = ['.yaml'];
+    $tests[] = ['.yml'];
 
     return $tests;
   }
 
-  public function testAddSuiteFilterAllowsDots() {
+  /**
+   * @dataProvider dataFortestAddFiltersWorkIfYamlExtensionIsUsedProvider
+   */
+  public function testAddFiltersWorkIfYamlExtensionIsUsed(string $extension) {
     $runner = $this->getRunner();
-    $result = $runner->addSuiteIdFilter('live.canonical');
-    $this->assertSame($runner, $result);
+    $runner->addFilter('lorem' . $extension);
+    $suites = new \AKlump\CheckPages\SuiteCollection([
+      new Suite('lorem', [], $runner),
+    ]);
+    $result = $runner->applyFilters($suites);
+    $this->assertSame('lorem', $result->first()->id());
   }
 
-  /**
-   * @dataProvider dataForTestAddSuiteIdFilterProvider
-   */
-  public function testAddSuiteIdFilterThrowsBadValues(string $filter) {
-    $this->expectException(\InvalidArgumentException::class);
-    $this->getRunner()->addSuiteIdFilter($filter);
+
+  public function testAddFilterAllowsDots() {
+    $runner = $this->getRunner();
+    $result = $runner->addFilter('live.canonical');
+    $this->assertSame($runner, $result);
   }
 
   public function testSetKeyValuePairReturnsMessageAndSetsAsExpected() {
