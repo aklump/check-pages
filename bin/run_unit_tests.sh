@@ -1,17 +1,11 @@
 #!/usr/bin/env bash
 
-source="${BASH_SOURCE[0]}"
-source="${BASH_SOURCE[0]}"
-if [[ ! "$source" ]]; then
-  source="${(%):-%N}"
-fi
-while [ -h "$source" ]; do # resolve $source until the file is no longer a symlink
-  dir="$( cd -P "$( dirname "$source" )" && pwd )"
-  source="$(readlink "$source")"
-  [[ $source != /* ]] && source="$dir/$source" # if $source was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-done
-root="$( cd -P "$( dirname "$source" )" && pwd )"
-app_root="$( cd ../)"
+s="${BASH_SOURCE[0]}";[[ "$s" ]] || s="${(%):-%N}";while [ -h "$s" ];do d="$(cd -P "$(dirname "$s")" && pwd)";s="$(readlink "$s")";[[ $s != /* ]] && s="$d/$s";done;__DIR__=$(cd -P "$(dirname "$s")" && pwd)
+
+cd "$__DIR__/.."
 
 # https://phpunit.readthedocs.io/en/9.5/textui.html#command-line-options
-cd "$app_root" && ./vendor/bin/phpunit -c phpunit.xml $@
+./vendor/bin/phpunit -c tests_phpunit/phpunit.xml "$@"
+#./vendor/bin/phpunit -c tests_phpunit/phpunit.xml --testdox "$@"
+#./vendor/bin/phpunit -c tests_phpunit/phpunit.xml "$@" --coverage-html=./tests_phpunit/reports
+#echo ./tests_phpunit/reports/index.html
