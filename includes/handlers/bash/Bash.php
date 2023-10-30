@@ -33,6 +33,8 @@ final class Bash implements HandlerInterface {
           }
 
           $bash_command = $test->get('bash');
+          $test->getSuite()->interpolate($bash_command);
+
           $bash_output = [];
           $test_result = 0;
           exec($bash_command, $bash_output, $test_result);

@@ -20,7 +20,7 @@ final class Cypress implements HandlerInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      Event::TEST_CREATED => [
+      Event::TEST_STARTED => [
         function (TestEventInterface $event) {
           $test = $event->getTest();
           $config = $test->getConfig();
@@ -64,6 +64,7 @@ final class Cypress implements HandlerInterface {
           $test->addMessage(new Message([Icons::FOOTBALL . "Handoff to Cypress..."], MessageType::INFO, Verbosity::VERBOSE));
 
           $command = implode(' ', $command);
+          $test->getSuite()->interpolate($command);
           $test->addMessage(new DebugMessage([$command]));
           $test->echoMessages();
 

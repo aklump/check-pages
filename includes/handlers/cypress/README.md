@@ -31,6 +31,19 @@ extras:
 
 ```
 
+## Passing User Credentials From the Drupal Mixin to Cypress
+
+1. Use the drupal mixin to log in as normal.
+2. Use variable interpolation to send values via `env`
+
+```shell
+- cypress: lorem.cy.js
+  user: site_test.admin
+  env:
+    admin_username: ${user.name}
+    admin_password: ${user.pass}
+```
+
 ## Todo
 
 - debug output
