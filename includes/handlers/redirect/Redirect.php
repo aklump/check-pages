@@ -117,8 +117,14 @@ final class Redirect implements HandlerInterface {
       }
     }
     if ($send_message) {
+
+      $server = $driver->getResponse()->getHeader('server')[0] ?? NULL;
+      if ($server) {
+        $server = " $server";
+      }
+
       $test->addMessage(new Message([
-        sprintf('The actual response code %s did not match the expected %s', $actual_status_code, $expected_status_code),
+        sprintf('The server%s returned %s, which is not the expected %s', $server, $actual_status_code, $expected_status_code),
       ], MessageType::ERROR, Verbosity::VERBOSE));
     }
   }
