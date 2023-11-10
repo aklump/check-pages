@@ -27,6 +27,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
    
   ```
 
+## [0.21.0] - 2023-11-10
+
+### Added
+
+- `init` command to replace; `create_test_directory`
+
+### Removed
+
+- `create_test_directory` stand alone script.
+
 ## [0.20.0] - 2023-10-26
 
 ### Changed

@@ -216,6 +216,11 @@
                 }
             }
         },
+        "bash__bash": {
+            "type": "string",
+            "pattern": ".+",
+            "examples": []
+        },
         "breakpoint__breakpoint": {
             "type": "null"
         },
@@ -1853,6 +1858,27 @@
                     },
                     "find": {
                         "$ref": "#/definitions/find"
+                    }
+                }
+            },
+            {
+                "type": "object",
+                "required": [
+                    "bash"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
+                    "extras": {
+                        "$ref": "#/definitions/extras"
+                    },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
+                    },
+                    "bash": {
+                        "$ref": "#/definitions/bash__bash"
                     }
                 }
             },

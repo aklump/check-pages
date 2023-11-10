@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>The Power of Matches</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
+</head>
+
+<body class="page--matches">
+<header>
+  <div class="pager"><a href="testing_legacy.html" class="prev testing_legacy">&laquo;Testing Legacy Sites</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="multiple_dom_elements.html" class="next multiple_dom_elements">Understanding How Multiple DOM Elements Are Handled&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>The Power of Matches</h1>
+  <!--searchable_content-->
+
+<p>The following example shows how you can use <code>matches</code> to capture the user ID from the <code>href</code> of an element on the page.</p>
+
+<p>When you combine <code>matches</code> with <code>set</code> the value that is set is equal to the matched portion.</p>
+
+<p>However, if you add groups to your RegEx, the set value is going to be the last group matched, that is the results array item with the highest numeric key. That is why the code below works, because we capture the user ID as <code>$matches[1]</code> and thus <code>newUserId</code> would not be <code>user/123</code> but rather <code>123</code>.</p>
+
+<pre><code class="yaml">- why: Capture UID of the new user.
+  user: site_test.admin
+  url: /admin/people
+  find:
+    - dom: .dropbutton__item&gt;a
+      attribute: href
+      matches: '#\/user\/(\d+)\/#'
+      set: newUserId
+
+- why: Assert membership date was updated correctly.
+  user: site_test.admin
+  url: /user/${newUserId}/edit
+  find:
+    - dom: .t-field_membership_expires
+      attribute: value
+      matches: '#^\d{4}\-10\-20$#'      
+</code></pre>
+<!--end_searchable_content-->
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="testing_legacy.html" class="prev testing_legacy">&laquo;Testing Legacy Sites</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="multiple_dom_elements.html" class="next multiple_dom_elements">Understanding How Multiple DOM Elements Are Handled&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Fri, 10 Nov 2023 12:52:59 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
