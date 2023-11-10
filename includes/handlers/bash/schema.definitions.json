@@ -1,0 +1,7 @@
+{
+    "bash__bash": {
+        "type": "string",
+        "pattern": ".+",
+        "examples": []
+    }
+}

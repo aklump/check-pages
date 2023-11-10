@@ -1,5 +1,6 @@
-base_url: http://foo.local
+base_url: https://foo.local
 stop_on_failed_suite: true
 stop_on_failed_test: true
-suites_to_ignore: []
+suites_to_ignore:
+  - live.*
 files: logfiles/dev

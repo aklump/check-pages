@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Handlers;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\CheckPages\Output\Icons;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
@@ -19,7 +20,7 @@ final class Cypress implements HandlerInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      Event::TEST_CREATED => [
+      Event::TEST_STARTED => [
         function (TestEventInterface $event) {
           $test = $event->getTest();
           $config = $test->getConfig();
@@ -57,13 +58,16 @@ final class Cypress implements HandlerInterface {
               }
               $env .= ($env ? ',' : '') . "$name=$value";
             }
-            $command[] = sprintf('--env "%s"', $env);
+            $command[] = sprintf("--env '%s'", $env);
           }
 
           $test->addMessage(new Message([Icons::FOOTBALL . "Handoff to Cypress..."], MessageType::INFO, Verbosity::VERBOSE));
-          $test->echoMessages();
 
           $command = implode(' ', $command);
+          $test->getSuite()->interpolate($command);
+          $test->addMessage(new DebugMessage([$command]));
+          $test->echoMessages();
+
           $cypress_output = [];
           $test_result = 0;
           exec($command, $cypress_output, $test_result);

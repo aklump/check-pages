@@ -1,0 +1,5 @@
+-
+    why: 'Demonstrate the Bash Handler syntax.'
+    bash: 'echo $PWD'
+-
+    bash: date

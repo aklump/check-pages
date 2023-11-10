@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Bash</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
+</head>
+
+<body class="page--handler_bash">
+<header>
+  <div class="pager"><a href="demo--javascript2.html" class="prev demo--javascript2">&laquo;More Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--breakpoint.html" class="next handler_breakpoint">Breakpoint&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2">Usage and Examples</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Bash</h1>
+  <!--searchable_content-->
+
+<p>Allows your tests to execute BASH commands.</p>
+
+<p>You can use this to leverage Drush, for example to delete a Drupal user.</p>
+
+<pre><code class="yaml">- bash: drush ucan test_user --delete-content -y
+</code></pre>
+
+<h2>Todo</h2>
+
+<ul>
+<li>Make assertions on the output.</li>
+<li>Set the output to a variable.</li>
+</ul>
+
+<h2>Example Tests</h2>
+
+<pre><code class="yaml">-
+  why: Demonstrate the Bash Handler syntax.
+  bash: echo $PWD
+-
+  bash: date
+
+</code></pre>
+
+<p><em>Provided by the bash handler.</em></p>
+<!--end_searchable_content-->
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="demo--javascript2.html" class="prev demo--javascript2">&laquo;More Javascript</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--breakpoint.html" class="next handler_breakpoint">Breakpoint&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Fri, 10 Nov 2023 12:52:37 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

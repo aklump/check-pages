@@ -18,7 +18,8 @@ class Matches extends LogicBase {
     foreach ($haystack as $item) {
       $passes_test = $this->applyCallbackWithVariations($item, function ($item_variation) use ($assert) {
         if (preg_match($this->value, $item_variation, $matches)) {
-          $assert->setNeedleIfNotSet($matches[0]);
+          $needle = array_pop($matches);
+          $assert->setNeedleIfNotSet($needle);
 
           return TRUE;
         }

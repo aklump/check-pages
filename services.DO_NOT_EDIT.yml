@@ -23,6 +23,10 @@ services:
         class: \AKlump\CheckPages\Service\ConfigSecretsService
         tags:
             - { name: event_subscriber }
+    bash.handler:
+        class: \AKlump\CheckPages\Handlers\Bash
+        tags:
+            - { name: event_subscriber }
     breakpoint.handler:
         class: \AKlump\CheckPages\Handlers\Breakpoint
         tags:

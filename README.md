@@ -76,10 +76,6 @@ $ composer require aklump/check-pages --dev
 * You will be asked if you want to create a directory for your tests when you install. This will copy over a basic scaffolding to build from.<sup>1</sup>
 * More detailed examples are located in the _example_ directory.
 
-### <sup>1</sup>Creating Test Directories At Any Time
-
-Use _./create_test_directory_ outside of installation to copy scaffolding.
-
 ## Example Tests Demo
 
 If you are new to this project and would like to see a demonstration, it would be a good idea to start with the examples. Run the example tests with the following commands. Then open up the files in the _example/tests_ directory and study them to see how they work.<sup>1</sup>
@@ -96,7 +92,7 @@ If you are new to this project and would like to see a demonstration, it would b
 
 ### Writing Your First Test Suite
 
-If you created a test directory on install then you're ready to build on that. If you did not you can do that now by running the script in _vendor/bin/check_pages_init_
+1. `checkpages init` to create tests directory and runner in the current directory.
 
 ### Multiple Configuration Files
 

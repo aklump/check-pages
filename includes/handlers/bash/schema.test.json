@@ -1,0 +1,12 @@
+{
+    "type": "object",
+    "required": [
+        "bash"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "bash": {
+            "$ref": "#/definitions/bash__bash"
+        }
+    }
+}
