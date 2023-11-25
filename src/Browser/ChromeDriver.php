@@ -159,7 +159,7 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
 
       $this->response = new Response(
         $page_contents,
-        $response['status'],
+        $response['status'] ?? 0,
         array_map(function ($item) {
           return explode("\n", $item);
         }, $response['headers'])

@@ -80,7 +80,7 @@ class User implements UserInterface, JsonSerializable {
    * @inheritDoc
    */
   public function id(): int {
-    return $this->uid;
+    return $this->uid ?? 0;
   }
 
   public function getPassword(): string {
