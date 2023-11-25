@@ -1,6 +1,6 @@
 <?php
 
-namespace Helpers;
+namespace AKlump\CheckPages\Tests\Unit\Helpers;
 
 use AKlump\CheckPages\Helpers\FilterSuites;
 use AKlump\CheckPages\Parts\Runner;

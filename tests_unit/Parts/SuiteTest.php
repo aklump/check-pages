@@ -1,5 +1,7 @@
 <?php
 
+namespace AKlump\CheckPages\Tests\Unit\Parts;
+
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;
 use PHPUnit\Framework\TestCase;

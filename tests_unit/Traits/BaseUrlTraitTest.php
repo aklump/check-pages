@@ -1,5 +1,7 @@
 <?php
 
+namespace AKlump\CheckPages\Tests\Unit\Traits;
+
 use PHPUnit\Framework\TestCase;
 
 /**

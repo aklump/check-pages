@@ -1,9 +1,12 @@
 <?php
 
+namespace AKlump\CheckPages\Tests\Unit\Service;
+
 use AKlump\CheckPages\Handlers\Dom;
-use PHPUnit\Framework\TestCase;
 use AKlump\CheckPages\Service\Assertion;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\DomCrawler\Crawler;
+use RuntimeException;
 
 /**
  * @group default

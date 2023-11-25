@@ -1,9 +1,11 @@
 <?php
 
+namespace AKlump\CheckPages\Tests\Unit\Output;
+
+use AKlump\CheckPages\Output\ConsoleEchoPrinter;
 use AKlump\CheckPages\Output\Message;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\OutputInterface;
-use AKlump\CheckPages\Output\ConsoleEchoPrinter;
 
 /**
  * @group default

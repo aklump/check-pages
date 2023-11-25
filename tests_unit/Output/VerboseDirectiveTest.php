@@ -1,9 +1,11 @@
 <?php
 
-use AKlump\CheckPages\Assert;
+namespace AKlump\CheckPages\Tests\Unit\Output;
+
 use AKlump\CheckPages\Output\VerboseDirective;
 use AKlump\CheckPages\Output\Verbosity;
 use PHPUnit\Framework\TestCase;
+use InvalidArgumentException;
 
 /**
  * @group default

@@ -1,11 +1,12 @@
 <?php
 
+namespace AKlump\CheckPages\Tests\Unit\Files;
+
 use AKlump\CheckPages\CheckPages;
-use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Files\LocalFilesProvider;
-use AKlump\CheckPages\Files\NotWriteableException;
 use AKlump\CheckPages\Files\NotInResolvableDirectoryException;
+use AKlump\CheckPages\Files\NotWriteableException;
 use AKlump\CheckPages\Files\PathIsNotDirectoryException;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Exception\FileLocatorFileNotFoundException;
@@ -250,7 +251,7 @@ final class LocalFilesProviderTest extends TestCase {
     $files->addResolveDir("$base_dir/example/tests");
 
     $dir = $files->tryResolveDir(CheckPages::DIR_HANDLERS)[0];
-    $this->assertSame("$base_dir/". CheckPages::DIR_HANDLERS, $dir);
+    $this->assertSame("$base_dir/" . CheckPages::DIR_HANDLERS, $dir);
   }
 
   public function testTryResolveDirFindsDir() {

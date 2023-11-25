@@ -1,9 +1,11 @@
 <?php
 
+namespace AKlump\CheckPages\Tests\Unit\Parts;
+
 use AKlump\CheckPages\Output\Icons;
-use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;
+use AKlump\CheckPages\Parts\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

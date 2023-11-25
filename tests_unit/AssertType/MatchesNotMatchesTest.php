@@ -1,6 +1,6 @@
 <?php
 
-namespace AssertType;
+namespace AKlump\CheckPages\Tests\Unit\AssertType;
 
 use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\AssertType\Matches;
