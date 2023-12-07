@@ -27,31 +27,35 @@ final class Form implements HandlerInterface {
          */
         function (SuiteEventInterface $event) {
           foreach ($event->getSuite()->getTests() as $test) {
-            if ($test->getConfig()['form'] ?? NULL) {
+            $config = $test->getConfig();
+            if ($config['form'] ?? NULL) {
+              if (empty($config['url'])) {
+                throw new TestFailedException($config, new \Exception('Test is missing an URL'));
+              }
+
               $test_configs = [];
 
               // It's important to copy the original, for reasons such as the
               // original may have extra configuration we can't know about, for
               // example the user plugin and authentication.
-              $first = $test->getConfig();
-              $second = $test->getConfig();
+              $second_config = $test->getConfig();
 
               // The find will be pushed to the secondary test.
-              unset($first['find']);
-              $first['why'] = sprintf('Load and analyze form (%s)', $first['form']['dom']);
-              $test_configs[] = $first;
+              unset($config['find']);
+              $config['why'] = sprintf('Load and analyze form (%s)', $config['form']['dom']);
+              $test_configs[] = $config;
 
               // The form should not appear in this test, only the first.
-              unset($second['form']);
-              $second['url'] = '${formAction}';
-              $second['request'] = [
+              unset($second_config['form']);
+              $second_config['url'] = '${formAction}';
+              $second_config['request'] = [
                 'method' => '${formMethod}',
                 'headers' => [
                   'content-type' => 'application/x-www-form-urlencoded',
                 ],
                 'body' => '${formBody}',
               ];
-              $test_configs[] = $second;
+              $test_configs[] = $second_config;
 
               $event->getSuite()->replaceTestWithMultiple($test, $test_configs);
             }
