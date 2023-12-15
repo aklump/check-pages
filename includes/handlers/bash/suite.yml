@@ -3,3 +3,14 @@
   bash: echo $PWD
 -
   bash: date
+-
+  why: Capture the last line of bash output into variable.
+  bash: echo '.page-title'
+  set: selector
+-
+  why: Assert the variable was set as expected by the bash test.
+  url: /
+  find:
+    -
+      dom: ${selector}
+      text: About In the Loft Studios

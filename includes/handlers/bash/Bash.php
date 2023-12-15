@@ -41,7 +41,9 @@ final class Bash implements HandlerInterface {
           $bash_output = [];
           $test_result = 0;
           $set_value = exec($bash_command, $bash_output, $test_result);
-          $set_key = $test->get('set');
+          if ($test->get(Assert::ASSERT_SETTER)) {
+            $test->set('value', $set_value);
+          }
 
           $test_result == 0 ? $test->setPassed() : $test->setFailed();
 
@@ -56,30 +58,6 @@ final class Bash implements HandlerInterface {
             $message_type,
             $verbosity
           ));
-
-          if ($set_key) {
-            $config = $test->getConfig();
-            $config['value'] = $set_value;
-            $test->setConfig($config);
-            $handler = new self();
-            $lines[] = $handler->setKeyValuePair(
-              $test->getSuite()->variables(),
-              $config[Assert::ASSERT_SETTER],
-              $config['value']
-            );
-            $test->addMessage(new Message($lines, MessageType::DEBUG, Verbosity::DEBUG));
-          }
-        },
-      ],
-      Event::TEST_FINISHED => [
-        function (TestEventInterface $event) {
-          $test = $event->getTest();
-          if ($test->has(Assert::ASSERT_SETTER)) {
-            $suite = $test->getSuite();
-            $config = $test->getConfig();
-            $suite->interpolate($config['value']);
-            $suite->interpolate($config[Assert::ASSERT_SETTER]);
-          }
         },
       ],
     ];

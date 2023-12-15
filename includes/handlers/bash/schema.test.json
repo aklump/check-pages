@@ -1,12 +1,16 @@
 {
-    "type": "object",
-    "required": [
-        "bash"
-    ],
-    "additionalProperties": false,
-    "properties": {
-        "bash": {
-            "$ref": "#/definitions/bash__bash"
-        }
+  "type": "object",
+  "required": [
+    "bash"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "bash": {
+      "$ref": "#/definitions/bash__bash"
+    },
+    "set": {
+      "description": "The variable name to contain the last line of the BASH output.",
+      "$ref": "#/definitions/value__set"
     }
+  }
 }
