@@ -1,0 +1,6 @@
+-
+  bash: drush ucan test_user --delete-content -y
+
+-
+  bash: date
+  set: currentDate

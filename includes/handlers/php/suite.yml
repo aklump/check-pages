@@ -1,7 +1,3 @@
-#-
-#  why: Perform a test that is based on a PHP script
-#  php: ./my_external_php_test.php
-
 -
   why: Capture the last line of php output into variable.
   php: echo '.page-title'

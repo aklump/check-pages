@@ -13,24 +13,6 @@ extras:
 
 ```
 
-## _suite.yml_ Example
-
-```yaml
--
-  set: timesheet.id
-  value: 240
--
-  set: timesheet.worker.id
-  value: 160
--
-  why: Demonstrate the Cypress Handler syntax.
-  cypress: worker/3632.cy.js
-  env:
-    user: site_test.worker1
-    visit: node/${timesheet.id}/approve/${timesheet.worker.id}
-
-```
-
 ## Passing User Credentials From the Drupal Mixin to Cypress
 
 1. Use the drupal mixin to log in as normal.

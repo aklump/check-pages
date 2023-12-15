@@ -1,0 +1,4 @@
+-
+  why: Get the current unix timestamp for interpolation as ${timestamp}
+  php: echo time()
+  set: timestamp
