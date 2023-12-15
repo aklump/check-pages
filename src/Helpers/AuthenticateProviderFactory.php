@@ -37,26 +37,34 @@ class AuthenticateProviderFactory {
    */
   public function __invoke(string $absolute_login_url): AuthenticationInterface {
     static $classnames;
-    $http_client = new HttpClient($this->test->getRunner(), $this->test);
-    $cid = parse_url($absolute_login_url, PHP_URL_HOST);
-    if (empty($classnames[$cid])) {
-      $major_version = $this->getMajorDrupalVersion($http_client, $absolute_login_url);
-      switch ($major_version) {
-        case 7:
-          $classnames[$cid] = AuthenticateDrupal7::class;
-          break;
+    $http_client = $this->createHttpClient();
+    $host_name = parse_url($absolute_login_url, PHP_URL_HOST);
 
-        default:
-          $classnames[$cid] = AuthenticateDrupal8::class;
-          break;
-      }
+    if (empty($classnames[$host_name])) {
+      $classnames[$host_name] = $this->determineClassName($http_client, $absolute_login_url);
     }
-    if (empty($classnames[$cid])) {
+
+    if (empty($classnames[$host_name])) {
       throw new StopRunnerException(sprintf('Unable to determine authentication class; cannot authenticate against %s', $absolute_login_url));
     }
-    $this->addClassContextToHttpClient($http_client, $classnames[$cid]);
 
-    return new $classnames[$cid]($http_client, $this->logFiles, $this->pathToUsers, $absolute_login_url);
+    $this->addClassContextToHttpClient($http_client, $classnames[$host_name]);
+
+    return new $classnames[$host_name]($http_client, $this->logFiles, $this->pathToUsers, $absolute_login_url);
+  }
+
+  private function createHttpClient(): HttpClient {
+    return new HttpClient($this->test->getRunner(), $this->test);
+  }
+
+  private function determineClassName(HttpClient $http_client, string $absolute_login_url): string {
+    $major_version = $this->getMajorDrupalVersion($http_client, $absolute_login_url);
+    switch ($major_version) {
+      case 7:
+        return AuthenticateDrupal7::class;
+      default:
+        return AuthenticateDrupal8::class;
+    }
   }
 
   private function getMajorDrupalVersion($http_client, $absolute_login_url): ?int {
