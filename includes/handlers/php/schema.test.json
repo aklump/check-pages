@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "required": [
+    "php"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "php": {
+      "$ref": "#/definitions/php__php"
+    },
+    "set": {
+      "description": "The variable name to contain the output of the PHP evaluation.",
+      "$ref": "#/definitions/value__set"
+    }
+  }
+}

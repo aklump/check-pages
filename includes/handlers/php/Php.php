@@ -7,7 +7,7 @@ use AKlump\CheckPages\Traits\SetTrait;
 /**
  * Implements the Bash handler.
  */
-final class Bash extends CommandLineTestHandlerBase {
+final class PHP extends CommandLineTestHandlerBase {
 
   use SetTrait;
 
@@ -15,10 +15,10 @@ final class Bash extends CommandLineTestHandlerBase {
    * {@inheritdoc}
    */
   public static function getId(): string {
-    return 'bash';
+    return 'php';
   }
 
   protected function prepareCommandForCLI(string $command): string {
-    return $command;
+    return "php -r \"$command;\"";
   }
 }

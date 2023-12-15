@@ -1,0 +1,15 @@
+#-
+#  why: Perform a test that is based on a PHP script
+#  php: ./my_external_php_test.php
+
+-
+  why: Capture the last line of php output into variable.
+  php: echo '.page-title'
+  set: selector
+-
+  why: Assert the variable was set as expected by the php test.
+  url: /
+  find:
+    -
+      dom: ${selector}
+      text: About In the Loft Studios

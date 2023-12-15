@@ -1,0 +1,9 @@
+{
+  "php__php": {
+    "type": "string",
+    "pattern": ".+",
+    "examples": [
+      "echo time()"
+    ]
+  }
+}
