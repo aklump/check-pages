@@ -6,6 +6,7 @@ use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Interfaces\HasConfigInterface;
+use AKlump\CheckPages\Interfaces\MayBeInterpolatedInterface;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Test;
@@ -15,9 +16,13 @@ use AKlump\Messaging\MessageType;
 /**
  * Implements the Value handler.
  */
-final class Value implements HandlerInterface {
+final class Value implements HandlerInterface, MayBeInterpolatedInterface {
 
   use SetTrait;
+
+  public function getInterpolationKeys(int $scope): array {
+    return [Assert::ASSERT_SETTER, 'value'];
+  }
 
   /**
    * {@inheritdoc}
@@ -31,12 +36,14 @@ final class Value implements HandlerInterface {
           if (!$test->has('value')) {
             return;
           }
+          $handler = new self();
+          if ($test->has(Assert::ASSERT_SETTER)) {
+            $handler->handleSetAndValueAtTestScope($test);
+          }
 
           // Mark test as passed if it's only going to set a value.  Setting of
           // the value to the variables will happen in the TEST_FINISHED event.
-          $obj = new self();
-          if ($obj->isOnlySet($test)) {
-
+          if ($handler->isOnlySet($test)) {
             $test->setPassed();
 
             return;
@@ -44,7 +51,7 @@ final class Value implements HandlerInterface {
 
           // Otherwise create a runtime assert, run it and mark the test with
           // the result of the run.
-          $assert = $obj->createAssertFromTest($test);
+          $assert = $handler->createAssertFromTest($test);
           $assert->run();
           $test->addMessage(new Message([strval($assert)],
             MessageType::INFO,
@@ -60,38 +67,20 @@ final class Value implements HandlerInterface {
         },
         -10,
       ],
-
       Event::TEST_FINISHED => [
         function (TestEventInterface $event) {
           $test = $event->getTest();
-          if (!$test->has(Assert::ASSERT_SETTER)) {
-            return;
-          }
-          $suite = $test->getSuite();
-          $config = $test->getConfig();
-          $suite->interpolate($config['value']);
-          $set_message = '';
           if ($test->has(Assert::ASSERT_SETTER)) {
-            $suite->interpolate($config[Assert::ASSERT_SETTER]);
-            $handler = new self();
-            $set_message = $handler->setKeyValuePair(
-              $suite->variables(),
-              $config[Assert::ASSERT_SETTER],
-              $config['value']
-            );
+            (new self())->handleInterpolation($test);
           }
-
-          // TODO Echo the why?
-          $test->addMessage(new Message([$set_message], MessageType::DEBUG, Verbosity::DEBUG));
         },
       ],
-
       Event::ASSERT_CREATED => [
         function (Event\AssertEventInterface $event) {
           $assert = $event->getAssert();
 
-          $obj = new self();
-          if ($obj->isOnlySet($assert)) {
+          $handler = new self();
+          if ($handler->isOnlySet($assert)) {
             // Because this only a set event, we will mark this passed so the
             // assert doesn't run.  However we'll wait to set the value until
             // the closing event, because if this is NOT only a set event then
@@ -120,7 +109,6 @@ final class Value implements HandlerInterface {
             $suite->interpolate($value);
             $assert->setHaystack([$value]);
           }
-
         },
         -10,
       ],
@@ -208,4 +196,27 @@ final class Value implements HandlerInterface {
     return $assert;
   }
 
+  private function handleSetAndValueAtTestScope(Test $test) {
+    $config = $test->getConfig();
+    $handler = new self();
+    $set_message = $handler->setKeyValuePair(
+      $test->getSuite()->variables(),
+      $config[Assert::ASSERT_SETTER],
+      $config['value']
+    );
+    $test->addMessage(new Message([$set_message], MessageType::DEBUG, Verbosity::DEBUG));
+  }
+
+  private function handleInterpolation(Test $test) {
+    $suite = $test->getSuite();
+
+    $config = $test->getConfig();
+    $suite->interpolate($config['value']);
+    $suite->interpolate($config[Assert::ASSERT_SETTER]);
+
+    $test->setConfig($config);
+    $test->getSuite()
+      ->variables()
+      ->setItem($config['value'], $config[Assert::ASSERT_SETTER]);
+  }
 }

@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages\Service;
 
 use AKlump\CheckPages\Handlers\Value;
+use AKlump\CheckPages\Interfaces\ScopeInterface;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Traits\SetTrait;
@@ -37,7 +38,7 @@ class InterpolationService implements EventSubscriberInterface {
 
   private function getTestScopeInterpolationKeys(): array {
     $keys = ['why'];
-    $keys = array_merge($keys, (new Value())->getInterpolationKeys());
+    $keys = array_merge($keys, (new Value())->getInterpolationKeys(ScopeInterface::TEST));
 
     return $keys;
   }

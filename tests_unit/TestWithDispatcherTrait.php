@@ -9,6 +9,12 @@ use AKlump\CheckPages\Parts\Runner;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Trait TestWithDispatcherTrait
+ *
+ * This trait provides a method to retrieve a Runner object with a set dispatcher
+ * and all expected event handlers.
+ */
 trait TestWithDispatcherTrait {
 
   /**
@@ -38,4 +44,5 @@ trait TestWithDispatcherTrait {
 
     return $runner;
   }
+
 }
