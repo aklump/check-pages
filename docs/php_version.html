@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>How to Use a Different PHP version than Default</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
+</head>
+
+<body class="page--php_version">
+<header>
+  <div class="pager"><a href="install.html" class="prev install">&laquo;Global Installation</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="interpolation.html" class="next interpolation">Interpolation&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>How to Use a Different PHP version than Default</h1>
+  <!--searchable_content-->
+
+<p>If you've installed Check Pages globally, you may find that you need to specify the exact PHP version that runs it, so that the dependencies that were installed are correct.</p>
+
+<p>This will use the current PHP version of the shell:</p>
+
+<pre><code class="shell">$(which checkpages) run tests_check_pages/test_content/setup_runner.php
+</code></pre>
+
+<p>This will use a specific PHP version, i.e. <code>$CHECK_PAGES_PHP</code>:</p>
+
+<pre><code class="shell">export CHECK_PAGES_PHP="/Applications/MAMP/bin/php/php7.4.33/bin/php"
+"$CHECK_PAGES_PHP" $(which checkpages) run tests_check_pages/test_content/setup_runner.php
+</code></pre>
+<!--end_searchable_content-->
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="install.html" class="prev install">&laquo;Global Installation</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="interpolation.html" class="next interpolation">Interpolation&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Fri, 15 Dec 2023 15:01:29 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

@@ -10,11 +10,11 @@
 
 <body class="page--handler_cypress">
 <header>
-  <div class="pager"><a href="demo--count.html" class="prev demo--count">&laquo;Count Handler</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--dom.html" class="next handler_dom">Demo  Dom&raquo;</a></div></header>
+  <div class="pager"><a href="demo--count.html" class="prev demo--count">&laquo;Count -- Count Handler</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--device.html" class="next handler_device">Device&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
-                        <a href="demo--javascript2">Usage and Examples</a>
+                        <a href="demo--javascript2">Handlers and Example Tests</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -36,23 +36,6 @@
     cypress: /Users/aklump/Code/Projects/ContechServices/AuroraTimesheet/site/app/node_modules/.bin/cypress
     config_file: /Users/aklump/Code/Projects/ContechServices/AuroraTimesheet/site/app/cypress/config/dev.config.js
     spec_base: /Users/aklump/Code/Projects/ContechServices/AuroraTimesheet/site/app/cypress/e2e/
-
-</code></pre>
-
-<h2><em>suite.yml</em> Example</h2>
-
-<pre><code class="yaml">-
-  set: timesheet.id
-  value: 240
--
-  set: timesheet.worker.id
-  value: 160
--
-  why: Demonstrate the Cypress Handler syntax.
-  cypress: worker/3632.cy.js
-  env:
-    user: site_test.worker1
-    visit: node/${timesheet.id}/approve/${timesheet.worker.id}
 
 </code></pre>
 
@@ -80,6 +63,21 @@
 
 <h2>Example Tests</h2>
 
+<pre><code class="yaml">-
+  set: timesheet.id
+  value: 240
+-
+  set: timesheet.worker.id
+  value: 160
+-
+  why: Demonstrate the Cypress Handler syntax.
+  cypress: worker/3632.cy.js
+  env:
+    user: site_test.worker1
+    visit: node/${timesheet.id}/approve/${timesheet.worker.id}
+
+</code></pre>
+
 <p><em>Provided by the cypress handler.</em></p>
 <!--end_searchable_content-->
 </section>
@@ -89,9 +87,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="demo--count.html" class="prev demo--count">&laquo;Count Handler</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--dom.html" class="next handler_dom">Demo  Dom&raquo;</a></div>  
+  <div class="pager"><a href="demo--count.html" class="prev demo--count">&laquo;Count -- Count Handler</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--device.html" class="next handler_device">Device&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Fri, 10 Nov 2023 12:55:27 -0800</p>
+    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Fri, 15 Dec 2023 15:01:07 -0800</p>
   </div>
 </footer>
 

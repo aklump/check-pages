@@ -2,15 +2,15 @@
 
 <html>
 <head>
-  <title>Sleep -- Sleep: Adding a Delay</title>
+  <title>Php</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
   <meta name="keywords" content="" />
 </head>
 
-<body class="page--handler_sleep">
+<body class="page--handler_php">
 <header>
-  <div class="pager"><a href="demo--request.html" class="prev demo--request">&laquo;Request -- Making Requests Other Than GET</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--style.html" class="next handler_style">Style -- Style Handler: Assertions Against CSS&raquo;</a></div></header>
+  <div class="pager"><a href="demo--path.html" class="prev demo--path">&laquo;Path -- The Path Handler is for Testing Structured Content</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--redirect.html" class="next handler_redirect">Redirect&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
@@ -24,36 +24,24 @@
   </section>
 
 <section>
-  <h1>Sleep: Adding a Delay</h1>
+  <h1>PHP</h1>
   <!--searchable_content-->
 
-<p><code>sleep: &lt;seconds&gt;</code> provides a means of adding a delay to the test runner.</p>
+<ul>
+<li>Allows your tests to evalulate PHP for interpolation.</li>
+<li>If the exit code is 0, the test will be passed. Anything else will fail it.</li>
+</ul>
 
 <h2>Example Tests</h2>
 
 <pre><code class="yaml">-
-  visit: /test_subject.php
-  find:
-    -
-      header: X-timestamp
-      set: time
-
--
-  why: Wait three seconds to ensure REQUEST_TIME increases.
-  sleep: 3
-
--
-  visit: /test_subject.php
-  find:
-    -
-      header: X-timestamp
-      set: time2
-    -
-      eval: ${time2} &gt;= ${time} + 3
+  why: Get the current unix timestamp for interpolation as ${timestamp}
+  php: echo time()
+  set: timestamp
 
 </code></pre>
 
-<p><em>Provided by the sleep handler.</em></p>
+<p><em>Provided by the php handler.</em></p>
 <!--end_searchable_content-->
 </section>
 
@@ -62,9 +50,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="demo--request.html" class="prev demo--request">&laquo;Request -- Making Requests Other Than GET</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--style.html" class="next handler_style">Style -- Style Handler: Assertions Against CSS&raquo;</a></div>  
+  <div class="pager"><a href="demo--path.html" class="prev demo--path">&laquo;Path -- The Path Handler is for Testing Structured Content</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--redirect.html" class="next handler_redirect">Redirect&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Fri, 15 Dec 2023 15:01:16 -0800</p>
+    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Fri, 15 Dec 2023 15:01:14 -0800</p>
   </div>
 </footer>
 

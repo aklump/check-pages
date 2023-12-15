@@ -1180,6 +1180,13 @@
                 }
             }
         },
+        "php__php": {
+            "type": "string",
+            "pattern": ".+",
+            "examples": [
+                "echo time()"
+            ]
+        },
         "request__method": {
             "oneOf": [
                 {
@@ -1879,6 +1886,10 @@
                     },
                     "bash": {
                         "$ref": "#/definitions/bash__bash"
+                    },
+                    "set": {
+                        "description": "The variable name to contain the last line of the BASH output.",
+                        "$ref": "#/definitions/value__set"
                     }
                 }
             },
@@ -2107,6 +2118,31 @@
                     },
                     "end loop": {
                         "$ref": "#/definitions/loop__end_loop"
+                    }
+                }
+            },
+            {
+                "type": "object",
+                "required": [
+                    "php"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
+                    "extras": {
+                        "$ref": "#/definitions/extras"
+                    },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
+                    },
+                    "php": {
+                        "$ref": "#/definitions/php__php"
+                    },
+                    "set": {
+                        "description": "The variable name to contain the output of the PHP evaluation.",
+                        "$ref": "#/definitions/value__set"
                     }
                 }
             },

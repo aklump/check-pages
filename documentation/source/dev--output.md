@@ -4,7 +4,7 @@ When working on this project, never `echo` directly.
 
 ## Extension Authors
 
-For messages related to a test, you must use `$test->addMessage(...` because the timing of the output will be handled by the runner. **You must not use a printer from within handlers or custom extensions!**
+For messages related to a test, you must use `$test->addToVariables(...` because the timing of the output will be handled by the runner. **You must not use a printer from within handlers or custom extensions!**
 
 In some cases you may want to display your messages sooner than later, if so you may call `$test->echoMessages()`. Not this will print all test messages, including those set so far in the processing. This ensures FIFO.
 

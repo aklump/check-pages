@@ -17,6 +17,7 @@ run_suite("handlers/json_pointer");
 run_suite("handlers/json_schema");
 run_suite("handlers/loop");
 run_suite("handlers/path");
+run_suite("handlers/php");
 run_suite("handlers/redirect");
 run_suite("handlers/request");
 run_suite("handlers/sleep");

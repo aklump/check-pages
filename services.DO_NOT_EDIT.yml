@@ -23,6 +23,10 @@ services:
         class: \AKlump\CheckPages\Service\SecretsService
         tags:
             - { name: event_subscriber }
+    interpolator:
+        class: \AKlump\CheckPages\Service\InterpolationService
+        tags:
+            - { name: event_subscriber }
     bash.handler:
         class: \AKlump\CheckPages\Handlers\Bash
         tags:
@@ -81,6 +85,10 @@ services:
             - { name: event_subscriber }
     path.handler:
         class: \AKlump\CheckPages\Handlers\Path
+        tags:
+            - { name: event_subscriber }
+    php.handler:
+        class: \AKlump\CheckPages\Handlers\Php
         tags:
             - { name: event_subscriber }
     redirect.handler:

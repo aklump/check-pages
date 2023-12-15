@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>Value Handler</title>
+  <title>Value -- Value Handler</title>
   <link href="search/tipuesearch.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
   <meta name="keywords" content="" />
@@ -10,11 +10,11 @@
 
 <body class="page--handler_value">
 <header>
-  <div class="pager"><a href="demo--path.html" class="prev demo--path">&laquo;The Path Handler is for Testing Structured Content</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="config--secrets.html" class="next config--secrets">Config Secrets&raquo;</a></div></header>
+  <div class="pager"><a href="demo--style.html" class="prev demo--style">&laquo;Style -- Style Handler: Assertions Against CSS</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--xpath.html" class="next handler_xpath">Xpath&raquo;</a></div></header>
 <section class="sub-header">
   <div class="breadcrumbs"><a href="index.html">Index</a>
          &raquo
-                        <a href="demo--javascript2">Usage and Examples</a>
+                        <a href="demo--javascript2">Handlers and Example Tests</a>
          &raquo
       </div>      <div class="search__wrapper">
   <form action="search--results.html">
@@ -27,13 +27,63 @@
   <h1>Value Handler</h1>
   <!--searchable_content-->
 
+<p>The value handler enhances interpolation by providing means to set variables in the suite.</p>
+
+<h2>Test Scope</h2>
+
+<pre><code class="yaml">-
+  set: myVariable
+  value: lorem
+-
+  url: /
+  find:
+    -
+      contains: ${myVariable}  
+</code></pre>
+
+<p>That is a static example, however runtime values can be added by handlers. To do this, the handler should set <code>value</code> during or before the <code>\AKlump\CheckPages\Event::TEST_FINISHED</code> event. Once set as shown above, <code>${myVariable}</code> is available for interpolation for the remainder of the suite.</p>
+
+<p>Given <code>MyDateHandler</code>, the suite could like something like this:</p>
+
+<pre><code class="yaml">-
+  my_date_handler: m/d/Y
+  set: formattedDate
+-
+  url: /
+  find:
+    -
+      dom: .date
+      contains: ${formattedDate}  
+</code></pre>
+
+<pre><code class="php">class MyDateHandler implements \Symfony\Component\EventDispatcher\EventSubscriberInterface {
+  public static function getSubscribedEvents() {
+    return [
+      \AKlump\CheckPages\Event::TEST_CREATED =&gt; [
+        function (\AKlump\CheckPages\Event\TestEventInterface $event) {
+          $test = $event-&gt;getTest();
+          if ($test-&gt;has('my_date_handler')) {
+            $date_format = $test-&gt;get('my_date_handler');
+            $test-&gt;set('value', date($date_format));
+          }
+        },
+      ],
+    ];
+  }
+}
+</code></pre>
+
+<h2>Assertion Level</h2>
+
+<p>@todo</p>
+
+<h2>Features</h2>
+
 <ul>
 <li>Set variables from constant/interpolated values.</li>
 <li>Assert against constant/interpolated values.</li>
 <li>Works outside of HTTP requests.</li>
 </ul>
-
-<p><strong>The real benefit of this plugin comes when you use shorthand, mixins, or plugins to set variables in realtime, as it allows to you to assert against those dynamic values.</strong></p>
 
 <h2>Example Tests</h2>
 
@@ -135,9 +185,9 @@
 </div>
 
 <footer>
-  <div class="pager"><a href="demo--path.html" class="prev demo--path">&laquo;The Path Handler is for Testing Structured Content</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="config--secrets.html" class="next config--secrets">Config Secrets&raquo;</a></div>  
+  <div class="pager"><a href="demo--style.html" class="prev demo--style">&laquo;Style -- Style Handler: Assertions Against CSS</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--xpath.html" class="next handler_xpath">Xpath&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Fri, 10 Nov 2023 12:55:36 -0800</p>
+    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Fri, 15 Dec 2023 15:01:17 -0800</p>
   </div>
 </footer>
 
