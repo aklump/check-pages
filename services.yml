@@ -23,3 +23,7 @@ services:
     class: \AKlump\CheckPages\Service\SecretsService
     tags:
       - { name: event_subscriber }
+  interpolator:
+    class: \AKlump\CheckPages\Service\InterpolationService
+    tags:
+      - { name: event_subscriber }

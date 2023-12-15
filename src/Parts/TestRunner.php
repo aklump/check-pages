@@ -16,8 +16,9 @@ use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Output\YamlMessage;
 use AKlump\CheckPages\Service\Assertion;
 use AKlump\Messaging\MessageType;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
-final class TestRunner {
+final class TestRunner implements EventDispatcherInterface {
 
   /**
    * @var \AKlump\CheckPages\Browser\ChromeDriver|\AKlump\CheckPages\Browser\GuzzleDriver
@@ -31,38 +32,62 @@ final class TestRunner {
 
   public function __construct(Test $test) {
     $this->test = $test;
-    if ($test->get('js') ?? FALSE) {
-      $this->driver = new ChromeDriver();
-    }
-    else {
-      $this->driver = new GuzzleDriver();
-    }
-    $this->driver->setMessenger($test->getRunner()->getMessenger());
-  }
-
-  public function getDriver(): RequestDriverInterface {
-    return $this->driver;
   }
 
   /**
-   * Run a given test.
+   * Start the test before calling run.
+   *
+   * This method starts the test by dispatching the TEST_CREATED event.  It
+   * should be called before calling run() and if the test passes or fails in
+   * this phase, run should not be called.
+   *
+   * @return \AKlump\CheckPages\Parts\TestRunner
+   *   The current TestRunner instance.
+   */
+  public function start(): TestRunner {
+    $this->test->getRunner()
+      ->getDispatcher()
+      ->dispatch(new TestEvent($this->test), Event::TEST_CREATED);
+
+    return $this;
+  }
+
+  public function getDriver(): RequestDriverInterface {
+    if (empty($this->driver)) {
+      $test = $this->test;
+      if ($test->get('js') ?? FALSE) {
+        $this->driver = new ChromeDriver();
+      }
+      else {
+        $this->driver = new GuzzleDriver();
+      }
+      $this->driver->setMessenger($test->getRunner()->getMessenger());
+    };
+
+    return $this->driver;
+  }
+
+  public function dispatch(object $event, string $eventName = NULL): object {
+    $this->test->getRunner()->getDispatcher()->dispatch($event, $eventName);
+
+    return $event;
+  }
+
+  /**
+   * Run a test that has neither passed nor failed.
    *
    * @return \AKlump\CheckPages\Parts\TestRunner
    *   Self for chaining.
+   *
+   * @throws \RuntimeException If the test has already passed or failed.
    */
   public function run(): TestRunner {
+    $this->tryValidateTestCanBeRun($this->test);
+
     $test = $this->test;
     $runner = $test->getRunner();
-    $dispatcher = $runner->getDispatcher();
-
     $this->getDriver()->setBaseUrl($runner->get('base_url') ?? '');
-
-    $config = $test->getConfig();
-    $test->interpolate($config['why']);
-    $test->setConfig($config);
-    unset($config);
-
-    $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::TEST_STARTED);
+    $this->dispatch(new DriverEvent($test, $this->getDriver()), Event::TEST_STARTED);
 
     //
     // Do the HTTP part of the test.
@@ -105,11 +130,11 @@ final class TestRunner {
           $this->getDriver()->setRequestTimeout($timeout);
         }
         // Keep this after the timeout so that handlers may override.
-        $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_CREATED);
+        $this->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_CREATED);
         $this->getDriver()
           ->setUrl($runner->withBaseUrl($test->getConfig()['url'] ?? ''));
         // TODO Do we really need this event?
-        $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_PREPARED);
+        $this->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_PREPARED);
 
         // In some cases the first assertion is looking for a dom element that
         // may be created as a result of an asynchronous JS event.  We create an
@@ -146,7 +171,7 @@ final class TestRunner {
             MessageType::TODO)
         );
       }
-      $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_FINISHED);
+      $this->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_FINISHED);
     }
 
     //
@@ -222,21 +247,26 @@ final class TestRunner {
     }
 
     if ($runtime_test_result) {
-      $dispatcher->dispatch(new TestEvent($test), Event::TEST_PASSED);
+      $this->dispatch(new TestEvent($test), Event::TEST_PASSED);
     }
     elseif ('skip suite' === $test->get('on fail')) {
       $test->setIsSkipped(TRUE);
       $test->getSuite()->setIsSkipped(TRUE);
-      $dispatcher->dispatch(new TestEvent($test), Event::TEST_SKIPPED);
+      $this->dispatch(new TestEvent($test), Event::TEST_SKIPPED);
     }
     else {
       $test->getSuite()->setFailed();
-      $dispatcher->dispatch(new TestEvent($test), Event::TEST_FAILED);
+      $this->dispatch(new TestEvent($test), Event::TEST_FAILED);
     }
 
-    $dispatcher->dispatch(new DriverEvent($test, $this->getDriver()), Event::TEST_FINISHED);
+    $this->dispatch(new DriverEvent($test, $this->getDriver()), Event::TEST_FINISHED);
 
     return $runtime_test_result || $test->isSkipped();
   }
 
+  private function tryValidateTestCanBeRun(Test $test) {
+    if ($test->hasFailed() || $test->hasPassed()) {
+      throw new \RuntimeException('It is not possible to run a test that has already passed/failed.');
+    }
+  }
 }

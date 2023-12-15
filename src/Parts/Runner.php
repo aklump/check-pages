@@ -662,9 +662,7 @@ class Runner implements HasMessagesInterface {
     $this->validateSuite($suite, static::SCHEMA_VISIT . '.json');
 
     while ($test = $suite->getNextPendingTest()) {
-      $this->dispatcher->dispatch(new TestEvent($test), Event::TEST_CREATED);
-
-      $test_runner = new TestRunner($test);
+      $test_runner = (new TestRunner($test))->start();
 
       // It's possible the test was already run during Event::TEST_CREATED, if
       // that handle has set the results, then the test should be considered
