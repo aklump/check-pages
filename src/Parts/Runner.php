@@ -59,7 +59,9 @@ class Runner implements HasMessagesInterface {
    *
    * @var string
    */
-  const SCHEMA_VISIT = 'schema.suite.DO_NOT_EDIT';
+  const PATH_TO_SCHEMA__SUITE = 'dist/schema.suite.json';
+
+  const PATH_TO_SERVICE_DEFINITIONS = 'dist/services.yml';
 
   const OUTPUT_NORMAL = 1;
 
@@ -659,7 +661,7 @@ class Runner implements HasMessagesInterface {
     $this->dispatcher->dispatch(new SuiteEvent($this->getSuite()), Event::SUITE_STARTED);
 
     // On return from the hook, we need to reparse to get format for validation.
-    $this->validateSuite($suite, static::SCHEMA_VISIT . '.json');
+    $this->validateSuite($suite, static::PATH_TO_SCHEMA__SUITE);
 
     while ($test = $suite->getNextPendingTest()) {
       $test_runner = (new TestRunner($test))->start();

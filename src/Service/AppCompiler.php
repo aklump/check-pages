@@ -312,6 +312,10 @@ final class AppCompiler {
   }
 
   private function saveJson($filepath, $data) {
+    $directory = dirname($filepath);
+    if (!file_exists($directory)) {
+      mkdir($directory, 0755, TRUE);
+    }
     $result = file_put_contents($filepath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     if (!$result) {
       throw new \RuntimeException(sprintf('Could not save %s', $filepath));
@@ -321,7 +325,12 @@ final class AppCompiler {
   }
 
   private function generateServicesFile() {
-    $result = file_put_contents($this->generatedServicesPath, Yaml::dump($this->services, 4));
+    $filepath = $this->generatedServicesPath;
+    $directory = dirname($filepath);
+    if (!file_exists($directory)) {
+      mkdir($directory, 0755, TRUE);
+    }
+    $result = file_put_contents($filepath, Yaml::dump($this->services, 4));
     if (!$result) {
       throw new \RuntimeException(sprintf('Could not save %s', $this->generatedServicesPath));
     }

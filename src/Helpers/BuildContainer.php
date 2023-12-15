@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Helpers;
 
+use AKlump\CheckPages\Parts\Runner;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use AKlump\CheckPages\Files\LocalFilesProvider;
@@ -23,7 +24,7 @@ class BuildContainer {
   public function __invoke(): Container {
     $container = new ContainerBuilder();
     $loader = new YamlFileLoader($container, $this->files);
-    $loader->load('services.DO_NOT_EDIT.yml');
+    $loader->load(Runner::PATH_TO_SERVICE_DEFINITIONS);
 
     $this->addHandlersManagerService($container);
 

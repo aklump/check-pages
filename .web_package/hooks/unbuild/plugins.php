@@ -6,4 +6,4 @@ define('ROOT', $argv[7]);
 
 require_once ROOT . '/vendor/autoload.php';
 
-file_exists(ROOT . '/' . Runner::SCHEMA_VISIT . '.json') && unlink(ROOT . '/' . Runner::SCHEMA_VISIT . '.json');
+file_exists(ROOT . '/' . Runner::PATH_TO_SCHEMA__SUITE) && unlink(ROOT . '/' . Runner::PATH_TO_SCHEMA__SUITE);
