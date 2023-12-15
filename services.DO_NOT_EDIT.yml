@@ -20,7 +20,7 @@ services:
         tags:
             - { name: event_subscriber }
     config_secrets:
-        class: \AKlump\CheckPages\Service\ConfigSecretsService
+        class: \AKlump\CheckPages\Service\SecretsService
         tags:
             - { name: event_subscriber }
     bash.handler:

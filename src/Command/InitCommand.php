@@ -2,7 +2,7 @@
 
 namespace AKlump\CheckPages\Command;
 
-use AKlump\CheckPages\Service\ConfigSecretsService;
+use AKlump\CheckPages\Service\SecretsService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -58,7 +58,7 @@ class InitCommand extends Command {
       }
 
       $stream = fopen("$this->dir/.gitignore", 'a');
-      $secrets = ConfigSecretsService::BASENAME;
+      $secrets = SecretsService::BASENAME;
       if (FALSE === fwrite($stream, "$secrets\nusers*\nlogfiles/\n")) {
         throw new \RuntimeException();
       }

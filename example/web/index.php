@@ -1,3 +1,9 @@
+<?php
+if (isset($_GET['apiKey']) && $_GET['apiKey'] !== 'OWqQtt741kDd6x8c') {
+  header("HTTP/1.1 403 Forbidden");
+  exit(1);
+}
+?>
 <html>
 <head>
   <style type="text/css">
