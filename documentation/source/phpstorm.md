@@ -17,3 +17,9 @@ add_mixin('http_request_files', [
 Each time your run the suite, the file erased and rewritten.
 
 **Be careful with these files because they may contain session and other authentication information.**
+
+## Include Files
+
+If you've globally installed check pages, you will not have autocomplete in PHP storm unless you reference that global installation.
+
+PHP > Include Path > DIR_TO_CHECKPAGES_INSTALLATION
