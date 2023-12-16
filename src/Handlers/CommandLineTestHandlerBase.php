@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Handlers;
 use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Test;
@@ -34,15 +35,20 @@ abstract class CommandLineTestHandlerBase implements HandlerInterface {
           $config_key = $handler->getId();
           $command = $test->get($config_key);
           $test->getSuite()->interpolate($command);
-          $command = $handler->prepareCommandForCLI($command);
+          $prepared_command = $handler->prepareCommandForCLI($command);
 
           $command_output = [];
           $test_result = 0;
-          exec($command, $command_output, $test_result);
+          exec($prepared_command, $command_output, $test_result);
           $test_result == 0 ? $test->setPassed() : $test->setFailed();
 
           if ($test->get(Assert::ASSERT_SETTER)) {
             $set_value = trim(implode(PHP_EOL, $command_output));
+            if ('' === $set_value) {
+              $test->addMessage(new DebugMessage(
+                [sprintf('%s has no output.', $prepared_command)],
+              ));
+            }
             $test->set('value', $set_value);
           }
 
