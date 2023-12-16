@@ -43,3 +43,9 @@
 -
     why: 'Demonstrate eval at the test level'
     eval: '${height} > ${width}'
+-
+    why: 'Demonstrate capturing a math result for interpolation.'
+    eval: '${height} + 10'
+    set: newHeight
+-
+    eval: '${newHeight} === ${height} + 10'
