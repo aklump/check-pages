@@ -42,6 +42,11 @@ final class Evaluate implements HandlerInterface {
           ]);
           $assert->run();
 
+          if ($test->get(Assert::ASSERT_SETTER)) {
+            $set_value = $assert->get('value');
+            $test->set('value', $set_value);
+          }
+
           if ($assert->hasPassed()) {
             $test->setPassed();
             $test->addMessage(new Message(
@@ -94,6 +99,7 @@ final class Evaluate implements HandlerInterface {
     try {
       $eval = new ExpressionLanguage();
       $result = $eval->evaluate($expression);
+      $assert->set('value', $result);
     }
     catch (\Exception $exception) {
       throw new TestFailedException($assert->getConfig(), $exception);
