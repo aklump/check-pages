@@ -19,6 +19,7 @@ final class PHP extends CommandLineTestHandlerBase {
   }
 
   protected function prepareCommandForCLI(string $command): string {
+    $command = addcslashes($command, '"');
     return "php -r \"$command;\"";
   }
 }

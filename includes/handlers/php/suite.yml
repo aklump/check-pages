@@ -1,11 +1,29 @@
 -
-  why: Capture the last line of php output into variable.
-  php: echo '.page-title'
-  set: selector
+  why: Capture the expected copyright end date.
+  php: echo date_create()->format('Y')
+  set: thisYear
 -
-  why: Assert the variable was set as expected by the php test.
-  url: /
+  url: /test_subject.php
   find:
     -
-      dom: ${selector}
-      text: About In the Loft Studios
+      dom: .copyright
+      is: '©1999-${thisYear} In the Loft Studios, LLC'
+-
+  why: Ensure single quotes work.
+  php: echo '-bravo'
+  set: selector
+-
+  why: Ensure double quotes work.
+  php: echo "-bravo"
+  set: selector2
+-
+  why: Assert the variable was set as expected by the php test.
+  url: /test_subject.php
+  find:
+    -
+      dom: .alpha${selector}
+      is: bravo
+    -
+      dom: .alpha${selector2}
+      is: bravo
+
