@@ -10,20 +10,16 @@ You can test APIs using [JSON Schema](https://json-schema.org/), here's the basi
 └── suite.yml
 ```
 
-1. Create a JSON file with the JSON schema and save it somewhere, e.g. _schemas/object.json_.
+1. Create a JSON file with the JSON schema and save it somewhere, e.g. _json_schema/object.json_.
 
-    ```yaml
-   # file: object.json
-   ```
    ```json
     {
         "type": "object"
     }
     ```
-2. Then write a test to use that schema:
+2. Then write a test to use that schema, e.g. _suite.yml_.
 
     ```yaml
-    # file: suite.yml
     -
       visit: /api/2/thing/99
       find:
@@ -34,7 +30,7 @@ You can test APIs using [JSON Schema](https://json-schema.org/), here's the basi
           matches: false
     ```
 3. `matches` may also be `false`; it may be omitted and defaults to `true`.
-4. Notice the usage of a second schema to use as a NOT match, in this case _schemas/array.json_.
+4. Notice the usage of a second schema to use as a NOT match, in this case _json_schema/array.json_.
 5. The `content-type` header will be used to decode the response body.
 6. `schema` should be resolvable filepath, or a JSON string representing a schema.
 
@@ -106,4 +102,31 @@ Here is the file that references the date property. Two examples are given, whic
 }
 ```
 
+## Using Schemas Outside of the Tests Directory
 
+You can use `add_directory()` in your runner to create a directory that is resolvable, here's an example:
+
+```text
+.
+├── json_schema
+│   └── response.schema.json
+└── tests_check_pages
+    ├── runner.php
+    └── suites
+        └── foo.yml
+```
+
+runner.php
+```php
+add_directory(__DIR__ . '/../json_schema');
+```
+
+suites/foo.yml
+```yaml
+-
+  url: /
+  find:
+    -
+      schema: response.schema.json
+      
+```
