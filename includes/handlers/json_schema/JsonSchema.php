@@ -9,9 +9,11 @@ use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\SerializationTrait;
 use JsonSchema\Constraints\Factory;
+use JsonSchema\Exception\ResourceNotFoundException;
 use JsonSchema\SchemaStorage;
 use JsonSchema\Validator;
 use MidwestE\ObjectPath;
+use RuntimeException;
 
 /**
  * Implements the Json Schema handler.
@@ -86,9 +88,22 @@ final class JsonSchema implements HandlerInterface {
       $storage = new SchemaStorage();
       $storage->addSchema($uri, $schema);
       $validator = new Validator(new Factory($storage));
-
       foreach ($assert->getHaystack() as $data) {
-        $validator->validate($data, $schema);
+        try {
+          $validator->validate($data, $schema);
+        }
+        catch (ResourceNotFoundException $exception) {
+          $message = $exception->getMessage();
+          preg_match('#file:\/\/(.+)\)#', $message, $matches);
+          $message = $matches[1] ?? $message;
+          $message = sprintf('Cannot find schema $ref: %s', $message);
+
+          throw new TestFailedException($assert->getConfig(), $message);
+        }
+        catch (RuntimeException $exception) {
+          $message = $exception->getMessage();
+          throw new TestFailedException($assert->getConfig(), $message);
+        }
         if ($validator->isValid() !== $expected) {
           $message = ['Invalid configuration:'];
           foreach ($validator->getErrors() as $error) {
@@ -100,17 +115,6 @@ final class JsonSchema implements HandlerInterface {
 
       return TRUE;
     });
-  }
-
-
-  private function validatePerSchema2($expected, $schema, $data) {
-    $validator = new \Opis\JsonSchema\Validator();
-    $result = $validator->validate($data, $schema);
-    if ($result->isValid() !== $expected) {
-      $message = ['Invalid configuration:'];
-      $message .= $result->error();
-      throw new \RuntimeException(implode(PHP_EOL, $message));
-    }
   }
 
   /**
@@ -144,11 +148,11 @@ final class JsonSchema implements HandlerInterface {
       try {
         $schema = json_decode($json);
         if (!is_object($schema)) {
-          throw new \RuntimeException();
+          throw new RuntimeException();
         }
       }
       catch (\Exception $exception) {
-        throw new \RuntimeException(sprintf('Cannot decode JSON schema from "%s".', $schema_config_value));
+        throw new RuntimeException(sprintf('Cannot decode JSON schema from "%s".', $schema_config_value));
       }
       $this->jsonSchemas[$cid] = [$uri, $schema];
     }
