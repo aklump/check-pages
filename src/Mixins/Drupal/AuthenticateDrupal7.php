@@ -35,12 +35,20 @@ final class AuthenticateDrupal7 extends AuthenticateDrupalBase {
 
   public function login(UserInterface $user) {
     parent::login($user);
+    $this->populateUserId($user);
+    $this->populateUserEmail($user);
+  }
+
+  private function populateUserId(UserInterface $user) {
     if (!$user->id()) {
       $body = strval($this->getResponse()->getBody());
       if (preg_match('/"uid"\:"(\d+?)"/', $body, $matches)) {
         $user->setId(intval($matches[1]));
       }
     }
+  }
+
+  private function populateUserEmail(UserInterface $user) {
     if (!$user->getEmail()) {
       $this->requestUserEmail($user);
     }

@@ -8,10 +8,7 @@ use AKlump\CheckPages\Variables;
 
 final class Session {
 
-  /**
-   * @var array
-   */
-  private $mixinConfig;
+  private array $mixinConfig;
 
   public function __construct(array $mixin_config) {
     $this->mixinConfig = $mixin_config;
@@ -24,12 +21,19 @@ final class Session {
     if (is_null($sessions)) {
       $sessions = $runner->getStorage()->get('drupal.sessions');
     }
+    $this->checkSessionExpiry($username, $sessions);
+    $this->createNewSession($username, $sessions, $runner, $test);
 
-    // Check for expiry and discard if passed.
+    return $this->setUpUserVariables($username, $sessions);
+  }
+
+  private function checkSessionExpiry(string $username, array &$sessions): void {
     if (empty($sessions[$username]['expires']) || $sessions[$username]['expires'] < time()) {
       unset($sessions[$username]);
     }
+  }
 
+  private function createNewSession(string $username, array &$sessions, $runner, Test $test): void {
     if (empty($sessions[$username])) {
       $test->addBadge('🔐');
       if (!array_key_exists('users', $this->mixinConfig)) {
@@ -66,8 +70,9 @@ final class Session {
       ];
       $runner->getStorage()->set('drupal.sessions', $sessions);
     }
+  }
 
-    // Do not set these on the test, or some interpolation will fail.
+  private function setUpUserVariables(string $username, array $sessions): Variables {
     $variables = new Variables();
     $variables
       ->setItem('user.id', $sessions[$username]['account']['uid'])

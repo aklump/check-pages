@@ -2,7 +2,6 @@
 
 namespace AKlump\CheckPages\Mixins\Drupal;
 
-use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\HttpClient;
 use GuzzleHttp\Exception\ConnectException;
@@ -39,8 +38,7 @@ final class AuthenticateDrupal8 extends AuthenticateDrupalBase {
    * {@inheritdoc}
    */
   public function getCsrfToken(): string {
-    $parts = parse_url($this->loginUrl);
-    $url = $parts['scheme'] . '://' . $parts['host'] . '/session/token';
+    $url = $this->buildUrl($this->loginUrl, '/session/token');
     try {
       return (string) $this->httpClient
         ->setWhyForNextRequestOnly(__METHOD__)
@@ -53,4 +51,11 @@ final class AuthenticateDrupal8 extends AuthenticateDrupalBase {
       return '';
     }
   }
+
+  private function buildUrl(string $loginUrl, string $appendPath): string {
+    $parts = parse_url($loginUrl);
+
+    return $parts['scheme'] . '://' . $parts['host'] . $appendPath;
+  }
+
 }
