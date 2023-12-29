@@ -155,21 +155,6 @@ class Suite implements PartInterface, JsonSerializable, HasConfigInterface {
   }
 
   /**
-   * Get the next test which has neither passed nor failed.
-   *
-   * @return \AKlump\CheckPages\Parts\Test|null
-   */
-  public function getNextPendingTest(): ?Test {
-    foreach ($this->tests as $test) {
-      if (!$test->hasPassed() && !$test->hasFailed()) {
-        return $test;
-      }
-    }
-
-    return NULL;
-  }
-
-  /**
    * Remove all tests from the suite.
    *
    * @return $this

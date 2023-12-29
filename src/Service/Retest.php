@@ -2,15 +2,18 @@
 
 namespace AKlump\CheckPages\Service;
 
+use AKlump\CheckPages\Collections\TestResult;
+use AKlump\CheckPages\Collections\TestResultCollection;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\RunnerEventInterface;
+use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\BadSyntaxException;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message;
-use AKlump\CheckPages\Output\Verbosity;
+use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\Messaging\MessageType;
@@ -19,99 +22,144 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * Provides the ability to repeat failed tests or continue from the last suite.
  */
-final class Retest implements EventSubscriberInterface {
+final class Retest implements EventSubscriberInterface, \AKlump\CheckPages\Interfaces\ProvidesInputOptionsInterface {
 
   use HasRunnerTrait;
 
-  /**
-   * @var boolean
-   */
-  private static $enabled;
+  const OPTION_RETEST = 'retest';
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function getSubscribedEvents() {
+  const OPTION_CONTINUE = 'continue';
+
+  const MODE_RETEST = 1;
+
+  const MODE_CONTINUE = 2;
+
+  private bool $enabled = FALSE;
+
+  private bool $suiteHasBeenMarkedAsPending = FALSE;
+
+  public static function getSubscribedEvents(): array {
+    $retest = new Retest();
+
     return [
-      Event::RUNNER_CREATED => [
-        function (RunnerEventInterface $event) {
-          $runner = $event->getRunner();
-          $input = $runner->getInput();
-
-          // Look to see if the user has passed relevant options.
-          $is_retesting = $input->getOption('retest');
-          $is_continuing = $input->getOption('continue');
-
-          // Do not allow combining options.
-          if ($is_retesting && $is_continuing) {
-            throw new BadSyntaxException("You may not combine --retest and --continue; pick one.");
-          }
-
-          $requirements_met = boolval($runner->getLogFiles());
-
-          // Warn the user who uses an option that REQUIRES that we are able to
-          // write log files, by stopping the runner.
-          if (($is_retesting || $is_continuing) && !$requirements_met) {
-            $option = $is_continuing ? 'continue' : 'retest';
-            throw new StopRunnerException(sprintf("--%s failed because log files are not configured correctly.", $option));
-          }
-
-          // The requirements have been met, set this for the other listeners.
-          self::$enabled = $requirements_met;
-          $retest = new self();
-          $retest->setRunner($runner);
-
-          if (self::$enabled) {
-            $retest->prepareFiles();
-          }
-
-          if (!$is_continuing && !$is_retesting) {
-            return;
-          }
-
-          $results = $retest->readResults();
-          if ($is_retesting) {
-            $results = $retest->getOnlyPassedSuites($results);
-          }
-          elseif ($is_continuing) {
-            $results = $retest->getOnlyFullyCompletedSuites($results);
-          }
-          else {
-            $results = [];
-          }
-          $suites_to_ignore = $retest->flattenResults($results);
-
-          if ($suites_to_ignore) {
-            $config = $runner->getConfig();
-            $config['suites_to_ignore'] = array_merge($config['suites_to_ignore'] ?? [], $suites_to_ignore);
-            $config['suites_to_ignore'] = array_values(array_unique($config['suites_to_ignore']));
-            $runner->setConfig($config);
-          }
-        },
-      ],
-      Event::TEST_PASSED => [
-        function (TestEventInterface $event) {
-          if (!self::$enabled) {
-            return;
-          }
-          $retest = new self();
-          $retest
-            ->setRunner($event->getTest()->getRunner())
-            ->writeTestResult($event->getTest());
-        },
-      ],
-      Event::TEST_FAILED => [
-        function (TestEventInterface $event) {
-          if (!self::$enabled) {
-            return;
-          }
-          $retest = new self();
-          $retest
-            ->setRunner($event->getTest()->getRunner())
-            ->writeTestResult($event->getTest());
-        },
-      ],
+      Event::RUNNER_CREATED => [$retest, 'handleRunnerCreated'],
+      Event::SUITE_CREATED => [$retest, 'handleSuiteCreated'],
+      Event::TEST_STARTED => [$retest, 'handleTestStarted'],
+      Event::TEST_FINISHED => [$retest, 'handleTestResult'],
     ];
+  }
+
+  public function handleRunnerCreated(RunnerEventInterface $event) {
+    $this->setRunner($event->getRunner());
+    $retest_options = $this->tryGetRetestOptions();
+
+    // Variable is checked by the other event listeners that came after this one
+    // to know if they should run or not.
+    $this->enabled = $this->tryCheckRequirements($retest_options);
+    if (!$this->enabled) {
+      return;
+    }
+
+    // This must always run, regardless of options because this will
+    // initialize the results log based on the options being used.
+    $this->prepareFiles();
+
+    if ($retest_options & (Retest::MODE_RETEST | Retest::MODE_CONTINUE)) {
+      $this->processSuitesToIgnore($retest_options);
+    }
+  }
+
+  public function handleSuiteCreated(SuiteEventInterface $event) {
+    $this->suiteHasBeenMarkedAsPending = FALSE;
+  }
+
+  public function handleTestStarted(TestEventInterface $event) {
+    if (!$this->enabled) {
+      return;
+    }
+    if (!$this->suiteHasBeenMarkedAsPending) {
+      $this->markTestResultsAsPendingBySuite($event->getTest()->getSuite());
+      $this->suiteHasBeenMarkedAsPending = TRUE;
+    }
+  }
+
+  public function handleTestResult(TestEventInterface $event) {
+    if ($this->enabled) {
+      $this->registerTestResult($event->getTest());
+    }
+  }
+
+  /**
+   * Adds config "suites_to_ignore" based on options and result state.
+   *
+   * @param int $retest_options The retest options.
+   *
+   * @return void
+   */
+  private function processSuitesToIgnore(int $retest_options): void {
+    $suitesToIgnore = $this->getSuitesToIgnore($retest_options);
+    if ($suitesToIgnore) {
+      $runner = $this->getRunner();
+      $config = $runner->getConfig();
+      $config['suites_to_ignore'] = array_values(array_unique(array_merge($config['suites_to_ignore'] ?? [], $suitesToIgnore)));
+      $runner->setConfig($config);
+    }
+  }
+
+  /**
+   * When a suite starts, all it's tests must be marked as pending as an
+   * exception may cause the suite not to finish.  The next time an option
+   * --retest or --continue is used, the starting point will be miscalculated.
+   * That is, if we don't do the following.  The failed suite will be skipped on
+   * the very next --retest, which is a big problem that drops failures through
+   * the cracks.
+   *
+   * @param \AKlump\CheckPages\Parts\Suite $suite
+   *
+   * @return void
+   */
+  private function markTestResultsAsPendingBySuite(Suite $suite) {
+    $collection = $this->loadResultsFromStorage() ?? new TestResultCollection();
+    $should_save = FALSE;
+    foreach ($suite->getTests() as $test) {
+      $presumed_failure = new TestResult();
+      $presumed_failure
+        ->setGroupId($suite->getGroup())
+        ->setSuiteId($suite->id())
+        ->setTestId($test->id())
+        ->setResult(Test::PENDING);
+      $is_changed = $collection->add($presumed_failure);
+      $should_save = $should_save ?: $is_changed;
+    }
+    if ($should_save) {
+      $filepath = $this->getPathToResultsLog();
+      $storage_service = new TestResultCollectionStorage();
+      $storage_service->save($filepath, $collection);
+    }
+  }
+
+  public function registerTestResult(Test $test) {
+    $result_code = $test->hasPassed() ? Test::PASSED : NULL;
+    if (!$result_code) {
+      $result_code = $test->hasFailed() ? Test::FAILED : NULL;
+    }
+    // TODO Not sure this is correct.
+    $result_code = $result_code ?? Test::SKIPPED;
+
+    $suite = $test->getSuite();
+    $test_result = new TestResult();
+    $test_result
+      ->setGroupId($suite->getGroup())
+      ->setSuiteId($suite->id())
+      ->setTestId($test->id())
+      ->setResult($result_code);
+    $storage_service = new TestResultCollectionStorage();
+    $filepath = $this->getPathToResultsLog();
+    $collection = $storage_service->load($filepath);
+    $is_changed = $collection->add($test_result);
+    if ($is_changed) {
+      $storage_service->save($filepath, $collection);
+    }
   }
 
   /**
@@ -120,84 +168,24 @@ final class Retest implements EventSubscriberInterface {
    * @return string
    *   Absolute path to the results log file.
    */
-  private function getFilepathToResults(): string {
+  private function getPathToResultsLog(): string {
     $log_files = $this->getRunner()->getLogFiles();
     $filepath = $log_files->tryResolveFile('results.csv', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
     $log_files->tryCreateDir(dirname($filepath));
-    if (!file_exists($filepath)) {
-      touch($filepath);
-    }
 
     return $filepath;
   }
 
-  private function readResults(): array {
-    $filepath = $this->getFilepathToResults();
-    $data = [];
-    if (file_exists($filepath)) {
-      $fp = fopen($filepath, 'r');
-      while (($csv = fgetcsv($fp))) {
-        list($datum['group'], $datum['suite'], , $datum['result']) = $csv;
-        $data[] = $datum;
-      }
-      fclose($fp);
-    }
+  /**
+   * Load the test results from the storage.
+   *
+   * @return TestResultCollection|null
+   *   The loaded test results from the storage, or null if nothing stored.
+   */
+  private function loadResultsFromStorage(): ?TestResultCollection {
+    $filepath = $this->getPathToResultsLog();
 
-    return $data;
-  }
-
-  private function writeTestResult(Test $test) {
-    $filepath = $this->getFilepathToResults();
-    if (!$filepath) {
-      return;
-    }
-
-    $fh = fopen($filepath, 'r+');
-    if (!$fh) {
-      // TODO Should this be a log, not a UI output?
-      $this->getRunner()->echo(new Message(
-        [sprintf('Failed to open "%s"', $filepath)],
-        MessageType::ERROR, Verbosity::DEBUG
-      ));
-    }
-    $written = FALSE;
-    $pointer = ftell($fh);
-    while (($data = fgetcsv($fh))) {
-      $group = $data[0] ?? NULL;
-      $suite_id = $data[1] ?? NULL;
-      $test_id = $data[2] ?? NULL;
-      if ($group === $test->getSuite()
-          ->getGroup() && $suite_id === $test->getSuite()
-          ->id() && $test_id === $test->id()) {
-        fseek($fh, $pointer);
-        fputcsv($fh, [
-          $test->getSuite()->getGroup(),
-          $suite_id,
-          $test_id,
-          $this->getResultColumnValue($test),
-        ]);
-        $written = TRUE;
-        break;
-      }
-      $pointer = ftell($fh);
-    }
-    if (!$written) {
-      fputcsv($fh, [
-        $test->getSuite()->getGroup(),
-        $test->getSuite()->id(),
-        $test->id(),
-        $this->getResultColumnValue($test),
-      ]);
-    }
-    fclose($fh);
-  }
-
-  private function getResultColumnValue(Test $test): string {
-    if ($test->isSkipped()) {
-      return Test::SKIPPED;
-    }
-
-    return $test->hasFailed() ? Test::FAILED : Test::PASSED;
+    return (new TestResultCollectionStorage())->load($filepath);
   }
 
   /**
@@ -212,21 +200,19 @@ final class Retest implements EventSubscriberInterface {
       ->getOptions()));
 
     if (!array_intersect($options_being_used, [
-      'retest',
-      'continue',
+      Retest::OPTION_RETEST,
+      Retest::OPTION_CONTINUE,
       'filter',
       'group',
     ])) {
-      $filepath = $this->getFilepathToResults();
-      if ($filepath) {
-        // With no options, we need to set up a clean slate by truncated our
-        // tracking file.  That way continue will work correctly.
-        fclose(fopen($filepath, 'w'));
-      }
+      $filepath = $this->getPathToResultsLog();
+      // With no options, we need to set up a clean slate by truncated our
+      // tracking file.  That way "--continue" will work correctly.
+      (new TestResultCollectionStorage())->save($filepath, new TestResultCollection());
     }
 
     // Handle messaging.
-    if (in_array('continue', $options_being_used)) {
+    if (in_array(Retest::OPTION_CONTINUE, $options_being_used)) {
       $this->getRunner()->echo(new Message(
         [
           '...continuing with the first test of the last suite.',
@@ -238,54 +224,53 @@ final class Retest implements EventSubscriberInterface {
     }
   }
 
-  private function filterByResult(array $results, string $test_result): array {
-    return array_values(array_filter($results, function ($datum) use ($test_result) {
-      return $datum['result'] === $test_result;
-    }));
+  public function getSuitesToIgnore(int $retest_options) {
+    $collection = $this->loadResultsFromStorage();
+    if (!$collection) {
+      return [];
+    }
+    if ($retest_options & self::MODE_RETEST) {
+      $collection = $collection->filterPassedSuites();
+    }
+    elseif ($retest_options & self::MODE_CONTINUE) {
+      $collection = $collection->filterCompletedSuites();
+    }
+
+    return array_map(function (TestResult $test_result) {
+      return ltrim($test_result->getGroupId() . '/' . $test_result->getSuiteId(), '/');
+    }, $collection->toArray());
   }
 
-  /**
-   * Filter to group/suite results that have not a single failed test.
-   *
-   * @param array $results
-   *
-   * @return array
-   *   The filtered set of totally passed group/suite $results.
-   */
-  private function getOnlyPassedSuites(array $results): array {
-    $pass_results = $this->filterByResult($results, Test::PASSED);
-    $fail_results = $this->filterByResult($results, Test::FAILED);
-    $fail_results = $this->flattenResults($fail_results);
+  private function tryCheckRequirements(int $retest_options): bool {
+    $requirements_met = (bool) $this->getPathToResultsLog();
 
-    return array_filter($pass_results, function (array $candidate_datum) use ($fail_results) {
-      $candidate = $this->flattenResults([$candidate_datum])[0];
+    // Warn the user who uses an option that REQUIRES that we are able to
+    // write log files, by stopping the runner.
+    if (!$requirements_met && ($retest_options & Retest::MODE_RETEST || $retest_options & Retest::MODE_CONTINUE)) {
+      $retest_options = $retest_options & Retest::MODE_CONTINUE ? Retest::OPTION_CONTINUE : Retest::OPTION_RETEST;
+      throw new StopRunnerException(sprintf("--%s failed because log files are not configured correctly.", $retest_options));
+    }
 
-      return !in_array($candidate, $fail_results);
-    });
+    return $requirements_met;
   }
 
-  private function getOnlyFullyCompletedSuites(array $results) {
-    $most_recent = NULL;
-    do {
-      $foo = end($results);
-      $a = $this->flattenResults([$foo]);
-      if (!isset($most_recent)) {
-        $most_recent = $a;
-        continue;
-      }
-      array_pop($results);
-    } while ($results && $a === $most_recent);
+  private function tryGetRetestOptions(): int {
+    $input = $this->getRunner()->getInput();
+    $retest_options = $input->getOption(Retest::OPTION_RETEST) ? Retest::MODE_RETEST : 0;
+    $retest_options |= $input->getOption(Retest::OPTION_CONTINUE) ? Retest::MODE_CONTINUE : 0;
 
-    return $results;
+    // Do not allow combining options.
+    if ($retest_options & Retest::MODE_RETEST & Retest::MODE_CONTINUE) {
+      throw new BadSyntaxException("You may not combine --retest and --continue; pick one.");
+    }
 
+    return $retest_options;
   }
 
-  private function flattenResults(array $results): array {
-    $results = array_map(function ($datum) {
-      return ltrim($datum['group'] . '/' . $datum['suite'], '/');
-    }, $results);
-
-    return array_values(array_unique($results));
+  public function getInputOptions(): array {
+    return [
+      Retest::OPTION_RETEST,
+      Retest::OPTION_CONTINUE,
+    ];
   }
-
 }

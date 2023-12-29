@@ -214,8 +214,6 @@ final class TestRunner implements EventDispatcherInterface {
       $test->setPassed();
     }
 
-    $dispatcher = $test->getRunner()->getDispatcher();
-
     $runtime_test_result = !$test->hasFailed();
 
     // Allow the result to be inverted by the test config.  This will cause the

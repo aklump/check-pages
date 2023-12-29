@@ -23,6 +23,7 @@ use AKlump\CheckPages\Output\VerboseDirective;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\SerializationTrait;
 use AKlump\CheckPages\Service\DispatcherFactory;
+use AKlump\CheckPages\Service\Retest;
 use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
 use AKlump\CheckPages\SuiteCollection;
@@ -630,7 +631,7 @@ class Runner implements HasMessagesInterface {
 
     if (in_array($path_to_suite, $ignored_filepaths)) {
       $status = NULL;
-      if ($this->getInput()->getOption('retest')) {
+      if ($this->getInput()->getOption(Retest::OPTION_RETEST)) {
         $status = TRUE;
       }
       $this->echo(new Message(
@@ -663,7 +664,7 @@ class Runner implements HasMessagesInterface {
     // On return from the hook, we need to reparse to get format for validation.
     $this->validateSuite($suite, static::PATH_TO_SCHEMA__SUITE);
 
-    while ($test = $suite->getNextPendingTest()) {
+    foreach ($suite->getTests() as $test) {
       $test_runner = (new TestRunner($test))->start();
 
       // It's possible the test was already run during Event::TEST_CREATED, if

@@ -30,6 +30,8 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMe
 
   const SKIPPED = 'S';
 
+  const PENDING = '?';
+
   /**
    * @var string
    */

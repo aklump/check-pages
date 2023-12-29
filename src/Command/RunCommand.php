@@ -4,12 +4,14 @@ namespace AKlump\CheckPages\Command;
 
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Handlers\Breakpoint;
 use AKlump\CheckPages\Output\Feedback;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Timer;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\Service\Retest;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
 use AKlump\LocalTimezone\LocalTimezone;
@@ -46,9 +48,9 @@ class RunCommand extends Command {
       ->addOption('truncate', NULL, InputOption::VALUE_REQUIRED, 'Max characters to display in headers and bodies. Set to 0 for no limit.', 768)
       ->addOption('filter', 'f', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, "Define a subset by id(s).  Suite ids must match at least one value or they will be skipped.\nMay be combined with the group filter.")
       ->addOption('group', 'g', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Define a subset by group(s).  Suite groups must match at least one value or they will be skipped.')
-      ->addOption('retest', NULL, InputOption::VALUE_NONE, 'Execute runner skipping any suite that previously passed, retested only the failed suites.')
-      ->addOption('continue', NULL, InputOption::VALUE_NONE, 'Execute runner beginning with the most recently executed suite, inclusive.')
-      ->addOption('break', NULL, InputOption::VALUE_NONE, 'Stop execution at breakpoints until users presses a key.');
+      ->addOption(Retest::OPTION_RETEST, NULL, InputOption::VALUE_NONE, 'Execute runner skipping any suite that previously passed, retested only the failed suites.')
+      ->addOption(Retest::OPTION_CONTINUE, NULL, InputOption::VALUE_NONE, 'Execute runner beginning with the most recently executed suite, inclusive.')
+      ->addOption(Breakpoint::OPTION_BREAK, NULL, InputOption::VALUE_NONE, 'Stop execution at breakpoints until users presses a key.');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

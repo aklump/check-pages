@@ -4,13 +4,16 @@ namespace AKlump\CheckPages\Handlers;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Interfaces\ProvidesInputOptionsInterface;
 use AKlump\CheckPages\Output\Message;
 use AKlump\Messaging\MessageType;
 
 /**
  * Implements the Breakpoint handler.
  */
-final class Breakpoint implements HandlerInterface {
+final class Breakpoint implements HandlerInterface, ProvidesInputOptionsInterface {
+
+  const OPTION_BREAK = 'break';
 
   /**
    * {@inheritdoc}
@@ -22,7 +25,7 @@ final class Breakpoint implements HandlerInterface {
           $test = $event->getTest();
           $debugging_enabled = $test->getRunner()
             ->getInput()
-            ->getOption('break');
+            ->getOption(Breakpoint::OPTION_BREAK);
           if (!$debugging_enabled || !$test->has('breakpoint')) {
             return;
           }
@@ -61,4 +64,7 @@ final class Breakpoint implements HandlerInterface {
     return 'breakpoint';
   }
 
+  public function getInputOptions(): array {
+    return Breakpoint::OPTION_BREAK;
+  }
 }
