@@ -87,7 +87,11 @@ final class TestRunner implements EventDispatcherInterface {
     $test = $this->test;
     $runner = $test->getRunner();
     $this->getDriver()->setBaseUrl($runner->get('base_url') ?? '');
+
+    // TODO Remove this in a future version.
     $this->dispatch(new DriverEvent($test, $this->getDriver()), Event::TEST_STARTED);
+
+    $this->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_STARTED);
 
     //
     // Do the HTTP part of the test.

@@ -55,6 +55,9 @@ final class LocalFilesProvider implements FilesProviderInterface, FileLocatorInt
    * Returns whether the file path is an absolute path.
    */
   private function isAbsolutePath(string $file): bool {
+    if (empty($file)) {
+      return FALSE;
+    }
     if ('/' === $file[0] || '\\' === $file[0]
       || (\strlen($file) > 3 && ctype_alpha($file[0])
         && ':' === $file[1]

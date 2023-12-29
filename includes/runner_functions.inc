@@ -280,7 +280,7 @@ function add_test_option(string $selector, array $callbacks): void {
     // TODO This has not been written yet. Mar 14, 2023, aklump
     // 'onLoadSuite' => Event::SUITE_STARTED,
     'onBeforeTest' => Event::TEST_CREATED,
-    'onBeforeDriver' => Event::TEST_STARTED,
+    'onBeforeDriver' => Event::REQUEST_STARTED,
     'onBeforeRequest' => Event::REQUEST_CREATED,
     'onAfterRequest' => Event::REQUEST_FINISHED,
     'onBeforeAssert' => Event::ASSERT_CREATED,

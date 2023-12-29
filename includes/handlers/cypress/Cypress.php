@@ -20,7 +20,7 @@ final class Cypress implements HandlerInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      Event::TEST_STARTED => [
+      Event::REQUEST_STARTED => [
         function (TestEventInterface $event) {
           $test = $event->getTest();
           $config = $test->getConfig();

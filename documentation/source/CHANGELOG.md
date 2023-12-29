@@ -27,6 +27,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
    
   ```
 
+## [0.23.0] - 2023-12-29
+
+### Added
+
+- Added REQUEST_STARTED event to be used instead of TEST_STARTED.
+
+### Deprecated
+
+- Deprecated TEST_STARTED event.
+
 ## [0.21.0] - 2023-11-10
 
 ### Added

@@ -72,7 +72,7 @@ final class Feedback implements EventSubscriberInterface {
         },
       ],
 
-      Event::TEST_STARTED => [
+      Event::REQUEST_STARTED => [
         function (DriverEventInterface $event) {
           $test = $event->getTest();
           if ($test->has('why')) {

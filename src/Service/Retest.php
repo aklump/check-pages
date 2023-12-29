@@ -44,7 +44,7 @@ final class Retest implements EventSubscriberInterface, \AKlump\CheckPages\Inter
     return [
       Event::RUNNER_CREATED => [$retest, 'handleRunnerCreated'],
       Event::SUITE_CREATED => [$retest, 'handleSuiteCreated'],
-      Event::TEST_STARTED => [$retest, 'handleTestStarted'],
+      Event::TEST_CREATED => [$retest, 'handleTestCreated'],
       Event::TEST_FINISHED => [$retest, 'handleTestResult'],
     ];
   }
@@ -73,7 +73,7 @@ final class Retest implements EventSubscriberInterface, \AKlump\CheckPages\Inter
     $this->suiteHasBeenMarkedAsPending = FALSE;
   }
 
-  public function handleTestStarted(TestEventInterface $event) {
+  public function handleTestCreated(TestEventInterface $event) {
     if (!$this->enabled) {
       return;
     }
@@ -143,8 +143,10 @@ final class Retest implements EventSubscriberInterface, \AKlump\CheckPages\Inter
     if (!$result_code) {
       $result_code = $test->hasFailed() ? Test::FAILED : NULL;
     }
-    // TODO Not sure this is correct.
-    $result_code = $result_code ?? Test::SKIPPED;
+    if(!$result_code) {
+      $result_code = $test->isSkipped() ? Test::SKIPPED : NULL;
+    }
+    $result_code = $result_code ?? Test::PENDING;
 
     $suite = $test->getSuite();
     $test_result = new TestResult();
@@ -155,7 +157,7 @@ final class Retest implements EventSubscriberInterface, \AKlump\CheckPages\Inter
       ->setResult($result_code);
     $storage_service = new TestResultCollectionStorage();
     $filepath = $this->getPathToResultsLog();
-    $collection = $storage_service->load($filepath);
+    $collection = $storage_service->load($filepath) ?? new TestResultCollection();
     $is_changed = $collection->add($test_result);
     if ($is_changed) {
       $storage_service->save($filepath, $collection);

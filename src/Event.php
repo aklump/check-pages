@@ -29,7 +29,12 @@ final class Event {
    */
   const TEST_CREATED = 'test.created';
 
+  /**
+   * @deprecated Use REQUEST_STARTED instead.
+   */
   const TEST_STARTED = 'test.started';
+
+  const REQUEST_STARTED = 'request.started';
 
   const REQUEST_CREATED = 'request.created';
 
