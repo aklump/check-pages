@@ -13,7 +13,7 @@ use AKlump\CheckPages\Parts\Test;
 final class HttpClientTest extends TestCase {
 
   public function testDispatchEventWorksAsExpected() {
-    $suite = new Suite('', [], $this->client->getRunner());
+    $suite = new Suite('', $this->client->getRunner());
     $test = new Test('', [], $suite);
     $result = $this->client->dispatchEventsWith($test);
     $this->assertSame($this->client, $result);

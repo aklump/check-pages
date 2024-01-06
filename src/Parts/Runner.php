@@ -210,13 +210,6 @@ class Runner implements HasMessagesInterface {
    */
   private $suitesToIgnore = [];
 
-  /**
-   * App constructor.
-   *
-   * @param string $root_dir
-   *   The system path to this test app root directory.  The schema files, for
-   *   example are found in this directory.
-   */
   public function __construct(InputInterface $input, OutputInterface $output) {
     $this->input = $input;
     $this->output = $output;
@@ -273,7 +266,12 @@ class Runner implements HasMessagesInterface {
 
     $flags = Verbosity::NORMAL;
     $input = $this->getInput();
-    $options = $input->getOptions();
+    $options = $input->getOptions() ?? [];
+    $options += [
+      'verbose' => FALSE,
+      'debug' => FALSE,
+      'show' => '',
+    ];
 
     if ($options['verbose']) {
       $flags = $flags | Verbosity::VERBOSE;
@@ -572,6 +570,7 @@ class Runner implements HasMessagesInterface {
    *
    * @param \AKlump\CheckPages\Parts\Suite $suite
    * @param string $path_to_suite
+   *   This will be used to check against filters
    *
    * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
    * @throws \AKlump\CheckPages\Exceptions\SuiteFailedException
@@ -580,6 +579,10 @@ class Runner implements HasMessagesInterface {
    * @see run_suite()
    */
   public function run(Suite $suite, string $path_to_suite) {
+    if (empty($this->files)) {
+      throw new \RuntimeException('Call setFiles() first.');
+    }
+
     $result = $this->applyFilters(new SuiteCollection([$suite]));
     if ($result->count() == 0) {
       return;
@@ -592,9 +595,11 @@ class Runner implements HasMessagesInterface {
     // is roughly equal to the runner being created.  The actual Runner instance
     // is created sooner, but not effectively used until this point.
     if (empty($this->runnerCreatedEventDispatched)) {
-      $cache_filepath = $this->getLogFiles()
-                          ->tryResolveDir('cache', FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
-      $this->getLogFiles()->tryCreateDir($cache_filepath);
+      $log_files = $this->getLogFiles();
+      if ($log_files) {
+        $cache_filepath = $log_files->tryResolveDir('cache', FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
+        $this->getLogFiles()->tryCreateDir($cache_filepath);
+      }
 
       $this->getDispatcher()
         ->dispatch(new RunnerEvent($this), Event::RUNNER_CREATED);
@@ -629,7 +634,7 @@ class Runner implements HasMessagesInterface {
     }
     $ignored_filepaths = array_unique($ignored_filepaths);
 
-    if (in_array($path_to_suite, $ignored_filepaths)) {
+    if ($path_to_suite && in_array($path_to_suite, $ignored_filepaths)) {
       $status = NULL;
       if ($this->getInput()->getOption(Retest::OPTION_RETEST)) {
         $status = TRUE;
@@ -650,21 +655,18 @@ class Runner implements HasMessagesInterface {
 
     // Add the tests to the suite in prep for the plugin hook...
     // If a suite file is empty, then just ignore it.  It's probably a stub file.
-    if (!$suite->getConfig()) {
+    if (!$suite->getTests()) {
       return;
     }
-
-    foreach ($suite->getConfig() as $test_config) {
-      $suite->addTestByConfig($test_config);
-    }
-    unset($test_config);
 
     $this->dispatcher->dispatch(new SuiteEvent($this->getSuite()), Event::SUITE_STARTED);
 
     // On return from the hook, we need to reparse to get format for validation.
     $this->validateSuite($suite, static::PATH_TO_SCHEMA__SUITE);
 
-    foreach ($suite->getTests() as $test) {
+    // Do not change this to foreach as it will fail to run any tests that are
+    // dynamically added during an earlier test.
+    while (($test = $suite->getNextPendingTest())) {
       $test_runner = (new TestRunner($test))->start();
 
       // It's possible the test was already run during Event::TEST_CREATED, if
@@ -750,7 +752,6 @@ class Runner implements HasMessagesInterface {
    * @return array
    */
   protected function validateSuite(Suite $suite, string $schema_basename): array {
-
     $validation_checksum = '';
     $return_value = [];
     $generate_return_value = function ($data) use (&$validation_checksum, &$return_value) {
@@ -762,21 +763,25 @@ class Runner implements HasMessagesInterface {
     $data = $suite->jsonSerialize();
     $generate_return_value($data);
 
-    $validation_log_path = $this->getLogFiles()
-                             ->tryResolveFile('cache/validated_suites.json', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
-    $validated_suites = [];
-    if (file_exists($validation_log_path)) {
-      $validated_suites = json_decode(file_get_contents($validation_log_path), TRUE);
-      $validated_suites = $validated_suites ?? [];
-      $validation_lookup_map = array_column($validated_suites, 'checksum', 'id');
-      $stored_checksum = $validation_lookup_map[$suite->toFilepath()] ?? NULL;
-      if ($stored_checksum === $validation_checksum) {
+    $log_files = $this->getLogFiles();
+    if ($log_files) {
+      $validation_log_path = $log_files
+                               ->tryResolveFile('cache/validated_suites.json', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
 
-        // The validation step in some suites can take a long time, by checksum
-        // caching we can speed up test execution and only valid when the suite
-        // changes.  As an example the test suite at the time of this writing
-        // drops from 2.4 minutes down to 1.3 minutes.
-        return $return_value;
+      $validated_suites = [];
+      if (file_exists($validation_log_path)) {
+        $validated_suites = json_decode(file_get_contents($validation_log_path), TRUE);
+        $validated_suites = $validated_suites ?? [];
+        $validation_lookup_map = array_column($validated_suites, 'checksum', 'id');
+        $stored_checksum = $validation_lookup_map[$suite->toFilepath()] ?? NULL;
+        if ($stored_checksum === $validation_checksum) {
+
+          // The validation step in some suites can take a long time, by checksum
+          // caching we can speed up test execution and only valid when the suite
+          // changes.  As an example the test suite at the time of this writing
+          // drops from 2.4 minutes down to 1.3 minutes.
+          return $return_value;
+        }
       }
     }
 
@@ -837,11 +842,13 @@ class Runner implements HasMessagesInterface {
 
     // Convert to arrays, we only needed objects for the validation.
     $generate_return_value($data);
-    $validated_suites[] = [
-      'id' => $suite->toFilepath(),
-      'checksum' => $validation_checksum,
-    ];
-    file_put_contents($validation_log_path, json_encode($validated_suites));
+    if (isset($validation_log_path)) {
+      $validated_suites[] = [
+        'id' => $suite->toFilepath(),
+        'checksum' => $validation_checksum,
+      ];
+      file_put_contents($validation_log_path, json_encode($validated_suites));
+    }
 
     return $return_value;
   }

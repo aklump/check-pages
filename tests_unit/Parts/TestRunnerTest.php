@@ -16,7 +16,7 @@ class TestRunnerTest extends TestCase {
 
   public function testWhyGetsInterpolated() {
     $runner = $this->getRunner();
-    $suite = new Suite('test', [], $runner);
+    $suite = new Suite('test', $runner);
     $suite->addTestByConfig([
       'set' => 'title',
       'value' => 'lorem',

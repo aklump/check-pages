@@ -2,8 +2,6 @@
 
 namespace AKlump\CheckPages\Interfaces;
 
-use AKlump\CheckPages\Parts\Test;
-
 interface HasConfigInterface {
 
   /**

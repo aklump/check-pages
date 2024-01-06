@@ -35,10 +35,10 @@ class FilterSuitesTest extends TestCase {
   public function testFilterWorksWithIdsAsExpected(int $expected_count, string $filter) {
     $runner = $this->createMock(Runner::class);
     $suites = new SuiteCollection();
-    $suites->add((new Suite('lorem', [], $runner))->setGroup('foo'));
-    $suites->add((new Suite('ipsum', [], $runner))->setGroup('foo'));
-    $suites->add((new Suite('dolar', [], $runner))->setGroup('bar'));
-    $suites->add((new Suite('foo', [], $runner))->setGroup('foo'));
+    $suites->add((new Suite('lorem', $runner))->setGroup('foo'));
+    $suites->add((new Suite('ipsum', $runner))->setGroup('foo'));
+    $suites->add((new Suite('dolar', $runner))->setGroup('bar'));
+    $suites->add((new Suite('foo', $runner))->setGroup('foo'));
     $result = (new FilterSuites())($suites, $filter);
     $this->assertCount($expected_count, $result);
   }

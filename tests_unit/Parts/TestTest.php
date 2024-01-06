@@ -24,7 +24,7 @@ final class TestTest extends TestCase {
   }
 
   public function testNoWhyNoUrlReturnsEmptyStringDescriptionWhenMultipleHttpMethodsInSuite() {
-    $suite = new Suite('', [], $this->runner);
+    $suite = new Suite('', $this->runner);
     $suite->addTestByConfig([
       'request' => ['method' => 'post'],
     ]);
@@ -101,7 +101,7 @@ final class TestTest extends TestCase {
    * @return \AKlump\CheckPages\Parts\Test
    */
   public function getTestInstance(string $id = '', array $config = []) {
-    $suite = new Suite('', [], $this->runner);
+    $suite = new Suite('', $this->runner);
 
     return new Test($id, $config, $suite);
   }

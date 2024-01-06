@@ -91,7 +91,7 @@ class AuthenticateProviderFactory {
     $ref = new ReflectionClass($class_name);
     $shortname = $ref->getShortName();
     $suite_id = $this->test->getSuite()->id() ?: $shortname;
-    $suite = new Suite($suite_id, [], $this->test->getRunner());
+    $suite = new Suite($suite_id, $this->test->getRunner());
     $suite_group = $this->test->getSuite()->getGroup();
     if (!empty($suite_group)) {
       $suite->setGroup($suite_group);

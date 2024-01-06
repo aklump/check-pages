@@ -10,11 +10,10 @@ use AKlump\CheckPages\Traits\SkipTrait;
 use AKlump\CheckPages\Variables;
 use JsonSerializable;
 
-class Suite implements PartInterface, JsonSerializable, HasConfigInterface {
+class Suite implements PartInterface, JsonSerializable {
 
   use PassFailTrait;
   use HasRunnerTrait;
-  use HasConfigTrait;
   use SkipTrait;
 
   /**
@@ -45,13 +44,11 @@ class Suite implements PartInterface, JsonSerializable, HasConfigInterface {
     ];
   }
 
-  public function __construct(string $id, array $suite_config, Runner $runner) {
+  public function __construct(string $id, Runner $runner) {
     $this->vars = new Variables();
     foreach ($runner->getConfig()['variables'] ?? [] as $key => $value) {
       $this->vars->setItem($key, $value);
     }
-
-    $this->setConfig($suite_config);
     $this->setRunner($runner);
     $this->id = $id;
   }
@@ -103,6 +100,17 @@ class Suite implements PartInterface, JsonSerializable, HasConfigInterface {
     return array_unique($methods);
   }
 
+  /**
+   * Add a new test to the suite based on the given test array.
+   *
+   * Auto-assigns the test ID in a sequential manner relative to the suite.
+   *
+   * @param array $config
+   *   The configuration array for the new test.
+   *
+   * @return self
+   *   Self for chaining.
+   */
   public function addTestByConfig(array $config): self {
     $this->tests[] = new Test(++$this->autoIncrementTestId, $config, $this);
 
@@ -152,6 +160,30 @@ class Suite implements PartInterface, JsonSerializable, HasConfigInterface {
 
   public function getTests(): array {
     return $this->tests;
+  }
+
+  public function getConfig(): array {
+    return array_map(fn(Test $test) => $test->getConfig(), $this->getTests());
+  }
+
+  /**
+   * Get the next test which has neither passed nor failed.
+   *
+   * In a suite, tests can be added/removed dynamically during the running of
+   * the suite by event handlers.  This is why this method is necessary over a
+   * simple for each loop.  Every time this is called the current test set will
+   * be read from first to last and the first test not yet run will be returned.
+   *
+   * @return \AKlump\CheckPages\Parts\Test|null
+   */
+  public function getNextPendingTest(): ?Test {
+    foreach ($this->tests as $test) {
+      if (!$test->hasPassed() && !$test->hasFailed()) {
+        return $test;
+      }
+    }
+
+    return NULL;
   }
 
   /**

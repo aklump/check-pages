@@ -12,6 +12,7 @@ use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Helpers\AssertRunSuiteNotCalled;
 use AKlump\CheckPages\Parts\Suite;
 use MidwestE\ObjectPath;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Load the configuration file to use for the test.
@@ -174,13 +175,16 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
       'yml',
     ])[0];
 
-    $suite_config = Symfony\Component\Yaml\Yaml::parseFile($absolute_path);
+    $suite_config = Yaml::parseFile($absolute_path);
     if (!is_array($suite_config)) {
       $suite_config = [];
     }
 
     $parsed = Suite::parsePath($absolute_path);
-    $suite = new Suite($parsed['id'], $suite_config, $runner);
+    $suite = new Suite($parsed['id'], $runner);
+    foreach ($suite_config as $item) {
+      $suite->addTestByConfig($item);
+    }
     $suite->setGroup($parsed['group']);
     $runner->run($suite, $absolute_path);
   }

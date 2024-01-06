@@ -14,6 +14,17 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class SuiteTest extends TestCase {
 
+  public function testGetConfigReturnsArrayOfTestConfigs() {
+    $suite = new Suite('foo', $this->runner);
+    $this->assertSame([], $suite->getConfig());
+
+    $suite = new Suite('foo', $this->runner);
+    $suite->addTestByConfig(['why' => 'Just because']);
+    $this->assertSame([
+      ['why' => 'Just because'],
+    ], $suite->getConfig());
+  }
+
   /**
    * Provides data for testToFilepath.
    */
@@ -42,13 +53,13 @@ final class SuiteTest extends TestCase {
    * @dataProvider dataForTestToFilepathProvider
    */
   public function testToFilepath($group, $id, $control) {
-    $suite = new Suite($id, [], $this->runner);
+    $suite = new Suite($id, $this->runner);
     $suite->setGroup($group);
     $this->assertSame($control, $suite->toFilepath());
   }
 
   public function testNewSuiteHasRunnerConfigVariables() {
-    $suite = new Suite('', [], $this->runner);
+    $suite = new Suite('', $this->runner);
     $this->assertSame(123, $suite->variables()->getItem('alpha'));
     $this->assertSame(456, $suite->variables()->getItem('bravo'));
   }

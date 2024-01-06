@@ -2,8 +2,14 @@
 
 namespace AKlump\CheckPages\Tests\Unit\Parts;
 
+use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Event\DriverEvent;
+use AKlump\CheckPages\Files\LocalFilesProvider;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;
+use AKlump\CheckPages\SuiteCollection;
+use AKlump\CheckPages\Tests\Unit\TestWithDispatcherTrait;
+use AKlump\CheckPages\Tests\Unit\TestWithFilesTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,6 +19,47 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @covers \AKlump\CheckPages\Parts\Runner
  */
 final class RunnerTest extends TestCase {
+
+  use TestWithDispatcherTrait;
+  use TestWithFilesTrait;
+
+  public function testDynamicallyAddedTestIsRun() {
+    $runner = $this->getRunner();
+    $dispatcher = $runner->getDispatcher();
+    $dispatcher->addListener(Event::TEST_FINISHED, function (DriverEvent $event) {
+      $suite = $event->getTest()->getSuite();
+      if (count($suite->getTests()) < 2) {
+        $suite->addTestByConfig([
+          'why' => 'Add a dynamic test to be able to test it gets run.',
+        ]);
+      }
+    });
+    $suite = new Suite(__FUNCTION__, $runner);
+    $suite->addTestByConfig([
+      'set' => 'title',
+      'value' => 'lorem',
+    ]);
+    $runner->run($suite, 'suite.yml');
+    $this->assertSame(2, $runner->getTotalTestsRun());
+  }
+
+  public function testGetTotalMethods() {
+    $runner = $this->getRunner();
+    $suite = new Suite(__FUNCTION__, $runner);
+    $suite->addTestByConfig([
+      'set' => 'title',
+      'value' => 'lorem',
+    ]);
+    $suite->addTestByConfig([
+      'set' => 'subtitle',
+      'value' => 'ipsum',
+    ]);
+    $runner->run($suite, 'suite.yml');
+    $this->assertSame(2, $runner->getTotalTestsRun());
+    $this->assertSame(0, $runner->getTotalFailedTests());
+    $this->assertSame(0, $runner->getTotalAssertionsRun());
+    $this->assertSame(0, $runner->getTotalFailedAssertions());
+  }
 
   public function dataFortestAddFiltersWorkIfYamlExtensionIsUsedProvider() {
     $tests = [];
@@ -28,8 +75,8 @@ final class RunnerTest extends TestCase {
   public function testAddFiltersWorkIfYamlExtensionIsUsed(string $extension) {
     $runner = $this->getRunner();
     $runner->addFilter('lorem' . $extension);
-    $suites = new \AKlump\CheckPages\SuiteCollection([
-      new Suite('lorem', [], $runner),
+    $suites = new SuiteCollection([
+      new Suite('lorem', $runner),
     ]);
     $result = $runner->applyFilters($suites);
     $this->assertSame('lorem', $result->first()->id());
@@ -43,7 +90,7 @@ final class RunnerTest extends TestCase {
   }
 
   public function testSetKeyValuePairReturnsMessageAndSetsAsExpected() {
-    $suite = new Suite('test', [], $this->getRunner());
+    $suite = new Suite('test', $this->getRunner());
     $message = $suite->getRunner()
       ->setKeyValuePair($suite->variables(), 'foo', 'bar');
     $this->assertIsString($message);
@@ -57,7 +104,10 @@ final class RunnerTest extends TestCase {
       ->getMock();
     $output = $this->getMockBuilder(OutputInterface::class)
       ->getMock();
+    $runner = new Runner($input, $output);
+    $root_files = new LocalFilesProvider(__DIR__ . '/../../');
+    $runner->setFiles($root_files);
 
-    return new Runner($input, $output);
+    return $runner;
   }
 }

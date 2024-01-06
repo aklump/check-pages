@@ -64,7 +64,7 @@ class HttpClient implements ClientInterface {
     $suite_group = $test->getSuite()->getGroup() ?: 'http_client';
     $suite_id = $test->getSuite()
       ->id() ?: 'requests' . static::$class_instance_id;
-    $suite = new Suite($suite_id, [], $this->getRunner());
+    $suite = new Suite($suite_id, $this->getRunner());
     $suite->setGroup($suite_group);
     // Be careful:  We only pull a few items from the test sent to use because
     // recursion can happen very easily with events.
