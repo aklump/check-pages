@@ -19,7 +19,7 @@ final class Session {
 
     static $sessions;
     if (is_null($sessions)) {
-      $sessions = $runner->getStorage()->get('drupal.sessions');
+      $sessions = $runner->getStorage()->get('drupal.sessions') ?? [];
     }
     $this->checkSessionExpiry($username, $sessions);
     $this->createNewSession($username, $sessions, $runner, $test);
