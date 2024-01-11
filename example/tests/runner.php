@@ -23,4 +23,5 @@ run_suite('group2/*');
 run_suite('foo/bar/group3/*');
 run_suite('attributes');
 run_suite('expected_outcome');
+run_suite('last_minute_set_interpolation');
 

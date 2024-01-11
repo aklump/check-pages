@@ -1,0 +1,12 @@
+-
+  why: Assert the set interpolation works when variable added in TEST_CREATED event of same test.
+  set_foo_variable_to: In the Loft Studios
+  set: companyName
+  value: ${foo}
+-
+  url: /
+  find:
+    -
+      why: Assert companyName can be used to assert on subsequent test.
+      dom: h1.page-title
+      contains: ${companyName}

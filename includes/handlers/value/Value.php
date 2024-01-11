@@ -38,6 +38,7 @@ final class Value implements HandlerInterface, MayBeInterpolatedInterface {
           }
           $handler = new self();
           if ($test->has(Assert::ASSERT_SETTER)) {
+            $handler->handleInterpolation($test);
             $handler->handleSetAndValueAtTestScope($test);
           }
 
@@ -65,7 +66,7 @@ final class Value implements HandlerInterface, MayBeInterpolatedInterface {
             $test->setFailed();
           }
         },
-        -10,
+        -100
       ],
       Event::TEST_FINISHED => [
         function (TestEventInterface $event) {
@@ -110,7 +111,7 @@ final class Value implements HandlerInterface, MayBeInterpolatedInterface {
             $assert->setHaystack([$value]);
           }
         },
-        -10,
+        -100
       ],
 
       Event:: ASSERT_FINISHED => [
