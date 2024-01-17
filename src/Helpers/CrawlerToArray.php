@@ -41,6 +41,7 @@ class CrawlerToArray {
         break;
 
       case Assert::ASSERT_TEXT:
+      case Assert::ASSERT_NOT_TEXT:
       default:
         $crawler = $crawler->each(function ($node) {
           return trim($node->text());

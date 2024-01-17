@@ -8,6 +8,7 @@ use AKlump\CheckPages\AssertType\Matches;
 use AKlump\CheckPages\AssertType\NotContains;
 use AKlump\CheckPages\AssertType\NotEquals;
 use AKlump\CheckPages\AssertType\NotMatches;
+use AKlump\CheckPages\AssertType\NotText;
 use AKlump\CheckPages\AssertType\Text;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Helpers\CrawlerToArray;
@@ -59,6 +60,8 @@ final class Assert implements HasConfigInterface {
    * @var string
    */
   const ASSERT_TEXT = 'text';
+
+  const ASSERT_NOT_TEXT = 'not text';
 
   /**
    * @var string
@@ -397,6 +400,10 @@ final class Assert implements HasConfigInterface {
         $pass = (new Text())($this, $haystack, $countable);
         break;
 
+      case self::ASSERT_NOT_TEXT:
+        $pass = (new NotText())($this, $haystack, $countable);
+        break;
+
       case self::ASSERT_CONTAINS:
         $pass = (new Contains())($this, $haystack, $countable);
         break;
@@ -542,6 +549,7 @@ final class Assert implements HasConfigInterface {
         break;
 
       case static::ASSERT_TEXT:
+      case static::ASSERT_NOT_TEXT:
         $prefix = sprintf('Convert %sto plaintext and compare to "%s"', $modifier, $this->assertValue);
         break;
 
@@ -711,6 +719,7 @@ final class Assert implements HasConfigInterface {
       new Help(self::ASSERT_MATCHES, 'Applies a REGEX expression against the selection. Works with `attribute`.', ['/copyright\s+20\d{2}$/']),
       new Help(self::ASSERT_NOT_MATCHES, 'Do not match REGEX expression against the selection. Works with `attribute`.', ['/copyright\s+20\d{2}$/']),
       new Help(self::ASSERT_TEXT, "Pass if the selection's text value (all markup removed) matches exactly.", ['lorem ipsum dolar sit amet.']),
+      new Help(self::ASSERT_NOT_TEXT, "Pass if the selection's text value (all markup removed) does not match exactly.", ['lorem ipsum dolar sit amet.']),
     ];
   }
 

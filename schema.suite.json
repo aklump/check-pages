@@ -102,6 +102,12 @@
         "My Front Page"
       ]
     },
+    "not text": {
+      "type": "string",
+      "examples": [
+        "My Front Page"
+      ]
+    },
     "user": {
       "type": "string",
       "examples": [
