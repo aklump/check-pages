@@ -54,5 +54,15 @@ $datetime = time();
   <span class="boolean-false">false</span>
 </div>
 
+<fieldset>
+  <legend><a href="#top" class="fieldset-title"><span>Hide</span>Lorem</a></legend>
+</fieldset>
+<fieldset>
+  <legend><a href="#top" class="fieldset-title"><span>Hide</span>FooBar</a></legend>
+</fieldset>
+<fieldset>
+  <legend><a href="#top" class="fieldset-title"><span></span>Dolar</a></legend>
+</fieldset>
+
 </body>
 </html>

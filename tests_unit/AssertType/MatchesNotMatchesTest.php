@@ -67,15 +67,23 @@ class MatchesNotMatchesTest extends TestCase {
       [NULL, NULL],
     ];
 
+    $tests[] = [
+      [true, false],
+      [1, 2],
+      '/foobar/i',
+      ['lorem', 'FooBar', 'ipsum'],
+      ['FooBar', 'lorem']
+    ];
+
     return $tests;
   }
 
   /**
    * @dataProvider dataFortestInvokeProvider
    */
-  public function testMatches(array $expected_final_results, array $expected_counts, string $value, $haystack, $needle) {
+  public function testMatches(array $expected_final_results, array $expected_counts, string $regex, $haystack, $needle) {
     $assert = new Assert(1, [], $this->createMock(Test::class));
-    $assert->setAssertion(Assert::ASSERT_MATCHES, $value);
+    $assert->setAssertion(Assert::ASSERT_MATCHES, $regex);
     $countable = [];
     $result = (new Matches())($assert, $haystack, $countable);
     $this->assertCount($expected_counts[0], $countable);

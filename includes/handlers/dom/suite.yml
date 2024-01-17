@@ -156,5 +156,17 @@
       why: Ensure not contains works when element does exist
       dom: .page-title
       not contains: spaghetti
+    -
+      dom: .fieldset-title
+      matches: /foobar/i
+    -
+      dom: .fieldset-title
+      matches: /foobar/i
+      count: 1
+    -
+      dom: .fieldset-title
+      not matches: /foobar/i
+      count: 2
+
 -
   eval: ${percentage} == 89
