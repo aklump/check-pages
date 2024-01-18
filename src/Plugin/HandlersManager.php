@@ -51,6 +51,10 @@ final class HandlersManager {
       if ($basename !== '.' && $basename !== '..' && is_dir($filepath)) {
         $id = pathinfo($filepath, PATHINFO_FILENAME);
         $filename = Strings::upperCamel($id);
+        // Maybe the class Csv was created as CSV...
+        if (!file_exists($filepath . "/$filename.php")) {
+          $filename = strtoupper($filename);
+        }
         self::$handlers[] = [
           'id' => $id,
           'path' => $filepath,
