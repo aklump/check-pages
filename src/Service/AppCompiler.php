@@ -173,35 +173,19 @@ final class AppCompiler {
     $this->ensureDir(sprintf('%s/tests/%s', $this->examplesPath, CheckPages::DIR_HANDLERS));
     $this->ensureDir(sprintf('%s/web/%s', $this->examplesPath, CheckPages::DIR_HANDLERS));
 
-    // Locate the file with CheckPages::FILENAME_HANDLERS_TEST_SUBJECT.
-    $original_url = array_values(array_filter(scandir($handler_path), function ($path) {
-      return pathinfo($path, PATHINFO_FILENAME) === CheckPages::FILENAME_HANDLERS_TEST_SUBJECT;
-    }))[0] ?? NULL;
-
-    $has_own_test_subject_file = TRUE;
-    if ($original_url) {
-      $compiled_url = CheckPages::DIR_HANDLERS . "/$id." . pathinfo($original_url, PATHINFO_EXTENSION);
-    }
-    else {
-      $original_url = CheckPages::FILENAME_HANDLERS_TEST_SUBJECT;
-      $compiled_url = 'index';
-      $has_own_test_subject_file = FALSE;
-    }
-
-    // Process path changes in test_subject and copy to web server.
-    if ($has_own_test_subject_file) {
-      $contents = file_get_contents("$handler_path/$original_url");
-      $contents = str_replace($original_url, $compiled_url, $contents);
-      file_put_contents($this->examplesPath . "/web/$compiled_url", $contents);
-    }
-
-    $handler_provides_tests = file_exists($handler_path . '/suite.yml');
+    $has_test_subject_files = $this->copyTestSubjectFiles($id, $handler_path);
 
     // Process path changes YAML suite file and copy.
+    $original_url = CheckPages::FILENAME_HANDLERS_TEST_SUBJECT;
+    $compiled_filename = 'index';
+    if ($has_test_subject_files) {
+      $compiled_filename = CheckPages::DIR_HANDLERS . "/$id";
+    }
+    $handler_provides_tests = file_exists($handler_path . '/suite.yml');
     if ($handler_provides_tests) {
       $suite_raw_contents = file_get_contents("$handler_path/suite.yml");
       if ($suite_raw_contents) {
-        $suite_raw_contents = str_replace($original_url, $compiled_url, $suite_raw_contents);
+        $suite_raw_contents = str_replace($original_url, $compiled_filename, $suite_raw_contents);
       }
       $handler_suite = Yaml::parse($suite_raw_contents);
       $compiled_path = $this->examplesPath . "/tests/handlers/$id.yml";
@@ -209,6 +193,19 @@ final class AppCompiler {
     }
 
     return $handler_provides_tests;
+  }
+
+  private function copyTestSubjectFiles(string $id, string $handler_path): bool {
+    $test_subject_files = glob("$handler_path/" . CheckPages::FILENAME_HANDLERS_TEST_SUBJECT . '.*');
+    foreach ($test_subject_files as $test_subject_file) {
+      $original_url = substr($test_subject_file, strlen("$handler_path/"));
+      $compiled_url = CheckPages::DIR_HANDLERS . "/$id." . pathinfo($original_url, PATHINFO_EXTENSION);
+      $contents = file_get_contents($test_subject_file);
+      $contents = str_replace($original_url, $compiled_url, $contents);
+      file_put_contents($this->examplesPath . "/web/$compiled_url", $contents);
+    }
+
+    return count($test_subject_files) > 0;
   }
 
   /**
