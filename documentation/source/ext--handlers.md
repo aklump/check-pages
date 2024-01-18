@@ -65,7 +65,8 @@ This is the most involved method of extending Check Pages, and offers the greate
 1. Write the _suite.yml_ file which will be run against _test_subject.html, test_subject.php, test_subject.json_, etc
 2. Create _test_subject.html_ or _test_subject.php_ as needed to test _
    suite.yml_.
-3. _README.md_ is optional, but will be added to the Check Pages documentation when it's compiled and should be used to give examples of how the handler should be implemented.
+3. You may include more than one _test_subject.*_ file.   
+4. _README.md_ is optional, but will be added to the Check Pages documentation when it's compiled and should be used to give examples of how the handler should be implemented.
 
 ### Handler Objects/Classes
 
