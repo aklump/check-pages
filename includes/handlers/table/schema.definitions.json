@@ -1,0 +1,12 @@
+{
+  "table__table": {
+    "type": "string",
+    "pattern": "^\/(header|\\d+)\/.+$",
+    "examples": [
+      ",\/header\/cd",
+      ",\/header\/0",
+      ",\/0\/cd",
+      ",\/0\/0"
+    ]
+  }
+}
