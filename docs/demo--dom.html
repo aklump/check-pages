@@ -193,6 +193,18 @@
       why: Ensure not contains works when element does exist
       dom: .page-title
       not contains: spaghetti
+    -
+      dom: .fieldset-title
+      matches: /foobar/i
+    -
+      dom: .fieldset-title
+      matches: /foobar/i
+      count: 1
+    -
+      dom: .fieldset-title
+      not matches: /foobar/i
+      count: 2
+
 -
   eval: ${percentage} == 89
 
@@ -209,7 +221,7 @@
 <footer>
   <div class="pager"><a href="demo--device.html" class="prev demo--device">&laquo;Device</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--evaluate.html" class="next handler_evaluate">Evaluate&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Wed, 10 Jan 2024 19:58:01 -0800</p>
+    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Thu, 18 Jan 2024 14:49:53 -0800</p>
   </div>
 </footer>
 

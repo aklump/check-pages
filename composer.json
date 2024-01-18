@@ -70,6 +70,7 @@
   "extra": {
     "merge-plugin": {
       "require": [
+        "includes/handlers/table/composer.json",
         "includes/handlers/json_pointer/composer.json",
         "includes/handlers/json_schema/composer.json",
         "includes/handlers/path/composer.json"

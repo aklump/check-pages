@@ -89,6 +89,9 @@
                                 "$ref": "#/definitions/style"
                             },
                             {
+                                "$ref": "#/definitions/table"
+                            },
+                            {
                                 "$ref": "#/definitions/value"
                             },
                             {
@@ -134,6 +137,12 @@
             ]
         },
         "text": {
+            "type": "string",
+            "examples": [
+                "My Front Page"
+            ]
+        },
+        "not text": {
             "type": "string",
             "examples": [
                 "My Front Page"
@@ -1389,6 +1398,121 @@
                 },
                 "style": {
                     "$ref": "#/definitions/style__style"
+                }
+            }
+        },
+        "table__table": {
+            "type": "string",
+            "pattern": "^/(header|\\d+)/.+$",
+            "examples": [
+                ",/header/cd",
+                ",/header/0",
+                ",/0/cd",
+                ",/0/0"
+            ]
+        },
+        "table": {
+            "title": "Table Plugin Assertion",
+            "type": "object",
+            "oneOf": [
+                {
+                    "required": [
+                        "table",
+                        "set"
+                    ]
+                },
+                {
+                    "required": [
+                        "table",
+                        "contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "table",
+                        "not contains"
+                    ]
+                },
+                {
+                    "required": [
+                        "table",
+                        "is"
+                    ]
+                },
+                {
+                    "required": [
+                        "table",
+                        "is not"
+                    ]
+                },
+                {
+                    "required": [
+                        "table",
+                        "matches"
+                    ]
+                },
+                {
+                    "required": [
+                        "table",
+                        "not matches"
+                    ]
+                },
+                {
+                    "required": [
+                        "table",
+                        "count"
+                    ]
+                },
+                {
+                    "required": [
+                        "table",
+                        "text"
+                    ]
+                }
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "why": {
+                    "$ref": "#/definitions/why"
+                },
+                "extras": {
+                    "$ref": "#/definitions/extras"
+                },
+                "expected outcome": {
+                    "$ref": "#/definitions/expected_outcome"
+                },
+                "table": {
+                    "$ref": "#/definitions/table__table"
+                },
+                "set": {
+                    "$ref": "#/definitions/value__set"
+                },
+                "contains": {
+                    "$ref": "#/definitions/contains"
+                },
+                "not contains": {
+                    "$ref": "#/definitions/contains"
+                },
+                "is": {
+                    "$ref": "#/definitions/equals"
+                },
+                "is not": {
+                    "$ref": "#/definitions/equals"
+                },
+                "matches": {
+                    "$ref": "#/definitions/matches"
+                },
+                "not matches": {
+                    "$ref": "#/definitions/matches"
+                },
+                "count": {
+                    "$ref": "#/definitions/count__count"
+                },
+                "text": {
+                    "$ref": "#/definitions/text"
+                },
+                "attribute": {
+                    "$ref": "#/definitions/attribute"
                 }
             }
         },

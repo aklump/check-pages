@@ -107,6 +107,10 @@ services:
         class: \AKlump\CheckPages\Handlers\Style
         tags:
             - { name: event_subscriber }
+    table.handler:
+        class: \AKlump\CheckPages\Handlers\Table
+        tags:
+            - { name: event_subscriber }
     value.handler:
         class: \AKlump\CheckPages\Handlers\Value
         tags:

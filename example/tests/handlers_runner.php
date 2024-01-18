@@ -22,5 +22,6 @@ run_suite("handlers/redirect");
 run_suite("handlers/request");
 run_suite("handlers/sleep");
 run_suite("handlers/style");
+run_suite("handlers/table");
 run_suite("handlers/value");
 run_suite("handlers/xpath");

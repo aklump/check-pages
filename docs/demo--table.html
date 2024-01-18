@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Table -- Tabular Data</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <meta name="keywords" content="" />
+</head>
+
+<body class="page--handler_table">
+<header>
+  <div class="pager"><a href="demo--style.html" class="prev demo--style">&laquo;Style -- Style Handler: Assertions Against CSS</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--value.html" class="next handler_value">Value -- Value Handler&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+                        <a href="demo--javascript2">Handlers and Example Tests</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+<section>
+  <h1>Tabular Data</h1>
+  <!--searchable_content-->
+
+<p>Provides assertions against tabular data (CSV and TSV) responses.</p>
+
+<ul>
+<li>The table pointer uses this syntax: <code>/{row}/{column}</code></li>
+<li><code>{row}</code> is either a number starting at <code>0</code> for the first row, or <code>header</code> to indicate the header row.</li>
+<li><code>{column}</code> is either a number from <code>0</code> or the value of a header cell.</li>
+<li><code>{column}</code> is optional</li>
+<li><p>Supports comma-, tab- and pipe-separated responses.</p>
+
+<pre><code class="csv">"do","re"
+"foo","bar"
+</code></pre></li>
+<li><p>These are equivalent: <code>/header/0</code> and <code>/header/do</code></p></li>
+<li>These are equivalent: <code>/0/1</code> and <code>/0/bar</code></li>
+<li><code>/header</code> or <code>/0</code> would select all the columns in the row, thereby you could assert <code>count</code>, <code>contains</code>, etc.</li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc4180">CSV RFC</a></li>
+</ul>
+
+<h2>Example Tests</h2>
+
+<pre><code class="yaml">-
+  loop:
+    - /test_subject.csv
+    - /test_subject.tsv
+    - /test_subject.psv
+-
+  why: Demonstrate the tabular data handler syntax.
+  url: ${loop.value}
+  find:
+    -
+      why: Demo how to set a variable with the header column label
+      table: /header/0
+      set: columnOne
+    -
+      why: Demo how to use dynamic column name in row selection.
+      table: /0/${columnOne}
+      is: daikon
+    -
+      why: Demo how to assert that the first header column is a value.
+      table: /header/0
+      is: do
+    -
+      why: Demo how to assert the header does not contain a value.
+      table: /header/lorem
+      count: 0
+    -
+      why: Demo how to assert the header contains a value.
+      table: /header/do
+      count: 1
+    -
+      table: /header/mi mi
+      count: 1
+    -
+      why: Demo how to assert the contents of a row cell by column-name.
+      table: /0/do
+      is: daikon
+    -
+      table: /0/re
+      contains: noodles
+    -
+      table: /0/re
+      not contains: salad
+    -
+      table: /1/do
+      is: dragon
+    -
+      table: /1/do
+      is not: dog
+    -
+      table: /1/re
+      is: rabbit
+    -
+      table: /1/fa
+      text: fish
+    -
+      why: Demo how to assert the contents of a row cell by column index.
+      table: /0/1
+      contains: noodles
+    -
+      table: /0/2
+      contains: noodles
+    -
+      why: Demo matches.
+      table: /0/mi mi
+      matches: /^mac/
+    -
+      why: Demo contains
+      table: /1/mi mi
+      contains: monkey
+    -
+      why: Demo how to count the number of cells matching a value.
+      table: /0
+      matches: /noodles/
+      count: 2
+    -
+      table: /0
+      not matches: /noodles/
+      count: 2
+-
+  end loop:
+
+</code></pre>
+
+<p><em>Provided by the table handler.</em></p>
+<!--end_searchable_content-->
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="demo--style.html" class="prev demo--style">&laquo;Style -- Style Handler: Assertions Against CSS</a><a href="index.html" class="index pager__book-title">Check Pages</a><a href="demo--value.html" class="next handler_value">Value -- Value Handler&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 1.0 &bull; Last Updated: Thu, 18 Jan 2024 14:50:02 -0800</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+-
+    loop:
+        - /handlers/table.csv
+        - /handlers/table.tsv
+        - /handlers/table.psv
+-
+    why: 'Demonstrate the tabular data handler syntax.'
+    url: '${loop.value}'
+    find:
+        -
+            why: 'Demo how to set a variable with the header column label'
+            table: /header/0
+            set: columnOne
+        -
+            why: 'Demo how to use dynamic column name in row selection.'
+            table: '/0/${columnOne}'
+            is: daikon
+        -
+            why: 'Demo how to assert that the first header column is a value.'
+            table: /header/0
+            is: do
+        -
+            why: 'Demo how to assert the header does not contain a value.'
+            table: /header/lorem
+            count: 0
+        -
+            why: 'Demo how to assert the header contains a value.'
+            table: /header/do
+            count: 1
+        -
+            table: '/header/mi mi'
+            count: 1
+        -
+            why: 'Demo how to assert the contents of a row cell by column-name.'
+            table: /0/do
+            is: daikon
+        -
+            table: /0/re
+            contains: noodles
+        -
+            table: /0/re
+            'not contains': salad
+        -
+            table: /1/do
+            is: dragon
+        -
+            table: /1/do
+            'is not': dog
+        -
+            table: /1/re
+            is: rabbit
+        -
+            table: /1/fa
+            text: fish
+        -
+            why: 'Demo how to assert the contents of a row cell by column index.'
+            table: /0/1
+            contains: noodles
+        -
+            table: /0/2
+            contains: noodles
+        -
+            why: 'Demo matches.'
+            table: '/0/mi mi'
+            matches: /^mac/
+        -
+            why: 'Demo contains'
+            table: '/1/mi mi'
+            contains: monkey
+        -
+            why: 'Demo how to count the number of cells matching a value.'
+            table: /0
+            matches: /noodles/
+            count: 2
+        -
+            table: /0
+            'not matches': /noodles/
+            count: 2
+-
+    'end loop': null
