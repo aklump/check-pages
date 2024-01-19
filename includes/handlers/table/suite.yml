@@ -1,6 +1,7 @@
 -
   loop:
     - /test_subject.csv
+    - /test_subject.csv2
     - /test_subject.tsv
     - /test_subject.psv
 -
