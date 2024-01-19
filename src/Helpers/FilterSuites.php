@@ -16,6 +16,15 @@ class FilterSuites {
    */
   public function __invoke(SuiteCollection $suites, string $filter): SuiteCollection {
     if (!$this->isRegularExpression($filter)) {
+
+      //Look for exact match.
+      $exact_matches = $suites->filter(function (Suite $suite) use ($filter) {
+        return $filter === (string) $suite || $filter === $suite->id();
+      });
+      if (count($exact_matches) === 1) {
+        return $exact_matches;
+      }
+
       $filter = \sprintf('/%s/i', \str_replace(
         '/',
         '\\/',
