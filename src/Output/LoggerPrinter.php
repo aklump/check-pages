@@ -41,7 +41,7 @@ final class LoggerPrinter implements MessengerInterface {
     $this->type = $message->getMessageType();
     $lines = array_map([$this, 'addMessageType'], $lines);
     $lines = array_map([$this, 'addDates'], $lines);
-    $this->runner->writeToFile($this->basename, $lines, 'w+');
+    $this->runner->writeToFile($this->basename, $lines);
   }
 
   private function addMessageType(string $line) {

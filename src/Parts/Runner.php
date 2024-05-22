@@ -910,7 +910,7 @@ class Runner implements HasMessagesInterface {
    *
    * @return string The absolute filepath to the written file.
    */
-  public function writeToFile(string $relative_path_to_file, array $lines, string $mode = 'a+'): string {
+  public function writeToFile(string $relative_path_to_file, array $lines, string $mode = 'a'): string {
     if (!$this->getLogFiles()) {
       return '';
     }
