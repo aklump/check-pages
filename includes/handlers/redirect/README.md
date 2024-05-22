@@ -38,3 +38,7 @@ For pages that redirect you can check for both the status code and the final loc
 
 `redirect.status`
 `redirect.location`
+
+## Troubleshooting
+
+* If the protocol (http|https) of the original and the redirect don't match, this may fail, if you use a relative url in the `location` value.
