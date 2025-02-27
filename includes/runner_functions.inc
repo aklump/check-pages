@@ -73,9 +73,9 @@ function config_get($config_path) {
     $o = new ObjectPath($runner->getConfig());
     if (!$o->exists($config_path)) {
       if (strstr($config_path, $o->getDelimiter()) === FALSE) {
-        throw new \RuntimeException(sprintf('No data at path "%s". Are you using the correct path delimiter "%s"?', $config_path, $o->getDelimiter()));
+        throw new RuntimeException(sprintf('No data at path "%s". Are you using the correct path delimiter "%s"?', $config_path, $o->getDelimiter()));
       }
-      throw new \RuntimeException(sprintf('The configuration %s does not exist.', $config_path));
+      throw new RuntimeException(sprintf('The configuration %s does not exist.', $config_path));
     }
 
     return $o->get($config_path);
