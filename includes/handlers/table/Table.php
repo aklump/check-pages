@@ -70,7 +70,7 @@ final class Table implements HandlerInterface {
       }
       else {
         $haystack = $rows[$row_key] ?? [];
-        if ($column) {
+        if ($haystack && $column) {
           if (FALSE === $column_key) {
             $haystack = [];
           }

@@ -1,4 +1,19 @@
 -
+  why: Assert we can set a variable based on item count.
+  visit: /test_subject.php?op=items
+  request:
+    method: get
+    headers:
+      accept: text/yaml
+  find:
+    -
+      path: items
+      count: 5
+      set: itemCount
+    -
+      eval: '${itemCount} === 5'
+
+-
   why: Assert we can count the root data.
   visit: /test_subject.php?op=root
   find:

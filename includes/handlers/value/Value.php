@@ -66,7 +66,7 @@ final class Value implements HandlerInterface, MayBeInterpolatedInterface {
             $test->setFailed();
           }
         },
-        -100
+        -100,
       ],
       Event::TEST_FINISHED => [
         function (TestEventInterface $event) {
@@ -111,7 +111,7 @@ final class Value implements HandlerInterface, MayBeInterpolatedInterface {
             $assert->setHaystack([$value]);
           }
         },
-        -100
+        -100,
       ],
 
       Event:: ASSERT_FINISHED => [
@@ -131,6 +131,12 @@ final class Value implements HandlerInterface, MayBeInterpolatedInterface {
             'value' => $assert->getNeedle(),
           ];
           $test->interpolate($data);
+
+          // If we have a count in the config we need to set that instead.
+          if ($assert->has('count')) {
+            $data['value'] = count($assert->getHaystack());
+          }
+
           $set_feedback = $test->getRunner()->setKeyValuePair($test->getSuite()
             ->variables(), $data['name'], $data['value']);
           $test->addMessage(new Message(
@@ -209,15 +215,17 @@ final class Value implements HandlerInterface, MayBeInterpolatedInterface {
   }
 
   private function handleInterpolation(Test $test) {
-    $suite = $test->getSuite();
-
     $config = $test->getConfig();
+    $suite = $test->getSuite();
     $suite->interpolate($config['value']);
-    $suite->interpolate($config[Assert::ASSERT_SETTER]);
+
+    if (!empty($config[Assert::ASSERT_SETTER]) && is_string($config[Assert::ASSERT_SETTER])) {
+      $suite->interpolate($config[Assert::ASSERT_SETTER]);
+      $test->getSuite()
+        ->variables()
+        ->setItem($config[Assert::ASSERT_SETTER], $config['value']);
+    }
 
     $test->setConfig($config);
-    $test->getSuite()
-      ->variables()
-      ->setItem($config['value'], $config[Assert::ASSERT_SETTER]);
   }
 }
