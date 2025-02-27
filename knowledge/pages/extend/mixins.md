@@ -40,13 +40,13 @@ Another way to extend _Check Pages_ is to use the `add_mixin()` function. This m
     ]);
     ...
     ```
-4. The second argument, the configuration, is available in the mixin file, _mixins/foo.php_ as `$config`.
+4. The second argument, the configuration, is available in the mixin file, _mixins/foo.php_ as `$mixin_config`.
 
     ```php
     # file: mixins/foo.php
     
-    $title = $config['title'];
-    $color = $config['color'];
+    $title = $mixin_config['title'];
+    $color = $mixin_config['color'];
    
     ```
 5. The runner instance `\AKlump\CheckPages\Parts\Runner` is available as `$runner`.

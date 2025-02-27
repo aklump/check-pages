@@ -5,7 +5,7 @@ tags: ''
 
 # Authentication
 
-If you want to check pages as an authenticated user of a website, then you have to be logged in, or authenticated before the request is made. Some authentication providers are built-in, or you can write your own using  [add_test_option()](@options). You might refer to _includes/drupal8.inc_ as a starting point.
+If you want to check pages as an authenticated user of a website, then you have to be logged in, or authenticated before the request is made. Some authentication providers are built-in, or you can write your own using  [add_mixin()](@options). You might refer to _includes/drupal8.inc_ as a starting point.
 
 ## Basic Setup
 
