@@ -30,6 +30,7 @@ chapters:
       - testing_legacy
       - unit_tests
       - cli
+      - readme_old
   -
     id: extend
     title: Extending

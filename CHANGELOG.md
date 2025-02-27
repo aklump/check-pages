@@ -29,30 +29,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [] -
 
-### Added
-
-- lorem
-
 ### Changed
 
 - Executable renamed from _check\_pages_ to _checkpages_
 - _vendor/bin/check\_pages_ is now _vendor/bin/checkpages_
 
-### Deprecated
-
-- lorem
-
 ### Removed
 
-- dist/bin/checkpages
-
-### Fixed
-
-- lorem
-
-### Security
-
-- lorem
+- _./dist/bin/checkpages_.  Use _./checkpages_ instead.
 
 ## [0.23.0] - 2023-12-29
 

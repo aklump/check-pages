@@ -7,7 +7,7 @@
       <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.23.0">
       <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.23.0">
       <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.23.0">
-    <title>Filenaming and Organization | Check Pages</title>
+    <title>Check Pages | Check Pages</title>
 </head>
 <body class="my-5">
 
@@ -26,13 +26,13 @@
          aria-controls="table-of-contents">TOC</a>
     </li>
     <li class="breadcrumb-item">
-      <a href="custom_dirs.html">Going Deeper</a></li>
+      <a href="readme.html">How to Use</a></li>
   </ol>
 </nav>
 
       </div>
       <div class="header__tags me-3">  </div>
-      <div class="header__page-numbers flex-shrink-1">40
+      <div class="header__page-numbers flex-shrink-1">26
         / 48</div>
     </div>
   </div>
@@ -41,70 +41,171 @@
 <main class="container-md flex-column">
   <div class="row mb-5 pt-5">
     <article class="col">
-      <h1 class="mb-4 text-primary">Filenaming and Organization</h1>
-      <p>Given the scenario of a live server, a test server, and a local, development server, you will create three config files respective to each environment.</p>
-<pre><code>├── config
-│   ├── dev.yml
-│   ├── live.yml
-│   └── test.yml
+      <h1 class="mb-4 text-primary">Check Pages</h1>
+      <h2>Very Simple QA for HTTP</h2>
+<p><img class="img-fluid" src="../../images/check-pages.jpg" alt="Check Pages" /></p>
+<h2>Heavy Development</h2>
+<p><strong>Use at your own risk. This project is under heavy development and is undergoing changes pretty regularly.</strong></p>
+<h2>Summary</h2>
+<p>This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain. You write your tests using YAML and they can be as simple as checking for a 200 HTTP response on the homepage.  PHP is working under-the-hood, but general use does not require you to know PHP.</p>
+<p><strong>Visit <a href="https://aklump.github.io/check_pages">https://aklump.github.io/check_pages</a> for full documentation.</strong></p>
+<h2>Clarity of Purpose and Limitation</h2>
+<p>The mission of this tool is to provide testing for URLS and webpages in the most simple and concise syntax possible. For testing scenarios that require element interaction, such as clicks, hovers, scrolling, etc, there are amazing projects out there such as <a href="https://www.cypress.io/">Cypress</a>. This project will never try to compete with that crowd, and shall always restrict it's testing of the DOM to assertions against a single snapshot of the loaded URL.</p>
+<h2>Terms Used</h2>
+<ul>
+<li><em>Test Runner</em> - A very simple PHP file that defines the configuration and what test suites to run, and in what order. @see <em>includes/runner.php</em>.</li>
+<li><em>Test Suite</em> - A YAML file that includes one or more checks against URLs. @see <em>includes/suite.yml</em>.</li>
+<li><em>Test</em> - A single URL check within a suite.</li>
+<li><em>Assertion</em> - A single check action against the HTTP response of a test, i.e., headers, body, status code, javascript, etc.</li>
+</ul>
+<h2>Stand-alone Installation</h2>
+<p>This quickstart is to paste the below into a terminal and execute it.  It will install check pages in your home directory.</p>
+<pre><code class="shell">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/aklump/check_pages/refs/heads/master/setup-check-pages.sh)"
 </code></pre>
-<p>Then you will create some suites that are to be run on all environments</p>
-<pre><code>└── suites
-    ├── bar.yml
-    ├── baz.yml
-    └── foo.yml
+<h2>Install with Composer</h2>
+<ol>
+<li><p>Because this is an unpublished package, you must define it's repository in
+your project's <em>composer.json</em> file. Add the following to <em>composer.json</em> in
+the <code>repositories</code> array:</p>
+<pre><code class="json"> {
+  "type": "github",
+  "url": "https://github.com/aklump/check-pages"
+ }
 </code></pre>
-<p>But let's say you have a suite that should only be run against the live environment. Here's an example that tests proper redirection and SSL prefixing and requires that the <code>url</code> values be absolute links. By definition then this suite should only run against a single server.</p>
+</li>
+<li><p>Require this package:</p>
+<pre><code> composer require aklump/check-pages:^0.23
+</code></pre>
+</li>
+</ol>
+<ul>
+<li>In most cases the <code>--dev</code> is appropriate, but use your own discretion.</li>
+<li>You will be asked if you want to create a directory for your tests when you install. This will copy over a basic scaffolding to build from.<sup>1</sup></li>
+<li>More detailed examples are located in the <em>example</em> directory.</li>
+</ul>
+<h2>Example Tests Demo</h2>
+<p>If you are new to this project and would like to see a demonstration, it would be a good idea to start with the examples. Run the example tests with the following commands. Then open up the files in the <em>example/tests</em> directory and study them to see how they work.<sup>1</sup></p>
+<ol>
+<li><p>Open a new shell window which will run the PHP server for our example test pages.</p>
+<pre><code> $ ./bin/start_test_server.sh
+</code></pre>
+</li>
+<li><p>Open a second shell window to execute the tests.</p>
+<pre><code> $ ./bin/run_tests.sh
+</code></pre>
+</li>
+</ol>
+<p><sup>1</sup> If you see no <em>tests</em> directory then create one and copy the contents of <em>examples</em> into <em>tests</em>. The example <em>tests</em> directory will only be created if you use <code>create-project</code> as the installation method.</p>
+<h3>Writing Your First Test Suite</h3>
+<ol>
+<li><code>checkpages init</code> to create tests directory and runner in the current directory.</li>
+</ol>
+<h3>Multiple Configuration Files</h3>
+<p>The project is designed to be able to run the same tests using different configurations. You can create multiple configuration files so that you are able to run the same test on live and then on dev, which have different base URLs.</p>
+<pre><code>.
+└── tests
+    ├── config/dev.yml
+    ├── config/live.yml
+    ├── suite.yml
+    └── runner.php
+</code></pre>
+<p>In <em>runner.php</em> use the following line to specify the default config file:</p>
+<pre><code>load_config('config/dev');
+</code></pre>
+<p>When you're ready to run this using the live config add the config filename to the CLI command, e.g.,</p>
+<pre><code>$ ./checkpages runner.php --config=config/live
+</code></pre>
+<h3>Test functions</h3>
+<p>The test functions for your PHP test files are found in _includes/runner<em>functions.inc</em>.</p>
+<h2>Is JS Supported?</h2>
+<p>Yes, not by default, but you are able to indicate that given tests requires Javascript be run. Read on...</p>
+<h2>Javascript Testing Requirements</h2>
+<ul>
+<li>Your testing machine must have Chrome installed.</li>
+</ul>
+<h2>Enable Javascript per Test</h2>
+<p>Unless you enable it, or in the case the selector type (i.e., <code>style</code>
+, <code>javascript</code>) requires it, javascript is not run during testing. If you need
+to assert that an element exists, which was created from Javascript (or
+otherwise need javascript to run on the page), you will need to indicate the
+following in your test, namely <code>js: true</code>.</p>
 <pre><code class="yaml">-
-  why: Assert canonical, secure does not redirect.
-  visit: https://www.mysite.org
-  status: 200
-  location: https://www.mysite.org
--
-  loop:
-    - http://www.mysite.org
-    - https://mysite.org
-    - http://mysite.org
--
-  why: Assert ${loop.value} redirects to SSL, canonical.
-  visit: ${loop.value}
-  status: 301
-  location: https://www.mysite.org
--
-  end loop:
-
+  visit: /foo
+  js: true
+  find:
+    -
+      dom: .js-created-page-title
+      text: Javascript added me to the DOM!
 </code></pre>
-<p>To keep this clear adhere to the following convention.</p>
-<h3>Step One</h3>
-<p><strong>Prefix the suite with the config filename, e.g. <em>live.redirects.yml</em>.</strong></p>
-<pre><code>└── suites
-    ...    
-    ├── bar.yml
-    ├── baz.yml
-    ├── dev.redirects.yml
-    ├── foo.yml
-    ├── live.redirects.yml
-    └── test.redirects.yml
+<h2>Asserting Javascript Evaluations</h2>
+<p>Let's say you want to assert the value of the URL fragment. You can do that with
+the <code>javascript</code> selector. The value of <code>javascript</code> should be the expression to
+evaluate, once the page loads. Notice that you may omit the <code>js: true</code> as it
+will be set automatically.</p>
+<pre><code class="yaml">-
+  visit: /foo
+  find:
+    -
+      javascript: location.hash
+      is: "#top"
 </code></pre>
-<h3>Step Two</h3>
-<p><strong>List these as <code>suites_to_ignore</code> in the appropriate config files.  Use globbing for simplicity.</strong></p>
-<p>In <em>config/dev.yml</em>:</p>
-<pre><code class="yaml">suites_to_ignore:
-  - live.*
-  - test.*
+<h2>Javascript Testing Related Links</h2>
+<ul>
+<li><a href="https://chromedevtools.github.io/devtools-protocol/1-3/">Chrome DevTools Protocol 1.3</a></li>
+<li><a href="https://developers.google.com/web/updates/2017/04/headless-chrome">Learn more</a></li>
+<li><a href="https://source.chromium.org/chromium/chromium/src/+/master:headless/app/headless_shell_switches.cc">CLI parameters</a></li>
+<li><a href="https://developers.google.com/web/updates/2017/04/headless-chrome#command_line_features">More on parameters</a></li>
+<li>https://github.com/GoogleChrome/chrome-launcher</li>
+<li><a href="https://peter.sh/experiments/chromium-command-line-switches/">https://peter.sh/experiments/chromium-command-line-switches/</a></li>
+<li>https://raw.githubusercontent.com/GoogleChrome/chrome-launcher/v0.8.0/scripts/download-chrome.sh</li>
+</ul>
+<h2>Filter</h2>
+<p>Use <code>--filter</code> to limit which suites are run.</p>
+<p>The value passed to the filter will be matched against the <code>$group/$id</code> of the suite. Behind the scenes it is treated as a regex pattern, if you do not include delimiters, they will be added and case will not matter.</p>
+<p>Given the following test suites...</p>
+<pre><code class="text">.
+├── api
+│   ├── menus.yml
+│   ├── reports.yml
+│   └── users.yml
+└── ui
+    ├── footer.yml
+    ├── login.yml
+    └── menus.yml
 </code></pre>
-<p>In <em>config/live.yml</em>:</p>
-<pre><code class="yaml">suites_to_ignore:
-  - dev.*
-  - test.*
+<table class="table">
+<thead>
+<tr><th>CLI</th><th>Matches</th></tr>
+</thead>
+<tbody>
+<tr><td><code>--filter=ui/</code></td><td>ui/footer.yml, ui/login.yml, menus.yml</td></tr>
+<tr><td><code>--filter=/menus</code></td><td>api/menus.yml, ui/menus.yml</td></tr>
+<tr><td><code>--filter=ui/menus</code></td><td>suites/ui/menus.yml</td></tr>
+</tbody>
+</table>
+<p>Notice the usage of the <code>/</code> separator to control how the group influences the result.</p>
+<h3>Complex Filter</h3>
+<p>It's possible to provide a complex filter that uses <code>or</code> logic like this:</p>
+<pre><code>./checkpages runner.php -f reports -f menus
 </code></pre>
-<p>In <em>config/test.yml</em>:</p>
-<pre><code class="yaml">suites_to_ignore:
-  - dev.*
-  - live.*
+<h2>Troubleshooting</h2>
+<p>Try using the <code>--response</code> to see the response source code as well.</p>
+<pre><code>./checkpages runner.php --response
 </code></pre>
-<h2>Why Not Use Groups?</h2>
-<p>In my experience groups (folders) should not be used to indicate configuration-specific suites, but there is nothing technically stopping this strategy.</p>
+<h3>Usage</h3>
+<p>In this case, since the project will be buried in your vendor directory, you will need to provide the directory path to your test files, when you run the test script, like this:</p>
+<pre><code>./vendor/bin/check_pages runner.php --dir=./tests_check_pages
+</code></pre>
+<p>This example assumes a file structure like this:</p>
+<pre><code>.
+├── tests_check_pages
+│   └── runner.php
+└── vendor
+    └── bin
+        └── check_pages  
+</code></pre>
+<h2>Contributing</h2>
+<p>If you find this project useful... please consider <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=4E5KZHDQCEUV8&amp;item_name=Gratitude%20for%20aklump%2Fcheck-pages">making a donation</a>.</p>
     </article>
   </div>
 </main>
@@ -122,11 +223,11 @@
 <nav class="nav d-flex justify-content-center align-items-center
   fixed-bottom">
   <div class="btn-group flex-fill">
-              <a href="custom_dirs.html" class="btn nav__prev-chapter btn-secondary"><i class="bi
-      bi-caret-left-fill"></i> How To Use A Custom Directory For Suite Files</a>
+              <a href="readme.html" class="btn nav__prev-chapter btn-secondary"><i class="bi
+      bi-caret-left-fill"></i> Check Pages</a>
   
     
-              <a href="custom_dirs.html" class="btn nav__prev-page js-nav__prev-page
+              <a href="cli.html" class="btn nav__prev-page js-nav__prev-page
     btn-primary"><i class="bi
       bi-caret-left-fill"></i></a>
   
@@ -137,8 +238,8 @@
        aria-controls="table-of-contents"><i class="bi
            bi-list-ol"></i></a>
     
-              <a href="setup.html" class="btn nav__next-page js-nav__next-page
-    btn-primary"><i class="bi bi-file-earmark"></i> Setup Before Test <i class="bi
+              <a href="../extend/ex__ssl.html" class="btn nav__next-page js-nav__next-page
+    btn-primary"><i class="bi bi-file-earmark"></i> Ex  Ssl <i class="bi
        bi-caret-right-fill"></i></a>
   
     
@@ -167,182 +268,182 @@
         <h2 class="h4 mt-4">Matched Pages</h2>
         <ol class="list-unstyled">
                                               <li data-page="readme" value="1">
-      <a class="js-page-link" href="../general/readme.html">Check Pages<span
+      <a class="js-page-link" href="readme.html">Check Pages<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="cheatsheet" value="2">
-      <a class="js-page-link" href="../general/cheatsheet.html">Getting Started<span
+      <a class="js-page-link" href="cheatsheet.html">Getting Started<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="why" value="3">
-      <a class="js-page-link" href="../general/why.html">Using `why` For Better Clarity<span
+      <a class="js-page-link" href="why.html">Using `why` For Better Clarity<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="authentication" value="4">
-      <a class="js-page-link" href="../general/authentication.html">Authentication<span
+      <a class="js-page-link" href="authentication.html">Authentication<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="files" value="5">
-      <a class="js-page-link" href="../general/files.html">File Output<span
+      <a class="js-page-link" href="files.html">File Output<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="changelog" value="6">
-      <a class="js-page-link" href="../general/changelog.html">Changelog<span
+      <a class="js-page-link" href="changelog.html">Changelog<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="xdebug" value="7">
-      <a class="js-page-link" href="../general/xdebug.html">Debugging While Running Tests<span
+      <a class="js-page-link" href="xdebug.html">Debugging While Running Tests<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="dates" value="8">
-      <a class="js-page-link" href="../general/dates.html">Dates<span
+      <a class="js-page-link" href="dates.html">Dates<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="expected_outcome" value="9">
-      <a class="js-page-link" href="../general/expected_outcome.html">When You _Want_ Failure<span
+      <a class="js-page-link" href="expected_outcome.html">When You _Want_ Failure<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="forms__drupal" value="10">
-      <a class="js-page-link" href="../general/forms__drupal.html">Testing Forms<span
+      <a class="js-page-link" href="forms__drupal.html">Testing Forms<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="grouping" value="11">
-      <a class="js-page-link" href="../general/grouping.html">Suite Groups<span
+      <a class="js-page-link" href="grouping.html">Suite Groups<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="install" value="12">
-      <a class="js-page-link" href="../general/install.html">Installation Methods<span
+      <a class="js-page-link" href="install.html">Installation Methods<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="interpolation" value="13">
-      <a class="js-page-link" href="../general/interpolation.html">Interpolation<span
+      <a class="js-page-link" href="interpolation.html">Interpolation<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="lando" value="14">
-      <a class="js-page-link" href="../general/lando.html">Using With Lando<span
+      <a class="js-page-link" href="lando.html">Using With Lando<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="matches" value="15">
-      <a class="js-page-link" href="../general/matches.html">The Power of Matches<span
+      <a class="js-page-link" href="matches.html">The Power of Matches<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="multiple_dom_elements" value="16">
-      <a class="js-page-link" href="../general/multiple_dom_elements.html">Understanding How Multiple DOM Elements Are Handled<span
+      <a class="js-page-link" href="multiple_dom_elements.html">Understanding How Multiple DOM Elements Are Handled<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="php_version" value="17">
-      <a class="js-page-link" href="../general/php_version.html">How to Use a Different PHP version than Default<span
+      <a class="js-page-link" href="php_version.html">How to Use a Different PHP version than Default<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="phpstorm" value="18">
-      <a class="js-page-link" href="../general/phpstorm.html">PhpStorm Integration<span
+      <a class="js-page-link" href="phpstorm.html">PhpStorm Integration<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="retest" value="19">
-      <a class="js-page-link" href="../general/retest.html">Continuing and Retesting<span
+      <a class="js-page-link" href="retest.html">Continuing and Retesting<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="skipping_tests" value="20">
-      <a class="js-page-link" href="../general/skipping_tests.html">Skipping Suites<span
+      <a class="js-page-link" href="skipping_tests.html">Skipping Suites<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="stash" value="21">
-      <a class="js-page-link" href="../general/stash.html">Stashing Values<span
+      <a class="js-page-link" href="stash.html">Stashing Values<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="suite_index" value="22">
-      <a class="js-page-link" href="../general/suite_index.html">Suite Index<span
+      <a class="js-page-link" href="suite_index.html">Suite Index<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="testing_legacy" value="23">
-      <a class="js-page-link" href="../general/testing_legacy.html">Testing Legacy Sites<span
+      <a class="js-page-link" href="testing_legacy.html">Testing Legacy Sites<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="unit_tests" value="24">
-      <a class="js-page-link" href="../general/unit_tests.html">Unit Tests<span
+      <a class="js-page-link" href="unit_tests.html">Unit Tests<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="cli" value="25">
-      <a class="js-page-link" href="../general/cli.html">Command Line Runner<span
+      <a class="js-page-link" href="cli.html">Command Line Runner<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="readme_old" value="26">
-      <a class="js-page-link" href="../general/readme_old.html">Check Pages<span
+      <a class="js-page-link" href="readme_old.html">Check Pages<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
@@ -433,28 +534,28 @@
     </li>
   
                                                           <li data-page="custom_dirs" value="39">
-      <a class="js-page-link" href="custom_dirs.html">How To Use A Custom Directory For Suite Files<span
+      <a class="js-page-link" href="../deep/custom_dirs.html">How To Use A Custom Directory For Suite Files<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="deep__organizing" value="40">
-      <a class="js-page-link" href="deep__organizing.html">Filenaming and Organization<span
+      <a class="js-page-link" href="../deep/deep__organizing.html">Filenaming and Organization<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="setup" value="41">
-      <a class="js-page-link" href="setup.html">Setup Before Test<span
+      <a class="js-page-link" href="../deep/setup.html">Setup Before Test<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="variables" value="42">
-      <a class="js-page-link" href="variables.html">Variables<span
+      <a class="js-page-link" href="../deep/variables.html">Variables<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
@@ -509,107 +610,107 @@
               <h2 class="h4 mt-4">How to Use</h2>
         <ol>
                                 <li data-page="readme" value="1">
-      <a class="js-page-link" href="../general/readme.html">Check Pages</a>
+      <a class="js-page-link" href="readme.html">Check Pages</a>
     </li>
   
                                 <li data-page="cheatsheet" value="2">
-      <a class="js-page-link" href="../general/cheatsheet.html">Getting Started</a>
+      <a class="js-page-link" href="cheatsheet.html">Getting Started</a>
     </li>
   
                                 <li data-page="why" value="3">
-      <a class="js-page-link" href="../general/why.html">Using `why` For Better Clarity</a>
+      <a class="js-page-link" href="why.html">Using `why` For Better Clarity</a>
     </li>
   
                                 <li data-page="authentication" value="4">
-      <a class="js-page-link" href="../general/authentication.html">Authentication</a>
+      <a class="js-page-link" href="authentication.html">Authentication</a>
     </li>
   
                                 <li data-page="files" value="5">
-      <a class="js-page-link" href="../general/files.html">File Output</a>
+      <a class="js-page-link" href="files.html">File Output</a>
     </li>
   
                                 <li data-page="changelog" value="6">
-      <a class="js-page-link" href="../general/changelog.html">Changelog</a>
+      <a class="js-page-link" href="changelog.html">Changelog</a>
     </li>
   
                                 <li data-page="xdebug" value="7">
-      <a class="js-page-link" href="../general/xdebug.html">Debugging While Running Tests</a>
+      <a class="js-page-link" href="xdebug.html">Debugging While Running Tests</a>
     </li>
   
                                 <li data-page="dates" value="8">
-      <a class="js-page-link" href="../general/dates.html">Dates</a>
+      <a class="js-page-link" href="dates.html">Dates</a>
     </li>
   
                                 <li data-page="expected_outcome" value="9">
-      <a class="js-page-link" href="../general/expected_outcome.html">When You _Want_ Failure</a>
+      <a class="js-page-link" href="expected_outcome.html">When You _Want_ Failure</a>
     </li>
   
                                 <li data-page="forms__drupal" value="10">
-      <a class="js-page-link" href="../general/forms__drupal.html">Testing Forms</a>
+      <a class="js-page-link" href="forms__drupal.html">Testing Forms</a>
     </li>
   
                                 <li data-page="grouping" value="11">
-      <a class="js-page-link" href="../general/grouping.html">Suite Groups</a>
+      <a class="js-page-link" href="grouping.html">Suite Groups</a>
     </li>
   
                                 <li data-page="install" value="12">
-      <a class="js-page-link" href="../general/install.html">Installation Methods</a>
+      <a class="js-page-link" href="install.html">Installation Methods</a>
     </li>
   
                                 <li data-page="interpolation" value="13">
-      <a class="js-page-link" href="../general/interpolation.html">Interpolation</a>
+      <a class="js-page-link" href="interpolation.html">Interpolation</a>
     </li>
   
                                 <li data-page="lando" value="14">
-      <a class="js-page-link" href="../general/lando.html">Using With Lando</a>
+      <a class="js-page-link" href="lando.html">Using With Lando</a>
     </li>
   
                                 <li data-page="matches" value="15">
-      <a class="js-page-link" href="../general/matches.html">The Power of Matches</a>
+      <a class="js-page-link" href="matches.html">The Power of Matches</a>
     </li>
   
                                 <li data-page="multiple_dom_elements" value="16">
-      <a class="js-page-link" href="../general/multiple_dom_elements.html">Understanding How Multiple DOM Elements Are Handled</a>
+      <a class="js-page-link" href="multiple_dom_elements.html">Understanding How Multiple DOM Elements Are Handled</a>
     </li>
   
                                 <li data-page="php_version" value="17">
-      <a class="js-page-link" href="../general/php_version.html">How to Use a Different PHP version than Default</a>
+      <a class="js-page-link" href="php_version.html">How to Use a Different PHP version than Default</a>
     </li>
   
                                 <li data-page="phpstorm" value="18">
-      <a class="js-page-link" href="../general/phpstorm.html">PhpStorm Integration</a>
+      <a class="js-page-link" href="phpstorm.html">PhpStorm Integration</a>
     </li>
   
                                 <li data-page="retest" value="19">
-      <a class="js-page-link" href="../general/retest.html">Continuing and Retesting</a>
+      <a class="js-page-link" href="retest.html">Continuing and Retesting</a>
     </li>
   
                                 <li data-page="skipping_tests" value="20">
-      <a class="js-page-link" href="../general/skipping_tests.html">Skipping Suites</a>
+      <a class="js-page-link" href="skipping_tests.html">Skipping Suites</a>
     </li>
   
                                 <li data-page="stash" value="21">
-      <a class="js-page-link" href="../general/stash.html">Stashing Values</a>
+      <a class="js-page-link" href="stash.html">Stashing Values</a>
     </li>
   
                                 <li data-page="suite_index" value="22">
-      <a class="js-page-link" href="../general/suite_index.html">Suite Index</a>
+      <a class="js-page-link" href="suite_index.html">Suite Index</a>
     </li>
   
                                 <li data-page="testing_legacy" value="23">
-      <a class="js-page-link" href="../general/testing_legacy.html">Testing Legacy Sites</a>
+      <a class="js-page-link" href="testing_legacy.html">Testing Legacy Sites</a>
     </li>
   
                                 <li data-page="unit_tests" value="24">
-      <a class="js-page-link" href="../general/unit_tests.html">Unit Tests</a>
+      <a class="js-page-link" href="unit_tests.html">Unit Tests</a>
     </li>
   
                                 <li data-page="cli" value="25">
-      <a class="js-page-link" href="../general/cli.html">Command Line Runner</a>
+      <a class="js-page-link" href="cli.html">Command Line Runner</a>
     </li>
   
                                 <li data-page="readme_old" value="26">
-      <a class="js-page-link" href="../general/readme_old.html">Check Pages</a>
+      <a class="js-page-link" href="readme_old.html">Check Pages</a>
     </li>
   
                   </ol>
@@ -670,19 +771,19 @@
               <h2 class="h4 mt-4">Going Deeper</h2>
         <ol>
                                 <li data-page="custom_dirs" value="39">
-      <a class="js-page-link" href="custom_dirs.html">How To Use A Custom Directory For Suite Files</a>
+      <a class="js-page-link" href="../deep/custom_dirs.html">How To Use A Custom Directory For Suite Files</a>
     </li>
   
                                 <li data-page="deep__organizing" value="40">
-      <a class="js-page-link" href="deep__organizing.html">Filenaming and Organization</a>
+      <a class="js-page-link" href="../deep/deep__organizing.html">Filenaming and Organization</a>
     </li>
   
                                 <li data-page="setup" value="41">
-      <a class="js-page-link" href="setup.html">Setup Before Test</a>
+      <a class="js-page-link" href="../deep/setup.html">Setup Before Test</a>
     </li>
   
                                 <li data-page="variables" value="42">
-      <a class="js-page-link" href="variables.html">Variables</a>
+      <a class="js-page-link" href="../deep/variables.html">Variables</a>
     </li>
   
                   </ol>
@@ -740,57 +841,57 @@
                 
         <ul class="list-group list-group-flush">
                                     <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/readme.html">Check Pages</a>
+                 data-tags="[]" href="readme.html">Check Pages</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/cheatsheet.html">Getting Started</a>
+                 data-tags="[]" href="cheatsheet.html">Getting Started</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/why.html">Using `why` For Better Clarity</a>
+                 data-tags="[]" href="why.html">Using `why` For Better Clarity</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/authentication.html">Authentication</a>
+                 data-tags="[]" href="authentication.html">Authentication</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/files.html">File Output</a>
+                 data-tags="[]" href="files.html">File Output</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/changelog.html">Changelog</a>
+                 data-tags="[]" href="changelog.html">Changelog</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/xdebug.html">Debugging While Running Tests</a>
+                 data-tags="[]" href="xdebug.html">Debugging While Running Tests</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/dates.html">Dates</a>
+                 data-tags="[]" href="dates.html">Dates</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/expected_outcome.html">When You _Want_ Failure</a>
+                 data-tags="[]" href="expected_outcome.html">When You _Want_ Failure</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/forms__drupal.html">Testing Forms</a>
+                 data-tags="[]" href="forms__drupal.html">Testing Forms</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/grouping.html">Suite Groups</a>
+                 data-tags="[]" href="grouping.html">Suite Groups</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/install.html">Installation Methods</a>
+                 data-tags="[]" href="install.html">Installation Methods</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/interpolation.html">Interpolation</a>
+                 data-tags="[]" href="interpolation.html">Interpolation</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/lando.html">Using With Lando</a>
+                 data-tags="[]" href="lando.html">Using With Lando</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/matches.html">The Power of Matches</a>
+                 data-tags="[]" href="matches.html">The Power of Matches</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/multiple_dom_elements.html">Understanding How Multiple DOM Elements Are Handled</a>
+                 data-tags="[]" href="multiple_dom_elements.html">Understanding How Multiple DOM Elements Are Handled</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/php_version.html">How to Use a Different PHP version than Default</a>
+                 data-tags="[]" href="php_version.html">How to Use a Different PHP version than Default</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/phpstorm.html">PhpStorm Integration</a>
+                 data-tags="[]" href="phpstorm.html">PhpStorm Integration</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/retest.html">Continuing and Retesting</a>
+                 data-tags="[]" href="retest.html">Continuing and Retesting</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/skipping_tests.html">Skipping Suites</a>
+                 data-tags="[]" href="skipping_tests.html">Skipping Suites</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/stash.html">Stashing Values</a>
+                 data-tags="[]" href="stash.html">Stashing Values</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/suite_index.html">Suite Index</a>
+                 data-tags="[]" href="suite_index.html">Suite Index</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/testing_legacy.html">Testing Legacy Sites</a>
+                 data-tags="[]" href="testing_legacy.html">Testing Legacy Sites</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/unit_tests.html">Unit Tests</a>
+                 data-tags="[]" href="unit_tests.html">Unit Tests</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/cli.html">Command Line Runner</a>
+                 data-tags="[]" href="cli.html">Command Line Runner</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../general/readme_old.html">Check Pages</a>
+                 data-tags="[]" href="readme_old.html">Check Pages</a>
                                                 <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="../extend/ex__ssl.html">Ex  Ssl</a>
                                                 <a class="list-group-item list-group-item-action"
@@ -816,13 +917,13 @@
                                                 <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="../dev/development.html">Developing Check Pages Locally</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="custom_dirs.html">How To Use A Custom Directory For Suite Files</a>
+                 data-tags="[]" href="../deep/custom_dirs.html">How To Use A Custom Directory For Suite Files</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="deep__organizing.html">Filenaming and Organization</a>
+                 data-tags="[]" href="../deep/deep__organizing.html">Filenaming and Organization</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="setup.html">Setup Before Test</a>
+                 data-tags="[]" href="../deep/setup.html">Setup Before Test</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="variables.html">Variables</a>
+                 data-tags="[]" href="../deep/variables.html">Variables</a>
                                                 <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="../code/code__add_test_option.html">Mixin Code Example</a>
                                                 <a class="list-group-item list-group-item-action"
