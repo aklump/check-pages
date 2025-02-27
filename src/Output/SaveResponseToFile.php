@@ -27,10 +27,10 @@ final class SaveResponseToFile implements EventSubscriberInterface {
    *
    * @var string[]
    */
-  private static $mime_types = [
-    'text/html',
-    'application/json',
-    'application/xml',
+  private static array $mime_types = [
+    'txt' => 'text/html',
+    'json' => 'application/json',
+    'xml' => 'application/xml',
   ];
 
   private static function getRelativePathBySuite(Suite $suite): string {
@@ -85,7 +85,7 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           }
 
           $mime_type = $mime_type[0];
-          $mimes = new MimeTypes();
+          $mime_type_extensions = array_flip(self::$mime_types);
 
           $test = $event->getTest();
           $path_by_suite = self::getRelativePathBySuite($test->getSuite());
@@ -99,7 +99,7 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           $relative_path .= '_' . basename($path_by_suite);
           // The test ID is helpful, but not guaranteed to be there.
           $relative_path .= rtrim('_' . $test->id(), '_');
-          $relative_path .= '.' . $mimes->getExtension($mime_type);
+          $relative_path .= '.' . $mime_type_extensions[$mime_type];
 
           $content = $event->getDriver()->getResponse()->getBody();
           switch ($content_type) {

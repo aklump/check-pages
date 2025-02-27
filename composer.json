@@ -45,7 +45,6 @@
     "justinrainbow/json-schema": "^5.2",
     "laminas/laminas-xml2json": "^3.2",
     "php": "^7.4 || ^8",
-    "ralouphie/mimey": "^2.1",
     "shanethehat/pretty-xml": "^1.0",
     "spatie/browsershot": "^3.57",
     "symfony/config": "^4.4 || ^5.4 || ^6",
