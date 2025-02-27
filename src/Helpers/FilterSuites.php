@@ -18,6 +18,7 @@ class FilterSuites {
     if (!$this->isRegularExpression($filter)) {
 
       //Look for exact match.
+      /** @var SuiteCollection $exact_matches */
       $exact_matches = $suites->filter(function (Suite $suite) use ($filter) {
         return $filter === (string) $suite || $filter === $suite->id();
       });

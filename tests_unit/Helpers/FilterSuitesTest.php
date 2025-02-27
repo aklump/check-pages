@@ -20,7 +20,7 @@ class FilterSuitesTest extends TestCase {
     $suites->add((new Suite('day_updates', $runner))->setGroup('api_day'));
     $suites->add((new Suite('days', $runner))->setGroup('api_day'));
 
-    foreach (['api_day/day', 'day'] as $filter) {
+    foreach (['api_day/day', 'day', '#day$#', '#^api_day/day$#'] as $filter) {
       $result = (new FilterSuites())($suites, $filter);
       $this->assertSame('day', $result[0]->id());
       $this->assertCount(1, $result);

@@ -59,11 +59,11 @@ final class SecretsService implements EventSubscriberInterface {
 
   private static function getSecrets(Runner $runner): array {
     $secrets_path = dirname($runner->getLoadedConfigPath()) . '/' . self::BASENAME;
-    if (!file_exists($secrets_path)) {
+    if (!file_exists($secrets_path) || !file_get_contents($secrets_path)) {
       return [];
     }
     $secrets = Yaml::parseFile($secrets_path);
-    if ($secrets && !is_array($secrets)) {
+    if (!is_array($secrets)) {
       throw new \RuntimeException(sprintf('%s must return an array.', self::BASENAME));
     }
 
