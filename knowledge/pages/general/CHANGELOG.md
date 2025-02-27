@@ -32,6 +32,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
    
   ```
 
+## [] -
+
+### Changed
+
+- Executable renamed from _check\_pages_ to _checkpages_
+- _vendor/bin/check\_pages_ is now _vendor/bin/checkpages_
+
+### Removed
+
+- _./dist/bin/checkpages_.  Use _./checkpages_ instead.
+
 ## [0.23.0] - 2023-12-29
 
 ### Added

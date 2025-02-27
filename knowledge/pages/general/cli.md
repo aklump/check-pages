@@ -45,11 +45,11 @@ Notice the usage of the `/` separator to control how the group influences the re
 
 It's possible to provide a complex filter that uses `or` logic like this:
 
-    ./check_pages runner.php -f reports -f menus
+    ./checkpages runner.php -f reports -f menus
 
 ## Troubleshooting
 
 Try using the `--response` to see the response source code as well.
 
-    ./check_pages runner.php --response
+    ./checkpages runner.php --response
 

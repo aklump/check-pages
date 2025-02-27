@@ -18,4 +18,4 @@ done
 root="$( cd -P "$( dirname "$source" )" && pwd )"
 
 cd "$root/../.."
-"./check_pages" run documentation/event_hook/event_list_runner.php
+"./checkpages" run documentation/event_hook/event_list_runner.php

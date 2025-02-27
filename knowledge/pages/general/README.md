@@ -109,7 +109,7 @@ In _runner.php_ use the following line to specify the default config file:
 
 When you're ready to run this using the live config add the config filename to the CLI command, e.g.,
 
-    $ ./check_pages runner.php --config=config/live
+    $ ./checkpages runner.php --config=config/live
 
 ### Test functions
 
@@ -199,13 +199,13 @@ Notice the usage of the `/` separator to control how the group influences the re
 
 It's possible to provide a complex filter that uses `or` logic like this:
 
-    ./check_pages runner.php -f reports -f menus
+    ./checkpages runner.php -f reports -f menus
 
 ## Troubleshooting
 
 Try using the `--response` to see the response source code as well.
 
-    ./check_pages runner.php --response
+    ./checkpages runner.php --response
 
 ### Usage
 

@@ -10,7 +10,7 @@
  ##
 
 # ========= Configuration =========
-install_path="$HOME/.check_pages"
+install_path="$HOME/.check-pages"
 install_version="${1:-^0}"
 
 # ========= Utility functions =========
@@ -43,15 +43,15 @@ status "Directory \"$install_path\" created."
 ! printf '{"name":"aklump/check-pages-project","type":"project","require":{"aklump/check-pages":"%s"},"config":{"allow-plugins":{"wikimedia/composer-merge-plugin":true}}}' "$install_version" > composer.json && echo '' && exit 1
 ! composer install && error 'Cannot install dependencies.' && exit 1
 
-command_path='bin/check_pages'
+command_path='bin/checkpages'
 mkdir ./bin || exit 1
 cd ./bin || exit 1
-ln -s '../vendor/bin/check_pages' "$(basename "$command_path")" || exit 1
+ln -s '../vendor/bin/checkpages' "$(basename "$command_path")" || exit 1
 
 # User feedback
-suggest 'Optional: To make check_pages accessible from anywhere, add the following line'
+suggest 'Optional: To make checkpages accessible from anywhere, add the following line'
 suggest 'to your shell startup file (e.g., ~/.bashrc, ~/.zshrc, or equivalent):'
-echo "export PATH=\"${install_path/$HOME/\$HOME}/$command_path:\$PATH\""
+echo "export PATH=\"${install_path/$HOME/\$HOME}/$(dirname "$command_path"):\$PATH\""
 suggest 'After adding the line, either restart your terminal or source the updated file.'
 status "Thank you for installing Check Pages, happy testing!"
 status "Get help: $install_path/$command_path"
