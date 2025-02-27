@@ -8,6 +8,7 @@ use AKlump\CheckPages\Files\HttpLogging;
 use AKlump\CheckPages\Helpers\AuthenticationInterface;
 use AKlump\CheckPages\Helpers\UserInterface;
 use AKlump\CheckPages\HttpClient;
+use DOMElement;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
@@ -148,11 +149,11 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     $crawler = new Crawler($body);
     $form_build_id = $crawler->filter($this->formSelector . ' input[name="form_build_id"]')
       ->getNode(0);
-    if ($form_build_id) {
+    if ($form_build_id instanceof DOMElement) {
       $form_build_id = $form_build_id->getAttribute('value');
     }
     else {
-      throw new \RuntimeException(sprintf('Login form missing from %s', $this->loginUrl));
+      throw new RuntimeException(sprintf('Login form missing from %s', $this->loginUrl));
     }
 
     // Now that we have a complete form, try to log in and get a session.
@@ -209,14 +210,14 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     // TODO Figure out how to read the session-based messages, so we can add them from Drupal to $failed_message for easier debugging.
 
     if ($failed) {
-      throw new \RuntimeException(implode(PHP_EOL, $failed_message));
+      throw new RuntimeException(implode(PHP_EOL, $failed_message));
     }
 
     $session_cookie = array_values(array_filter($jar->toArray(), function ($item) {
       return strpos($item['Name'], 'SESS') !== FALSE;
     }))[0] ?? NULL;
     if (empty($session_cookie)) {
-      throw new \RuntimeException(sprintf('Did not obtain session cookie for username "%s".', $username));
+      throw new RuntimeException(sprintf('Did not obtain session cookie for username "%s".', $username));
     }
 
     $this->sessionName = $session_cookie['Name'];
@@ -250,7 +251,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
    * @return int
    *   The User ID if it can be deteremine.
    *
-   * @see \AKlump\CheckPages\Helpers\AuthenticateDrupalBase::login()
+   * @see \AKlump\CheckPages\Helpers\AuthenticateDrupal::login()
    */
   protected function requestUserId(UserInterface $user): int {
     $parts = parse_url($this->loginUrl);
@@ -307,7 +308,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
    * @return string
    *   The users email if available.
    *
-   * @see \AKlump\CheckPages\Helpers\AuthenticateDrupalBase::login()
+   * @see \AKlump\CheckPages\Helpers\AuthenticateDrupal::login()
    */
   protected function requestUserEmail(UserInterface $user): string {
     $uid = $user->id();
@@ -353,7 +354,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
    */
   public function getSessionCookie(): string {
     if (empty($this->sessionName) || empty($this->sessionValue)) {
-      throw new \RuntimeException('Missing session, have you called ::login()?');
+      throw new RuntimeException('Missing session, have you called ::login()?');
     }
 
     return $this->sessionName . '=' . $this->sessionValue;

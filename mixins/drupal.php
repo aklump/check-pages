@@ -43,7 +43,6 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\HTTP\Session;
 use AKlump\LoftLib\Bash\Color;
 
 /** @var \AKlump\CheckPages\Parts\Runner $runner */

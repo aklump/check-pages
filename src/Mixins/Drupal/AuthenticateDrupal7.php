@@ -6,11 +6,12 @@ use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Helpers\UserInterface;
 use AKlump\CheckPages\HttpClient;
 
-final class AuthenticateDrupal7 extends AuthenticateDrupalBase {
+final class AuthenticateDrupal7 extends AuthenticateDrupal {
 
   /**
-   * AuthenticateDrupal8 constructor.
+   * AuthenticateDrupal constructor.
    *
+   * @param \AKlump\CheckPages\HttpClient $http_client
    * @param \AKlump\CheckPages\Files\FilesProviderInterface $log_files
    * @param string $path_to_users_login_data
    *   The resolved path to the JSON or YAML file for the users.
@@ -25,18 +26,21 @@ final class AuthenticateDrupal7 extends AuthenticateDrupalBase {
   public function __construct(
     HttpClient $http_client,
     FilesProviderInterface $log_files,
-    string $path_to_users_login_data,
     string $absolute_login_url,
     string $form_selector = 'form[action="/user/login"]',
     string $form_id = 'user_login'
   ) {
-    parent::__construct($http_client, $log_files, $path_to_users_login_data, $absolute_login_url, $form_selector, $form_id);
+    parent::__construct($http_client, $log_files, $absolute_login_url, $form_selector, $form_id);
   }
 
   public function login(UserInterface $user) {
     parent::login($user);
     $this->populateUserId($user);
     $this->populateUserEmail($user);
+  }
+
+  public function getCsrfToken(): string {
+    return '';
   }
 
   private function populateUserId(UserInterface $user) {
@@ -52,10 +56,6 @@ final class AuthenticateDrupal7 extends AuthenticateDrupalBase {
     if (!$user->getEmail()) {
       $this->requestUserEmail($user);
     }
-  }
-
-  public function getCsrfToken(): string {
-    return '';
   }
 
 }

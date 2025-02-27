@@ -2,6 +2,8 @@
 
 namespace AKlump\CheckPages\Service;
 
+use RuntimeException;
+
 /**
  * Captures the request (redirection) history of an URL.
  */
@@ -74,7 +76,7 @@ class RequestHistory {
     if (FALSE === $body) {
       $error = curl_error($ch);
       curl_close($ch);
-      throw new \RuntimeException(sprintf("Failed to get request history due to CURL error: %s", $error));
+      throw new RuntimeException(sprintf("Failed to get request history due to CURL error: %s", $error));
     }
     curl_close($ch);
     $response = preg_split('/^[\n\r]+$/im', $body);
