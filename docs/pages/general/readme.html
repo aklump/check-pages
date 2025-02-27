@@ -82,7 +82,6 @@
 <h2>Stand-alone Installation</h2>
 <p>This quickstart is to paste the below into a terminal and execute it.  It will install check pages in your home directory.</p>
 <pre><code class="shell">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/aklump/check_pages/refs/heads/master/setup-check-pages.sh)"
-/bin/bash /Users/aklump/Code/Packages/php/check-pages/setup-check-pages.sh
 </code></pre>
 <h2>Install with Composer</h2>
 <ol>
@@ -91,7 +90,7 @@ your project's <em>composer.json</em> file. Add the following to <em>composer.js
 the <code>repositories</code> array:</p>
 <pre><code class="json"> {
   "type": "github",
-  "url": "https://github.com/aklump/check_pages"
+  "url": "https://github.com/aklump/check-pages"
  }
 </code></pre>
 </li>
@@ -135,7 +134,7 @@ the <code>repositories</code> array:</p>
 <pre><code>load_config('config/dev');
 </code></pre>
 <p>When you're ready to run this using the live config add the config filename to the CLI command, e.g.,</p>
-<pre><code>$ ./check_pages runner.php --config=config/live
+<pre><code>$ ./checkpages runner.php --config=config/live
 </code></pre>
 <h3>Test functions</h3>
 <p>The test functions for your PHP test files are found in _includes/runner<em>functions.inc</em>.</p>
@@ -208,11 +207,11 @@ will be set automatically.</p>
 <p>Notice the usage of the <code>/</code> separator to control how the group influences the result.</p>
 <h3>Complex Filter</h3>
 <p>It's possible to provide a complex filter that uses <code>or</code> logic like this:</p>
-<pre><code>./check_pages runner.php -f reports -f menus
+<pre><code>./checkpages runner.php -f reports -f menus
 </code></pre>
 <h2>Troubleshooting</h2>
 <p>Try using the <code>--response</code> to see the response source code as well.</p>
-<pre><code>./check_pages runner.php --response
+<pre><code>./checkpages runner.php --response
 </code></pre>
 <h3>Usage</h3>
 <p>In this case, since the project will be buried in your vendor directory, you will need to provide the directory path to your test files, when you run the test script, like this:</p>
