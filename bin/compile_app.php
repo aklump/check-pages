@@ -28,7 +28,7 @@ try {
   system('composer dump');
   system('composer update');
 }
-catch (\Exception $exception) {
+catch (Exception $exception) {
   echo Color::wrap('white on red', $exception->getMessage()) . PHP_EOL;
   exit(1);
 }

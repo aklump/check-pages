@@ -2,15 +2,23 @@
 
 namespace AKlump\CheckPages\Tests\Unit;
 
+use AKlump\CheckPages\HttpClient;
+use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;
+use AKlump\Messaging\HasMessagesInterface;
 use PHPUnit\Framework\TestCase;
 use AKlump\CheckPages\Parts\Test;
+use Psr\Http\Client\ClientInterface;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @group default
  * @covers \AKlump\CheckPages\Assert
  */
 final class HttpClientTest extends TestCase {
+
+  private ClientInterface $client;
 
   public function testDispatchEventWorksAsExpected() {
     $suite = new Suite('', $this->client->getRunner());
@@ -25,16 +33,16 @@ final class HttpClientTest extends TestCase {
   }
 
   public function setUp(): void {
-    $input = $this->getMockBuilder(\Symfony\Component\Console\Input\InputInterface::class)
+    $input = $this
+      ->getMockBuilder(InputInterface::class)
       ->getMock();
-    $output = $this->getMockBuilder(\Symfony\Component\Console\Output\OutputInterface::class)
+    $output = $this
+      ->getMockBuilder(OutputInterface::class)
       ->getMock();
-
-    $this->runner = new \AKlump\CheckPages\Parts\Runner($input, $output);
-    $runner = new \AKlump\CheckPages\Parts\Runner($input, $output);
-
-    $message_bag = $this->getMockBuilder(\AKlump\Messaging\HasMessagesInterface::class)
+    $runner = new Runner($input, $output);
+    $message_bag = $this
+      ->getMockBuilder(HasMessagesInterface::class)
       ->getMock();
-    $this->client = new \AKlump\CheckPages\HttpClient($runner, $message_bag);
+    $this->client = new HttpClient($runner, $message_bag);
   }
 }

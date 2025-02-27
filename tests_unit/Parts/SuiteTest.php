@@ -14,6 +14,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class SuiteTest extends TestCase {
 
+  private Runner $runner;
+
   public function testGetConfigReturnsArrayOfTestConfigs() {
     $suite = new Suite('foo', $this->runner);
     $this->assertSame([], $suite->getConfig());

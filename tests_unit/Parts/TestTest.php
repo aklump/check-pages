@@ -15,6 +15,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class TestTest extends TestCase {
 
+  private Runner $runner;
+
   public function testBadgesAppearInDescription() {
     $test = $this->getTestInstance();
     $test->addBadge(Icons::CLOCK);

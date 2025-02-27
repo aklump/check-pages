@@ -4,6 +4,7 @@ namespace AKlump\CheckPages;
 
 use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\Messaging\MessengerInterface;
+use InvalidArgumentException;
 use Laminas\Xml2Json\Xml2Json;
 use Psr\Http\Message\MessageInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -58,7 +59,7 @@ trait SerializationTrait {
           array_unshift($data, 'Serialization Failure!', '');
           $printer->deliver(new DebugMessage($data));
         }
-        throw new \InvalidArgumentException(sprintf('Cannot serialize content of type "%s".', $type));
+        throw new InvalidArgumentException(sprintf('Cannot serialize content of type "%s".', $type));
     }
   }
 
@@ -124,7 +125,7 @@ trait SerializationTrait {
           ]));
         }
 
-        throw new \InvalidArgumentException(sprintf('Cannot deserialize content of type "%s".', $type));
+        throw new InvalidArgumentException(sprintf('Cannot deserialize content of type "%s".', $type));
     }
   }
 
