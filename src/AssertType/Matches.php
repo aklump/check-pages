@@ -17,7 +17,7 @@ class Matches extends LogicBase {
     $countable = [];
     foreach ($haystack as $item) {
       $passes_test = $this->applyCallbackWithVariations($item, function ($item_variation) use ($assert) {
-        if (preg_match($this->value, $item_variation, $matches)) {
+        if (preg_match((string) $this->value, (string) $item_variation, $matches)) {
           $needle = array_pop($matches);
           $assert->setNeedleIfNotSet($needle);
 

@@ -25,10 +25,13 @@ trait AllLogicTrait {
    *   True if the callback returns true at least once.
    */
   protected function applyCallbackWithVariations($item, callable $callback): bool {
-    return $callback($item)
-
+    $result = $callback($item);
+    if (!$result && is_string($item)) {
       // Replace ASCII 160 with 32.
-      || $callback(str_replace(' ', ' ', $item));
+      $result = $callback(str_replace(' ', ' ', $item));
+    }
+
+    return $result;
   }
 
 }
