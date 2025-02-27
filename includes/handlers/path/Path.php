@@ -58,7 +58,7 @@ final class Path implements HandlerInterface {
       $content_type = $this->getContentType($event->getDriver()
         ->getResponse());
       $data = $this->deserialize($response_body, $content_type);
-      $path = $assert->get('path');
+      $path = $assert->get('path') ?? '';
       $data = $this->valueToArray($data);
       $dot = DotArray::create($data);
       $value = $dot->get($path);
