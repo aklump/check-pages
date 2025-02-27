@@ -66,7 +66,6 @@ This quickstart is to paste the below into a terminal and execute it.  It will i
 
 ```shell
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/aklump/check_pages/refs/heads/master/setup-check-pages.sh)"
-/bin/bash /Users/aklump/Code/Packages/php/check-pages/setup-check-pages.sh
 ```
 
 {{ composer.install|raw }}
