@@ -9,7 +9,7 @@ If you want to check pages as an authenticated user of a website, then you have 
 
 ## Basic Setup
 
-This example will use the `drupal8` built-in authentication provider. _Note: for Drupal 7 authentication, simply change `add_mixin('drupal8'...` to `add_mixin('drupal7'...`_.
+This example will use the `drupal8` built-in authentication provider. _Note: for Drupal 7 authentication, simply change `add_mixin('drupal'...` to `add_mixin('drupal7'...`_.
 
 1. Create a YAML (or JSON) file containing user login credentials.  **Do not commit this to source control.** You can place this whereever, but in this example it will be located in the config directory as _config/users.yml_. You may list as many users as you want. Each record must have the keys `name` and `pass`. Yes, `pass` is the un-hashed plaintext password for the user, so be cautious.
 
@@ -23,11 +23,11 @@ This example will use the `drupal8` built-in authentication provider. _Note: for
       pass: secret5
     ```
 
-2. Add the following to your test runner file. This tells your _runner.php_ to include the Drupal 8 authentication and from where to pull the user data.
+2. Add the following to your test runner file.  This must come AFTER `load_config`.  This tells your _runner.php_ to include the Drupal 8 authentication and from where to pull the user data.
 
     ```php
     # File: runner.php
-    add_mixin('drupal8', [
+    add_mixin('drupal', [
       'users' => 'config/users.yml',
     ]); 
     ```
@@ -51,7 +51,7 @@ This example will use the `drupal8` built-in authentication provider. _Note: for
 1. If the login form is located at a non-standard URL, you may indicate that URL, which renders the login form, as shown here.
 
     ```php
-    add_mixin('drupal8', [
+    add_mixin('drupal', [
       'users' => 'config/users.yml',
       'login_url' => '/login',
     ]); 
@@ -74,7 +74,7 @@ This example will use the `drupal8` built-in authentication provider. _Note: for
 
    ```php
    # file: runner.php
-   add_mixin('drupal8', [
+   add_mixin('drupal', [
      'users' => config_get('extras.users'),
    ]); 
    ```
