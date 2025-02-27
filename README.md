@@ -1,14 +1,8 @@
-<!-- Compiled from ./source/README.md: DO NOT EDIT -->
-
-<!--
-title: Overview
--->
-
 # Check Pages
 
 ## Very Simple QA for HTTP
 
-![Check Pages](docs/images/check-pages.jpg)
+![Check Pages](images/check-pages.jpg)
 
 ## Heavy Development
 
@@ -16,7 +10,7 @@ title: Overview
 
 ## Summary
 
-This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain. You write your tests using YAML and they can be as simple as checking for a 200 HTTP response on the homepage.
+This project intends to provide a process of QA testing of a website, which is very fast to implement and simple to maintain. You write your tests using YAML and they can be as simple as checking for a 200 HTTP response on the homepage.  PHP is working under-the-hood, but general use does not require you to know PHP.
 
 ```yaml
 -
@@ -60,17 +54,32 @@ The mission of this tool is to provide testing for URLS and webpages in the most
 * _Test_ - A single URL check within a suite.
 * _Assertion_ - A single check action against the HTTP response of a test, i.e., headers, body, status code, javascript, etc.
 
-## Requirements
+## Stand-alone Installation
 
-* You must install with Composer.
-* Tests suites are written in YAML.
-* Little to no experience with PHP is necessary. Copy and paste will suffice.
+This quickstart is to paste the below into a terminal and execute it.  It will install check pages in your home directory.
 
-## Install
-
-```bash
-$ composer require aklump/check-pages --dev
+```shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/aklump/check_pages/refs/heads/master/setup-check-pages.sh)"
+/bin/bash /Users/aklump/Code/Packages/php/check-pages/setup-check-pages.sh
 ```
+
+## Install with Composer
+
+1. Because this is an unpublished package, you must define it's repository in
+   your project's _composer.json_ file. Add the following to _composer.json_ in
+   the `repositories` array:
+   
+    ```json
+    {
+     "type": "github",
+     "url": "https://github.com/aklump/check_pages"
+    }
+    ```
+1. Require this package:
+   
+    ```
+    composer require aklump/check-pages:^0.23
+    ```
 
 * In most cases the `--dev` is appropriate, but use your own discretion.
 * You will be asked if you want to create a directory for your tests when you install. This will copy over a basic scaffolding to build from.<sup>1</sup>
