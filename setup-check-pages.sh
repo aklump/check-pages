@@ -3,12 +3,12 @@
 ##
  # Install Check Pages as a Stand Along composer project
  #
- # @return 1 If installation fails.
- # @return 0 On success.
+ # @return 1 If installation fails
+ # @return 0 If inst
  ##
 
 # ========= Configuration =========
-install_dir_basename='check_pages'
+install_path="$HOME/.check_pages"
 
 # ========= Utility functions =========
 function error() {
@@ -32,18 +32,23 @@ function check_composer() {
 ! check_composer && error "Composer is missing; installation failed." && exit 1
 
 # Create destination directory
-! mkdir "$install_dir_basename" && error "Directory \"$install_dir_basename\" already exists." && exit 1
-! cd "$install_dir_basename" && error 'Cannot create stand-alone directory.' && exit 1
-status "Directory \"$install_dir_basename\" created."
+! mkdir -p "$install_path" && error "Directory \"$install_path\" already exists." && exit 1
+! cd "$install_path" && error 'Cannot create stand-alone directory.' && exit 1
+status "Directory \"$install_path\" created."
 
 # Composer installation
 ! echo '{"name":"aklump/check-pages-project","type":"project","require":{"aklump/check-pages":"^0.23.0"},"config":{"allow-plugins":{"wikimedia/composer-merge-plugin":true}}}' > composer.json && echo '' && exit 1
 ! composer install && error 'Cannot install dependencies.' && exit 1
 
+command_path='bin/check_pages'
+mkdir ./bin || exit 1
+cd ./bin || exit 1
+ln -s '../vendor/bin/check_pages' "$(basename "$command_path")" || exit 1
+
 # User feedback
-echo
-suggest "Optional, add this to your RC file"
-suggest "export PATH=\"$PWD/vendor/bin/check_pages:\$PATH\""
-echo
-status "Next step, get help: "
-status "./$install_dir_basename/vendor/bin/check_pages"
+suggest 'Optional: To make check_pages accessible from anywhere, add the following line'
+suggest 'to your shell startup file (e.g., ~/.bashrc, ~/.zshrc, or equivalent):'
+echo "export PATH=\"${install_path/$HOME/\$HOME}/$command_path:\$PATH\""
+suggest 'After adding the line, either restart your terminal or source the updated file.'
+status "Thank you for installing Check Pages, happy testing!"
+status "Get help: $install_path/$command_path"
