@@ -10,4 +10,3 @@ cd "$__DIR__/.."
 #./vendor/bin/phpunit -c tests_unit/phpunit.xml --testdox "$@"
 #export XDEBUG_MODE=$XDEBUG_MODE,coverage;./vendor/bin/phpunit -c tests_unit/phpunit.xml "$@" --coverage-html=tests_unit/reports
 #echo tests_unit/reports/index.html
-

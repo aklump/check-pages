@@ -1,6 +1,7 @@
 -
     loop:
         - /handlers/table.csv
+        - /handlers/table.csv2
         - /handlers/table.tsv
         - /handlers/table.psv
 -

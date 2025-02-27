@@ -77,5 +77,11 @@
         "includes/handlers/path/composer.json"
       ]
     }
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "wikimedia/composer-merge-plugin": true
+    }
   }
 }
