@@ -1,5 +1,6 @@
 ## Critical
 
+- look into upgrading per https://github.com/aklump/check-pages/security/dependabot
 - rewrite homepage with Composer install
 - finish docs, especially the hooks
 - dynamically add the `/extra/merge-plugin/require` section for handlers so they are auto added.
