@@ -1,0 +1,2 @@
+all_suites:
+    - event_hook/suite
