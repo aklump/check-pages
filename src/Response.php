@@ -3,7 +3,9 @@
 namespace AKlump\CheckPages;
 
 use GuzzleHttp\Psr7\MessageTrait;
+use GuzzleHttp\Psr7\Utils;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * Generic response to use to handle odd situations, like 500 responses etc.
@@ -12,15 +14,9 @@ class Response implements ResponseInterface {
 
   use MessageTrait;
 
-  /**
-   * @var string
-   */
-  protected $body;
+  protected string $body;
 
-  /**
-   * @var int
-   */
-  protected $statusCode;
+  protected int $statusCode;
 
   /**
    * @param string $body
@@ -39,22 +35,23 @@ class Response implements ResponseInterface {
   /**
    * @inheritDoc
    */
-  public function getBody() {
-    return $this->body;
+  public function getBody(): StreamInterface {
+    return Utils::streamFor($this->body);
   }
 
   /**
    * @inheritDoc
    */
-  public function getStatusCode() {
+  public function getStatusCode(): int {
     return $this->statusCode;
   }
 
-  public function withStatus($code, $reasonPhrase = '') {
+  public function withStatus($code, $reasonPhrase = ''): ResponseInterface {
     // TODO: Implement withStatus() method.
   }
 
-  public function getReasonPhrase() {
+  public function getReasonPhrase(): string {
     // TODO: Implement getReasonPhrase() method.
+    return '';
   }
 }

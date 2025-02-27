@@ -5,45 +5,27 @@ namespace AKlump\CheckPages\Service;
 use AKlump\CheckPages\CheckPages;
 use AKlump\CheckPages\Plugin\HandlersManager;
 use AKlump\LoftLib\Code\Strings;
+use RuntimeException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Yaml\Yaml;
 
 final class AppCompiler {
 
-  /**
-   * @var string
-   */
-  private $masterSchemaPath;
+  private string $masterSchemaPath;
 
-  /**
-   * @var \AKlump\CheckPages\Plugin\HandlersManager
-   */
-  private $pluginsManager;
+  private HandlersManager $pluginsManager;
 
-  /**
-   * @var array
-   */
-  private $schema;
+  private array $schema;
 
-  /**
-   * @var string
-   */
-  private $examplesPath;
+  private string $examplesPath;
 
-  /**
-   * @var string
-   */
-  private $generatedSchemaPath;
+  private string $generatedSchemaPath;
 
-  /**
-   * @var string
-   */
-  private $masterComposerJsonPath;
+  private string $masterServicesPath;
 
-  /**
-   * @var string
-   */
-  private $generatedComposerJsonPath;
+  private string $generatedServicesPath;
+
+  private array $services;
 
 
   /**
@@ -103,7 +85,7 @@ final class AppCompiler {
         $output_base_dir = $this->examplesPath;
         $result = require $special_compiler_path;
         if (!$result) {
-          throw new \RuntimeException(sprintf("Compilation failed in %s.", basename($handler['path']) . '/compile.php'));
+          throw new RuntimeException(sprintf("Compilation failed in %s.", basename($handler['path']) . '/compile.php'));
         }
       }
     }
@@ -126,7 +108,7 @@ final class AppCompiler {
     $runner_file_path = $this->examplesPath . '/tests/handlers_runner.php';
     $result = file_put_contents($runner_file_path, implode(PHP_EOL, $runner_code));
     if (!$result) {
-      throw new \RuntimeException(sprintf('Cannot create runner file: %s', $runner_file_path));
+      throw new RuntimeException(sprintf('Cannot create runner file: %s', $runner_file_path));
     }
   }
 
@@ -168,8 +150,10 @@ final class AppCompiler {
    *   The plugin ID.
    * @param string $handler_path
    *   The filepath to the plugin definition directory.
+   *
+   * @return bool
    */
-  private function handleTests(string $id, string $handler_path) {
+  private function handleTests(string $id, string $handler_path): bool {
     $this->ensureDir(sprintf('%s/tests/%s', $this->examplesPath, CheckPages::DIR_HANDLERS));
     $this->ensureDir(sprintf('%s/web/%s', $this->examplesPath, CheckPages::DIR_HANDLERS));
 
@@ -218,7 +202,7 @@ final class AppCompiler {
    */
   private function compilePluginSchema(string $id, string $path_to_handler) {
     if (isset($this->schema['definitions'][$id])) {
-      throw new \RuntimeException(sprintf('Plugin ID conflict; %s.definitions.%s already exists', basename($this->masterSchemaPath), $id));
+      throw new RuntimeException(sprintf('Plugin ID conflict; %s.definitions.%s already exists', basename($this->masterSchemaPath), $id));
     }
 
     $before = md5(json_encode($this->schema));
@@ -229,7 +213,7 @@ final class AppCompiler {
       $definitions_schema = $this->loadJson($definitions_schema);
       $conflicting_keys = array_intersect_key($this->schema['definitions'], $definitions_schema);
       if ($conflicting_keys) {
-        throw new \RuntimeException(sprintf('The following definitions exist in the master schema and cannot be added by the handler %s: %s', $id, implode(', ', $conflicting_keys)));
+        throw new RuntimeException(sprintf('The following definitions exist in the master schema and cannot be added by the handler %s: %s', $id, implode(', ', $conflicting_keys)));
       }
       $this->schema['definitions'] += $definitions_schema;
     }
@@ -272,7 +256,7 @@ final class AppCompiler {
    *
    * @throws \RuntimeException If the handler provides any globals.
    */
-  private function handleGlobalSchemaProperties(array $schema) {
+  private function handleGlobalSchemaProperties(array $schema): array {
     if (empty($schema['properties'])) {
       return $schema;
     }
@@ -286,7 +270,7 @@ final class AppCompiler {
     $properties = [];
     foreach ($globals as $property => $ref) {
       if (isset($schema[$property])) {
-        throw new \RuntimeException(sprintf('Your handler schema must not include "%s".', $property));
+        throw new RuntimeException(sprintf('Your handler schema must not include "%s".', $property));
       }
       $properties[$property] = [
         '$ref' => $ref,
@@ -302,7 +286,7 @@ final class AppCompiler {
   private function loadJson(string $filepath): array {
     $data = json_decode(file_get_contents($filepath), TRUE);
     if (is_null($data)) {
-      throw new \RuntimeException(sprintf('Invalid JSON in %s', $filepath));
+      throw new RuntimeException(sprintf('Invalid JSON in %s', $filepath));
     }
 
     return $data;
@@ -315,13 +299,13 @@ final class AppCompiler {
     }
     $result = file_put_contents($filepath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     if (!$result) {
-      throw new \RuntimeException(sprintf('Could not save %s', $filepath));
+      throw new RuntimeException(sprintf('Could not save %s', $filepath));
     }
 
     return $this;
   }
 
-  private function generateServicesFile() {
+  private function generateServicesFile(): self {
     $filepath = $this->generatedServicesPath;
     $directory = dirname($filepath);
     if (!file_exists($directory)) {
@@ -329,7 +313,7 @@ final class AppCompiler {
     }
     $result = file_put_contents($filepath, Yaml::dump($this->services, 4));
     if (!$result) {
-      throw new \RuntimeException(sprintf('Could not save %s', $this->generatedServicesPath));
+      throw new RuntimeException(sprintf('Could not save %s', $this->generatedServicesPath));
     }
 
     return $this;

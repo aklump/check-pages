@@ -5,7 +5,6 @@
  * Entry file for Check Pages CLI.
  */
 
-use AKlump\CheckPages\CheckPages;
 use AKlump\CheckPages\Command\InitCommand;
 use AKlump\CheckPages\Command\RunCommand;
 use AKlump\CheckPages\Files\LocalFilesProvider;
@@ -25,8 +24,8 @@ foreach ([
     break;
   }
 }
-if (!$class_loader) {
-  throw new \RuntimeException('Missing autoload.php');
+if (!isset($class_loader)) {
+  throw new RuntimeException('Missing autoload.php');
 }
 
 $root_files = new LocalFilesProvider(__DIR__);

@@ -8,7 +8,12 @@ use AKlump\CheckPages\Traits\BaseUrlTrait;
 use AKlump\Messaging\MessengerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Psr7\Utils;
+use InvalidArgumentException;
+use Psr\Http\Message\MessageInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -26,45 +31,39 @@ abstract class RequestDriver implements RequestDriverInterface {
    */
   const MAX_REDIRECTS = 10;
 
-  protected $method = 'GET';
+  protected string $method = 'GET';
 
-  protected $body = '';
+  protected string $body = '';
 
   /**
    * @var string
    */
-  private $url = '';
+  private string $url = '';
 
   /**
-   * @var \Psr\Http\Message\ResponseInterface
+   * @var \Psr\Http\Message\ResponseInterface|null
    */
-  protected $response;
+  protected  $response;
 
-  protected $headers;
+  protected array $headers;
 
-  /**
-   * @var int
-   */
-  protected $requestTimeoutInSeconds = 20;
+  protected int $requestTimeoutInSeconds = 20;
 
   /**
    * Keep protected so children can set if they want.
    *
-   * @var string
+   * @var string|null
    */
   private $location;
 
   /**
    * Keep protected so children can set if they want.
    *
-   * @var int
+   * @var int|null
    */
   private $redirectCode;
 
-  /**
-   * @var \AKlump\Messaging\MessengerInterface
-   */
-  private $messenger;
+  private MessengerInterface $messenger;
 
   /**
    * {@inheritdoc}
@@ -77,7 +76,7 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * @param string $method
    *
-   * @return
+   * @return self
    *   Self for chaining.
    */
   public function setMethod(string $method): self {
@@ -89,7 +88,7 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * @param string $body
    *
-   * @return
+   * @return self
    *   Self for chaining.
    */
   public function setBody(string $body): self {
@@ -101,11 +100,11 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * {@inheritdoc}
    */
-  public function setUrl(string $url): RequestDriverInterface {
-    if (!preg_match('/^http/i', $url)) {
-      throw new \InvalidArgumentException(sprintf('$url must be an absolute URL; "%s" is not', $url));
+  public function setUrl(string $absolute_url): RequestDriverInterface {
+    if (!preg_match('/^http/i', $absolute_url)) {
+      throw new InvalidArgumentException(sprintf('$absolute_url must be an absolute URL; "%s" is not', $absolute_url));
     }
-    $this->url = $url;
+    $this->url = $absolute_url;
     $this->location = NULL;
     $this->redirectCode = NULL;
 
@@ -121,13 +120,10 @@ abstract class RequestDriver implements RequestDriverInterface {
     return $this->url ?? '';
   }
 
-  public function getClient(array $options = []) {
+  public function getClient(array $options = []): Client {
     return new Client($options + ['verify' => !$this->allowInvalidCertificate()]);
   }
 
-  /**
-   * {@inheritdoc}
-   */
   public function setHeader(string $key, string $value): RequestDriverInterface {
     $this->headers[$key] = $value;
 
@@ -144,7 +140,7 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * {@inheritdoc}
    */
-  public function getHeader($name) {
+  public function getHeader($name): array {
     $headers = array_change_key_case($this->getHeaders());
     if (empty($headers[$name])) {
       return [];
@@ -156,14 +152,14 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * {@inheritdoc}
    */
-  public function hasHeader(string $name) {
+  public function hasHeader(string $name): bool {
     return array_key_exists($name, array_change_key_case($this->getHeaders()));
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getBody() {
+  public function getBody(): StreamInterface {
     // TODO The interface says this has to return as a StreamResource, how to?
     $string = [];
     if ($this->body) {
@@ -175,7 +171,8 @@ abstract class RequestDriver implements RequestDriverInterface {
       $string[] = $body;
     }
 
-    return implode(PHP_EOL, $string) . PHP_EOL;
+    $string = implode(PHP_EOL, $string) . PHP_EOL;
+    return Utils::streamFor($string);
   }
 
   public function __toString() {
@@ -252,61 +249,61 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * {@inheritdoc}
    */
-  public function getProtocolVersion() {
+  public function getProtocolVersion(): string {
     // TODO: Implement getProtocolVersion() method.
   }
 
-  public function withProtocolVersion(string $version) {
+  public function withProtocolVersion(string $version): MessageInterface {
     // TODO: Implement withProtocolVersion() method.
   }
 
-  public function getHeaderLine(string $name) {
+  public function getHeaderLine(string $name): string {
     // TODO: Implement getHeaderLine() method.
   }
 
-  public function withHeader(string $name, $value) {
+  public function withHeader(string $name, $value): MessageInterface {
     // TODO: Implement withHeader() method.
   }
 
-  public function withAddedHeader(string $name, $value) {
+  public function withAddedHeader(string $name, $value): MessageInterface {
     // TODO: Implement withAddedHeader() method.
   }
 
-  public function withoutHeader(string $name) {
+  public function withoutHeader(string $name): MessageInterface {
     // TODO: Implement withoutHeader() method.
   }
 
-  public function withBody(\Psr\Http\Message\StreamInterface $body) {
+  public function withBody(StreamInterface $body): MessageInterface {
     // TODO: Implement withBody() method.
   }
 
-  public function getRequestTarget() {
+  public function getRequestTarget(): string {
     // TODO: Implement getRequestTarget() method.
   }
 
-  public function withRequestTarget(string $requestTarget) {
+  public function withRequestTarget(string $requestTarget): RequestInterface {
     // TODO: Implement withRequestTarget() method.
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getMethod() {
+  public function getMethod(): string {
     return $this->method ?? '';
   }
 
-  public function withMethod(string $method) {
+  public function withMethod(string $method): RequestInterface {
     // TODO: Implement withMethod() method.
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getUri() {
+  public function getUri(): UriInterface {
     return new Uri($this->url ?? '');
   }
 
-  public function withUri(UriInterface $uri, bool $preserveHost = FALSE) {
+  public function withUri(UriInterface $uri, bool $preserveHost = FALSE): RequestInterface {
     // TODO: Implement withUri() method.
   }
 
