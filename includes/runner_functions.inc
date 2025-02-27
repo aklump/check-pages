@@ -11,7 +11,7 @@ use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Helpers\AssertRunSuiteNotCalled;
 use AKlump\CheckPages\Parts\Suite;
-use MidwestE\ObjectPath;
+use Jasny\DotKey;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -70,10 +70,11 @@ function config_get($config_path) {
   global $container;
   $runner = $container->get('runner');
   try {
-    $o = new ObjectPath($runner->getConfig());
+    $delimiter = '.';
+    $o = DotKey::on($runner->getConfig());
     if (!$o->exists($config_path)) {
-      if (strstr($config_path, $o->getDelimiter()) === FALSE) {
-        throw new RuntimeException(sprintf('No data at path "%s". Are you using the correct path delimiter "%s"?', $config_path, $o->getDelimiter()));
+      if (strstr($config_path, $delimiter) === FALSE) {
+        throw new RuntimeException(sprintf('No data at path "%s". Are you using the correct path delimiter "%s"?', $config_path, $delimiter));
       }
       throw new RuntimeException(sprintf('The configuration %s does not exist.', $config_path));
     }

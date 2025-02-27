@@ -11,11 +11,11 @@ use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\SerializationTrait;
 use AKlump\Messaging\MessageType;
+use Jasny\DotKey;
 use JsonSchema\Constraints\Factory;
 use JsonSchema\Exception\ResourceNotFoundException;
 use JsonSchema\SchemaStorage;
 use JsonSchema\Validator;
-use MidwestE\ObjectPath;
 use RuntimeException;
 
 /**
@@ -78,8 +78,7 @@ final class JsonSchema implements HandlerInterface {
       $item = $this->deserialize($item, $content_type);
       $path = $assert->path ?? NULL;
       if ($path) {
-        $o = new ObjectPath($item);
-        $item = $o->get($path);
+        $item = DotKey::on($item)->get($path);
       }
 
       return $item;
