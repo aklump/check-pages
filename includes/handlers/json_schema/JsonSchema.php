@@ -7,7 +7,10 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
+use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\SerializationTrait;
+use AKlump\Messaging\MessageType;
 use JsonSchema\Constraints\Factory;
 use JsonSchema\Exception\ResourceNotFoundException;
 use JsonSchema\SchemaStorage;
@@ -41,6 +44,12 @@ final class JsonSchema implements HandlerInterface {
     return [
       Event::ASSERT_CREATED => [
         function (AssertEventInterface $event) {
+          if ($event->getAssert()->has('json_schema')) {
+            $event->getTest()
+              ->addMessage(new Message(['"json_schema" is not used; did you mean "schema"?'], MessageType::ERROR, Verbosity::VERBOSE));
+
+            return;
+          }
           if (!$event->getAssert()->has('schema')) {
             return;
           }
