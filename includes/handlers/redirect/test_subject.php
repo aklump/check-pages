@@ -40,7 +40,7 @@ else {
 
     // Step 3
     case '/aliased-path':
-      header("HTTP/1.1 200: OK");
+      header("HTTP/1.1 200 OK");
       echo "<h1>Aliased Path</h1>";
       break;
 
