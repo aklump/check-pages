@@ -1,0 +1,82 @@
+title: 'Check Pages'
+uuid: 9434303a-af3b-4c23-bc84-8c7f090e0b18
+chapters:
+  -
+    id: general
+    title: 'How to Use'
+    pages:
+      - readme
+      - cheatsheet
+      - why
+      - authentication
+      - files
+      - changelog
+      - xdebug
+      - dates
+      - expected_outcome
+      - forms__drupal
+      - grouping
+      - install
+      - interpolation
+      - lando
+      - matches
+      - multiple_dom_elements
+      - php_version
+      - phpstorm
+      - retest
+      - skipping_tests
+      - stash
+      - suite_index
+      - testing_legacy
+      - unit_tests
+      - cli
+  -
+    id: extend
+    title: Extending
+    pages:
+      - ex__ssl
+      - options
+      - events
+      - handlers
+      - imports
+      - mixins
+      - shorthand
+      - ext__snippets
+  -
+    id: dev
+    title: Dev
+    pages:
+      - dev__code_flow
+      - dev__http
+      - dev__output
+      - development
+  -
+    id: deep
+    title: 'Going Deeper'
+    pages:
+      - custom_dirs
+      - deep__organizing
+      - setup
+      - variables
+  -
+    id: code
+    title: Code
+    pages:
+      - code__add_test_option
+      - code__modify_response_body
+  -
+    id: demo
+    title: 'Handlers and Example Tests'
+    pages:
+      - javascript
+  -
+    id: config
+    title: Config
+    pages:
+      - config__secrets
+      - config__suites_to_ignore
+  -
+    id: special
+    title: Special
+    pages:
+      - pdfs
