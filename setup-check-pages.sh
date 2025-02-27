@@ -3,12 +3,15 @@
 ##
  # Install Check Pages as a Stand Along composer project
  #
+ # @param string Optional, Check Pages version constraint e.g. "0.19.1", "@dev"
+ #
  # @return 1 If installation fails
  # @return 0 If inst
  ##
 
 # ========= Configuration =========
 install_path="$HOME/.check_pages"
+install_version="${1:-^0}"
 
 # ========= Utility functions =========
 function error() {
@@ -37,7 +40,7 @@ function check_composer() {
 status "Directory \"$install_path\" created."
 
 # Composer installation
-! echo '{"name":"aklump/check-pages-project","type":"project","require":{"aklump/check-pages":"^0.23.0"},"config":{"allow-plugins":{"wikimedia/composer-merge-plugin":true}}}' > composer.json && echo '' && exit 1
+! printf '{"name":"aklump/check-pages-project","type":"project","require":{"aklump/check-pages":"%s"},"config":{"allow-plugins":{"wikimedia/composer-merge-plugin":true}}}' "$install_version" > composer.json && echo '' && exit 1
 ! composer install && error 'Cannot install dependencies.' && exit 1
 
 command_path='bin/check_pages'
