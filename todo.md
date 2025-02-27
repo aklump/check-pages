@@ -4,6 +4,7 @@
 - rewrite homepage with Composer install
 - finish docs, especially the hooks
 - dynamically add the `/extra/merge-plugin/require` section for handlers so they are auto added.
+- in TestRunner on line 196 ( $assert = $assert_runner->run(new Assert($id, $definition, $test));)) if JsonSchema.php tries to include a class not exists, there is no error output.
 
 ## Normal
 
