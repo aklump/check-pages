@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Support for Drupal 8 websites.
+ * Support for Drupal websites.
  *
  * Installation:
  *
@@ -43,6 +43,7 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\HTTP\Session;
 use AKlump\LoftLib\Bash\Color;
 
 /** @var \AKlump\CheckPages\Parts\Runner $runner */
@@ -114,13 +115,13 @@ respond_to(Event::SUITE_STARTED, function (SuiteEventInterface $suite_event) {
       ->getRunner()
       ->getLogFiles();
 
-    if (strstr(AuthenticateDrupalBase::LOG_FILE_PATH, '/') !== FALSE) {
-      $top_dir = explode('/', AuthenticateDrupalBase::LOG_FILE_PATH)[0];
+    if (strstr(AuthenticateDrupal::LOG_FILE_PATH, '/') !== FALSE) {
+      $top_dir = explode('/', AuthenticateDrupal::LOG_FILE_PATH)[0];
       $filepath = $log_files->tryResolveDir($top_dir)[0];
       $log_files->tryEmptyDir($filepath);
     }
     else {
-      $filepath = $log_files->tryResolveFile(AuthenticateDrupalBase::LOG_FILE_PATH)[0];
+      $filepath = $log_files->tryResolveFile(AuthenticateDrupal::LOG_FILE_PATH)[0];
       unlink($filepath);
     }
   }

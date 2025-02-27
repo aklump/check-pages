@@ -10,17 +10,6 @@ namespace AKlump\CheckPages\Helpers;
 interface AuthenticationInterface {
 
   /**
-   * Return data about a user.
-   *
-   * @param string $username
-   *   The username to lookup.
-   *
-   * @return \AKlump\CheckPages\Helpers\UserInterface
-   *   At least the keys: name and pass.
-   */
-  public function getUser(string $username): UserInterface;
-
-  /**
    * Login a user.
    *
    * @param \AKlump\CheckPages\Helpers\UserInterface $user

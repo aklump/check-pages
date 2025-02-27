@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages\Files;
 
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
+use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\Config\Exception\FileLocatorFileNotFoundException;
 use Symfony\Component\Config\FileLocatorInterface;
@@ -41,13 +42,13 @@ final class LocalFilesProvider implements FilesProviderInterface, FileLocatorInt
    */
   private function tryAssertPathIsAbsolutePath(string $path) {
     if (!$this->isAbsolutePath($path)) {
-      throw new \InvalidArgumentException(sprintf('The path must be an absolute path; "%s" is not.', $path));
+      throw new InvalidArgumentException(sprintf('The path must be an absolute path; "%s" is not.', $path));
     }
   }
 
   private function tryAssertNoLeadingDot(string $path) {
     if ('.' === $path[0]) {
-      throw new \InvalidArgumentException(sprintf('Relative paths may not begin with a dot; "%s" is invalid', $path));
+      throw new InvalidArgumentException(sprintf('Relative paths may not begin with a dot; "%s" is invalid', $path));
     }
   }
 
@@ -155,7 +156,7 @@ final class LocalFilesProvider implements FilesProviderInterface, FileLocatorInt
   public function addResolveDir(string $directory, string $mode = FilesProviderInterface::MODE_READONLY): FilesProviderInterface {
     if (!$this->isAbsolutePath($directory)) {
       if (empty($this->baseDir)) {
-        throw new \InvalidArgumentException(sprintf('The relative directory "%s" cannot be made absolute due to missing base directory.', $directory));
+        throw new InvalidArgumentException(sprintf('The relative directory "%s" cannot be made absolute due to missing base directory.', $directory));
       }
       $directory = $this->baseDir . '/' . $directory;
     }
@@ -277,7 +278,7 @@ final class LocalFilesProvider implements FilesProviderInterface, FileLocatorInt
     // resolved directories, which if relative will be made absolute using the
     // base directory.
     if (!$this->isAbsolutePath($absolute_dir)) {
-      throw new \InvalidArgumentException(sprintf('The base resolve directory must be an absolute path; "%s" is not.', $absolute_dir));
+      throw new InvalidArgumentException(sprintf('The base resolve directory must be an absolute path; "%s" is not.', $absolute_dir));
     }
     $this->addResolveDir($absolute_dir, $mode);
     $this->baseDir = $absolute_dir;
