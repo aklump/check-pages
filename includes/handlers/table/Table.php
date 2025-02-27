@@ -116,7 +116,11 @@ final class Table implements HandlerInterface {
   private function parseTabularData(string $tabular_data): array {
     $parser = new Csv();
     $enclosure = $this->autoDetectEnclosure($tabular_data);
-    $parser->delimiter = $parser->autoDetectionForDataString($tabular_data, TRUE, NULL, NULL, $enclosure);
+
+    // Note, passing \ParseCsv\Csv::$auto_preferred because passing NULL causes
+    // PHP notices in PHP because parsecsv/php-parsecsv doesn't handle null
+    // correctly as of version 1.3.2.
+    $parser->delimiter = $parser->autoDetectionForDataString($tabular_data, TRUE, NULL, $parser->auto_preferred, $enclosure);
     $parser->parse($tabular_data);
 
     return [$parser->titles, $parser->data];
