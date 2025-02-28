@@ -22,7 +22,8 @@
         "includes/handlers/dom",
         "includes/handlers/xpath",
         "includes/handlers/value",
-        "includes/handlers/evaluate"
+        "includes/handlers/evaluate",
+        "includes/handlers/form"
       ]
     }
   },
