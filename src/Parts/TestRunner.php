@@ -147,7 +147,11 @@ final class TestRunner implements EventDispatcherInterface {
         $variables = $test->getSuite()->variables();
 
         $assertions_to_wait_for = [];
-        foreach (($test->get('find') ?? []) as $config) {
+        $find_data = $test->get('find');
+        if (empty($find_data)) {
+          $find_data = [];
+        }
+        foreach ($find_data as $config) {
           if (!is_array($config)
             || !array_intersect_key(array_flip(['dom', 'xpath']), $config)
             || array_intersect_key(array_flip(['style']), $config)
@@ -181,8 +185,8 @@ final class TestRunner implements EventDispatcherInterface {
     //
     // Do the assertions.
     //
-    $assertions = $test->get('find') ?? [];
-    if (!$test->hasFailed() && count($assertions) > 0) {
+    $assertions = $test->get('find');
+    if (!empty($assertions)  && !$test->hasFailed()&& count($assertions) > 0) {
       $id = 0;
       $assert_runner = new AssertRunner($this->getDriver());
       while ($definition = array_shift($assertions)) {
