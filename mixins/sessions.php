@@ -67,15 +67,17 @@ add_test_option('user', [
     $user = (new FilterUsersByName($users))($username);
     if ($user) {
       $session->setUser($user);
+      $session_data = $user->getProperty('session');
+      $session->setName($session_data['name'] ?? '');
+      $session->setValue($session_data['value'] ?? '');
     }
-    $session->setSessionCookie($user ? $user->getProperty('session') : '');
 
     //
     // Set the session cookie header
     //
     $cookie = $session->getSessionCookie();
     if (!$cookie) {
-      throw new StopRunnerException("No session found for user $username");
+      throw new StopRunnerException("No session found for user: $username");
     }
     $event->getDriver()->setHeader('Cookie', $cookie);
 
