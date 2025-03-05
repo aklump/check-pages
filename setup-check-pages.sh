@@ -44,7 +44,7 @@ status "Directory \"$install_path\" created."
 ! composer install && error 'Cannot install dependencies.' && exit 1
 
 command_path='bin/checkpages'
-mkdir ./bin || exit 1
+mkdir -p ./bin || exit 1
 cd ./bin || exit 1
 ln -s '../vendor/bin/checkpages' "$(basename "$command_path")" || exit 1
 
