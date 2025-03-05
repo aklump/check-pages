@@ -5,8 +5,8 @@
  #
  # @param string Optional, Check Pages version constraint e.g. "0.19.1", "@dev"
  #
- # @return 1 If installation fails
- # @return 0 If inst
+ # @return 1 If installation fails.
+ # @return 0 If installation succeeds.
  ##
 
 # ========= Configuration =========
@@ -28,11 +28,15 @@ function suggest() {
 }
 function check_composer() {
   command -v composer &> /dev/null
-  return $?
+}
+
+function is_installed() {
+  [[ -d "$install_path" ]]
 }
 
 # ========= Execute installation =========
 ! check_composer && error "Composer is missing; installation failed." && exit 1
+is_installed && error "Check Pages is already installed." && error "$install_path" && exit 1
 
 # Create destination directory
 ! mkdir -p "$install_path" && error "Directory \"$install_path\" already exists." && exit 1
@@ -44,7 +48,7 @@ status "Directory \"$install_path\" created."
 ! composer install && error 'Cannot install dependencies.' && exit 1
 
 command_path='bin/checkpages'
-mkdir ./bin || exit 1
+mkdir -p ./bin || exit 1
 cd ./bin || exit 1
 ln -s '../vendor/bin/checkpages' "$(basename "$command_path")" || exit 1
 
