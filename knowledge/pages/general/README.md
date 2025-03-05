@@ -50,20 +50,16 @@ In a third test we can assert there is one logo image on the homepage, like so:
 Lastly, make sure there are no unprocessed tokens on the page (a.k.a. a substring does not appear):
 
 ```yaml
-- visit: /
+-
+  visit: /
   find:
-    - not contains: '[site:name]'
+    -
+      not contains: '[site:name]'
 ```
 
 For more code examples explore the _/examples_ directory.
 
-## Installation
-
-Paste the below into a terminal and execute it. It will install check pages in your home directory. Composer is required.
-
-```shell
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/aklump/check_pages/refs/heads/master/setup-check-pages.sh)"
-```
+{{ installer.instructions|raw }}
 
 ## Documentation
 
