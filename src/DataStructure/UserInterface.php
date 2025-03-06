@@ -1,8 +1,12 @@
 <?php
 
-namespace AKlump\CheckPages\Helpers;
+namespace AKlump\CheckPages\DataStructure;
 
 interface UserInterface {
+
+  public function setProperty(string $name, $value);
+
+  public function getProperty($name);
 
   /**
    * Returns the unaltered login name of this account.

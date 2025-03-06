@@ -1,23 +1,35 @@
 <?php
 
-namespace AKlump\CheckPages\Helpers;
+namespace AKlump\CheckPages\DataStructure;
 
 use JsonSerializable;
 
 class User implements UserInterface, JsonSerializable {
 
-  protected $name;
+  protected string $name;
 
-  protected $mail;
+  protected string $mail;
 
-  protected $uid;
+  protected int $uid;
 
-  protected $pass;
+  protected string $pass;
+
+  protected array $properties = [];
+
+  /**
+   * @param string $name
+   * @param string|null $pass
+   */
+  public function __construct(string $name, string $pass = NULL) {
+    $this->name = $name;
+    $this->pass = $pass;
+  }
+
 
   /**
    * @param mixed $name
    *
-   * @return \AKlump\CheckPages\Helpers\UserInterface
+   * @return \AKlump\CheckPages\DataStructure\UserInterface
    *   Self for chaining.
    */
   public function setAccountName($name): UserInterface {
@@ -29,7 +41,7 @@ class User implements UserInterface, JsonSerializable {
   /**
    * @param mixed $mail
    *
-   * @return \AKlump\CheckPages\Helpers\UserInterface
+   * @return \AKlump\CheckPages\DataStructure\UserInterface
    *   Self for chaining.
    */
   public function setEmail($mail): UserInterface {
@@ -41,7 +53,7 @@ class User implements UserInterface, JsonSerializable {
   /**
    * @param mixed $uid
    *
-   * @return \AKlump\CheckPages\Helpers\UserInterface
+   * @return \AKlump\CheckPages\DataStructure\UserInterface
    *   Self for chaining.
    */
   public function setId($uid): UserInterface {
@@ -53,7 +65,7 @@ class User implements UserInterface, JsonSerializable {
   /**
    * @param mixed $pass
    *
-   * @return \AKlump\CheckPages\Helpers\UserInterface
+   * @return \AKlump\CheckPages\DataStructure\UserInterface
    *   Self for chaining.
    */
   public function setPassword($pass): UserInterface {
@@ -94,5 +106,13 @@ class User implements UserInterface, JsonSerializable {
       'pass' => $this->getPassword(),
       'mail' => $this->getEmail(),
     ];
+  }
+
+  public function setProperty(string $name, $value) {
+    $this->properties[$name] = $value;
+  }
+
+  public function getProperty($name) {
+    return $this->properties[$name] ?? NULL;
   }
 }

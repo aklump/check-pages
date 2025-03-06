@@ -1,11 +1,15 @@
 <?php
 
-namespace AKlump\CheckPages\Helpers;
+namespace AKlump\CheckPages\Files;
 
+use AKlump\CheckPages\DataStructure\User;
+use InvalidArgumentException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
  * Load user list from data file.
+ *
+ * @see \AKlump\CheckPages\Helpers\FilterUsersByName
  */
 class LoadUsers {
 
@@ -14,9 +18,14 @@ class LoadUsers {
    * user credentials.  It should contain an array of arrays, each with a duplet
    * of keys [(user|name|username),(pass|password)].
    *
-   * @return \AKlump\CheckPages\Helpers\User[]
+   * @return \AKlump\CheckPages\DataStructure\User[]
+   *
+   * @throws \InvalidArgumentException If $users_file does not exist.
    */
   public function __invoke(string $users_file): array {
+    if (!file_exists($users_file)) {
+      throw new InvalidArgumentException(sprintf('Users file "%s" does not exist.', $users_file));
+    }
     // Load our non-version username/password index.
     switch (pathinfo($users_file, PATHINFO_EXTENSION)) {
       case 'yaml':
@@ -33,16 +42,24 @@ class LoadUsers {
     }
 
     return array_map(function ($user_data) {
-      $password = $this->getPasswordFromData($user_data);
-      $username = $this->getUsernameFromData($user_data);
+      $name_key = NULL;
+      $pass_key = NULL;
+      $user = new User(
+        $this->getUsernameFromData($user_data, $pass_key),
+        $this->getPasswordFromData($user_data, $name_key),
+      );
+      foreach ($user_data as $name => $value) {
+        if (in_array($name, [$name_key, $pass_key])) {
+          continue;
+        }
+        $user->setProperty($name, $value);
+      }
 
-      return (new User())
-        ->setAccountName($username)
-        ->setPassword($password);
+      return $user;
     }, $users_data);
   }
 
-  private function getPasswordFromData($user_data): string {
+  private function getPasswordFromData($user_data, &$key): string {
     if (isset($user_data['pass'])) {
       return $user_data['pass'];
     }
@@ -53,7 +70,7 @@ class LoadUsers {
     return '';
   }
 
-  private function getUsernameFromData($user_data): string {
+  private function getUsernameFromData($user_data, &$key): string {
     if (isset($user_data['name'])) {
       return $user_data['name'];
     }
