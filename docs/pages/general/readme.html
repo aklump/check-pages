@@ -4,9 +4,9 @@
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.23.0">
-      <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.23.0">
-      <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.23.0">
+      <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.23.1">
+      <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.23.1">
+      <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.23.1">
     <title>Check Pages | Check Pages</title>
 </head>
 <body class="my-5">
@@ -68,14 +68,16 @@
       count: 1
 </code></pre>
 <p>Lastly, make sure there are no unprocessed tokens on the page (a.k.a. a substring does not appear):</p>
-<pre><code class="yaml">- visit: /
+<pre><code class="yaml">-
+  visit: /
   find:
-    - not contains: '[site:name]'
+    -
+      not contains: '[site:name]'
 </code></pre>
 <p>For more code examples explore the <em>/examples</em> directory.</p>
 <h2>Installation</h2>
-<p>Paste the below into a terminal and execute it. It will install check pages in your home directory. Composer is required.</p>
-<pre><code class="shell">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/aklump/check_pages/refs/heads/master/setup-check-pages.sh)"
+<p>Execute the following snippet in your terminal, which will install Check Pages in your home directory.  <a href="https://getcomposer.org/">Composer</a> is required for this to work.</p>
+<pre><code class="shell">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/aklump/check-pages/refs/heads/master/setup-check-pages.sh)"
 </code></pre>
 <h2>Documentation</h2>
 <p>https://aklump.github.io/check-pages/</p>
@@ -86,9 +88,9 @@
   <footer class="footer d-flex justify-content-center">
     <div class="flex-column justify-content-center">
               Version:
-        <strong>0.23.0</strong>
+        <strong>0.23.1</strong>
         &bull;
-                    Last Update: <strong>2/27/2025</strong>
+                    Last Update: <strong>3/5/2025</strong>
           </div>
   </footer>
 
@@ -814,9 +816,9 @@
   </div>
 </div>
 
-  <script src="../../dist/node_modules/bootstrap/dist/js/bootstrap.min.js?ver=0.23.0"></script>
-  <script src="../../dist/lunr.js?ver=0.23.0"></script>
-  <script src="../../dist/knowledge.min.js?ver=0.23.0"></script>
+  <script src="../../dist/node_modules/bootstrap/dist/js/bootstrap.min.js?ver=0.23.1"></script>
+  <script src="../../dist/lunr.js?ver=0.23.1"></script>
+  <script src="../../dist/knowledge.min.js?ver=0.23.1"></script>
 
 </body>
 </html>

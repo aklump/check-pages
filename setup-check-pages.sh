@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 ##
- # Install Check Pages as a Stand Along composer project
+ # Install Check Pages for a single user.
  #
  # @param string Optional, Check Pages version constraint e.g. "0.19.1", "@dev"
  #
- # @return 1 If installation fails
- # @return 0 If inst
+ # @return 1 If installation fails.
+ # @return 0 If installation succeeds.
  ##
 
 # ========= Configuration =========
@@ -28,11 +28,15 @@ function suggest() {
 }
 function check_composer() {
   command -v composer &> /dev/null
-  return $?
+}
+
+function is_installed() {
+  [[ -d "$install_path" ]]
 }
 
 # ========= Execute installation =========
 ! check_composer && error "Composer is missing; installation failed." && exit 1
+is_installed && error "Check Pages is already installed." && error "$install_path" && exit 1
 
 # Create destination directory
 ! mkdir -p "$install_path" && error "Directory \"$install_path\" already exists." && exit 1
@@ -40,11 +44,11 @@ function check_composer() {
 status "Directory \"$install_path\" created."
 
 # Composer installation
-! printf '{"name":"aklump/check-pages-project","type":"project","require":{"aklump/check-pages":"%s"},"config":{"allow-plugins":{"wikimedia/composer-merge-plugin":true}}}' "$install_version" > composer.json && echo '' && exit 1
+! printf '{"name":"aklump/check-pages-project","type":"project","require":{"aklump/check-pages":"%s"}}' "$install_version" > composer.json && echo '' && exit 1
 ! composer install && error 'Cannot install dependencies.' && exit 1
 
 command_path='bin/checkpages'
-mkdir ./bin || exit 1
+mkdir -p ./bin || exit 1
 cd ./bin || exit 1
 ln -s '../vendor/bin/checkpages' "$(basename "$command_path")" || exit 1
 
@@ -53,5 +57,5 @@ suggest 'Optional: To make checkpages accessible from anywhere, add the followin
 suggest 'to your shell startup file (e.g., ~/.bashrc, ~/.zshrc, or equivalent):'
 echo "export PATH=\"${install_path/$HOME/\$HOME}/$(dirname "$command_path"):\$PATH\""
 suggest 'After adding the line, either restart your terminal or source the updated file.'
-status "Thank you for installing Check Pages, happy testing!"
+status "Thank you for installing Check Pages!"
 status "Get help: $install_path/$command_path"
