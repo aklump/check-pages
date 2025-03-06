@@ -66,13 +66,14 @@ This is the most involved method of extending Check Pages, and offers the greate
 1. Write the _suite.yml_ file which will be run against _test_subject.html, test_subject.php, test_subject.json_, etc
 2. Create _test_subject.html_ or _test_subject.php_ as needed to test _
    suite.yml_.
-3. You may include more than one _test_subject.*_ file.   
+3. You may include more than one _test_subject.*_ file.
 4. _README.md_ is optional, but will be added to the Check Pages documentation when it's compiled and should be used to give examples of how the handler should be implemented.
 
 ### Handler Objects/Classes
 
 * Each handler will provide it's main class in the namespace `AKlump\CheckPages\Handlers` with an upper-camel case file matching it's id, e.g. _foo_bar/FooBar.php_.
 * Any additional classes should be namespaced to the handler, e.g. `AKlump\CheckPages\Handlers\FooBar` and saved to _foo_bar/src/Alpha.php_`.
+* Try to push all the logic into _src/*.php_ classes and cover those with unit tests, keep the main class as dumb as possible and don't bother unit testing.
 
 ## Extending the JSON Schema for Suite Validation
 
@@ -90,16 +91,16 @@ _(Inspect handlers to see how these are used. Be aware that some properties are 
 
 ```json
 {
-    "type": "object",
-    "required": [
-        "foo"
-    ],
-    "properties": {
-        "foo": {
-            "$ref": "#/definitions/dom__dom"
-        }
-    },
-    "additionalProperties": false
+  "type": "object",
+  "required": [
+    "foo"
+  ],
+  "properties": {
+    "foo": {
+      "$ref": "#/definitions/dom__dom"
+    }
+  },
+  "additionalProperties": false
 }
 ```
 
@@ -109,13 +110,13 @@ _(Inspect handlers to see how these are used. Be aware that some properties are 
 
 ```json
 {
-    "js_eval": {
-        "type": "string",
-        "pattern": ".+",
-        "examples": [
-            "location.hash"
-        ]
-    }
+  "js_eval": {
+    "type": "string",
+    "pattern": ".+",
+    "examples": [
+      "location.hash"
+    ]
+  }
 }
 ```
 
@@ -130,6 +131,10 @@ The _json_schema_ handler is a good example of a handler that totally handles th
 ## Testing Handlers
 
 To run a handler's tests do this: `./bin/run_handler_tests <handler>`.  (Don't forget to `./bin/compile_app.sh` if you make a change.)
+
+## Handler Unit Tests
+
+@see [Unit Test Autoloading](@unit_tests)
 
 ## Compiled Files
 

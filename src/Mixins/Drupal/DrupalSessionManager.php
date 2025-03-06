@@ -14,7 +14,7 @@ use AKlump\CheckPages\Variables;
 use InvalidArgumentException;
 use RuntimeException;
 
-final class DrupalSessionManager implements SessionInterface {
+final class DrupalSessionManager {
 
   private array $mixinConfig;
 
@@ -62,7 +62,6 @@ final class DrupalSessionManager implements SessionInterface {
     if (!empty($sessions[$username])) {
       return;
     }
-    $this->setUser((new User($username, NULL)));
 
     $test->addBadge('🔐');
     $runner = $test->getRunner();
@@ -111,9 +110,9 @@ final class DrupalSessionManager implements SessionInterface {
       'yml',
     ])[0] ?? '';
     $users = (new LoadUsers())($path_to_users_data);
-    $user = array_filter($users, function (User $user) use ($username) {
+    $user = array_values(array_filter($users, function (User $user) use ($username) {
       return $user->getAccountName() === $username;
-    })[0];
+    }))[0];
     if (empty($user)) {
       throw new RuntimeException(sprintf('No record for "%s" found.', $username));
     }
@@ -121,36 +120,21 @@ final class DrupalSessionManager implements SessionInterface {
     return $user;
   }
 
-  public function getSessionCookie(Test $test): string {
-    $runner = $test->getRunner();
-
-    static $sessions;
-    if (is_null($sessions)) {
-      $sessions = $runner->getStorage()->get('drupal.sessions') ?? [];
-    }
-    $username = $this->user->getAccountName();
-    $this->checkSessionExpiry($username, $sessions);
-    $this->createNewSession($username, $sessions, $test);
-    $vars = $this->setUpUserVariables($username, $sessions);
-
-    return $vars->getItem('user.session_cookie') ?? '';
-  }
-
-  public function setUser(UserInterface $user) {
-    $this->user = $user;
-  }
-
   public function getSession(): Session {
     if (!isset($this->variables)) {
       throw new RuntimeException('Session has not been created yet.');
     }
     $account = new User(
-      $this->getItem('user.name'),
-      $this->getItem('user.pass'),
+      $this->variables->getItem('user.name'),
+      $this->variables->getItem('user.pass'),
     );
     $session = new Session();
     $session->setUser($account);
-    $cookie = $this->getItem('user.session_cookie');
-    $session->setSessionCookie($this->getItem('user.session_cookie'));
+    $cookie = $this->variables->getItem('user.session_cookie');
+    list($name, $value) = explode('=', $cookie, 2);
+    $session->setName($name);
+    $session->setValue($value);
+
+    return $session;
   }
 }
