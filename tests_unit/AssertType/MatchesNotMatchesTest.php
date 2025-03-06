@@ -11,6 +11,11 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \AKlump\CheckPages\AssertType\Matches
  * @covers \AKlump\CheckPages\AssertType\NotMatches
+ * @uses   \AKlump\CheckPages\Assert
+ * @uses   \AKlump\CheckPages\AssertType\AllLogicTrait
+ * @uses   \AKlump\CheckPages\AssertType\LogicBase
+ * @uses   \AKlump\CheckPages\Traits\HasConfigTrait
+ * @uses   \AKlump\CheckPages\AssertType\NotLogicBase
  */
 class MatchesNotMatchesTest extends TestCase {
 
@@ -68,11 +73,11 @@ class MatchesNotMatchesTest extends TestCase {
     ];
 
     $tests[] = [
-      [true, false],
+      [TRUE, FALSE],
       [1, 2],
       '/foobar/i',
       ['lorem', 'FooBar', 'ipsum'],
-      ['FooBar', 'lorem']
+      ['FooBar', 'lorem'],
     ];
 
     return $tests;

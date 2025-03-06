@@ -8,9 +8,6 @@ use AKlump\CheckPages\Handlers\Form\HtmlFormReader;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
-require_once '/Users/aaronklump/Code/Packages/cli/check-pages/app/includes/handlers/form/src/HtmlFormReader.php';
-require_once '/Users/aaronklump/Code/Packages/cli/check-pages/app/includes/handlers/form/src/KeyLabelNode.php';
-
 /**
  * @covers \AKlump\CheckPages\Handlers\Form\HtmlFormReader
  * @uses   \AKlump\CheckPages\Handlers\Form\KeyLabelNode

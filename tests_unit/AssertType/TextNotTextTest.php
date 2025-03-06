@@ -11,8 +11,12 @@ use AKlump\CheckPages\Parts\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \AKlump\CheckPages\AssertType\Contains
- * @covers \AKlump\CheckPages\AssertType\NotContains
+ * @covers \AKlump\CheckPages\AssertType\Text
+ * @covers \AKlump\CheckPages\AssertType\NotText
+ * @uses   \AKlump\CheckPages\Assert
+ * @uses   \AKlump\CheckPages\AssertType\NotLogicBase
+ * @uses   \AKlump\CheckPages\Traits\HasConfigTrait
+ * @uses   \AKlump\CheckPages\AssertType\LogicBase
  */
 class TextNotTextTest extends TestCase {
 

@@ -11,6 +11,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @group default
  * @covers \AKlump\CheckPages\Parts\Suite
+ * @uses   \AKlump\CheckPages\Parts\Runner
+ * @uses   \AKlump\CheckPages\Traits\HasConfigTrait
+ * @uses   \AKlump\CheckPages\Variables
+ * @uses   \AKlump\CheckPages\Parts\Test
  */
 final class SuiteTest extends TestCase {
 

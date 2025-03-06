@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @covers \AKlump\CheckPages\Parts\Test
+ * @uses \AKlump\CheckPages\Parts\Runner
+ * @uses \AKlump\CheckPages\Parts\Suite
+ * @uses \AKlump\CheckPages\Variables
  */
 final class TestTest extends TestCase {
 

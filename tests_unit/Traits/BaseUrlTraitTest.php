@@ -2,10 +2,12 @@
 
 namespace AKlump\CheckPages\Tests\Unit\Traits;
 
+use AKlump\CheckPages\Traits\BaseUrlTrait;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers BaseUrlTrait
+ * @covers \AKlump\CheckPages\Tests\Unit\Traits\BaseUrlTraitTestable
+ * @uses   \AKlump\CheckPages\Traits\BaseUrlTrait
  */
 class BaseUrlTraitTest extends TestCase {
 
@@ -59,5 +61,5 @@ class BaseUrlTraitTest extends TestCase {
 
 class BaseUrlTraitTestable {
 
-  use \AKlump\CheckPages\Traits\BaseUrlTrait;
+  use BaseUrlTrait;
 }

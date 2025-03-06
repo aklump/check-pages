@@ -17,6 +17,24 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @group default
  * @covers \AKlump\CheckPages\Parts\Runner
+ * @uses   \AKlump\CheckPages\Files\LocalFilesProvider
+ * @uses   \AKlump\CheckPages\Helpers\FilterSuites
+ * @uses   \AKlump\CheckPages\Parts\Suite
+ * @uses   \AKlump\CheckPages\SuiteCollection
+ * @uses   \AKlump\CheckPages\Traits\HasRunnerTrait
+ * @uses   \AKlump\CheckPages\Variables
+ * @uses   \AKlump\CheckPages\Event\DriverEvent
+ * @uses   \AKlump\CheckPages\Event\SuiteEvent
+ * @uses   \AKlump\CheckPages\Event\TestEvent
+ * @uses   \AKlump\CheckPages\Output\VerboseDirective
+ * @uses   \AKlump\CheckPages\Parts\Test
+ * @uses   \AKlump\CheckPages\Parts\TestRunner
+ * @uses   \AKlump\CheckPages\Browser\RequestDriver
+ * @uses   \AKlump\CheckPages\Event\RunnerEvent
+ * @uses   \AKlump\CheckPages\Output\ConsoleEchoPrinter
+ * @uses   \AKlump\CheckPages\Output\LoggerPrinter
+ * @uses   \AKlump\CheckPages\Output\MultiPrinter
+ * @uses   \AKlump\CheckPages\Service\DispatcherFactory
  */
 final class RunnerTest extends TestCase {
 

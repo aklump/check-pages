@@ -11,6 +11,10 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \AKlump\CheckPages\AssertType\Contains
  * @covers \AKlump\CheckPages\AssertType\NotContains
+ * @uses   \AKlump\CheckPages\Assert
+ * @uses   \AKlump\CheckPages\AssertType\AllLogicTrait
+ * @uses   \AKlump\CheckPages\AssertType\LogicBase
+ * @uses   \AKlump\CheckPages\AssertType\NotLogicBase
  */
 class ContainsNotContainsTest extends TestCase {
 
@@ -78,6 +82,7 @@ class ContainsNotContainsTest extends TestCase {
     $this->assertCount($expected_counts[1], $countable);
     $this->assertSame($expected_final_results[1], $result);
   }
+
   public function testContainsWithMatchesThrows() {
     $this->expectException(\InvalidArgumentException::class);
     $assert = new Assert(1, [], $this->createMock(Test::class));

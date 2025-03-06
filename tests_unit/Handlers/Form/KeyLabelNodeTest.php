@@ -9,8 +9,6 @@ use AKlump\CheckPages\Handlers\Form\KeyLabelNode;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
-require_once '/Users/aaronklump/Code/Packages/cli/check-pages/app/includes/handlers/form/src/KeyLabelNode.php';
-
 /**
  * @covers \AKlump\CheckPages\Handlers\Form\KeyLabelNode
  */
