@@ -3,10 +3,10 @@
 namespace AKlump\CheckPages\Mixins\Drupal;
 
 use AKlump\CheckPages\Browser\GuzzleDriver;
+use AKlump\CheckPages\DataStructure\UserInterface;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Files\HttpLogging;
 use AKlump\CheckPages\Helpers\AuthenticationInterface;
-use AKlump\CheckPages\Helpers\UserInterface;
 use AKlump\CheckPages\HttpClient;
 use DOMElement;
 use GuzzleHttp\Cookie\CookieJar;
@@ -14,13 +14,13 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use RuntimeException;
 use Symfony\Component\DomCrawler\Crawler;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * Base class for Drupal Authentication.
  */
-abstract class AuthenticateDrupalBase implements AuthenticationInterface {
+class AuthenticateDrupal implements AuthenticationInterface {
 
   const LOG_FILE_PATH = 'drupal/authenticate.http';
 
@@ -72,10 +72,13 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
   protected $formSelector;
 
   /**
-   * AuthenticateDrupalBase constructor.
+   * @var \AKlump\CheckPages\HttpClient
+   */
+  protected HttpClient $httpClient;
+
+  /**
+   * AuthenticateDrupal constructor.
    *
-   * @param string $path_to_users_login_data
-   *   The resolved path to the JSON or YAML file for the users.
    * @param string $absolute_login_url
    *   The absolute URL to the login form.
    * @param string $form_id
@@ -84,52 +87,22 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
    *   A CSS selector to find the login form on in the DOM of the
    *   $absolute_login_url.
    */
-  public function __construct(HttpClient $http_client, FilesProviderInterface $log_files, string $path_to_users_login_data, string $absolute_login_url, string $form_selector, string $form_id) {
+  public function __construct(
+    HttpClient $http_client,
+    FilesProviderInterface $log_files,
+    string $absolute_login_url,
+    string $form_selector = 'form.user-login-form',
+    string $form_id = 'user_login_form'
+  ) {
     $this->httpClient = $http_client;
     $this->logFiles = $log_files;
-    $this->usersFile = $path_to_users_login_data;
     $this->loginUrl = $absolute_login_url;
     $this->formId = $form_id;
     $this->formSelector = $form_selector;
   }
 
   /**
-   * @inherit
-   */
-  public function getUser(string $username): UserInterface {
-    // Load our non-version username/password index.
-    switch (pathinfo($this->usersFile, PATHINFO_EXTENSION)) {
-      case 'yaml':
-      case 'yml':
-        $users = Yaml::parseFile($this->usersFile);
-        break;
-
-      case 'json':
-        $users = json_decode(file_get_contents($this->usersFile), TRUE);
-        break;
-    }
-
-    // Find the account by username.
-    $user_data = array_values(array_filter($users, function ($account) use ($username) {
-      return $account['name'] === $username;
-    }))[0] ?? NULL;
-    if (empty($user_data)) {
-      throw new \RuntimeException(sprintf('No record for user "%s" in %s', $username, $this->usersFile));
-    }
-    if (empty($user_data['pass'])) {
-      throw new \RuntimeException(sprintf('Missing "pass" key for the user "%s" in %s', $username, $this->usersFile));
-    }
-    $user = new \AKlump\CheckPages\Helpers\User();
-
-    return $user->setPassword($user_data['pass'])->setAccountName($username);
-  }
-
-  /**
-   * @param string $username
-   * @param string $password
-   * @param string $login_url
-   * @param string $form_id
-   * @param string $form_selector
+   * @param UserInterface $user
    *
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
@@ -246,7 +219,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
   /**
    * Perform one or more requests to obtain the user ID.
    *
-   * @param \AKlump\CheckPages\Helpers\UserInterface $user
+   * @param \AKlump\CheckPages\DataStructure\UserInterface $user
    *
    * @return int
    *   The User ID if it can be deteremine.
@@ -303,7 +276,7 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
   /**
    * Perform one or more requests to obtain the user email.
    *
-   * @param \AKlump\CheckPages\Helpers\UserInterface $user
+   * @param \AKlump\CheckPages\DataStructure\UserInterface $user
    *
    * @return string
    *   The users email if available.
@@ -368,4 +341,27 @@ abstract class AuthenticateDrupalBase implements AuthenticationInterface {
     return $this->response;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getCsrfToken(): string {
+    $url = $this->buildUrl($this->loginUrl, '/session/token');
+    try {
+      return (string) $this->httpClient
+        ->setWhyForNextRequestOnly(__METHOD__)
+        ->sendRequest(new Request('get', $url, [
+          'Cookie' => $this->getSessionCookie(),
+        ]))
+        ->getBody();
+    }
+    catch (ConnectException $exception) {
+      return '';
+    }
+  }
+
+  private function buildUrl(string $loginUrl, string $appendPath): string {
+    $parts = parse_url($loginUrl);
+
+    return $parts['scheme'] . '://' . $parts['host'] . $appendPath;
+  }
 }

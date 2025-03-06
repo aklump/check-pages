@@ -2,80 +2,108 @@
 
 namespace AKlump\CheckPages\Helpers;
 
-use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\HttpClient;
 use AKlump\CheckPages\Mixins\Drupal\AuthenticateDrupal7;
-use AKlump\CheckPages\Mixins\Drupal\AuthenticateDrupal8;
+use AKlump\CheckPages\Mixins\Drupal\AuthenticateDrupal;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
+use Exception;
 use GuzzleHttp\Psr7\Request;
+use InvalidArgumentException;
 use ReflectionClass;
 
 class AuthenticateProviderFactory {
 
-  /**
-   * @param \AKlump\CheckPages\Parts\Test $test
-   * @param \AKlump\CheckPages\Files\FilesProviderInterface $log_files
-   * @param string $path_to_users_list
-   */
-  public function __construct(Test $test, string $path_to_users_list) {
-    $this->test = $test;
-    $this->logFiles = $test->getRunner()->getLogFiles();
-    $this->pathToUsers = $path_to_users_list;
-  }
+  private Test $test;
 
   /**
    * Return the correct AuthenticationInterface instance for the login URL.
    *
-   * @param string $absolute_login_url
+   * @param string $login_url The login URL, it maybe be absolute or relative.
+   * @param \AKlump\CheckPages\Parts\Test $test
    *
    * @return \AKlump\CheckPages\Helpers\AuthenticationInterface
    *
-   * @throws \AKlump\CheckPages\Exceptions\StopRunnerException If the class cannot be determined based on context.
-   * @throws \GuzzleHttp\Exception\GuzzleException If the class cannot be determined based on context.
+   * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
    */
-  public function __invoke(string $absolute_login_url): AuthenticationInterface {
-    static $classnames;
+  public function __invoke(string $login_url, Test $test): AuthenticationInterface {
+    $this->test = $test;
+
+    static $class_names_by_host = [];
+
+    // Ensure this is absolute.
+    $login_url = $this->test->getRunner()->withBaseUrl($login_url);
+
+    $host_name = $this->extractHostName($login_url);
     $http_client = $this->createHttpClient();
-    $host_name = parse_url($absolute_login_url, PHP_URL_HOST);
 
-    if (empty($classnames[$host_name])) {
-      $classnames[$host_name] = $this->determineClassName($http_client, $absolute_login_url);
+    try {
+      if (empty($class_names_by_host[$host_name])) {
+        $class_names_by_host[$host_name] = $this->determineAuthenticationClass($http_client, $login_url);
+      }
+
+      $authentication_class = $class_names_by_host[$host_name];
+      if (empty($authentication_class)) {
+        throw new StopRunnerException(sprintf('Unable to determine authentication class; cannot authenticate against %s', $login_url));
+      }
+
+      $this->addClassContextToHttpClient($http_client, $authentication_class);
+
+      return new $authentication_class(
+        $http_client,
+        $test->getRunner()->getLogFiles(),
+        $login_url
+      );
     }
-
-    if (empty($classnames[$host_name])) {
-      throw new StopRunnerException(sprintf('Unable to determine authentication class; cannot authenticate against %s', $absolute_login_url));
+    catch (Exception $exception) {
+      throw new StopRunnerException($exception->getMessage(), $exception->getCode(), $exception);
     }
-
-    $this->addClassContextToHttpClient($http_client, $classnames[$host_name]);
-
-    return new $classnames[$host_name]($http_client, $this->logFiles, $this->pathToUsers, $absolute_login_url);
   }
 
+  /**
+   * @return \AKlump\CheckPages\HttpClient
+   */
   private function createHttpClient(): HttpClient {
     return new HttpClient($this->test->getRunner(), $this->test);
   }
 
-  private function determineClassName(HttpClient $http_client, string $absolute_login_url): string {
-    $major_version = $this->getMajorDrupalVersion($http_client, $absolute_login_url);
-    switch ($major_version) {
-      case 7:
-        return AuthenticateDrupal7::class;
-      default:
-        return AuthenticateDrupal8::class;
+  /**
+   * @param \AKlump\CheckPages\HttpClient $http_client
+   * @param string $absolute_login_url
+   *
+   * @return string
+   * @throws \ReflectionException|\AKlump\CheckPages\Exceptions\StopRunnerException
+   */
+  private function determineAuthenticationClass(HttpClient $http_client, string $absolute_login_url): string {
+    $drupal_version = $this->getMajorDrupalVersion($http_client, $absolute_login_url);
+    if (empty($drupal_version)) {
+      throw new StopRunnerException('Unable to determine Drupal version.');
     }
+    if (7 === $drupal_version) {
+      return AuthenticateDrupal7::class;
+    }
+
+    return AuthenticateDrupal::class;
   }
 
+  /**
+   * @param $http_client
+   * @param $absolute_login_url
+   *
+   * @return int|null
+   * @throws \ReflectionException
+   */
   private function getMajorDrupalVersion($http_client, $absolute_login_url): ?int {
     $this->addClassContextToHttpClient($http_client, __CLASS__);
     $response = $http_client
       ->setWhyForNextRequestOnly(__METHOD__)
-      ->sendRequest(new Request('get', $absolute_login_url));
-    $generator = $response->getHeader('X-Generator')[0] ?? '';
-    preg_match('/Drupal (\d+)/', $generator, $matches);
+      ->sendRequest(new Request('GET', $absolute_login_url));
 
-    return intval($matches[1]) ?? NULL;
+    $generator_header = $response->getHeader('X-Generator')[0] ?? '';
+    preg_match('/Drupal (\d+)/', $generator_header, $matches);
+
+    return isset($matches[1]) ? (int) $matches[1] : NULL;
   }
 
   /**
@@ -88,15 +116,39 @@ class AuthenticateProviderFactory {
    * @throws \ReflectionException
    */
   private function addClassContextToHttpClient(HttpClient $http_client, string $class_name): void {
-    $ref = new ReflectionClass($class_name);
-    $shortname = $ref->getShortName();
-    $suite_id = $this->test->getSuite()->id() ?: $shortname;
-    $suite = new Suite($suite_id, $this->test->getRunner());
+    $reflection_class = new ReflectionClass($class_name);
+    $short_name = $reflection_class->getShortName();
+
+    $suite = new Suite(
+      $this->test->getSuite()->id() ?: $short_name,
+      $this->test->getRunner()
+    );
     $suite_group = $this->test->getSuite()->getGroup();
     if (!empty($suite_group)) {
       $suite->setGroup($suite_group);
     }
-    $http_client->dispatchEventsWith(new Test($this->test->id(), ['why' => $class_name], $suite));
+
+    $http_client->dispatchEventsWith(new Test(
+      $this->test->id(),
+      ['why' => $class_name],
+      $suite
+    ));
   }
 
+  /**
+   * Extract the host name from a URL.
+   *
+   * @param string $url
+   *
+   * @return string
+   */
+  private function extractHostName(string $url): string {
+    $host_name = parse_url($url, PHP_URL_HOST);
+
+    if (!$host_name) {
+      throw new InvalidArgumentException('Invalid URL provided.');
+    }
+
+    return $host_name;
+  }
 }
