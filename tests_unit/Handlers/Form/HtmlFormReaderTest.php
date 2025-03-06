@@ -45,34 +45,24 @@ class HtmlFormReaderTest extends TestCase {
     $form->getSubmit('input[type=submit]');
   }
 
-  public function testGetSubmit() {
-    $html = '<body><form class="form-c" action="/thank_you.php" method="post">
-  <input type="text" name="first_name" value=""/>
-  <input type="date" name="date" value=""/>
-  <select name="shirt_size">
-    <option value="sm">small</option>
-    <option value="lg">large</option>
-  </select>
-  <input type="submit" name="save" value="Save"/>
-  <input type="submit" name="done" value="Save & Done"/>
-</form></body>';
+  public function testGetSubmitAsButton() {
+    $html = '<div><form class="user-login-form" data-drupal-selector="user-login-form" action="/user/login" method="post" id="user-login-form" accept-charset="UTF-8" novalidate="novalidate"><div class="center-align">uber</div><input data-drupal-selector="edit-name" aria-describedby="edit-name--description" disabled="disabled" data-msg-required="Username field is required." type="hidden" name="name" value="uber"><div class="js-form-item form-item js-form-type-password form-item-pass js-form-item-pass input-field"> <input data-drupal-selector="edit-pass" aria-describedby="edit-pass--description" data-msg-maxlength="Password field has a maximum length of 128." data-msg-required="Password field is required." type="password" id="edit-pass" name="pass" size="60" maxlength="128" class="form-text required" required="required" aria-required="true"><label for="edit-pass" class="js-form-required form-required">Password</label><div id="edit-pass--description" class="description"><a class="tooltipped processed" data-position="bottom" data-delay="50" data-html="true" data-tooltip="Enter the password that accompanies your username." data-tooltip-id="a90d42b8-50ec-b0dd-0709-d27b5008b02a"><i class="material-icons" aria-hidden="true">help_outline</i> Info</a></div></div> <input autocomplete="off" data-drupal-selector="form-udobcdnztsg8hcceru3bzken3geosa66qotnpohqqmq" type="hidden" name="form_build_id" value="form-UDobCDNztSg8hcCEru3bZKen3GEoSA66QoTnpOhQQmQ"> <input data-drupal-selector="edit-user-login-form" type="hidden" name="form_id" value="user_login_form"><div data-drupal-selector="edit-actions" class="form-actions js-form-wrapper form-wrapper" id="edit-actions"><button data-drupal-selector="edit-submit" type="submit" id="edit-submit" name="op" value="Log in" class="button js-form-submit form-submit btn waves-effect waves-light" disabled="disabled"> Log in <div class="preloader-wrapper small"><div class="spinner-layer spinner-green-only"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div></button></div><a href="/user/password" class="flex sub" data-drupal-selector="edit-reset-password" id="edit-reset-password">Reset password</a></form></div>';
+    $form = new HtmlFormReader($html, '.user-login-form');
+    $button = $form->getSubmit();
+    $this->assertSame('op|Log in', (string) $button);
+  }
+
+  public function testGetSubmitAsInput() {
+    $html = '<body><form class="form-c" action="/thank_you.php" method="post"> <input type="text" name="first_name" value=""/> <input type="date" name="date" value=""/><select name="shirt_size"><option value="sm">small</option><option value="lg">large</option></select> <input type="submit" name="save" value="Save"/> <input type="submit" name="done" value="Save & Done"/> </form></body>';
     $form = new HtmlFormReader($html, '.form-c');
-    $save = $form->getSubmit('input[type=submit][name="save"]');
-    $this->assertSame('save|Save', (string) $save);
+    $save = $form->getSubmit();
+    $this->assertSame('save|Save', (string) $save, 'Assert getSubmit() returns the first submit button');
     $save_and_done = $form->getSubmit('input[type=submit][name="done"]');
-    $this->assertSame('done|Save & Done', (string) $save_and_done);
+    $this->assertSame('done|Save & Done', (string) $save_and_done, 'Assert getSubmit() returns the explicitly selected submit button');
   }
 
   public function testSelectsFirstOptionByDefault() {
-    $html = '<body><form class="form-c" action="/thank_you.php" method="post">
-  <input type="text" name="first_name" value=""/>
-  <input type="date" name="date" value=""/>
-  <select name="shirt_size">
-    <option value="sm">small</option>
-    <option value="lg">large</option>
-  </select>
-  <button type="submit">Submit</button>
-</form></body>';
+    $html = '<body><form class="form-c" action="/thank_you.php" method="post"> <input type="text" name="first_name" value=""/> <input type="date" name="date" value=""/><select name="shirt_size"><option value="sm">small</option><option value="lg">large</option></select><button type="submit">Submit</button></form></body>';
     $form = new HtmlFormReader($html, '.form-c');
     $values = $form->getValues();
     $this->assertSame('sm|small', (string) $values['shirt_size']);

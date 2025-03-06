@@ -19,6 +19,7 @@
     <coverage processUncoveredFiles="true">
         <include>
             <directory suffix=".php">../src</directory>
+            <directory suffix=".php">../includes/handlers/form/src</directory>
         </include>
     </coverage>
 </phpunit>

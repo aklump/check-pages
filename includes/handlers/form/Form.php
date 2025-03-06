@@ -14,8 +14,6 @@ use Exception;
  */
 final class Form implements HandlerInterface {
 
-  const DEFAULT_SUBMIT_SELECTOR = '[type="submit"]';
-
   /**
    * {@inheritdoc}
    */
@@ -103,7 +101,7 @@ final class Form implements HandlerInterface {
             $form_values = $reader->getValues();
 
             // Add the correct submit button to the request.
-            $submit = $reader->getSubmit($config['form']['submit'] ?? self::DEFAULT_SUBMIT_SELECTOR);
+            $submit = $reader->getSubmit($config['form']['submit'] ?? '');
             $form_values[$submit->getKey()] = $submit->getLabel();
 
             // Handle the merging of form vars and config vars.

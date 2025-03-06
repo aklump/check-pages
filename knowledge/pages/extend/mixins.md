@@ -54,15 +54,6 @@ Another way to extend _Check Pages_ is to use the `add_mixin()` function. This m
 7. By convention, you may create an class named for the mixin in your file if necessary.
 8. You should add the namespace `AKlump\CheckPages\Mixins` to your mixin file.
 
-## Output
-
-You may write output if desired, for example:
-
-```php
-echo sprintf('Base URL is %s', config_get('base_url')) . PHP_EOL;
-echo \AKlump\LoftLib\Bash\Color::wrap('blue', 'foo');
-```
-
 ## Namespace
 
 Add the `namespace` declaration at the top of your mixin file in this pattern: `AKlump\CheckPages\Mixins\MIXIN_NAME`.
@@ -71,6 +62,15 @@ Add the `namespace` declaration at the top of your mixin file in this pattern: `
 <?php
 namespace AKlump\CheckPages\Mixins\HttpRequestFiles;
 ...
+```
+
+## Output
+
+You may write output if desired, for example:
+
+```php
+echo sprintf('Base URL is %s', config_get('base_url')) . PHP_EOL;
+echo \AKlump\LoftLib\Bash\Color::wrap('blue', 'foo');
 ```
 
 Also, if you create any classes to support your mixin, they should share that same namespace.  You are responsible for setting up the autoloading to ensure your class is found. [Learn about Composer autoloading](https://getcomposer.org/doc/01-basic-usage.md#autoloading).

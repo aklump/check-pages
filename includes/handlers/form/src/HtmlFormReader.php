@@ -68,14 +68,21 @@ final class HtmlFormReader {
     return $response;
   }
 
-  public function getSubmit(string $submit_selector): KeyLabelNode {
+  /**
+   * Get the form's submit button.
+   *
+   * @param string $submit_selector Leave this empty and the first submit will
+   * be selected.
+   *
+   * @return \AKlump\CheckPages\Handlers\Form\KeyLabelNode  The first|specified submit button.
+   *
+   * @throws \InvalidArgumentException If no submit can be found.
+   */
+  public function getSubmit(string $submit_selector = ''): KeyLabelNode {
     /** @var \DOMElement $submit */
+    $submit_selector = $submit_selector ?: 'input[type=submit],button[type=submit]';
     $submit = $this->getForm()->filter($submit_selector)->getNode(0);
-    if (!$submit instanceof DOMElement
-      || !in_array($submit->tagName, [
-        'input',
-        'button',
-      ])) {
+    if (!$submit instanceof DOMElement) {
       throw new InvalidArgumentException(sprintf('Cannot find submit button with selector: %s', $submit_selector));
     }
 
