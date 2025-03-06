@@ -1,5 +1,5 @@
 -
-    why: 'Demonstrate how to assert an image''s aspect ratio using `eval`.'
+    why: "Demonstrate how to assert an image's aspect ratio using `eval`."
     visit: /handlers/evaluate.html
     find:
         -
