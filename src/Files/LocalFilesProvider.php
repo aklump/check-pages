@@ -205,14 +205,14 @@ final class LocalFilesProvider implements FilesProviderInterface, FileLocatorInt
           $path = $candidate;
         }
         else {
-          $path = $locator_path . '/' . $candidate;
+          $path = rtrim($locator_path, '/') . '/' . ltrim($candidate, '/');
         }
-
         $located = [];
-        if (strpos($candidate, '*')) {
+        if (strpos($candidate, '*') !== FALSE) {
           $located = glob($path);
         }
-        elseif (file_exists($path)) {
+        // @url https://www.exchangetuts.com/check-if-string-could-be-a-path-without-warning-1640925004762934
+        elseif (@file_exists($path)) {
           $located[] = $path;
         }
         if ($located && $options & FilesProviderInterface::RESOLVE_TO_RESOLVE_DIRS) {
