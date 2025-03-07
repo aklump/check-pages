@@ -37,7 +37,7 @@ class TestResultCollectionTest extends TestCase {
     $this->assertFalse($collection->add($result));
   }
 
-  public function testFilterCompletedSuites() {
+  public function testWithoutCompletedTests() {
     $collection = new TestResultCollection();
     $this->addTestToCollection($collection, 'foo', Test::PASSED);
     $this->addTestToCollection($collection, 'foo', Test::FAILED);
@@ -46,20 +46,20 @@ class TestResultCollectionTest extends TestCase {
     $this->addTestToCollection($collection, 'bar', Test::FAILED);
     $this->addTestToCollection($collection, 'bar', Test::SKIPPED);
     $this->addTestToCollection($collection, 'bar', Test::PENDING);
-    $completed_suite_tests = $collection->filterCompletedSuites();
-    $this->assertCount(3, $completed_suite_tests);
+    $completed_suite_tests = $collection->withoutCompletedTests();
+    $this->assertCount(1, $completed_suite_tests);
   }
 
-  public function testFilterCompletedSuitesAlt() {
+  public function testWithoutCompletedTestsAlt() {
     $collection = new TestResultCollection();
     $this->addTestToCollection($collection, 'foo', Test::PASSED);
     $this->addTestToCollection($collection, 'foo', Test::PASSED);
-    $completed_suite_tests = $collection->filterCompletedSuites();
-    $this->assertCount(2, $completed_suite_tests);
+    $result = $collection->withoutCompletedTests();
+    $this->assertCount(0, $result);
   }
 
 
-  public function testFilterPassedSuites() {
+  public function testWithoutPassedTests() {
     $collection = new TestResultCollection();
     $this->addTestToCollection($collection, 'foo', Test::PASSED);
     $this->addTestToCollection($collection, 'foo', Test::FAILED);
@@ -68,16 +68,16 @@ class TestResultCollectionTest extends TestCase {
     $this->addTestToCollection($collection, 'bar', Test::FAILED);
     $this->addTestToCollection($collection, 'bar', Test::SKIPPED);
     $this->addTestToCollection($collection, 'bar', Test::PENDING);
-    $passed_suites = $collection->filterPassedSuites();
-    $this->assertCount(0, $passed_suites);
+    $results = $collection->withoutPassedTests();
+    $this->assertCount(5, $results);
   }
 
-  public function testFilterPassedSuitesAlt() {
+  public function testWithoutPassedTestsAlt() {
     $collection = new TestResultCollection();
     $this->addTestToCollection($collection, 'foo', Test::PASSED);
     $this->addTestToCollection($collection, 'foo', Test::PASSED);
-    $passed_suites = $collection->filterPassedSuites();
-    $this->assertCount(2, $passed_suites);
+    $result = $collection->withoutPassedTests();
+    $this->assertCount(0, $result);
   }
 
 

@@ -1,6 +1,5 @@
 ## Critical
 
-- retest is not working on ATS, it is repeating tests that have already passed.
 - promote env_vars to a handler?
 - add test coverage for env_vars mixin
 - badge icons may be broken... see sessions.php
