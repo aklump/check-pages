@@ -2,6 +2,8 @@
 
 namespace AKlump\CheckPages\Tests\Unit;
 
+use InvalidArgumentException;
+
 trait TestWithFilesTrait {
 
   /**
@@ -29,11 +31,11 @@ trait TestWithFilesTrait {
    */
   public function deleteTestFile($test_file) {
     if (empty($test_file)) {
-      throw new \InvalidArgumentException('$test_file cannot be empty');
+      throw new InvalidArgumentException('$test_file cannot be empty');
     }
     $is_absolute = substr($test_file, 0, 1) === '/';
     if ($is_absolute && !$this->isTestFile($test_file)) {
-      throw new \InvalidArgumentException(sprintf('You cannot delete absolute paths outside of the sandbox: %s', $test_file));
+      throw new InvalidArgumentException(sprintf('You cannot delete absolute paths outside of the sandbox: %s', $test_file));
     }
     if (!$is_absolute) {
       $test_file = $this->getTestFileFilepath($test_file);

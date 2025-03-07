@@ -3,7 +3,6 @@
 namespace AKlump\CheckPages\Mixins\Drupal;
 
 use AKlump\CheckPages\Browser\Session;
-use AKlump\CheckPages\Browser\SessionInterface;
 use AKlump\CheckPages\DataStructure\User;
 use AKlump\CheckPages\DataStructure\UserInterface;
 use AKlump\CheckPages\Files\FilesProviderInterface;

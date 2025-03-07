@@ -1,10 +1,11 @@
 ## Critical
 
-- promote env_vars to a plugin?
-- add test coverage for env_vars mixin  
+- promote env_vars to a handler?
+- add test coverage for env_vars mixin
 - handlers/form/src/HtmlFormReader.php is not loading during php tests, why?, fix and/or improve documentation.
   <directory suffix=".php">../includes/handlers/form/src</directory>
 - badge icons may be broken... see sessions.php
+
 ---
 
 - look into upgrading per https://github.com/aklump/check-pages/security/dependabot
@@ -15,6 +16,7 @@
 
 ## Normal
 
+- normalize handler classes to all be inside src for easier clarity and autoloading, update auto load docs? Not sure because this make adding to the phunit coverage a bit more work
 - when using drupal mixin, it makes the get request to the form id, even if `user` key is not in the test, it should skip.
 - replace DotArray::create in Path handler for PHP 8.1 support.
 - 'add CP eval support for : 2024-02-22 < 2024-02-24'
@@ -22,8 +24,8 @@
 - some passwords do not work in drupal, e.g. 'EGucqaBbgfajFVpkLnh4TP4ur4EoPrqjDKmUL8wegGQUyA4jcEawhEQhrjfAWdFb@vfi7ihr!cZBh3qViYqEP@Y4dFBB2X_hXx-Y' must have to do with special chars that need to be escaped.
 
 ### Form Handler
+
 - document this (fix knowledge?)
 - prevent this from happening: `1[name]=pass&1[value]=pass&op=Next&input=uber&form_build_id=form-EYcmhwbcrV34PSUt8ecSDNw21SadTTljqcmswa2Cf2M&form_id=user_login_form&pass=pass`
-
 
 ## Complete

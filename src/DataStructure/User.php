@@ -6,13 +6,13 @@ use JsonSerializable;
 
 class User implements UserInterface, JsonSerializable {
 
-  protected string $name;
+  protected string $name = '';
 
-  protected string $mail;
+  protected string $mail = '';
 
-  protected int $uid;
+  protected int $uid = 0;
 
-  protected string $pass;
+  protected string $pass = '';
 
   protected array $properties = [];
 
@@ -20,7 +20,7 @@ class User implements UserInterface, JsonSerializable {
    * @param string $name
    * @param string|null $pass
    */
-  public function __construct(string $name, string $pass = NULL) {
+  public function __construct(string $name = '', string $pass = '') {
     $this->name = $name;
     $this->pass = $pass;
   }
@@ -105,6 +105,7 @@ class User implements UserInterface, JsonSerializable {
       'name' => $this->getAccountName(),
       'pass' => $this->getPassword(),
       'mail' => $this->getEmail(),
+      '_props' => $this->properties,
     ];
   }
 

@@ -60,25 +60,36 @@ class LoadUsers {
   }
 
   private function getPasswordFromData($user_data, &$key): string {
-    if (isset($user_data['pass'])) {
-      return $user_data['pass'];
-    }
-    elseif (isset($user_data['password'])) {
+    if (isset($user_data['password'])) {
+      $key = 'password';
+
       return $user_data['password'];
     }
+    elseif (isset($user_data['pass'])) {
+      $key = 'pass';
+
+      return $user_data['pass'];
+    }
+
 
     return '';
   }
 
   private function getUsernameFromData($user_data, &$key): string {
-    if (isset($user_data['name'])) {
-      return $user_data['name'];
+    if (isset($user_data['username'])) {
+      $key = 'username';
+
+      return $user_data['username'];
     }
     elseif (isset($user_data['user'])) {
+      $key = 'user';
+
       return $user_data['user'];
     }
-    elseif (isset($user_data['username'])) {
-      return $user_data['username'];
+    elseif (isset($user_data['name'])) {
+      $key = 'name';
+
+      return $user_data['name'];
     }
 
     return '';

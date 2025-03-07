@@ -62,8 +62,6 @@ add_test_option('user', [
   Event::TEST_CREATED => function ($username, TestEventInterface $event) use ($session_manager) {
     if (!empty($username)) {
       $session_vars = $session_manager($username, $event->getTest());
-      $session = $session_manager->getSession();
-
       foreach ($session_vars as $name => $value) {
         $event->getTest()->getSuite()->variables()->setItem($name, $value);
       }
@@ -79,7 +77,6 @@ add_test_option('user', [
   Event::TEST_FINISHED => function ($username, TestEventInterface $event) use ($session_manager) {
     if (!empty($username)) {
       $session_vars = $session_manager($username, $event->getTest());
-      $session = $session_manager->getSession();
       foreach ($session_vars as $name => $value) {
         $event->getTest()->getSuite()->variables()->removeItem($name);
       }

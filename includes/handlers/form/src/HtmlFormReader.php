@@ -100,10 +100,15 @@ final class HtmlFormReader {
     return $el->getAttribute('value');
   }
 
-  private function getValueFromSelectElement(DOMElement $el) {
+  /**
+   * @param \DOMElement $el
+   *
+   * @return \AKlump\CheckPages\Handlers\Form\KeyLabelNode
+   */
+  private function getValueFromSelectElement(DOMElement $el): ?KeyLabelNode {
     $option = $this->getSelectedOrFirstOption($el);
     if (!$option instanceof DOMElement) {
-      throw new InvalidArgumentException('Select element has no options');
+      return NULL;
     }
 
     return new KeyLabelNode(
