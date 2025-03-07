@@ -15,7 +15,7 @@ _mixins/filter_alerts.php_
 namespace AKlump\CheckPages\Mixins\FilterAlerts;
 
 use AKlump\CheckPages\Event;
-use AKlump\CheckPages\SerializationTrait;
+use AKlump\CheckPages\Traits\SerializationTrait;
 
 const NAME = 'filter_alerts';
 

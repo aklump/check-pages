@@ -13,6 +13,8 @@ use Symfony\Component\Config\Exception\FileLocatorFileNotFoundException;
 
 /**
  * @covers \AKlump\CheckPages\Files\LocalFilesProvider
+ * @uses   \AKlump\CheckPages\Files\PathIsNotDirectoryException
+ * @uses   \AKlump\CheckPages\Exceptions\UnresolvablePathException
  */
 final class LocalFilesProviderTest extends TestCase {
 

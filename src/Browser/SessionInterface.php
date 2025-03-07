@@ -12,5 +12,10 @@ interface SessionInterface {
 
   public function setValue(string $session_value);
 
+  /**
+   * Get the cookie header value.
+   *
+   * @return string The "{name}={value}" concentenation.
+   */
   public function getSessionCookie(): string;
 }

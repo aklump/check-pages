@@ -10,6 +10,9 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \AKlump\CheckPages\Helpers\FilterSuites
+ * @uses   \AKlump\CheckPages\Parts\Suite
+ * @uses   \AKlump\CheckPages\SuiteCollection
+ * @uses   \AKlump\CheckPages\Traits\HasRunnerTrait
  */
 class FilterSuitesTest extends TestCase {
 

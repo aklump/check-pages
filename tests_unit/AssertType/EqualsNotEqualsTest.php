@@ -11,8 +11,14 @@ use AKlump\CheckPages\Parts\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \AKlump\CheckPages\AssertType\Contains
- * @covers \AKlump\CheckPages\AssertType\NotContains
+ * @covers \AKlump\CheckPages\AssertType\Equals
+ * @covers \AKlump\CheckPages\AssertType\NotEquals
+ * @uses   \AKlump\CheckPages\Assert
+ * @uses   \AKlump\CheckPages\AssertType\LogicBase
+ * @uses   \AKlump\CheckPages\Traits\HasConfigTrait
+ * @uses   \AKlump\CheckPages\AssertType\EqualsTrait
+ * @uses   \AKlump\CheckPages\AssertType\NotLogicBase
+ *
  */
 class EqualsNotEqualsTest extends TestCase {
 

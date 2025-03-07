@@ -9,7 +9,7 @@ use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
-use AKlump\CheckPages\SerializationTrait;
+use AKlump\CheckPages\Traits\SerializationTrait;
 use AKlump\Messaging\MessageType;
 use Jasny\DotKey;
 use JsonSchema\Constraints\Factory;

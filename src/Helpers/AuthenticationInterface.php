@@ -2,6 +2,8 @@
 
 namespace AKlump\CheckPages\Helpers;
 
+use AKlump\CheckPages\DataStructure\UserInterface;
+
 /**
  * Interface AuthenticationInterface.
  *
@@ -12,7 +14,7 @@ interface AuthenticationInterface {
   /**
    * Login a user.
    *
-   * @param \AKlump\CheckPages\Helpers\UserInterface $user
+   * @param \AKlump\CheckPages\DataStructure\UserInterface $user
    *
    * @throws \RuntimeException
    *   If the login failed.

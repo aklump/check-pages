@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\CheckPages;
+namespace AKlump\CheckPages\Traits;
 
 use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\Messaging\MessengerInterface;
@@ -22,7 +22,7 @@ trait SerializationTrait {
   protected static function getContentType(MessageInterface $http_message): string {
     $type = $http_message->getHeader('content-type')[0] ?? NULL;
     if (empty($type)) {
-      $guesser = new HttpContentTypeGuesser();
+      $guesser = new \AKlump\CheckPages\HttpContentTypeGuesser();
       $body = $http_message->getBody();
       $type = $guesser->guessType($body);
     }

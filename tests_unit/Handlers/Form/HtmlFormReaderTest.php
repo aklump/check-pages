@@ -5,17 +5,26 @@
 namespace AKlump\CheckPages\Tests\Unit\Handlers\Form;
 
 use AKlump\CheckPages\Handlers\Form\HtmlFormReader;
+use AKlump\CheckPages\Tests\Unit\TestWithFilesTrait;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-
-require_once '/Users/aaronklump/Code/Packages/cli/check-pages/app/includes/handlers/form/src/HtmlFormReader.php';
-require_once '/Users/aaronklump/Code/Packages/cli/check-pages/app/includes/handlers/form/src/KeyLabelNode.php';
 
 /**
  * @covers \AKlump\CheckPages\Handlers\Form\HtmlFormReader
  * @uses   \AKlump\CheckPages\Handlers\Form\KeyLabelNode
  */
 class HtmlFormReaderTest extends TestCase {
+
+  use TestWithFilesTrait;
+
+  public function testEmptySelectElementsGetNullValues() {
+    $html = '<div class="block"><form action=""><select data-value="0" data-workreport-target="mileage" data-action="change-&gt;workReport#onMileageChange" data-drupal-selector="edit-field-foreman-period-0-subform-field-mileage-0-value" id="edit-field-foreman-period-0-subform-field-mileage-0-value" name="field_foreman_period[0][subform][field_mileage][0][value]" class="form-select form-element form-element--type-select"></select><select data-value="0" data-workreport-target="mileage" data-action="change-&gt;workReport#onMileageChange" data-drupal-selector="edit-field-worker-periods-0-subform-field-mileage-0-value" id="edit-field-worker-periods-0-subform-field-mileage-0-value" name="field_worker_periods[0][subform][field_mileage][0][value]" class="form-select form-element form-element--type-select"></select></form></div>';
+    $form = new HtmlFormReader($html, 'form');
+    $values = $form->getValues();
+    $this->assertCount(2, $values);
+    $this->assertNull($values["field_foreman_period[0][subform][field_mileage][0][value]"]);
+    $this->assertNull($values["field_worker_periods[0][subform][field_mileage][0][value]"]);
+  }
 
   public function testDisabledInputBehavior() {
     $html = '<!DOCTYPE html><html lang="en"><head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Form Example</title></head><body><form action="/submit" method="POST"> <label for="alpha">Disabled Input:</label> <input type="text" id="alpha" name="alpha" value="Apple" disabled/> <br><br> <label for="bravo">Editable Input:</label> <input type="text" id="bravo" name="bravo" value="Banana" required/> <br><br> <button type="submit">Submit</button></form></body></html>';
@@ -68,6 +77,13 @@ class HtmlFormReaderTest extends TestCase {
     $this->assertSame('sm|small', (string) $values['shirt_size']);
   }
 
+  public function testDrupalNestedFieldNone() {
+    $html = '<form action="" class="form-c"><span class="input__container"><select data-value="0" data-workreport-target="mileage" data-action="change->workReport#onMileageChange" data-drupal-selector="edit-field-foreman-period-0-subform-field-mileage-0-value" id="edit-field-foreman-period-0-subform-field-mileage-0-value" name="field_foreman_period[0][subform][field_mileage][0][value]" class="form-select form-element form-element--type-select"><option value="_none">- None -</option></select></span></form>';
+    $form = new HtmlFormReader($html, '.form-c');
+    $values = $form->getValues();
+    $this->assertSame('_none|- None -', (string) $values['field_foreman_period[0][subform][field_mileage][0][value]']);
+  }
+
   public function testSelectsSelectedOptionWhenPresent() {
     $html = '<body><form class="form-c" action="/thank_you.php" method="post">
   <input type="text" name="first_name" value=""/>
@@ -80,21 +96,6 @@ class HtmlFormReaderTest extends TestCase {
 </form></body>';
     $form = new HtmlFormReader($html, '.form-c');
     $values = $form->getValues();
-    $this->assertSame('lg|large', (string) $values['shirt_size']);
-  }
-
-  public function testNoOptionsThrows() {
-    $html = '<body><form class="form-c" action="/thank_you.php" method="post">
-  <input type="text" name="first_name" value=""/>
-  <input type="date" name="date" value=""/>
-  <select name="shirt_size"></select>
-  <button type="submit">Submit</button>
-</form></body>';
-    $form = new HtmlFormReader($html, '.form-c');
-    $this->expectException(InvalidArgumentException::class);
-    $this->expectExceptionMessage('Select element has no options');
-    $values = $form->getValues();
-
     $this->assertSame('lg|large', (string) $values['shirt_size']);
   }
 
@@ -127,12 +128,5 @@ class HtmlFormReaderTest extends TestCase {
     $html = file_get_contents(__DIR__ . '/user_login_form.html');
     $this->reader = new HtmlFormReader($html, '.user-login-form');
   }
-
-  public static function setUpBeforeClass(): void {
-    parent::setUpBeforeClass();
-    // TODO This is a hack while form/src/* is not autoloading.
-    new \AKlump\CheckPages\Handlers\Form();
-  }
-
 
 }

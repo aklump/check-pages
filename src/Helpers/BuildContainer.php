@@ -21,6 +21,9 @@ class BuildContainer {
     $this->files = $files_provider;
   }
 
+  /**
+   * @throws \Exception
+   */
   public function __invoke(): Container {
     $container = new ContainerBuilder();
     $loader = new YamlFileLoader($container, $this->files);

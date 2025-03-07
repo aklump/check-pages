@@ -9,25 +9,25 @@ class Session implements SessionInterface {
 
   protected User $user;
 
-  protected string $name;
+  protected string $name = '';
+
+  protected string $value = '';
 
   public function getName(): string {
     return $this->name;
   }
 
-  public function setName(string $name): void {
-    $this->name = $name;
+  public function setName(string $session_name): void {
+    $this->name = $session_name;
   }
 
   public function getValue(): string {
     return $this->value;
   }
 
-  public function setValue(string $value): void {
-    $this->value = $value;
+  public function setValue(string $session_value): void {
+    $this->value = $session_value;
   }
-
-  protected string $value;
 
   public function getUser(): UserInterface {
     return $this->user;
@@ -41,6 +41,7 @@ class Session implements SessionInterface {
     if (!$this->getName() || !$this->getValue()) {
       return '';
     }
+
     return implode('=', [$this->getName(), $this->getValue()]);
   }
 

@@ -2,8 +2,8 @@
 
 namespace AKlump\CheckPages\Mixins\Drupal;
 
+use AKlump\CheckPages\DataStructure\UserInterface;
 use AKlump\CheckPages\Files\FilesProviderInterface;
-use AKlump\CheckPages\Helpers\UserInterface;
 use AKlump\CheckPages\HttpClient;
 
 final class AuthenticateDrupal7 extends AuthenticateDrupal {

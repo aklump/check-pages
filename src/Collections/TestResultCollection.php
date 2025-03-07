@@ -77,31 +77,22 @@ class TestResultCollection extends AbstractCollection {
     return $collection;
   }
 
-
-  public function filterCompletedSuites(): TestResultCollection {
-    $not_tests = $this->filter(fn(TestResult $item) => $item->getResult() === Test::PENDING)
-      ->toArray();
-    if (empty($not_tests)) {
-      return $this;
-    }
-    $not_suites = array_unique(array_map(fn(TestResult $test_result) => $test_result->getSuiteId(), $not_tests));
-
-    return $this->filter(function (TestResult $result) use ($not_suites) {
-      return !in_array($result->getSuiteId(), $not_suites);
-    });
+  /**
+   * Get a new collection without completed tests.
+   *
+   * @return \AKlump\CheckPages\Collections\TestResultCollection A new instance with all completed tests removed.
+   */
+  public function withoutCompletedTests(): TestResultCollection {
+    return $this->filter(fn(TestResult $item) => $item->getResult() === Test::PENDING);
   }
 
-  public function filterPassedSuites(): TestResultCollection {
-    $not_tests = $this->filter(fn(TestResult $item) => $item->getResult() !== Test::PASSED)
-      ->toArray();
-    if (empty($not_tests)) {
-      return $this;
-    }
-    $not_suites = array_unique(array_map(fn(TestResult $test_result) => $test_result->getSuiteId(), $not_tests));
-
-    return $this->filter(function (TestResult $result) use ($not_suites) {
-      return !in_array($result->getSuiteId(), $not_suites);
-    });
+  /**
+   * Get a new collection without passed tests.
+   *
+   * @return \AKlump\CheckPages\Collections\TestResultCollection A new instance with all passed tests removed.
+   */
+  public function withoutPassedTests(): TestResultCollection {
+    return $this->filter(fn(TestResult $item) => $item->getResult() !== Test::PASSED);
   }
 
 }

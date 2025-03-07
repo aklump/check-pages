@@ -14,7 +14,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @group default
- * @covers \AKlump\CheckPages\Assert
+ * @covers \AKlump\CheckPages\HttpClient
+ * @uses   \AKlump\CheckPages\Parts\Runner
+ * @uses   \AKlump\CheckPages\Parts\Suite
+ * @uses   \AKlump\CheckPages\Parts\Test
  */
 final class HttpClientTest extends TestCase {
 

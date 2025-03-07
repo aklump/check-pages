@@ -11,7 +11,7 @@ use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\BadSyntaxException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Output\DebugMessage;
-use AKlump\CheckPages\SerializationTrait;
+use AKlump\CheckPages\Traits\SerializationTrait;
 use AKlump\Messaging\MessageType;
 use Exception;
 

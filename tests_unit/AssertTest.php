@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 /**
  * @group default
  * @covers \AKlump\CheckPages\Assert
+ * @uses   \AKlump\CheckPages\AssertType\Equals
+ * @uses   \AKlump\CheckPages\AssertType\EqualsTrait
+ * @uses   \AKlump\CheckPages\AssertType\LogicBase
  */
 final class AssertTest extends TestCase {
 

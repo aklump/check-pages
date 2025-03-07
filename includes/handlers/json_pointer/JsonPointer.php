@@ -6,7 +6,7 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Parts\SetTrait;
-use AKlump\CheckPages\SerializationTrait;
+use AKlump\CheckPages\Traits\SerializationTrait;
 use Rs\Json\Pointer;
 
 /**

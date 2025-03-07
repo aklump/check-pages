@@ -10,6 +10,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @group default
  * @covers \AKlump\CheckPages\Output\ConsoleEchoPrinter
+ * @uses   \AKlump\CheckPages\Output\Message
+ * @uses   \AKlump\CheckPages\Output\VerboseDirective
  */
 final class ConsoleEchoPrinterTest extends TestCase {
 

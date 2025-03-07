@@ -56,12 +56,12 @@ use AKlump\LoftLib\Bash\Color;
  * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
  */
 
-$get_session = new Session($mixin_config);
+$session_manager = new DrupalSessionManager($mixin_config);
 
 add_test_option('user', [
-  Event::TEST_CREATED => function ($username, TestEventInterface $event) use ($get_session) {
+  Event::TEST_CREATED => function ($username, TestEventInterface $event) use ($session_manager) {
     if (!empty($username)) {
-      $session_vars = $get_session($username, $event->getTest());
+      $session_vars = $session_manager($username, $event->getTest());
       foreach ($session_vars as $name => $value) {
         $event->getTest()->getSuite()->variables()->setItem($name, $value);
       }
@@ -74,16 +74,16 @@ add_test_option('user', [
    * user wants to use one of these values in another test, they must capture
    * the value and set it.
    */
-  Event::TEST_FINISHED => function ($username, TestEventInterface $event) use ($get_session) {
+  Event::TEST_FINISHED => function ($username, TestEventInterface $event) use ($session_manager) {
     if (!empty($username)) {
-      $session_vars = $get_session($username, $event->getTest());
+      $session_vars = $session_manager($username, $event->getTest());
       foreach ($session_vars as $name => $value) {
         $event->getTest()->getSuite()->variables()->removeItem($name);
       }
     }
   },
 
-  Event::REQUEST_CREATED => function ($username, DriverEventInterface $event) use ($get_session) {
+  Event::REQUEST_CREATED => function ($username, DriverEventInterface $event) use ($session_manager) {
     if (empty($username)) {
       return;
     }
@@ -99,9 +99,9 @@ add_test_option('user', [
     }
 
     // Add the session cookie header to requests to make them authenticated.
-    $session = $get_session($username, $event->getTest());
+    $session = $session_manager->getSession();
     $event->getDriver()
-      ->setHeader('Cookie', $session->getItem('user.session_cookie'));
+      ->setHeader('Cookie', $session->getSessionCookie());
   },
 ]);
 

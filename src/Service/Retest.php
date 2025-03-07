@@ -11,6 +11,7 @@ use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\BadSyntaxException;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Interfaces\ProvidesInputOptionsInterface;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Parts\Suite;
@@ -22,7 +23,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * Provides the ability to repeat failed tests or continue from the last suite.
  */
-final class Retest implements EventSubscriberInterface, \AKlump\CheckPages\Interfaces\ProvidesInputOptionsInterface {
+final class Retest implements EventSubscriberInterface, ProvidesInputOptionsInterface {
 
   use HasRunnerTrait;
 
@@ -64,8 +65,15 @@ final class Retest implements EventSubscriberInterface, \AKlump\CheckPages\Inter
     // initialize the results log based on the options being used.
     $this->prepareFiles();
 
-    if ($retest_options & (Retest::MODE_RETEST | Retest::MODE_CONTINUE)) {
-      $this->processSuitesToIgnore($retest_options);
+    if ($retest_options & (Retest::MODE_RETEST | Retest::MODE_CONTINUE)
+      && ($collection = $this->loadResultsFromStorage())) {
+      $suites_to_ignore = $this->getSuitesToIgnore($collection, $retest_options);
+      if ($suites_to_ignore) {
+        $runner = $this->getRunner();
+        $config = $runner->getConfig();
+        $config['suites_to_ignore'] = array_values(array_unique(array_merge($config['suites_to_ignore'] ?? [], $suites_to_ignore)));
+        $runner->setConfig($config);
+      }
     }
   }
 
@@ -86,23 +94,6 @@ final class Retest implements EventSubscriberInterface, \AKlump\CheckPages\Inter
   public function handleTestResult(TestEventInterface $event) {
     if ($this->enabled) {
       $this->registerTestResult($event->getTest());
-    }
-  }
-
-  /**
-   * Adds config "suites_to_ignore" based on options and result state.
-   *
-   * @param int $retest_options The retest options.
-   *
-   * @return void
-   */
-  private function processSuitesToIgnore(int $retest_options): void {
-    $suitesToIgnore = $this->getSuitesToIgnore($retest_options);
-    if ($suitesToIgnore) {
-      $runner = $this->getRunner();
-      $config = $runner->getConfig();
-      $config['suites_to_ignore'] = array_values(array_unique(array_merge($config['suites_to_ignore'] ?? [], $suitesToIgnore)));
-      $runner->setConfig($config);
     }
   }
 
@@ -143,7 +134,7 @@ final class Retest implements EventSubscriberInterface, \AKlump\CheckPages\Inter
     if (!$result_code) {
       $result_code = $test->hasFailed() ? Test::FAILED : NULL;
     }
-    if(!$result_code) {
+    if (!$result_code) {
       $result_code = $test->isSkipped() ? Test::SKIPPED : NULL;
     }
     $result_code = $result_code ?? Test::PENDING;
@@ -226,23 +217,47 @@ final class Retest implements EventSubscriberInterface, \AKlump\CheckPages\Inter
     }
   }
 
-  public function getSuitesToIgnore(int $retest_options) {
-    $collection = $this->loadResultsFromStorage();
-    if (!$collection) {
-      return [];
-    }
+  /**
+   * @param int $retest_options
+   *
+   * @return string[]
+   */
+  public function getSuitesToIgnore(TestResultCollection $collection, int $retest_options): array {
     if ($retest_options & self::MODE_RETEST) {
-      $collection = $collection->filterPassedSuites();
+      $tests_to_run = $collection->withoutPassedTests();
     }
     elseif ($retest_options & self::MODE_CONTINUE) {
-      $collection = $collection->filterCompletedSuites();
+      $tests_to_run = $collection->withoutCompletedTests();
+    }
+    else {
+      return [];
     }
 
-    return array_map(function (TestResult $test_result) {
-      return ltrim($test_result->getGroupId() . '/' . $test_result->getSuiteId(), '/');
-    }, $collection->toArray());
+    // Get a unique list of suite ids to be run.
+    $suites_to_run_by_id = array_values(array_unique(array_map(function (TestResult $result) {
+      return $result->getSuiteId();
+    }, $tests_to_run->toArray())));
+
+    $tests_to_ignore = $collection->filter(function (TestResult $result) use ($suites_to_run_by_id) {
+      // We will ignore the test if it's suite is not one we want.
+      return !in_array($result->getSuiteId(), $suites_to_run_by_id);
+    });
+
+    // Convert the test results to filter strings and ensure they are unique.
+    $ignore_filter_strings = array_map(function (TestResult $result) {
+      // Given the results, we now will return the formatted strings.
+      return ltrim($result->getGroupId() . '/' . $result->getSuiteId(), '/');
+    }, $tests_to_ignore->toArray());
+
+    return array_values(array_unique($ignore_filter_strings));
   }
 
+  /**
+   * @param int $retest_options
+   *
+   * @return bool
+   * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
+   */
   private function tryCheckRequirements(int $retest_options): bool {
     $requirements_met = (bool) $this->getPathToResultsLog();
 

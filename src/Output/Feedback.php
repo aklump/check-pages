@@ -7,15 +7,12 @@ use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Parts\Runner;
-use AKlump\CheckPages\SerializationTrait;
-use AKlump\CheckPages\Traits\LogRequestTrait;
+use AKlump\CheckPages\Traits\SerializationTrait;
 use AKlump\LoftLib\Bash\Color;
-use AKlump\Messaging\Processors\Messenger;
 use AKlump\Messaging\MessageInterface;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Provides user feedback based on output verbosity.

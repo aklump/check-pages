@@ -5,7 +5,7 @@ namespace AKlump\CheckPages\Traits;
 
 trait BaseUrlTrait {
 
-  private $baseUrl;
+  private string $baseUrl;
 
   /**
    * @return string

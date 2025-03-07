@@ -10,7 +10,28 @@ use RuntimeException;
 
 /**
  * @group default
- * @covers \AKlump\CheckPages\Assert
+ * @covers \AKlump\CheckPages\Service\Assertion
+ * @uses   \AKlump\CheckPages\Assert
+ * @uses   \AKlump\CheckPages\AssertType\AllLogicTrait
+ * @uses   \AKlump\CheckPages\AssertType\Contains
+ * @uses   \AKlump\CheckPages\AssertType\LogicBase
+ * @uses   \AKlump\CheckPages\Event\AssertEvent
+ * @uses   \AKlump\CheckPages\Help
+ * @uses   \AKlump\CheckPages\HttpClient
+ * @uses   \AKlump\CheckPages\Parts\Runner
+ * @uses   \AKlump\CheckPages\Parts\Suite
+ * @uses   \AKlump\CheckPages\Parts\Test
+ * @uses   \AKlump\CheckPages\Service\DispatcherFactory
+ * @uses   \AKlump\CheckPages\AssertType\Equals
+ * @uses   \AKlump\CheckPages\Helpers\CrawlerToArray
+ * @uses   \AKlump\CheckPages\Variables
+ * @uses   \AKlump\CheckPages\AssertType\Text
+ * @uses   \AKlump\CheckPages\AssertType\Matches
+ * @uses   \AKlump\CheckPages\AssertType\NotMatches
+ * @uses   \AKlump\CheckPages\AssertType\Equals
+ * @uses   \AKlump\CheckPages\AssertType\NotEquals
+ * @uses   \AKlump\CheckPages\AssertType\NotContains
+ * @uses   \AKlump\CheckPages\AssertType\NotLogicBase
  */
 final class AssertionTest extends TestCase {
 

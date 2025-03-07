@@ -4,11 +4,11 @@ namespace AKlump\CheckPages;
 
 class Help implements HelpInfoInterface {
 
-  protected $code;
+  protected string $code;
 
-  protected $description;
+  protected string $description;
 
-  protected $examples = [];
+  protected array $examples;
 
   public function __construct(string $code, string $description, array $examples) {
     $this->code = $code;

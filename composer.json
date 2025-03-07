@@ -17,13 +17,16 @@
   "autoload-dev": {
     "psr-4": {
       "AKlump\\CheckPages\\Tests\\Unit\\": "tests_unit/",
+      "AKlump\\CheckPages\\Handlers\\Form\\": [
+        "includes/handlers/form/",
+        "includes/handlers/form/src/"
+      ],
       "AKlump\\CheckPages\\Handlers\\": [
         "includes/handlers/count",
         "includes/handlers/dom",
         "includes/handlers/xpath",
         "includes/handlers/value",
-        "includes/handlers/evaluate",
-        "includes/handlers/form"
+        "includes/handlers/evaluate"
       ]
     }
   },

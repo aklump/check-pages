@@ -5,7 +5,7 @@ namespace AKlump\CheckPages\Handlers;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
-use AKlump\CheckPages\SerializationTrait;
+use AKlump\CheckPages\Traits\SerializationTrait;
 use BinaryCube\DotArray\DotArray;
 
 /**
