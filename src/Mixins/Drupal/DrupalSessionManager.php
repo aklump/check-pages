@@ -8,6 +8,7 @@ use AKlump\CheckPages\DataStructure\UserInterface;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Files\LoadUsers;
 use AKlump\CheckPages\Helpers\AuthenticateProviderFactory;
+use AKlump\CheckPages\HttpClient;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Variables;
 use InvalidArgumentException;
@@ -66,7 +67,8 @@ final class DrupalSessionManager {
     $runner = $test->getRunner();
     $user = $this->getUser($runner->getFiles(), $username);
     $login_url = $this->mixinConfig['login_url'] ?? '/user/login';
-    $auth = (new AuthenticateProviderFactory())($login_url, $test);
+    $http_client = new HttpClient($test->getRunner(), $test);
+    $auth = (new AuthenticateProviderFactory())($login_url, $test, $http_client);
     $auth->login($user);
     $account = $user->jsonSerialize();
     if (empty($account['uid'])) {
