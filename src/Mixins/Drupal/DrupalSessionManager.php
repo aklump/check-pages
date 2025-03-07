@@ -4,7 +4,6 @@ namespace AKlump\CheckPages\Mixins\Drupal;
 
 use AKlump\CheckPages\Browser\Session;
 use AKlump\CheckPages\DataStructure\User;
-use AKlump\CheckPages\DataStructure\UserInterface;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Files\LoadUsers;
 use AKlump\CheckPages\Helpers\AuthenticateProviderFactory;
@@ -16,37 +15,42 @@ use RuntimeException;
 
 final class DrupalSessionManager {
 
-  private array $mixinConfig;
+  private static array $sessions = [];
 
-  private UserInterface $user;
+  private array $mixinConfig;
 
   /**
    * @var \AKlump\CheckPages\Variables
    */
   private Variables $variables;
 
-  public function __construct(array $mixin_config) {
+  public function __construct(array $mixin_config, bool $flush_cache = FALSE) {
     $this->mixinConfig = $mixin_config;
+    if ($flush_cache) {
+      self::$sessions = [];
+    }
   }
 
   public function __invoke(string $username, Test $test): Variables {
     $runner = $test->getRunner();
-
-    static $sessions;
-    if (is_null($sessions)) {
-      $sessions = $runner->getStorage()->get('drupal.sessions') ?? [];
+    if (is_null(self::$sessions)) {
+      self::$sessions = $runner->getStorage()->get('drupal.sessions') ?? [];
     }
-    $this->checkSessionExpiry($username, $sessions);
-    $this->createNewSession($username, $sessions, $test);
-
-    $this->variables = $this->setUpUserVariables($username, $sessions);
+    $this->checkSessionExpiry($username);
+    if (empty(self::$sessions[$username])) {
+      $this->createNewSession($username, $test);
+    }
+    $this->variables = $this->setUpUserVariables($username);
 
     return $this->variables;
   }
 
-  private function checkSessionExpiry(string $username, array &$sessions): void {
-    if (empty($sessions[$username]['expires']) || $sessions[$username]['expires'] < time()) {
-      unset($sessions[$username]);
+  private function checkSessionExpiry(string $username): void {
+    if (!isset(self::$sessions[$username])) {
+      return;
+    }
+    if (empty(self::$sessions[$username]['expires']) || self::$sessions[$username]['expires'] < time()) {
+      unset(self::$sessions[$username]);
     }
   }
 
@@ -58,11 +62,7 @@ final class DrupalSessionManager {
    * @return void
    * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
    */
-  private function createNewSession(string $username, array &$sessions, Test $test): void {
-    if (!empty($sessions[$username])) {
-      return;
-    }
-
+  private function createNewSession(string $username, Test $test): void {
     $test->addBadge('🔐');
     $runner = $test->getRunner();
     $user = $this->getUser($runner->getFiles(), $username);
@@ -75,26 +75,26 @@ final class DrupalSessionManager {
       throw new RuntimeException(sprintf('Could not determine user ID for %s', $username));
     }
 
-    $sessions[$username] = [
+    self::$sessions[$username] = [
       'cookie' => $auth->getSessionCookie(),
       'expires' => $auth->getSessionExpires(),
       'account' => $account,
       'csrf_token' => $auth->getCsrfToken(),
     ];
-    $runner->getStorage()->set('drupal.sessions', $sessions);
+    $runner->getStorage()->set('drupal.sessions', self::$sessions);
   }
 
-  private function setUpUserVariables(string $username, array $sessions): Variables {
+  private function setUpUserVariables(string $username): Variables {
     $variables = new Variables();
     $variables
-      ->setItem('user.id', $sessions[$username]['account']['uid'])
-      ->setItem('user.uid', $sessions[$username]['account']['uid'])
-      ->setItem('user.mail', $sessions[$username]['account']['mail'])
-      ->setItem('user.name', $sessions[$username]['account']['name'])
-      ->setItem('user.pass', $sessions[$username]['account']['pass'])
-      ->setItem('user.csrf', $sessions[$username]['csrf_token'])
-      ->setItem('user.session_cookie', $sessions[$username]['cookie'])
-      ->setItem('user.session_expires', $sessions[$username]['cookie']);
+      ->setItem('user.id', self::$sessions[$username]['account']['uid'])
+      ->setItem('user.uid', self::$sessions[$username]['account']['uid'])
+      ->setItem('user.mail', self::$sessions[$username]['account']['mail'])
+      ->setItem('user.name', self::$sessions[$username]['account']['name'])
+      ->setItem('user.pass', self::$sessions[$username]['account']['pass'])
+      ->setItem('user.csrf', self::$sessions[$username]['csrf_token'])
+      ->setItem('user.session_cookie', self::$sessions[$username]['cookie'])
+      ->setItem('user.session_expires', self::$sessions[$username]['cookie']);
 
     return $variables;
   }
