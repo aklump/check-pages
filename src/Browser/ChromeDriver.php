@@ -50,7 +50,11 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
 
   public function __construct() {
     // Set the max memory to 50% of the allowed to prevent out of memory errors.
-    $this->limits = ['memory' => intval(ini_get('memory_limit')) * 1000000 * 0.5];
+    $this->limits = [
+      'php_memory_limit' => intval(ini_get('memory_limit')),
+      'test_use_allocation' => 0.5,
+    ];
+    $this->limits['memory'] = intval($this->limits['php_memory_limit'] * 1000000 * $this->limits['test_use_allocation']);
   }
 
   /**
@@ -120,8 +124,8 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
     $browser = $browserFactory->createBrowser([
       'ignoreCertificateErrors' => $this->allowInvalidCertificate(),
       'headers' => $this->getHeaders(),
-//      'debugLogger' => 'php://stdout',
-//      'headless' => FALSE,
+      //      'debugLogger' => 'php://stdout',
+      //      'headless' => FALSE,
     ]);
 
     try {
@@ -202,8 +206,14 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
     $messenger = $this->getMessenger();
     $next_message_time = NULL;
     $this->limits['time'] = time() + $this->getRequestTimeout();
+//    $previous_page_contents = '';
     do {
       $page_contents = $this->page->getHtml();
+
+      // TODO Write diff to file
+//      $diff = $this->diffPageContents($previous_page_contents, $page_contents);
+//      $previous_page_contents = $page_contents;
+
       $assertions = array_filter($assertions, function (Assertion $assertion) use ($page_contents) {
         // Only keep those that have not yet passed.  We'll try again as long as
         // there is time left.
@@ -221,8 +231,29 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
           $messenger->deliver(new Message($lines, MessageType::INFO, Verbosity::VERBOSE));
         }
       }
-
-    } while (!empty($assertions) && $remaining_time > 0 && $remaining_memory > 0);
+      if ($remaining_time <= 0) {
+        if ($messenger) {
+          $messenger->deliver(new Message([
+            sprintf('%srequest.timeout reached.', Icons::NO),
+          ], MessageType::ERROR, Verbosity::NORMAL));
+          $messenger->deliver(new Message([
+            sprintf('%sUse `request.time` in your test with a value > %s', Icons::HINT, $this->getRequestTimeout()),
+          ], MessageType::TODO, Verbosity::DEBUG));
+        }
+        break;
+      }
+      if ($remaining_memory <= 0) {
+        if ($messenger) {
+          $messenger->deliver(new Message([
+            sprintf('%sMemory limit for testing was reached.', Icons::NO),
+          ], MessageType::ERROR, Verbosity::NORMAL));
+          $messenger->deliver(new Message([
+            sprintf('%sTry increasing PHP\'s memory_limit > %s.', Icons::HINT, $this->limits['php_memory_limit']),
+          ], MessageType::TODO, Verbosity::DEBUG));
+        }
+        break;
+      }
+    } while (!empty($assertions));
 
     return $page_contents;
   }
@@ -239,5 +270,13 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
 
     return $evaluated;
   }
+
+//  private function diffPageContents(string $previous_page_contents, string $page_contents) {
+//    if ($previous_page_contents === $page_contents) {
+//      return '';
+//    }
+//
+//    return '';
+//  }
 
 }

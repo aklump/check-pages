@@ -8,6 +8,8 @@ namespace AKlump\CheckPages\Output;
  */
 class Icons {
 
+  const HINT = '🤔 ';
+
   const THUMBS_UP = '👍 ';
 
   const CLOCK = '⏱  ';
