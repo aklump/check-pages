@@ -1,7 +1,7 @@
 vendor/
 /.idea/
 composer.lock
-/example/tests/files
+/example/tests/files/.cache
 /node_modules/
 documentation/core
 documentation/README.md
