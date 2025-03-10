@@ -219,6 +219,7 @@ class RunCommand extends Command {
 
       // Sometimes a test fails without an assertion failing, e.g. the HTTP response code.
       $failed_count = max($runner->getTotalFailedTests(), $runner->getTotalFailedAssertions(), intval($runner->hasFailed()));
+      $failed_count = min($failed_count, $total_test_count);
       $lines = [
         '',
         sprintf('Tests: %d, Assertions: %d, Failures: %d',
@@ -229,7 +230,7 @@ class RunCommand extends Command {
         '',
       ];
 
-      if ($failed_count > 0) {
+      if ($failed_count > 0 && $total_test_count > 0) {
         array_unshift($lines, 'FAILURES!');
       }
       else {

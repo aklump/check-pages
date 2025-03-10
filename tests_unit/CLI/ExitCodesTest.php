@@ -12,8 +12,10 @@ class ExitCodesTest extends TestCase {
 
   use TestFromCLITrait;
 
-  public function testBogusFilterReturns1() {
-    $this->runFromCommandLine('--filter=bogus');
+  public function testBogusFilterReturns1AndReportsNoTestsNoAssertionsNoFailures() {
+    $output = $this->runFromCommandLine('--filter=bogus');
+    $output = implode(PHP_EOL, $output);
+    $this->assertStringContainsString('Tests: 0, Assertions: 0, Failures: 0', $output);
     $this->assertSame(1, $this->getCommandLineExitCode());
   }
 
