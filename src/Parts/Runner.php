@@ -37,6 +37,7 @@ use AKlump\Messaging\HasMessagesTrait;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
 use JsonSchema\Validator;
+use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -178,7 +179,7 @@ class Runner implements HasMessagesInterface {
    *
    * @var bool
    */
-  private $filtersWereApplied = FALSE;
+  private bool $atLeastOneSuiteMadeItPastTheFilters = FALSE;
 
 
   /**
@@ -465,7 +466,6 @@ class Runner implements HasMessagesInterface {
    *   Any suites that match all filters; if no filters, then all suites.
    */
   public function applyFilters(SuiteCollection $suites): SuiteCollection {
-    $this->filtersWereApplied = FALSE;
     if (empty($this->filters)) {
       return $suites;
     }
@@ -475,7 +475,6 @@ class Runner implements HasMessagesInterface {
     foreach ($this->filters as $filter) {
       $result = $result->merge((new FilterSuites())($suites, $filter));
     }
-    $this->filtersWereApplied = $result->count() > 0;
 
     return $result;
   }
@@ -499,7 +498,7 @@ class Runner implements HasMessagesInterface {
    */
   public function tryAddRuntimeOption(string $selector) {
     if (in_array($selector, $this->runtimeOptions)) {
-      throw new \RuntimeException(sprintf('The custom option "%s" has already been added to this runner.', $selector));
+      throw new RuntimeException(sprintf('The custom option "%s" has already been added to this runner.', $selector));
     }
     $this->runtimeOptions[] = $selector;
   }
@@ -532,7 +531,7 @@ class Runner implements HasMessagesInterface {
 
       require $runner_path;
 
-      if (count($this->filters) > 0 && !$this->filtersWereApplied) {
+      if (count($this->filters) > 0 && !$this->atLeastOneSuiteMadeItPastTheFilters) {
         $this->echo(new Message([''], MessageType::INFO, Verbosity::VERBOSE));
         $this->getMessenger()->deliver(new Message(
           ['There are no suites that match at least one of your filters.'],
@@ -586,13 +585,14 @@ class Runner implements HasMessagesInterface {
    */
   public function run(Suite $suite, string $path_to_suite) {
     if (empty($this->files)) {
-      throw new \RuntimeException('Call setFiles() first.');
+      throw new RuntimeException('Call setFiles() first.');
     }
 
     $result = $this->applyFilters(new SuiteCollection([$suite]));
     if ($result->count() == 0) {
       return;
     }
+    $this->atLeastOneSuiteMadeItPastTheFilters = TRUE;
 
     // This may seem to be located in a strange place, but for a complex set of
     // reasons having to do with runner functions and test-writing architecture
@@ -843,7 +843,7 @@ class Runner implements HasMessagesInterface {
         ], MessageType::DEBUG, $directive));
       }
 
-      throw new \RuntimeException(sprintf('The suite (%s) does not match schema "%s". Use -vvv for more info.', $suite->id(), $schema_basename));
+      throw new RuntimeException(sprintf('The suite (%s) does not match schema "%s". Use -vvv for more info.', $suite->id(), $schema_basename));
     }
 
     // Convert to arrays, we only needed objects for the validation.

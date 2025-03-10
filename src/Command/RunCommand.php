@@ -188,7 +188,6 @@ class RunCommand extends Command {
       $messenger->deliver($message);
     }
 
-
     $total_assertion_count = $runner->getTotalAssertionsRun();
     $ok = $runner->hasPassed() || 100 === $percentage;
     $flags = Flags::INVERT_FIRST_LINE;
