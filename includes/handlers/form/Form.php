@@ -4,9 +4,10 @@ namespace AKlump\CheckPages\Handlers;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\SuiteEventInterface;
-use AKlump\CheckPages\Exceptions\TestFailedException;
+use AKlump\CheckPages\Exceptions\OutdatedSyntaxException;
 use AKlump\CheckPages\Handlers\Form\HtmlFormReader;
 use AKlump\CheckPages\Handlers\Form\FormValuesManager;
+use AKlump\CheckPages\Exceptions\TestFailedException;
 use Exception;
 
 /**
@@ -108,6 +109,8 @@ final class Form implements HandlerInterface {
             $form_values_manager = new FormValuesManager();
             $form_values_manager->setConfig($config);
             $form_values_manager->setFormValues($form_values);
+            $allowed_values = $reader->getAllowedValues();
+            $form_values_manager->setAllowedValues($allowed_values);
 
             // Set the request body with form values.
             $http_query = $form_values_manager->getHttpQueryString();

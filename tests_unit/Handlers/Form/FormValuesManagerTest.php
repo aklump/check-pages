@@ -31,10 +31,47 @@ class FormValuesManagerTest extends TestCase {
     $form_values_manager->setConfig($config);
   }
 
+  public function testFooThrows() {
+    $config = [
+      'form' => [
+        'input' => [
+          [
+            'name' => 'fav_animal',
+            'value' => 'spaghetti',
+          ],
+        ],
+      ],
+    ];
+    $this->expectException(InvalidArgumentException::class);
+    $this->expectExceptionMessage('Config value form.input[0][fav_animal]=spaghetti is not a valid form key or case-insensitive label matching "d|Dog"');
+    $form_values_manager = new FormValuesManager();
+    $form_values_manager->setFormValues([
+      'fav_animal' => new KeyLabelNode('d', 'Dog'),
+    ]);
+    $form_values_manager->setConfig($config);
+    $form_values_manager->getHttpQueryString();
+  }
+
+  public function testValueOfZeroDoesNotThrow() {
+    $config = [
+      'form' => [
+        'input' => [
+          [
+            'name' => 'foo',
+            'value' => 0,
+          ],
+        ],
+      ],
+    ];
+    $form_values_manager = new FormValuesManager();
+    $form_values_manager->setConfig($config);
+    $this->assertSame('foo=0', $form_values_manager->getHttpQueryString());
+  }
+
   public function testBadConfigValueThrows() {
     $config = ['form' => ['input' => [['name' => 'value']]]];
     $this->expectException(InvalidArgumentException::class);
-    $this->expectExceptionMessage('form.input[*].value || form.input[*].option is required');
+    $this->expectExceptionMessage('form.input[0].value is required');
     $form_values_manager = new FormValuesManager();
     $form_values_manager->setConfig($config);
   }
@@ -42,13 +79,13 @@ class FormValuesManagerTest extends TestCase {
   public static function dataFortestGetHttpQueryStringProvider(): array {
     $tests = [];
     $tests[] = [
-      [['name' => 'color', 'option' => 'w']],
+      [['name' => 'color', 'value' => 'w']],
       ['color' => new KeyLabelNode('w', 'White')],
       'color=w',
       FormValuesManager::OPTION_ALLOW_NON_FORM_KEYS,
     ];
     $tests[] = [
-      [['name' => 'color', 'option' => 'White']],
+      [['name' => 'color', 'value' => 'White']],
       ['color' => new KeyLabelNode('w', 'White')],
       'color=w',
       FormValuesManager::OPTION_ALLOW_NON_FORM_KEYS,

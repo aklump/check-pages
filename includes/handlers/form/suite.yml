@@ -98,9 +98,6 @@
       -
         name: date
         value: "${savedDate}"
-      -
-        name: shirt_size
-        option: small
   find:
     -
       dom: h1
@@ -108,8 +105,38 @@
     -
       dom: h2
       text: Your membership will begin on 1982-06-30.
+
+-
+  why: Assert form.input.values with option inner text or option value.
+  url: /test_subject.php
+  form:
+    dom: .form-c
+    input:
+      -
+        name: shirt_size
+        value: Small
+      -
+        name: hair_color
+        value: hc1
+  find:
     -
-      dom: p
+      dom: p.shirt-size
+      text: Your shirt size is sm.
+    -
+      dom: p.hair-color
+      text: Your hair color is hc1.
+-
+  why: Assert form.input.values with option label is case-insensitive.
+  url: /test_subject.php
+  form:
+    dom: .form-c
+    input:
+      -
+        name: shirt_size
+        value: SmAlL
+  find:
+    -
+      dom: p.shirt-size
       text: Your shirt size is sm.
 
 -

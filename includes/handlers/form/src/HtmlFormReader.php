@@ -6,6 +6,11 @@ use DOMElement;
 use InvalidArgumentException;
 use Symfony\Component\DomCrawler\Crawler;
 
+/**
+ * Extract the form keys and values from an HTML form.
+ *
+ * @see \AKlump\CheckPages\Handlers\Form\FormValuesManager
+ */
 final class HtmlFormReader {
 
   const OPTION_INCLUDE_DISABLED = 1;
@@ -69,6 +74,45 @@ final class HtmlFormReader {
   }
 
   /**
+   * @return \AKlump\CheckPages\Handlers\Form\KeyLabelNode[]
+   */
+  public function getAllowedValues(): array {
+    $form = $this->getForm();
+    $response = [];
+
+    foreach ($form->filter('input[type=radio]') as $el) {
+      $name = $el->getAttribute('name');
+      $id = $el->getAttribute('id');
+      $label = $form->filter('label[for=' . $id . ']');
+      $label = $label ? $label->text() : $el->getAttribute('value');
+      $response[$name][] = new KeyLabelNode(
+        $el->getAttribute('value'),
+        $label,
+      );
+    }
+
+    foreach ($form->filter('select') as $el) {
+      /** @var \DOMElement $el */
+      if (!$this->options & self::OPTION_INCLUDE_DISABLED
+        && $el->hasAttribute('disabled')) {
+        continue;
+      }
+      $allowed_values = [];
+
+      $name = $el->getAttribute('name');
+      foreach ($el->getElementsByTagName('option') as $option) {
+        $allowed_values[] = new KeyLabelNode(
+          $option->getAttribute('value'),
+          $option->textContent,
+        );
+      }
+      $response[$name] = $allowed_values;
+    }
+
+    return $response;
+  }
+
+  /**
    * Get the form's submit button.
    *
    * @param string $submit_selector Leave this empty and the first submit will
@@ -96,6 +140,9 @@ final class HtmlFormReader {
     if ($el->tagName === 'select') {
       return $this->getValueFromSelectElement($el);
     }
+    elseif ($el->getAttribute('type') === 'radio') {
+      return $this->getValueFromRadioElement($el);
+    }
 
     return $el->getAttribute('value');
   }
@@ -118,24 +165,65 @@ final class HtmlFormReader {
   }
 
   /**
+   * @param \DOMElement $el
+   *
+   * @return \AKlump\CheckPages\Handlers\Form\KeyLabelNode
+   */
+  private function getValueFromRadioElement(DOMElement $el): ?KeyLabelNode {
+    $input = $this->getCheckedOrFirstInput($el);
+    $id = $input->getAttribute('id');
+    $label = $this->getForm()->filter('label[for=' . $id . ']');
+
+    return new KeyLabelNode(
+      $input->getAttribute('value'),
+      $label->text(),
+    );
+
+
+    $option = $this->getSelectedOrFirstOption($el);
+    if (!$option instanceof DOMElement) {
+      return NULL;
+    }
+
+    return new KeyLabelNode(
+      $option->getAttribute('value'),
+      $option->textContent,
+    );
+  }
+
+  /**
    * @param \DOMElement $select_el
    *
-   * @return \DOMNode|null
+   * @return \DOMElement|null
    */
-  private function getSelectedOrFirstOption(DOMElement $select_el) {
+  private function getSelectedOrFirstOption(DOMElement $select_el): ?DOMElement {
     $crawler = new Crawler($select_el);
     $selected = $crawler->filter('option[selected]');
     if ($selected->count() > 0) {
       return $selected->getNode(0);
     }
 
-    $firstOption = $crawler->filter('option');
-    if ($firstOption->count() > 0) {
-      return $firstOption->getNode(0);
+    $first_option = $crawler->filter('option');
+    if ($first_option->count() > 0) {
+      return $first_option->getNode(0);
     }
 
     return NULL;
+  }
 
+  private function getCheckedOrFirstInput(DOMElement $el): ?DOMElement {
+    $name = $el->getAttribute('name');
+    $form = $this->getForm();
+    $input = $form
+      ->filter(sprintf("input[name=%s][checked=checked]", $name));
+    if ($input->count() === 0) {
+      $input = $form->filter(sprintf("input[name=%s]", $name));
+    }
+    if ($input->count() > 0) {
+      return $input->getNode(0);
+    }
+
+    return NULL;
   }
 
 }

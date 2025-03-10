@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- The form handler no longer uses `option` for select elements; use `value` instead.
 - Executable renamed from _check\_pages_ to _checkpages_
 - _vendor/bin/check\_pages_ is now _vendor/bin/checkpages_
 

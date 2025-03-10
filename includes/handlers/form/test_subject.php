@@ -40,8 +40,12 @@ if (isset($_POST['op'])) {
   <input type="text" name="first_name" value=""/>
   <input type="date" name="date" value=""/>
   <select name="shirt_size">
-    <option value="sm">small</option>
-    <option value="lg">large</option>
+    <option value="sm">Small</option>
+    <option value="lg">Large</option>
+  </select>
+  <select name="hair_color">
+    <option value="hc1">Blonde</option>
+    <option value="hc2">Grey</option>
   </select>
   <button type="submit">Submit</button>
 </form>
