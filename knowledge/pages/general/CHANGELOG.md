@@ -36,13 +36,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- The exit code changed from 0 to 1 if a filter is used that matches no suites.
 - The form handler no longer uses `option` for select elements; use `value` instead.
 - Executable renamed from _check\_pages_ to _checkpages_
 - _vendor/bin/check\_pages_ is now _vendor/bin/checkpages_
 
 ### Removed
 
-- _./dist/bin/checkpages_.  Use _./checkpages_ instead.
+- _./dist/bin/checkpages_. Use _./checkpages_ instead.
 
 ## [0.23.0] - 2023-12-29
 

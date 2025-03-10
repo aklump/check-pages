@@ -15,6 +15,7 @@ use AKlump\CheckPages\Helpers\FilterSuites;
 use AKlump\CheckPages\Output\ConsoleEchoPrinter;
 use AKlump\CheckPages\Output\DevNullPrinter;
 use AKlump\CheckPages\Output\Flags;
+use AKlump\CheckPages\Output\Icons;
 use AKlump\CheckPages\Output\LoggerPrinter;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\MultiPrinter;
@@ -534,20 +535,26 @@ class Runner implements HasMessagesInterface {
       if (count($this->filters) > 0 && !$this->filtersWereApplied) {
         $this->echo(new Message([''], MessageType::INFO, Verbosity::VERBOSE));
         $this->getMessenger()->deliver(new Message(
-          [
-            basename($runner_path),
-            sprintf('There are no suites in %s that match at least one of your filters.', basename($runner_path)),
-            'This can happen if you have not added `run_suite()` with a path to the intended suite(s).',
-            '',
-          ],
-          MessageType::INFO, Verbosity::VERBOSE
-        ), Flags::INVERT_FIRST_LINE);
+          ['There are no suites that match at least one of your filters.'],
+          MessageType::ERROR, Verbosity::NORMAL
+        ));
+        $filter_hints = [
+          sprintf('%sReview %s', Icons::HINT, $runner_path),
+          sprintf('%sThis might happen if you did not add the correct `run_suite()`:', Icons::HINT),
+        ];
+        foreach ($this->filters as $filter) {
+          $filter_hints[] = sprintf('%se.g., run_suite("%s");', Icons::HINT, $filter);
+        }
+        $this->getMessenger()
+          ->deliver(new Message($filter_hints, MessageType::INFO, Verbosity::VERBOSE
+          ), Flags::INVERT_FIRST_LINE);
+        $this->setFailed();
       }
 
       if ($this->failedTestCount) {
         $this->setFailed();
       }
-      else {
+      elseif (!$this->hasFailed()) {
         $this->setPassed();
       }
     }
