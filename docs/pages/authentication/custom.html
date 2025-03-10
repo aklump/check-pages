@@ -7,7 +7,7 @@
       <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.23.1">
       <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.23.1">
       <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.23.1">
-    <title>Getting Started | Check Pages</title>
+    <title>How to Write a Custom Authentication | Check Pages</title>
 </head>
 <body class="my-5">
 
@@ -26,13 +26,13 @@
          aria-controls="table-of-contents">TOC</a>
     </li>
     <li class="breadcrumb-item">
-      <a href="readme.html">How to Use</a></li>
+      <a href="authentication.html">Authentication</a></li>
   </ol>
 </nav>
 
       </div>
       <div class="header__tags me-3">  </div>
-      <div class="header__page-numbers flex-shrink-1">2
+      <div class="header__page-numbers flex-shrink-1">49
         / 49</div>
     </div>
   </div>
@@ -41,39 +41,17 @@
 <main class="container-md flex-column">
   <div class="row mb-5 pt-5">
     <article class="col">
-      <h1 class="mb-4 text-primary">Getting Started</h1>
-      <hr />
-<h2>id: cheatsheet</h2>
-<h2>Does a Page Load?</h2>
-<pre><code class="yaml">-
-  visit: /foo
-</code></pre>
-<h2>Is the Status Code Correct?</h2>
-<p>By saying that the "page loads", we mean that it returns a status code of 200. The following is exactly the same in function as the previous example. You can assert any HTTP status code by changing the value of <code>status</code>.</p>
-<pre><code class="yaml">-
-  visit: /foo
-  status: 200
-</code></pre>
-<h2>Does the Page Have Certain Content?</h2>
-<p>Once loaded you can also look for things on the page with <code>find</code>. The most simple <code>find</code> assertion looks for a substring of text anywhere on the page. The following two examples are identical assertions.</p>
-<pre><code class="yaml">-
-  visit: /foo
-  find:
-    - Upcoming Events Calendar
-</code></pre>
-<pre><code class="yaml">-
-  visit: /foo
-  find:
-    -
-      contains: Upcoming Events Calendar
-</code></pre>
-<p>Ensure something does NOT appear on the page like this:</p>
-<pre><code class="yaml">-
-  visit: /foo
-  find:
-    -
-      not contains: "[token:123]"
-</code></pre>
+      <h1 class="mb-4 text-primary">How to Write a Custom Authentication</h1>
+      <p>See <a href="../extend/mixins.html">mixins</a>.</p>
+<ol>
+<li><p>Add to <em>runner.php</em>
+<code>`</code>php
+add_mixin('my_auth')
+<code>`</code></p>
+</li>
+<li><p>Create file _mixins/my<em>auth.php</em></p>
+</li>
+</ol>
     </article>
   </div>
 </main>
@@ -91,11 +69,11 @@
 <nav class="nav d-flex justify-content-center align-items-center
   fixed-bottom">
   <div class="btn-group flex-fill">
-              <a href="readme.html" class="btn nav__prev-chapter btn-secondary"><i class="bi
-      bi-caret-left-fill"></i> Check Pages</a>
+              <a href="authentication.html" class="btn nav__prev-chapter btn-secondary"><i class="bi
+      bi-caret-left-fill"></i> Authentication</a>
   
     
-              <a href="readme.html" class="btn nav__prev-page js-nav__prev-page
+              <a href="authentication.html" class="btn nav__prev-page js-nav__prev-page
     btn-primary"><i class="bi
       bi-caret-left-fill"></i></a>
   
@@ -106,9 +84,8 @@
        aria-controls="table-of-contents"><i class="bi
            bi-list-ol"></i></a>
     
-              <a href="why.html" class="btn nav__next-page js-nav__next-page
-    btn-primary"><i class="bi bi-file-earmark"></i> Using `why` For Better Clarity <i class="bi
-       bi-caret-right-fill"></i></a>
+              <span class="btn nav__next-page js-nav__next-page
+    btn-primary"></span>
   
     
               <span class="btn nav__next-chapter btn-secondary "></span>
@@ -136,168 +113,168 @@
         <h2 class="h4 mt-4">Matched Pages</h2>
         <ol class="list-unstyled">
                                               <li data-page="readme" value="1">
-      <a class="js-page-link" href="readme.html">Check Pages<span
+      <a class="js-page-link" href="../general/readme.html">Check Pages<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="cheatsheet" value="2">
-      <a class="js-page-link" href="cheatsheet.html">Getting Started<span
+      <a class="js-page-link" href="../general/cheatsheet.html">Getting Started<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="why" value="3">
-      <a class="js-page-link" href="why.html">Using `why` For Better Clarity<span
+      <a class="js-page-link" href="../general/why.html">Using `why` For Better Clarity<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="files" value="4">
-      <a class="js-page-link" href="files.html">File Output<span
+      <a class="js-page-link" href="../general/files.html">File Output<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="changelog" value="5">
-      <a class="js-page-link" href="changelog.html">Changelog<span
+      <a class="js-page-link" href="../general/changelog.html">Changelog<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="xdebug" value="6">
-      <a class="js-page-link" href="xdebug.html">Debugging While Running Tests<span
+      <a class="js-page-link" href="../general/xdebug.html">Debugging While Running Tests<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="dates" value="7">
-      <a class="js-page-link" href="dates.html">Dates<span
+      <a class="js-page-link" href="../general/dates.html">Dates<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="expected_outcome" value="8">
-      <a class="js-page-link" href="expected_outcome.html">When You _Want_ Failure<span
+      <a class="js-page-link" href="../general/expected_outcome.html">When You _Want_ Failure<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="forms__drupal" value="9">
-      <a class="js-page-link" href="forms__drupal.html">Testing Forms<span
+      <a class="js-page-link" href="../general/forms__drupal.html">Testing Forms<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="grouping" value="10">
-      <a class="js-page-link" href="grouping.html">Suite Groups<span
+      <a class="js-page-link" href="../general/grouping.html">Suite Groups<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="install" value="11">
-      <a class="js-page-link" href="install.html">Installation Methods<span
+      <a class="js-page-link" href="../general/install.html">Installation Methods<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="interpolation" value="12">
-      <a class="js-page-link" href="interpolation.html">Interpolation<span
+      <a class="js-page-link" href="../general/interpolation.html">Interpolation<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="lando" value="13">
-      <a class="js-page-link" href="lando.html">Using With Lando<span
+      <a class="js-page-link" href="../general/lando.html">Using With Lando<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="matches" value="14">
-      <a class="js-page-link" href="matches.html">The Power of Matches<span
+      <a class="js-page-link" href="../general/matches.html">The Power of Matches<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="multiple_dom_elements" value="15">
-      <a class="js-page-link" href="multiple_dom_elements.html">Understanding How Multiple DOM Elements Are Handled<span
+      <a class="js-page-link" href="../general/multiple_dom_elements.html">Understanding How Multiple DOM Elements Are Handled<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="php_version" value="16">
-      <a class="js-page-link" href="php_version.html">How to Use a Different PHP version than Default<span
+      <a class="js-page-link" href="../general/php_version.html">How to Use a Different PHP version than Default<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="phpstorm" value="17">
-      <a class="js-page-link" href="phpstorm.html">PhpStorm Integration<span
+      <a class="js-page-link" href="../general/phpstorm.html">PhpStorm Integration<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="retest" value="18">
-      <a class="js-page-link" href="retest.html">Continuing and Retesting<span
+      <a class="js-page-link" href="../general/retest.html">Continuing and Retesting<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="skipping_tests" value="19">
-      <a class="js-page-link" href="skipping_tests.html">Skipping Suites<span
+      <a class="js-page-link" href="../general/skipping_tests.html">Skipping Suites<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="stash" value="20">
-      <a class="js-page-link" href="stash.html">Stashing Values<span
+      <a class="js-page-link" href="../general/stash.html">Stashing Values<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="suite_index" value="21">
-      <a class="js-page-link" href="suite_index.html">Suite Index<span
+      <a class="js-page-link" href="../general/suite_index.html">Suite Index<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="testing_legacy" value="22">
-      <a class="js-page-link" href="testing_legacy.html">Testing Legacy Sites<span
+      <a class="js-page-link" href="../general/testing_legacy.html">Testing Legacy Sites<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="cli" value="23">
-      <a class="js-page-link" href="cli.html">Command Line Runner<span
+      <a class="js-page-link" href="../general/cli.html">Command Line Runner<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="readme_old" value="24">
-      <a class="js-page-link" href="readme_old.html">Check Pages<span
+      <a class="js-page-link" href="../general/readme_old.html">Check Pages<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
@@ -465,14 +442,14 @@
     </li>
   
                                                           <li data-page="authentication" value="48">
-      <a class="js-page-link" href="../authentication/authentication.html">Authentication<span
+      <a class="js-page-link" href="authentication.html">Authentication<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="custom" value="49">
-      <a class="js-page-link" href="../authentication/custom.html">How to Write a Custom Authentication<span
+      <a class="js-page-link" href="custom.html">How to Write a Custom Authentication<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
@@ -485,99 +462,99 @@
               <h2 class="h4 mt-4">How to Use</h2>
         <ol>
                                 <li data-page="readme" value="1">
-      <a class="js-page-link" href="readme.html">Check Pages</a>
+      <a class="js-page-link" href="../general/readme.html">Check Pages</a>
     </li>
   
                                 <li data-page="cheatsheet" value="2">
-      <a class="js-page-link" href="cheatsheet.html">Getting Started</a>
+      <a class="js-page-link" href="../general/cheatsheet.html">Getting Started</a>
     </li>
   
                                 <li data-page="why" value="3">
-      <a class="js-page-link" href="why.html">Using `why` For Better Clarity</a>
+      <a class="js-page-link" href="../general/why.html">Using `why` For Better Clarity</a>
     </li>
   
                                 <li data-page="files" value="4">
-      <a class="js-page-link" href="files.html">File Output</a>
+      <a class="js-page-link" href="../general/files.html">File Output</a>
     </li>
   
                                 <li data-page="changelog" value="5">
-      <a class="js-page-link" href="changelog.html">Changelog</a>
+      <a class="js-page-link" href="../general/changelog.html">Changelog</a>
     </li>
   
                                 <li data-page="xdebug" value="6">
-      <a class="js-page-link" href="xdebug.html">Debugging While Running Tests</a>
+      <a class="js-page-link" href="../general/xdebug.html">Debugging While Running Tests</a>
     </li>
   
                                 <li data-page="dates" value="7">
-      <a class="js-page-link" href="dates.html">Dates</a>
+      <a class="js-page-link" href="../general/dates.html">Dates</a>
     </li>
   
                                 <li data-page="expected_outcome" value="8">
-      <a class="js-page-link" href="expected_outcome.html">When You _Want_ Failure</a>
+      <a class="js-page-link" href="../general/expected_outcome.html">When You _Want_ Failure</a>
     </li>
   
                                 <li data-page="forms__drupal" value="9">
-      <a class="js-page-link" href="forms__drupal.html">Testing Forms</a>
+      <a class="js-page-link" href="../general/forms__drupal.html">Testing Forms</a>
     </li>
   
                                 <li data-page="grouping" value="10">
-      <a class="js-page-link" href="grouping.html">Suite Groups</a>
+      <a class="js-page-link" href="../general/grouping.html">Suite Groups</a>
     </li>
   
                                 <li data-page="install" value="11">
-      <a class="js-page-link" href="install.html">Installation Methods</a>
+      <a class="js-page-link" href="../general/install.html">Installation Methods</a>
     </li>
   
                                 <li data-page="interpolation" value="12">
-      <a class="js-page-link" href="interpolation.html">Interpolation</a>
+      <a class="js-page-link" href="../general/interpolation.html">Interpolation</a>
     </li>
   
                                 <li data-page="lando" value="13">
-      <a class="js-page-link" href="lando.html">Using With Lando</a>
+      <a class="js-page-link" href="../general/lando.html">Using With Lando</a>
     </li>
   
                                 <li data-page="matches" value="14">
-      <a class="js-page-link" href="matches.html">The Power of Matches</a>
+      <a class="js-page-link" href="../general/matches.html">The Power of Matches</a>
     </li>
   
                                 <li data-page="multiple_dom_elements" value="15">
-      <a class="js-page-link" href="multiple_dom_elements.html">Understanding How Multiple DOM Elements Are Handled</a>
+      <a class="js-page-link" href="../general/multiple_dom_elements.html">Understanding How Multiple DOM Elements Are Handled</a>
     </li>
   
                                 <li data-page="php_version" value="16">
-      <a class="js-page-link" href="php_version.html">How to Use a Different PHP version than Default</a>
+      <a class="js-page-link" href="../general/php_version.html">How to Use a Different PHP version than Default</a>
     </li>
   
                                 <li data-page="phpstorm" value="17">
-      <a class="js-page-link" href="phpstorm.html">PhpStorm Integration</a>
+      <a class="js-page-link" href="../general/phpstorm.html">PhpStorm Integration</a>
     </li>
   
                                 <li data-page="retest" value="18">
-      <a class="js-page-link" href="retest.html">Continuing and Retesting</a>
+      <a class="js-page-link" href="../general/retest.html">Continuing and Retesting</a>
     </li>
   
                                 <li data-page="skipping_tests" value="19">
-      <a class="js-page-link" href="skipping_tests.html">Skipping Suites</a>
+      <a class="js-page-link" href="../general/skipping_tests.html">Skipping Suites</a>
     </li>
   
                                 <li data-page="stash" value="20">
-      <a class="js-page-link" href="stash.html">Stashing Values</a>
+      <a class="js-page-link" href="../general/stash.html">Stashing Values</a>
     </li>
   
                                 <li data-page="suite_index" value="21">
-      <a class="js-page-link" href="suite_index.html">Suite Index</a>
+      <a class="js-page-link" href="../general/suite_index.html">Suite Index</a>
     </li>
   
                                 <li data-page="testing_legacy" value="22">
-      <a class="js-page-link" href="testing_legacy.html">Testing Legacy Sites</a>
+      <a class="js-page-link" href="../general/testing_legacy.html">Testing Legacy Sites</a>
     </li>
   
                                 <li data-page="cli" value="23">
-      <a class="js-page-link" href="cli.html">Command Line Runner</a>
+      <a class="js-page-link" href="../general/cli.html">Command Line Runner</a>
     </li>
   
                                 <li data-page="readme_old" value="24">
-      <a class="js-page-link" href="readme_old.html">Check Pages</a>
+      <a class="js-page-link" href="../general/readme_old.html">Check Pages</a>
     </li>
   
                   </ol>
@@ -697,11 +674,11 @@
               <h2 class="h4 mt-4">Authentication</h2>
         <ol>
                                 <li data-page="authentication" value="48">
-      <a class="js-page-link" href="../authentication/authentication.html">Authentication</a>
+      <a class="js-page-link" href="authentication.html">Authentication</a>
     </li>
   
                                 <li data-page="custom" value="49">
-      <a class="js-page-link" href="../authentication/custom.html">How to Write a Custom Authentication</a>
+      <a class="js-page-link" href="custom.html">How to Write a Custom Authentication</a>
     </li>
   
                   </ol>
@@ -723,53 +700,53 @@
                 
         <ul class="list-group list-group-flush">
                                     <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="readme.html">Check Pages</a>
+                 data-tags="[]" href="../general/readme.html">Check Pages</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="cheatsheet.html">Getting Started</a>
+                 data-tags="[]" href="../general/cheatsheet.html">Getting Started</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="why.html">Using `why` For Better Clarity</a>
+                 data-tags="[]" href="../general/why.html">Using `why` For Better Clarity</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="files.html">File Output</a>
+                 data-tags="[]" href="../general/files.html">File Output</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="changelog.html">Changelog</a>
+                 data-tags="[]" href="../general/changelog.html">Changelog</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="xdebug.html">Debugging While Running Tests</a>
+                 data-tags="[]" href="../general/xdebug.html">Debugging While Running Tests</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="dates.html">Dates</a>
+                 data-tags="[]" href="../general/dates.html">Dates</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="expected_outcome.html">When You _Want_ Failure</a>
+                 data-tags="[]" href="../general/expected_outcome.html">When You _Want_ Failure</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="forms__drupal.html">Testing Forms</a>
+                 data-tags="[]" href="../general/forms__drupal.html">Testing Forms</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="grouping.html">Suite Groups</a>
+                 data-tags="[]" href="../general/grouping.html">Suite Groups</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="install.html">Installation Methods</a>
+                 data-tags="[]" href="../general/install.html">Installation Methods</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="interpolation.html">Interpolation</a>
+                 data-tags="[]" href="../general/interpolation.html">Interpolation</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="lando.html">Using With Lando</a>
+                 data-tags="[]" href="../general/lando.html">Using With Lando</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="matches.html">The Power of Matches</a>
+                 data-tags="[]" href="../general/matches.html">The Power of Matches</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="multiple_dom_elements.html">Understanding How Multiple DOM Elements Are Handled</a>
+                 data-tags="[]" href="../general/multiple_dom_elements.html">Understanding How Multiple DOM Elements Are Handled</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="php_version.html">How to Use a Different PHP version than Default</a>
+                 data-tags="[]" href="../general/php_version.html">How to Use a Different PHP version than Default</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="phpstorm.html">PhpStorm Integration</a>
+                 data-tags="[]" href="../general/phpstorm.html">PhpStorm Integration</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="retest.html">Continuing and Retesting</a>
+                 data-tags="[]" href="../general/retest.html">Continuing and Retesting</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="skipping_tests.html">Skipping Suites</a>
+                 data-tags="[]" href="../general/skipping_tests.html">Skipping Suites</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="stash.html">Stashing Values</a>
+                 data-tags="[]" href="../general/stash.html">Stashing Values</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="suite_index.html">Suite Index</a>
+                 data-tags="[]" href="../general/suite_index.html">Suite Index</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="testing_legacy.html">Testing Legacy Sites</a>
+                 data-tags="[]" href="../general/testing_legacy.html">Testing Legacy Sites</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="cli.html">Command Line Runner</a>
+                 data-tags="[]" href="../general/cli.html">Command Line Runner</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="readme_old.html">Check Pages</a>
+                 data-tags="[]" href="../general/readme_old.html">Check Pages</a>
                                                 <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="../extend/unit_tests.html">Unit Tests</a>
                                                 <a class="list-group-item list-group-item-action"
@@ -817,9 +794,9 @@
                                                 <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="../special/pdfs.html">Asserting PDFs</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../authentication/authentication.html">Authentication</a>
+                 data-tags="[]" href="authentication.html">Authentication</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../authentication/custom.html">How to Write a Custom Authentication</a>
+                 data-tags="[]" href="custom.html">How to Write a Custom Authentication</a>
                               </ul>
       </div>
     </div>

@@ -614,19 +614,9 @@
                             },
                             {
                                 "type": "object",
-                                "oneOf": [
-                                    {
-                                        "required": [
-                                            "name",
-                                            "value"
-                                        ]
-                                    },
-                                    {
-                                        "required": [
-                                            "name",
-                                            "option"
-                                        ]
-                                    }
+                                "required": [
+                                    "name",
+                                    "value"
                                 ],
                                 "additionalProperties": false,
                                 "properties": {
@@ -637,12 +627,6 @@
                                         "type": "string"
                                     },
                                     "value": {
-                                        "type": [
-                                            "string",
-                                            "number"
-                                        ]
-                                    },
-                                    "option": {
                                         "type": [
                                             "string",
                                             "number"

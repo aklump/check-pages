@@ -1,3 +1,8 @@
+<!--
+id: custom
+tags: ''
+-->
+
 # How to Write a Custom Authentication
 
 See [mixins](@mixins).

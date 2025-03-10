@@ -59,7 +59,7 @@
     status: 200
     location: /
 -
-    why: "Assert redirects with special chars doesn't loose encoding (js ${loop.value[1]})"
+    why: 'Assert redirects with special chars doesn''t loose encoding (js ${loop.value[1]})'
     js: '${loop.value[0]}'
     url: '/handlers/redirect.php?q=/study-guides'
     status: 301
@@ -71,7 +71,7 @@
     status: 301
     location: /location.html
     find:
-        - "We've moved!"
+        - 'We''ve moved!'
 -
     why: 'Ensure location works on 403 after 301 (js ${loop.value[1]})'
     url: /forbidden.php

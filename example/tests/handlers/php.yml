@@ -1,6 +1,6 @@
 -
     why: 'Capture the expected copyright end date.'
-    php: "echo date_create()->format('Y')"
+    php: 'echo date_create()->format(''Y'')'
     set: thisYear
 -
     url: /handlers/php.php
@@ -10,7 +10,7 @@
             is: '©1999-${thisYear} In the Loft Studios, LLC'
 -
     why: 'Ensure single quotes work.'
-    php: "echo '-bravo'"
+    php: 'echo ''-bravo'''
     set: selector
 -
     why: 'Ensure double quotes work.'

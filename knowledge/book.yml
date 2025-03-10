@@ -8,7 +8,6 @@ chapters:
       - readme
       - cheatsheet
       - why
-      - authentication
       - files
       - changelog
       - xdebug
@@ -28,13 +27,13 @@ chapters:
       - stash
       - suite_index
       - testing_legacy
-      - unit_tests
       - cli
       - readme_old
   -
     id: extend
     title: Extending
     pages:
+      - unit_tests
       - ex__ssl
       - options
       - events
@@ -81,3 +80,9 @@ chapters:
     title: Special
     pages:
       - pdfs
+  -
+    id: authentication
+    title: Authentication
+    pages:
+      - authentication
+      - custom

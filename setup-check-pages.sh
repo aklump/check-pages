@@ -29,21 +29,21 @@ function suggest() {
 function check_composer() {
   command -v composer &> /dev/null
 }
-
 function is_installed() {
   [[ -d "$install_path" ]]
 }
 
-# ========= Execute installation =========
+# ========= Check environment =========
 ! check_composer && error "Composer is missing; installation failed." && exit 1
 is_installed && error "Check Pages is already installed." && error "$install_path" && exit 1
 
+# ========= Execute installation =========
 # Create destination directory
 ! mkdir -p "$install_path" && error "Directory \"$install_path\" already exists." && exit 1
 ! cd "$install_path" && error 'Cannot create stand-alone directory.' && exit 1
 status "Directory \"$install_path\" created."
 
-# Composer installation
+# Install with Composer
 ! printf '{"name":"aklump/check-pages-project","type":"project","require":{"aklump/check-pages":"%s"}}' "$install_version" > composer.json && echo '' && exit 1
 ! composer install && error 'Cannot install dependencies.' && exit 1
 
