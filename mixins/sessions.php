@@ -77,7 +77,7 @@ add_test_option('user', [
     //
     $cookie = $session->getSessionCookie();
     if (!$cookie) {
-      throw new StopRunnerException("No session found for user: $username");
+      throw new StopRunnerException("No session found for user: $username. Try: export CP_USERNAME=foobar");
     }
     $event->getDriver()->setHeader('Cookie', $cookie);
 
