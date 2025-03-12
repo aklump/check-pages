@@ -1,0 +1,42 @@
+-
+  why: Assert loading elements in place on initial load.
+  js: false
+  visit: /ajax/
+  find:
+    -
+      why: Assert the loader can be counted.
+      dom: .ajax-loader
+      count: 1
+    -
+      why: Assert content is empty without AJAX loading.
+      dom: '#page-content'
+      text: ''
+    -
+      why: Assert loading title can be checked.
+      dom: '#page-title'
+      is: Building Your Experience...
+    -
+      why: Assert AJAX-loaded content can be counted.
+      dom: '#page-content img'
+      count: 0
+-
+  js: true
+  visit: /ajax/
+  find:
+    -
+      why: Assert the loader removal can be checked.
+      dom: .ajax-loader
+      count: 0
+    -
+      why: Assert content loaded can be checked.
+      dom: '#page-content'
+      contains: Lorem ipsum
+    -
+      why: Assert AJAX-loaded content can be counted.
+      dom: '#page-content p'
+      count: 2
+    -
+      why: Assert AJAX-loaded content can be counted.
+      dom: '#page-content img'
+      count: 1
+

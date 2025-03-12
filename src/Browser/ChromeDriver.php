@@ -206,18 +206,12 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
     $messenger = $this->getMessenger();
     $next_message_time = NULL;
     $this->limits['time'] = time() + $this->getRequestTimeout();
-//    $previous_page_contents = '';
     do {
       $page_contents = $this->page->getHtml();
-
-      // TODO Write diff to file
-//      $diff = $this->diffPageContents($previous_page_contents, $page_contents);
-//      $previous_page_contents = $page_contents;
-
       $assertions = array_filter($assertions, function (Assertion $assertion) use ($page_contents) {
         // Only keep those that have not yet passed.  We'll try again as long as
         // there is time left.
-        return $assertion->runAgainst($page_contents) === FALSE;
+        return $assertion->reRunAgainst($page_contents) === FALSE;
       });
       $remaining_time = max(0, $this->limits['time'] - time());
       $remaining_memory = max(0, $this->limits['memory'] - memory_get_usage());
@@ -270,13 +264,5 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
 
     return $evaluated;
   }
-
-//  private function diffPageContents(string $previous_page_contents, string $page_contents) {
-//    if ($previous_page_contents === $page_contents) {
-//      return '';
-//    }
-//
-//    return '';
-//  }
 
 }

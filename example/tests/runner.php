@@ -18,6 +18,7 @@ add_mixin('http_request_files');
 run_suite('on_fail_skip');
 run_suite('ignored');
 run_suite('secrets');
+run_suite('ajax/*');
 run_suite('group1/*');
 run_suite('group2/*');
 run_suite('foo/bar/group3/*');

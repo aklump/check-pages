@@ -3,7 +3,6 @@
 - promote env_vars to a handler?
 - add test coverage for env_vars mixin
 - badge icons may be broken... see sessions.php
-- there might be a bug with how AJAX waits for text matcher, seems to work for count but not text. Seen in NU library page.
 
 ---
 - Add unit test for \AKlump\CheckPages\Mixins\Drupal\DrupalSessionManager

@@ -149,7 +149,7 @@ final class AssertionTest extends TestCase {
    */
   public function testSetGetNeedle(array $config, array $haystack) {
     $this->assertTrue(Assertion::create('', '', '', $config)
-      ->runAgainst($haystack));
+      ->reRunAgainst($haystack));
   }
 
   public function testPassingDomListenerClassWorksAsExpected() {
@@ -178,6 +178,17 @@ final class AssertionTest extends TestCase {
     $this->expectException(RuntimeException::class);
     $obj = new Assertion('', '', '', []);
     $obj->setHaystack([])->run()->run();
+  }
+
+  public function testCallingReRunAgainstAfterFailureWorksAsExpected() {
+    $obj = Assertion::create('', '', '', [
+      'dom' => 'h1',
+      'count' => 1,
+    ]);
+    $haystack = ['<header></header>'];
+    $this->assertFalse($obj->reRunAgainst($haystack));
+    $haystack = ['<header><h1>title</h1></header>'];
+    $this->assertTrue($obj->reRunAgainst($haystack));
   }
 
 }

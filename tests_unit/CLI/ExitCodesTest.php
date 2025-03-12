@@ -2,7 +2,7 @@
 
 namespace AKlump\CheckPages\Tests\Unit\CLI;
 
-use AKlump\CheckPages\Tests\Unit\Traits\TestFromCLITrait;
+use AKlump\CheckPages\Tests\Unit\TestingTraits\TestFromCLITrait;
 use PHPUnit\Framework\TestCase;
 
 /**

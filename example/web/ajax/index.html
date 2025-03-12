@@ -1,0 +1,77 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        fetch('/ajax/server.php', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok ' + response.statusText)
+            }
+            return response.text()
+          })
+          .then(data => {
+            data = JSON.parse(data)
+            document.querySelectorAll('.ajax-load').forEach(element => {
+              const id = element.getAttribute('data-id')
+              if (data[id]) {
+                element.innerHTML = data[id]
+              }
+              element.classList.add('is-loaded')
+            })
+          })
+          .catch(error => {
+            console.error('There was a problem with the fetch operation:', error)
+          })
+      }, 1000)
+    })
+  </script>
+  <style>
+      #page-title {
+          text-align: center;
+      }
+
+      main {
+          display: flex;
+          flex-direction: column;
+      }
+
+      .ajax-loader {
+          width: 200px;
+          margin: 0 auto;
+      }
+  </style>
+</head>
+
+<body>
+<main>
+  <header>
+    <h1 id="page-title" data-id="title" class="ajax-load">Building Your Experience...</h1>
+  </header>
+  <section id="page-content" data-id="body" class="ajax-load">
+    <div class="ajax-loader">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+        <circle fill="%23FF156D" stroke="%23FF156D" stroke-width="15" r="15" cx="40" cy="100">
+          <animate attributeName="opacity" calcMode="spline" dur="2" values="1;0;1;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="-.4"></animate>
+        </circle>
+        <circle fill="%23FF156D" stroke="%23FF156D" stroke-width="15" r="15" cx="100" cy="100">
+          <animate attributeName="opacity" calcMode="spline" dur="2" values="1;0;1;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="-.2"></animate>
+        </circle>
+        <circle fill="%23FF156D" stroke="%23FF156D" stroke-width="15" r="15" cx="160" cy="100">
+          <animate attributeName="opacity" calcMode="spline" dur="2" values="1;0;1;" keySplines=".5 0 .5 1;.5 0 .5 1" repeatCount="indefinite" begin="0"></animate>
+        </circle>
+      </svg>
+    </div>
+  </section>
+</main>
+
+</body>
+</html>

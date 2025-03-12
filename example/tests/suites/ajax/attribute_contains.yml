@@ -1,0 +1,21 @@
+-
+  why: Assert syntax works on an AJAX page.
+  js: true
+  visit: /ajax/
+  find:
+    -
+      why: Assert can set attribute of AJAX-loaded image.
+      dom: '#page-content img.hero-image'
+      attribute: src
+      contains: images/great_grebe_bird.jpg
+
+-
+  why: Assert syntax works on an NON-AJAX page.
+  js: false
+  visit: /ajax/preloaded.html
+  find:
+    -
+      why: Assert can set attribute of AJAX-loaded image.
+      dom: '#page-content img.hero-image'
+      attribute: src
+      contains: images/great_grebe_bird.jpg

@@ -17,6 +17,7 @@ use AKlump\CheckPages\Handlers\Xpath;
 use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Variables;
+use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DomCrawler\Crawler;
@@ -31,7 +32,7 @@ use Symfony\Component\DomCrawler\Crawler;
  * Assertion::create([
  *   'matches' => '/cow/'
  * ])
- * ->runAgainst('Moscow');
+ * ->reRunAgainst('Moscow');
  *
  * or using instantiation...
  *
@@ -155,12 +156,18 @@ class Assertion implements HasConfigInterface {
   }
 
   /**
+   * Reset the Assert result and run against haystack.
+   *
+   * It's important to note that any previous result will be removed from the
+   * Assert instance used by this class when you call this method.
+   *
    * @param string|array|\Symfony\Component\DomCrawler\Crawler $haystack
    *
    * @return bool
    *   True if the assertion passed.
    */
-  public function runAgainst($haystack): bool {
+  public function reRunAgainst($haystack): bool {
+    $this->assert->clearResult();
     return $this->setHaystack($haystack)->run()->hasPassed();
   }
 
@@ -172,7 +179,7 @@ class Assertion implements HasConfigInterface {
    * @return $this
    *   Self for chaining.
    *
-   * @see Assertion::runAgainst()
+   * @see Assertion::reRunAgainst()
    */
   public function setHaystack($haystack): self {
     if (!is_array($haystack) && !$haystack instanceof Crawler) {
@@ -186,7 +193,7 @@ class Assertion implements HasConfigInterface {
 
   public function run(): self {
     if (FALSE === $this->mayRun) {
-      throw new \RuntimeException('This instance is has not been configured to run yet.');
+      throw new RuntimeException('This instance is has not been configured to run yet.');
     }
 
     $this->handleModifier();

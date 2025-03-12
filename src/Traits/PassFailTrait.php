@@ -15,6 +15,17 @@ trait PassFailTrait {
   private $passFailTraitFailed = NULL;
 
   /**
+   * Clear any pass/fail result previously set.
+   *
+   * @return self
+   */
+  public function clearResult(): self {
+    $this->passFailTraitFailed = NULL;
+
+    return $this;
+  }
+
+  /**
    * @param bool $failed
    *
    * @return

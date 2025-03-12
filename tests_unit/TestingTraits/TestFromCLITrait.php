@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\CheckPages\Tests\Unit\Traits;
+namespace AKlump\CheckPages\Tests\Unit\TestingTraits;
 
 use AKlump\CheckPages\Tests\Unit\TestWithFilesTrait;
 

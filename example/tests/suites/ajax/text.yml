@@ -1,0 +1,29 @@
+-
+  why: Assert syntax works on an AJAX page.
+  js: true
+  visit: /ajax/
+  find:
+    -
+      dom: '#page-title'
+      text: Introducing The Great Grebe Bird
+    -
+      dom: '#page-title'
+      is: Introducing The Great Grebe Bird
+    -
+      dom: '#page-title'
+      contains: Grebe Bird
+
+-
+  why: Assert syntax works on an NON-AJAX page.
+  js: false
+  visit: /ajax/preloaded.html
+  find:
+    -
+      dom: '#page-title'
+      text: Introducing The Great Grebe Bird
+    -
+      dom: '#page-title'
+      is: Introducing The Great Grebe Bird
+    -
+      dom: '#page-title'
+      contains: Grebe Bird
