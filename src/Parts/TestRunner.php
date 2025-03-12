@@ -146,12 +146,13 @@ final class TestRunner implements EventDispatcherInterface {
         // "wait for this assertion to pass" signal.
         $variables = $test->getSuite()->variables();
 
+        // TODO I think this should be conditional based on the driver, if the Driver supports JS then yes, otherwise no.
         $assertions_to_wait_for = [];
         $find_data = $test->get('find');
         if (empty($find_data)) {
           $find_data = [];
         }
-        foreach ($find_data as $config) {
+        foreach ($find_data as $assert_id => $config) {
           if (!is_array($config)
             || !array_intersect_key(array_flip(['dom', 'xpath']), $config)
             || array_intersect_key(array_flip(['style']), $config)
@@ -163,7 +164,8 @@ final class TestRunner implements EventDispatcherInterface {
           // If the selector is not fully interpolated then we cannot wait for
           // it, so that's why we do this check here.
           if (!$variables->needsInterpolation($config)) {
-            $assertions_to_wait_for[] = Assertion::create($config);
+            $assertions_to_wait_for[] = Assertion::create($test->getSuite()
+              ->id(), $test->id(), $assert_id, $config);
           }
         }
         $this->getDriver()->request($assertions_to_wait_for);
@@ -186,7 +188,7 @@ final class TestRunner implements EventDispatcherInterface {
     // Do the assertions.
     //
     $assertions = $test->get('find');
-    if (!empty($assertions)  && !$test->hasFailed()&& count($assertions) > 0) {
+    if (!empty($assertions) && !$test->hasFailed() && count($assertions) > 0) {
       $id = 0;
       $assert_runner = new AssertRunner($this->getDriver());
       while ($definition = array_shift($assertions)) {

@@ -36,15 +36,15 @@ use RuntimeException;
 final class AssertionTest extends TestCase {
 
   public function testSetHaystackWithDifferentTypes() {
-    $obj = new Assertion(['dom' => 'em', 'is' => 'dinner']);
+    $obj = new Assertion('', '', '', ['dom' => 'em', 'is' => 'dinner']);
     $obj->setHaystack('<p>It is surely time for <em>dinner</em>!</p>')->run();
     $this->assertTrue($obj->hasPassed());
 
-    $obj = new Assertion(['dom' => 'em', 'is' => 'dinner']);
+    $obj = new Assertion('', '', '', ['dom' => 'em', 'is' => 'dinner']);
     $obj->setHaystack(['<p>It is surely time for <em>dinner</em>!</p>'])->run();
     $this->assertTrue($obj->hasPassed());
 
-    $obj = new Assertion(['dom' => 'em', 'is' => 'dinner']);
+    $obj = new Assertion('', '', '', ['dom' => 'em', 'is' => 'dinner']);
     $crawler = new Crawler('<html><p>It is surely time for <em>dinner</em>!</p></html>');
     $obj->setHaystack($crawler);
     $obj->run();
@@ -148,18 +148,19 @@ final class AssertionTest extends TestCase {
    * @dataProvider dataForTestSetGetNeedleProvider
    */
   public function testSetGetNeedle(array $config, array $haystack) {
-    $this->assertTrue(Assertion::create($config)->runAgainst($haystack));
+    $this->assertTrue(Assertion::create('', '', '', $config)
+      ->runAgainst($haystack));
   }
 
   public function testPassingDomListenerClassWorksAsExpected() {
-    $obj = new Assertion([
+    $obj = new Assertion('', '', '', [
       'dom' => 'h1',
       'is' => 'title',
     ], []);
     $obj->setHaystack(['<h1>title</h1>'])->run();
     $this->assertTrue($obj->hasFailed());
 
-    $obj = new Assertion([
+    $obj = new Assertion('', '', '', [
       'dom' => 'h1',
       'is' => 'title',
     ], [Dom::class]);
@@ -169,13 +170,13 @@ final class AssertionTest extends TestCase {
 
   public function testThrowsOnRunBeforeHaystack() {
     $this->expectException(RuntimeException::class);
-    $obj = new Assertion([]);
+    $obj = new Assertion('', '', '', []);
     $obj->run();
   }
 
   public function testSecondRunThrows() {
     $this->expectException(RuntimeException::class);
-    $obj = new Assertion([]);
+    $obj = new Assertion('', '', '', []);
     $obj->setHaystack([])->run()->run();
   }
 

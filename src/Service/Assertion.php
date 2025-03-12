@@ -91,7 +91,13 @@ class Assertion implements HasConfigInterface {
    *
    * @see \AKlump\CheckPages\Service\Assertion::create()
    */
-  public function __construct(array $config, array $listener_classes = NULL) {
+  public function __construct(
+    string $suite_id,
+    string $test_id,
+    string $assert_id,
+    array $config,
+    array $listener_classes = NULL
+  ) {
     $this->setConfig($config);
     $this->dispatcher = DispatcherFactory::create();
     if (is_null($listener_classes)) {
@@ -116,10 +122,10 @@ class Assertion implements HasConfigInterface {
     // Most of these things are not actually used and could be refactored in the
     // future.
     $runner = new Runner(new ArrayInput([]), new NullOutput());
-    $suite = new Suite('', $runner);
-    $this->test = new Test('', [], $suite);
+    $suite = new Suite($suite_id, $runner);
+    $this->test = new Test($test_id, [], $suite);
     $this->driver = new GuzzleDriver();
-    $this->assert = new Assert('', $config, $this->test);
+    $this->assert = new Assert($assert_id, $config, $this->test);
     $this->assert->setSearch(Assert::SEARCH_ALL);
     $this->vars = new Variables();
 
@@ -139,8 +145,13 @@ class Assertion implements HasConfigInterface {
    *
    * @return static
    */
-  public static function create(array $config): self {
-    return new static($config);
+  public static function create(
+    string $suite_id,
+    string $test_id,
+    string $assert_id,
+    array $config
+  ): self {
+    return new static($suite_id, $test_id, $assert_id, $config);
   }
 
   /**
