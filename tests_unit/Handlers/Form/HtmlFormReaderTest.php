@@ -18,6 +18,15 @@ class HtmlFormReaderTest extends TestCase {
 
   use TestWithFilesTrait;
 
+  public function testCheckBoxesAreReadAsFalseValues() {
+    $html = '<form><div id="edit-roles" class="form-checkboxes"><div class="js-form-item form-item js-form-type-checkbox form-item-roles-authenticated js-form-item-roles-authenticated input-field"> <input data-drupal-selector="edit-roles-authenticated" type="checkbox" id="edit-roles-authenticated" name="roles[authenticated]" value="authenticated" class="form-checkbox"><label for="edit-roles-authenticated" class="option">Authenticated user</label></div><div class="js-form-item form-item js-form-type-checkbox form-item-roles-group-administrator js-form-item-roles-group-administrator input-field"> <input data-drupal-selector="edit-roles-group-administrator" type="checkbox" id="edit-roles-group-administrator" name="roles[group_administrator]" value="group_administrator" class="form-checkbox" checked="checked"><label for="edit-roles-group-administrator" class="option">Group administrator</label></div></div></form>';
+    $form = new HtmlFormReader($html, 'form');
+    $values = $form->getValues();
+    $this->assertCount(2, $values);
+    $this->assertSame('|Authenticated user', (string) $values['roles[authenticated]']);
+    $this->assertSame('group_administrator|Group administrator', (string) $values['roles[group_administrator]']);
+  }
+
   public function testEmptySelectElementsGetNullValues() {
     $html = '<div class="block"><form action=""><select data-value="0" data-workreport-target="mileage" data-action="change-&gt;workReport#onMileageChange" data-drupal-selector="edit-field-foreman-period-0-subform-field-mileage-0-value" id="edit-field-foreman-period-0-subform-field-mileage-0-value" name="field_foreman_period[0][subform][field_mileage][0][value]" class="form-select form-element form-element--type-select"></select><select data-value="0" data-workreport-target="mileage" data-action="change-&gt;workReport#onMileageChange" data-drupal-selector="edit-field-worker-periods-0-subform-field-mileage-0-value" id="edit-field-worker-periods-0-subform-field-mileage-0-value" name="field_worker_periods[0][subform][field_mileage][0][value]" class="form-select form-element form-element--type-select"></select></form></div>';
     $form = new HtmlFormReader($html, 'form');
@@ -55,12 +64,14 @@ class HtmlFormReaderTest extends TestCase {
     $form->getSubmit('input[type=submit]');
   }
 
-  public function testGetAllowedValues() {
-    $html = '<body><form class="form-c" action="/thank_you.php" method="post">
+  public static function dataFortestGetAllowedValuesProvider(): array {
+    $tests = [];
+    $tests[] = [
+      '<body><form class="form-c" action="/thank_you.php" method="post">
   <input type="text" name="first_name" value=""/>
   <input type="date" name="date" value=""/>
   <select name="shirt_size">
-    <option value="sm">Small</option>
+    <option value="sm" disabled="disabled">Small</option>
     <option value="lg">Large</option>
   </select>
   <select name="hair_color">
@@ -71,22 +82,38 @@ class HtmlFormReaderTest extends TestCase {
     <option value="WA">WA</option>
     <option value="FL">FL</option>
   </select>
-    </form></body>';
+  <div><input type="checkbox" id="edit-roles-authenticated" name="roles[authenticated]" value="authenticated" disabled="disabled"><label for="edit-roles-authenticated">Authenticated user</label></div>
+  <div><input type="checkbox" id="edit-roles-group-administrator" name="roles[group_administrator]" value="group_administrator"><label for="edit-roles-group-administrator">Group administrator</label></div>
+    </form></body>',
+    ];
 
+    return $tests;
+  }
 
+  /**
+   * @dataProvider dataFortestGetAllowedValuesProvider
+   */
+  public function testGetAllowedValuesNotDisabled(string $html) {
     $form = new HtmlFormReader($html, '.form-c');
     $expected_allowed_values = [
       'shirt_size' => [
-        new KeyLabelNode('sm', 'Small'),
         new KeyLabelNode('lg', 'Large'),
       ],
       'hair_color' => [
         new KeyLabelNode('b', 'Blonde'),
         new KeyLabelNode('g', 'Grey'),
       ],
+      'roles[group_administrator]' => [
+        new KeyLabelNode('group_administrator', 'Group administrator'),
+      ],
     ];
     $this->assertEquals($expected_allowed_values, $form->getAllowedValues());
+  }
 
+  /**
+   * @dataProvider dataFortestGetAllowedValuesProvider
+   */
+  public function testGetAllowedValuesWithDisabled(string $html) {
     // Now do it with disabled.
     $form = new HtmlFormReader($html, '.form-c', HtmlFormReader::OPTION_INCLUDE_DISABLED);
     $expected_allowed_values = [
@@ -101,6 +128,12 @@ class HtmlFormReaderTest extends TestCase {
       'state' => [
         new KeyLabelNode('WA', 'WA'),
         new KeyLabelNode('FL', 'FL'),
+      ],
+      'roles[authenticated]' => [
+        new KeyLabelNode('authenticated', 'Authenticated user'),
+      ],
+      'roles[group_administrator]' => [
+        new KeyLabelNode('group_administrator', 'Group administrator'),
       ],
     ];
     $this->assertEquals($expected_allowed_values, $form->getAllowedValues());

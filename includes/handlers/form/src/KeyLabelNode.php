@@ -17,7 +17,6 @@ final class KeyLabelNode implements \Stringable {
     $this->value = $value;
   }
 
-
   /**
    * @return mixed
    */
@@ -30,19 +29,6 @@ final class KeyLabelNode implements \Stringable {
    */
   public function getLabel() {
     return $this->value;
-  }
-
-  public function mutateToKey(string &$value): bool {
-    if ($value === $this->key) {
-      $value = $this->key;
-      return true;
-    }
-    elseif ($value === $this->value) {
-      $value = $this->key;
-      return true;
-    }
-
-    return FALSE;
   }
 
   public function __toString() {

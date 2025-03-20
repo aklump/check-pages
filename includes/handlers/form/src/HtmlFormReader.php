@@ -42,7 +42,6 @@ final class HtmlFormReader {
     $this->options = $options;
   }
 
-
   public function getAction(): string {
     return $this->getForm()->getNode(0)->getAttribute('action');
   }
@@ -77,10 +76,32 @@ final class HtmlFormReader {
    * @return \AKlump\CheckPages\Handlers\Form\KeyLabelNode[]
    */
   public function getAllowedValues(): array {
+    $skip_element = function (DOMElement $el) {
+      return !$this->options & self::OPTION_INCLUDE_DISABLED && $el->hasAttribute('disabled');
+    };
     $form = $this->getForm();
     $response = [];
 
     foreach ($form->filter('input[type=radio]') as $el) {
+      /** @var \DOMElement $el */
+      if ($skip_element($el)) {
+        continue;
+      }
+      $name = $el->getAttribute('name');
+      $id = $el->getAttribute('id');
+      $label = $form->filter('label[for=' . $id . ']');
+      $label = $label ? $label->text() : $el->getAttribute('value');
+      $response[$name][] = new KeyLabelNode(
+        $el->getAttribute('value'),
+        $label,
+      );
+    }
+
+    foreach ($form->filter('input[type=checkbox]') as $el) {
+      /** @var \DOMElement $el */
+      if ($skip_element($el)) {
+        continue;
+      }
       $name = $el->getAttribute('name');
       $id = $el->getAttribute('id');
       $label = $form->filter('label[for=' . $id . ']');
@@ -93,14 +114,17 @@ final class HtmlFormReader {
 
     foreach ($form->filter('select') as $el) {
       /** @var \DOMElement $el */
-      if (!$this->options & self::OPTION_INCLUDE_DISABLED
-        && $el->hasAttribute('disabled')) {
+      if ($skip_element($el)) {
         continue;
       }
       $allowed_values = [];
 
       $name = $el->getAttribute('name');
       foreach ($el->getElementsByTagName('option') as $option) {
+        /** @var \DOMElement $option */
+        if ($skip_element($option)) {
+          continue;
+        }
         $allowed_values[] = new KeyLabelNode(
           $option->getAttribute('value'),
           $option->textContent,
@@ -143,6 +167,9 @@ final class HtmlFormReader {
     elseif ($el->getAttribute('type') === 'radio') {
       return $this->getValueFromRadioElement($el);
     }
+    elseif ($el->getAttribute('type') === 'checkbox') {
+      return $this->getValueFromCheckboxElement($el);
+    }
 
     return $el->getAttribute('value');
   }
@@ -178,17 +205,15 @@ final class HtmlFormReader {
       $input->getAttribute('value'),
       $label->text(),
     );
+  }
 
-
-    $option = $this->getSelectedOrFirstOption($el);
-    if (!$option instanceof DOMElement) {
-      return NULL;
-    }
+  private function getValueFromCheckboxElement(DOMElement $el): ?KeyLabelNode {
+    $checked = strtolower($el->getAttribute('checked'));
+    $id = $el->getAttribute('id');
+    $label = $this->getForm()->filter('label[for=' . $id . ']');
 
     return new KeyLabelNode(
-      $option->getAttribute('value'),
-      $option->textContent,
-    );
+      $checked ? $el->getAttribute('value') : '', $label->text());
   }
 
   /**

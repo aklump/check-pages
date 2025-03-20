@@ -5,6 +5,7 @@
 - badge icons may be broken... see sessions.php
 
 ---
+
 - Add unit test for \AKlump\CheckPages\Mixins\Drupal\DrupalSessionManager
 - rewrite homepage with Composer install
 - finish docs, especially the hooks
@@ -13,6 +14,7 @@
 
 ## Normal
 
+- a means of setting a bandwidth throttle
 - look into upgrading per https://github.com/aklump/check-pages/security/dependabot
 - "spatie/browsershot": "^3.0 || ^4.0 || ^5.0", ... this will require >= php 8.2
 - normalize handler classes to all be inside src for easier clarity and autoloading, update auto load docs? Not sure because this make adding to the phunit coverage a bit more work

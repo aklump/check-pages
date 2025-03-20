@@ -24,25 +24,6 @@ class KeyLabelNodeTest extends TestCase {
     $this->assertSame('Food', $node->getLabel());
   }
 
-  public function testMutateToKey() {
-    $node = new KeyLabelNode('f', 'Food');
-    $value = 'f';
-    $result = $node->mutateToKey($value);
-    $this->assertTrue($result);
-    $this->assertSame('f', $value);
-
-    $value = 'Food';
-    $result = $node->mutateToKey($value);
-    $this->assertTrue($result);
-    $this->assertSame('f', $value);
-
-    $bad_value = 'bogus';
-    $result = $node->mutateToKey($bad_value);
-    $this->assertFalse($result);
-    $this->assertSame('bogus', $bad_value);
-
-  }
-
   public function testGetKey() {
     $node = new KeyLabelNode('f', 'Food');
     $this->assertSame('f', $node->getKey());
