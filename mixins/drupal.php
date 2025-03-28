@@ -44,6 +44,7 @@ use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\LoftLib\Bash\Color;
+use Exception;
 
 /** @var \AKlump\CheckPages\Parts\Runner $runner */
 /** @var array $mixin_config */
@@ -124,7 +125,7 @@ respond_to(Event::SUITE_STARTED, function (SuiteEventInterface $suite_event) {
       unlink($filepath);
     }
   }
-  catch (\Exception $exception) {
+  catch (Exception $exception) {
     // Purposefully left blank, because there is nothing to clear out.
   }
 });

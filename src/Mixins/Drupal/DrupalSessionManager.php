@@ -94,7 +94,7 @@ final class DrupalSessionManager {
       ->setItem('user.pass', self::$sessions[$username]['account']['pass'])
       ->setItem('user.csrf', self::$sessions[$username]['csrf_token'])
       ->setItem('user.session_cookie', self::$sessions[$username]['cookie'])
-      ->setItem('user.session_expires', self::$sessions[$username]['cookie']);
+      ->setItem('user.session_expires', self::$sessions[$username]['expires']);
 
     return $variables;
   }
