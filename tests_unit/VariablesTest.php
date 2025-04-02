@@ -163,6 +163,23 @@ final class VariablesTest extends TestCase {
     $this->assertSame('color = red', $subject);
   }
 
+  public function testInterpolateStringWithNullValueReplacesTokenWithNullValue() {
+    $var = new Variables();
+    $var->setItem('message', NULL);
+    $subject = [
+      'find' => [
+        [
+          'dom' => '.private-message',
+          'contains' => '${message}',
+        ],
+      ],
+    ];
+    $expected = $subject;
+    $expected['find'][0]['contains'] = NULL;
+    $var->interpolate($subject);
+    $this->assertSame($expected, $subject);
+  }
+
   public function testCountAndRemoveScalars() {
     $var = new Variables();
     $this->assertSame($var, $var->setItem('foo', 'bar'));

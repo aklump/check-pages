@@ -89,9 +89,12 @@ final class Variables implements \Countable, \JsonSerializable, \Iterator {
         }, array_keys($this->values));
       }
       foreach ($this->values as $k => $v) {
-        $interpolated = str_replace('${' . $k . '}', (string) $v, $value);
+        $interpolated = NULL;
+        if (is_string($value)) {
+          $interpolated = str_replace('${' . $k . '}', (string) $v, $value);
+        }
         if ($value != $interpolated) {
-          if (strcmp($interpolated, (string) $v) === 0) {
+          if (is_string($interpolated) && strcmp($interpolated, (string) $v) === 0) {
             $value = $v;
           }
           else {
