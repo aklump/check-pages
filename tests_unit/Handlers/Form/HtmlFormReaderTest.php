@@ -9,6 +9,7 @@ use AKlump\CheckPages\Handlers\Form\KeyLabelNode;
 use AKlump\CheckPages\Tests\Unit\TestWithFilesTrait;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 /**
  * @covers \AKlump\CheckPages\Handlers\Form\HtmlFormReader
@@ -69,6 +70,23 @@ class HtmlFormReaderTest extends TestCase {
     $this->expectException(InvalidArgumentException::class);
     $this->expectExceptionMessage('Cannot find submit button with selector: input[type=submit]');
     $form->getSubmit('input[type=submit]');
+  }
+
+  public function testMultipleSubmitButtonsThrows() {
+    $html = '<body><form class="form-c" action="/thank_you.php" method="post">
+  <input type="text" name="first_name" value=""/>
+  <input type="date" name="date" value=""/>
+  <select name="shirt_size">
+    <option value="sm">small</option>
+    <option value="lg">large</option>
+  </select>
+  <input type="submit" value="Save" name="save"/>
+  <input type="submit" value="Save and Edit" name="edit"/>
+    </form></body>';
+    $form = new HtmlFormReader($html, '.form-c');
+    $this->expectException(RuntimeException::class);
+    $this->expectExceptionMessage('Multiple submit elements in .form-c, you must use form.submit in this test.');
+    $form->getSubmit();
   }
 
   public static function dataFortestGetAllowedValuesProvider(): array {
@@ -156,7 +174,7 @@ class HtmlFormReaderTest extends TestCase {
   public function testGetSubmitAsInput() {
     $html = '<body><form class="form-c" action="/thank_you.php" method="post"> <input type="text" name="first_name" value=""/> <input type="date" name="date" value=""/><select name="shirt_size"><option value="sm">small</option><option value="lg">large</option></select> <input type="submit" name="save" value="Save"/> <input type="submit" name="done" value="Save & Done"/> </form></body>';
     $form = new HtmlFormReader($html, '.form-c');
-    $save = $form->getSubmit();
+    $save = $form->getSubmit('[name="save"]');
     $this->assertSame('save|Save', (string) $save, 'Assert getSubmit() returns the first submit button');
     $save_and_done = $form->getSubmit('input[type=submit][name="done"]');
     $this->assertSame('done|Save & Done', (string) $save_and_done, 'Assert getSubmit() returns the explicitly selected submit button');
