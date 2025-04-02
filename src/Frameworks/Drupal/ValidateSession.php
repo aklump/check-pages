@@ -35,7 +35,7 @@ class ValidateSession {
 
     $html = $this->get($this->baseUrl . '/user/' . $user_id . '/edit');
     $user->setAccountName($this->scrapeUsername($html));
-    $user->setAccountName($this->scrapeEmail($html));
+    $user->setEmail($this->scrapeEmail($html));
 
     return $user;
   }
