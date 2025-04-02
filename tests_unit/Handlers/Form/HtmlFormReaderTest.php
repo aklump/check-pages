@@ -18,6 +18,13 @@ class HtmlFormReaderTest extends TestCase {
 
   use TestWithFilesTrait;
 
+  public function testInputWithoutNameIsIgnored() {
+    $html = '<body><form class="form-c" action="/thank_you.php" method="post"><input class="chosen-search-input default" type="text" autocomplete="off" value="Choose some options" style="width: 151.211px;"></form></body>';
+    $form = new HtmlFormReader($html, '.form-c');
+    $values = $form->getValues();
+    $this->assertCount(0, $values);
+  }
+
   public function testCheckBoxesAreReadAsFalseValues() {
     $html = '<form><div id="edit-roles" class="form-checkboxes"><div class="js-form-item form-item js-form-type-checkbox form-item-roles-authenticated js-form-item-roles-authenticated input-field"> <input data-drupal-selector="edit-roles-authenticated" type="checkbox" id="edit-roles-authenticated" name="roles[authenticated]" value="authenticated" class="form-checkbox"><label for="edit-roles-authenticated" class="option">Authenticated user</label></div><div class="js-form-item form-item js-form-type-checkbox form-item-roles-group-administrator js-form-item-roles-group-administrator input-field"> <input data-drupal-selector="edit-roles-group-administrator" type="checkbox" id="edit-roles-group-administrator" name="roles[group_administrator]" value="group_administrator" class="form-checkbox" checked="checked"><label for="edit-roles-group-administrator" class="option">Group administrator</label></div></div></form>';
     $form = new HtmlFormReader($html, 'form');

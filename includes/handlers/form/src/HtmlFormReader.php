@@ -66,7 +66,9 @@ final class HtmlFormReader {
       }
       $name = $el->getAttribute('name');
       $value = $this->getElementValue($el);
-      $response[$name] = $value;
+      if (!empty($name)) {
+        $response[$name] = $value;
+      }
     }
 
     return $response;
