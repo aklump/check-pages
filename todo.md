@@ -1,5 +1,13 @@
 ## Critical
+  
+- need to be able to set value on bash output
 
+```yaml
+  bash: cd /Users/aaronklump/Code/Projects/NationalUniversity/TheCommons/site/app && lando nxdb_drush uinf ${loadUserName} --field=uid
+  set: userId
+```
+
+- need to throw error when using `attr` not `attribute`
 - promote env_vars to a handler?
 - add test coverage for env_vars mixin
 - badge icons may be broken... see sessions.php
