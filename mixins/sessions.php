@@ -3,12 +3,12 @@
 namespace AKlump\CheckPages\Mixins\Session;
 
 use AKlump\CheckPages\Browser\Session;
+use AKlump\CheckPages\DataStructure\User;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
-use AKlump\CheckPages\Event\SuiteEventInterface;
-use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Files\LoadUsers;
+use AKlump\CheckPages\Frameworks\Drupal\ValidateSession;
 use AKlump\CheckPages\Helpers\FilterUsersByName;
 use AKlump\LoftLib\Bash\Color;
 
@@ -81,6 +81,18 @@ add_test_option('user', [
     }
     $event->getDriver()->setHeader('Cookie', $cookie);
 
+    $validated_user = validateSession($session, $event->getTest()
+      ->getRunner()
+      ->getBaseUrl());
+
+    // TODO These are not being set correctly I don't think.
+    $variables = $event->getTest()->getSuite()->variables();
+    $variables->setItem('user.id', $validated_user->id())
+      ->setItem('user.uid', $validated_user->id())
+      ->setItem('user.mail', $validated_user->getEmail())
+      ->setItem('user.name', $validated_user->getAccountName())
+      ->setItem('user.pass', $validated_user->getPassword());
+
     //
     // Add visual feedback that the request is authenticated.
     //
@@ -95,3 +107,18 @@ add_test_option('user', [
     }
   },
 ]);
+
+
+/**
+ * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
+ */
+function validateSession($session, string $base_url): User {
+  // TODO Add caching so this doesn't validate every test
+  $user = (new ValidateSession($base_url))($session);
+  if (!$user) {
+    throw new StopRunnerException(sprintf('Session is invalid or expired for user: %s.', $session->getUser()
+      ->getAccountName()));
+  }
+
+  return $user;
+}
