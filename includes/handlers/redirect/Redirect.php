@@ -43,14 +43,14 @@ final class Redirect implements HandlerInterface {
           $test = $event->getTest();
           $driver = $event->getDriver();
           try {
-            $handler->checkStatusCode($test, $driver);
+            $expected_status_code = $handler->checkStatusCode($test, $driver);
             if ($test->has('redirect') || $test->has('location')) {
               $handler->checkRedirect($test, $driver);
             }
 
             // When the dev is expecting a redirect, we will capture the
             // redirect information into variables.
-            if ($test->has('status') && strval($test->get('status'))[0] === '3') {
+            if ($test->has('status') && $expected_status_code[0] === '3') {
               $variables = $test->getSuite()->variables();
               $lines = [];
               $lines[] = $handler->setKeyValuePair($variables, 'redirect.location', $driver->getLocation());
@@ -93,21 +93,27 @@ final class Redirect implements HandlerInterface {
     }
   }
 
-  protected function checkStatusCode(Test $test, RequestDriverInterface $driver) {
+  /**
+   * @param \AKlump\CheckPages\Parts\Test $test
+   * @param \AKlump\CheckPages\Browser\RequestDriverInterface $driver
+   *
+   * @return string This can be 200 or 2xx, hence a string.
+   */
+  protected function checkStatusCode(Test $test, RequestDriverInterface $driver): string {
     $actual_status_code = $driver->getResponse()->getStatusCode();
     $actual_status_first_char = substr($actual_status_code, 0, 1);
-
+    $default_status_code = '2xx';
     $send_message = FALSE;
     if (!$test->has('status')) {
-      $expected_status_code = '2xx';
+      $expected_status_code = $default_status_code;
       if ($actual_status_first_char !== '2') {
         $test->setFailed();
         $send_message = TRUE;
       }
     }
     else {
-      $expected_status_code = $test->get('status');
-      $expected_status_first_char = substr($expected_status_code, 0, 1);
+      $expected_status_code = $test->get('status') ?: $default_status_code;
+      $expected_status_first_char = $expected_status_code[0] ?? '';
       if ($expected_status_first_char === '3') {
         $actual_status_code = $driver->getRedirectCode();
       }
@@ -127,6 +133,8 @@ final class Redirect implements HandlerInterface {
         sprintf('The server%s returned %s, which is not the expected %s', $server, $actual_status_code, $expected_status_code),
       ], MessageType::ERROR, Verbosity::VERBOSE));
     }
+
+    return $expected_status_code ?: '2xx';
   }
 
 }
