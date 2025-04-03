@@ -708,6 +708,9 @@ class Runner implements HasMessagesInterface {
         $this->skippedSuitesCount++;
         break;
       }
+      foreach ($test->getMessages() as $message) {
+        $this->echo($message);
+      }
     }
 
     $runtime_suite_result = $this->processResult($suite);
