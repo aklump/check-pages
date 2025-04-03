@@ -688,6 +688,9 @@ class Runner implements HasMessagesInterface {
           // configuration.  Also we will add a error message so that writing
           // handlers is easier.
           $test->setFailed();
+          foreach ($exception->getMessages() as $message) {
+            $test->addMessage($message);
+          }
           $test->addMessage(new Message([$exception->getMessage()], MessageType::ERROR));
         }
       }
@@ -697,7 +700,7 @@ class Runner implements HasMessagesInterface {
       if (FALSE === $runtime_test_result) {
         $this->failedTestCount++;
         if ($this->get('stop_on_failed_test') ?? FALSE) {
-          throw new TestFailedException($test->getConfig());
+          throw new TestFailedException($test->getConfig(), NULL, $test->getMessages());
         }
       }
 

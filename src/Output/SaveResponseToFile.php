@@ -7,10 +7,12 @@ use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Parts\Suite;
+use AKlump\CheckPages\Parts\Test;
 use AKlump\Messaging\MessageType;
 use Mimey\MimeTypes;
 use PrettyXml\Formatter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Writes HTTP responses to files for certain mime types.
@@ -79,6 +81,8 @@ final class SaveResponseToFile implements EventSubscriberInterface {
             return;
           }
 
+          $handler = new self();
+
           $regex = '/^(' . implode('|', array_map(function ($item) {
               return preg_quote($item, '/');
             }, array_keys(self::$mime_types))) . ')/i';
@@ -100,7 +104,8 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           // The test ID is helpful, but not guaranteed to be there.
           $relative_path .= rtrim('_' . $test->id(), '_');
 
-          $content = $event->getDriver()->getResponse()->getBody();
+          $response = $event->getDriver()->getResponse();
+          $content = $response->getBody();
           switch ($content_type) {
             case 'application/xml':
               $formatter = new Formatter();
@@ -114,16 +119,35 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           $test = $event->getTest();
           $runner = $test->getRunner();
 
+          // Write the headers to a separate file.
+          $headers = $response->getHeaders();
+          $headers['Status'] = [
+            sprintf('%s %s', $response->getStatusCode(), $response->getReasonPhrase()),
+          ];
+          ksort($headers);
+          $absolute_path = $runner->writeToFile($relative_path . ".headers.yml", [Yaml::dump($headers)], 'w+');
+          $handler->addPathSavedMessage($test, $absolute_path);
+
+          // Now write the request content as appropriate by mimetype.
           $extensions = self::$mime_types[$mime_type];
           foreach ($extensions as $extension) {
             $absolute_path = $runner->writeToFile($relative_path . ".$extension", [$content], 'w+');
-            $test->addMessage(new Message([$absolute_path], MessageType::TODO, Verbosity::VERBOSE));
+            $handler->addPathSavedMessage($test, $absolute_path);
           }
-
         },
         -1,
       ],
     ];
+  }
+
+  private function addPathSavedMessage(Test $test, string $path) {
+    $test->addMessage(new Message([
+      sprintf("%s%s%s", Icons::RESPONSE, Icons::FILE, basename($path)),
+    ], MessageType::INFO, Verbosity::VERBOSE));
+
+    $test->addMessage(new Message([
+      $path,
+    ], MessageType::TODO, Verbosity::DEBUG));
   }
 
 }

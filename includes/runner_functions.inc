@@ -8,8 +8,11 @@
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
+use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Helpers\AssertRunSuiteNotCalled;
+use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Suite;
 use Jasny\DotKey;
 use Symfony\Component\Yaml\Yaml;
@@ -187,7 +190,16 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
       $suite->addTestByConfig($item);
     }
     $suite->setGroup($parsed['group']);
-    $runner->run($suite, $absolute_path);
+    try {
+      $runner->run($suite, $absolute_path);
+    }
+    catch (TestFailedException $exception) {
+      foreach ($exception->getMessages() as $message) {
+        $runner->echo($message);
+      }
+      $runner->echo(new Message([$exception->getMessage()]), Verbosity::NORMAL);
+      $runner->echo(new Message([$exception->getTraceAsString()]), Verbosity::DEBUG);
+    }
   }
 }
 
