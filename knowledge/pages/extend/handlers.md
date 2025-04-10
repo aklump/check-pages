@@ -64,14 +64,14 @@ This is the most involved method of extending Check Pages, and offers the greate
 
 
 1. Write the _suite.yml_ file which will be run against _test_subject.html, test_subject.php, test_subject.json_, etc
-2. Create _test_subject.html_ or _test_subject.php_ as needed to test _
-   suite.yml_.
-3. You may include more than one _test_subject.*_ file.
+2. Create _test\_subject.html_ or _test\_subject.php_ as needed to test _suite.yml_.
+3. You may include more than one _test\_subject.*_ file.
 4. _README.md_ is optional, but will be added to the Check Pages documentation when it's compiled and should be used to give examples of how the handler should be implemented.
 
 ### Handler Objects/Classes
 
 * Each handler will provide it's main class in the namespace `AKlump\CheckPages\Handlers` with an upper-camel case file matching it's id, e.g. _foo_bar/FooBar.php_.
+* That class should implement `\AKlump\CheckPages\Handlers\HandlerInterface`
 * Any additional classes should be namespaced to the handler, e.g. `AKlump\CheckPages\Handlers\FooBar` and saved to _foo_bar/src/Alpha.php_`.
 * Try to push all the logic into _src/*.php_ classes and cover those with unit tests, keep the main class as dumb as possible and don't bother unit testing.
 
@@ -126,7 +126,7 @@ If you rename a handler directory with a leading underscore, e.g. "foo" to "_foo
 
 ## Advanced
 
-The _json_schema_ handler is a good example of a handler that totally handles the assertion on it's own. You may want to study that if you need to do something fancy.
+The _json\_schema_ handler is a good example of a handler that totally handles the assertion on it's own. You may want to study that if you need to do something fancy.
 
 ## Testing Handlers
 
