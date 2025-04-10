@@ -84,6 +84,9 @@ add_test_option('user', [
     $validated_user = validateSession($session, $event->getTest()
       ->getRunner()
       ->getBaseUrl());
+    if (!$validated_user->getAccountName()) {
+      $validated_user->setAccountName($username);
+    }
 
     // TODO These are not being set correctly I don't think.
     $variables = $event->getTest()->getSuite()->variables();
