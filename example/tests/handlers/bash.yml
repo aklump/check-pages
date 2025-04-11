@@ -5,7 +5,7 @@
     bash: date
 -
     why: 'Capture the last line of bash output into variable.'
-    bash: 'echo ''.page-title'''
+    bash: "echo '.page-title'"
     set: selector
 -
     why: 'Assert the variable was set as expected by the bash test.'

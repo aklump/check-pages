@@ -2003,6 +2003,31 @@
             },
             {
                 "type": "object",
+                "required": [
+                    "ask"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "why": {
+                        "$ref": "#/definitions/why"
+                    },
+                    "extras": {
+                        "$ref": "#/definitions/extras"
+                    },
+                    "expected outcome": {
+                        "$ref": "#/definitions/expected_outcome"
+                    },
+                    "ask": {
+                        "type": "string"
+                    },
+                    "times": {
+                        "type": "integer",
+                        "inclusiveMinimum": 1
+                    }
+                }
+            },
+            {
+                "type": "object",
                 "additionalProperties": false,
                 "required": [
                     "breakpoint"
