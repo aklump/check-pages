@@ -22,6 +22,7 @@
 
 ## Normal
 
+- we sometimes get a curl error, then immediately it works with --retest.  could this be "fixed" by using a while() loop to auto retry on certain curl errors?  I'm thinking it's resource is just crashing.
 - a means of setting a bandwidth throttle
 - look into upgrading per https://github.com/aklump/check-pages/security/dependabot
 - "spatie/browsershot": "^3.0 || ^4.0 || ^5.0", ... this will require >= php 8.2

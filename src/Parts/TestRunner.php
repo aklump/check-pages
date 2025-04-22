@@ -85,6 +85,8 @@ final class TestRunner implements EventDispatcherInterface {
     $this->tryValidateTestCanBeRun($this->test);
 
     $test = $this->test;
+    $memory_used = round(memory_get_usage() / 1024 / 1024, 2) . 'MB';
+    $test->addMessage(new Message(['Memory used: ' . $memory_used], MessageType::DEBUG, Verbosity::DEBUG));
     $runner = $test->getRunner();
     $this->getDriver()->setBaseUrl($runner->get('base_url') ?? '');
 
