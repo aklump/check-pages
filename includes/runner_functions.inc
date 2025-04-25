@@ -184,7 +184,13 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
       $suite_config = [];
     }
 
-    $parsed = Suite::parsePath($absolute_path);
+    // The group should only be set if the glob is in a subdirectory, e.g.
+    // "suites/foo/*", where "foo" is the group, if the glob is in the root
+    // directory, then no group.  The next three lines accomplish that.
+    $parsed = Suite::parsePath($path_to_suite);
+    unset($parsed['id']);
+    $parsed += Suite::parsePath($absolute_path);
+
     $suite = new Suite($parsed['id'], $runner);
     foreach ($suite_config as $item) {
       $suite->addTestByConfig($item);

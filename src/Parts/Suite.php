@@ -32,15 +32,23 @@ class Suite implements PartInterface, JsonSerializable {
   /**
    * Parse suite identifiers from it's absolute filepath.
    *
-   * @param string $absolute_path
+   * @param string $path_to_suites , e.g. "suites/homepage/chat.yml" or "suites/chat.yml"
    *
    * @return array
    *   An array with keys: "group" and "id".
    */
-  public static function parsePath(string $absolute_path): array {
+  public static function parsePath(string $path_to_suites): array {
+    $parts = explode(DIRECTORY_SEPARATOR, $path_to_suites);
+    $part_count = count($parts);
+    $id = array_pop($parts);
+    $group = '';
+    if ($part_count > 2) {
+      $group = array_pop($parts);
+    }
+
     return [
-      'group' => basename(dirname($absolute_path)),
-      'id' => pathinfo($absolute_path, PATHINFO_FILENAME),
+      'group' => $group,
+      'id' => pathinfo($id, PATHINFO_FILENAME),
     ];
   }
 
