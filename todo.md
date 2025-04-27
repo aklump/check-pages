@@ -3,10 +3,9 @@
 - promote env_vars to a handler?
 - add test coverage for env_vars mixin
 - badge icons may be broken... see sessions.php
-
+- Add unit test for \AKlump\CheckPages\Mixins\Drupal\DrupalSessionManager
 ---
 
-- Add unit test for \AKlump\CheckPages\Mixins\Drupal\DrupalSessionManager
 - rewrite homepage with Composer install
 - finish docs, especially the hooks
 - dynamically add the `/extra/merge-plugin/require` section for handlers so they are auto added.
