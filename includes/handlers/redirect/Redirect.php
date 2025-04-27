@@ -6,6 +6,7 @@ use AKlump\CheckPages\Browser\RequestDriverInterface;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
+use AKlump\CheckPages\Helpers\CompareStatusCodes;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Traits\SetTrait;
@@ -111,27 +112,22 @@ final class Redirect implements HandlerInterface {
    * @return string This can be 200 or 2xx, hence a string.
    */
   protected function assertStatusCode(Test $test, RequestDriverInterface $driver): string {
+    $compare = new CompareStatusCodes();
     $actual_status_code = $driver->getResponse()->getStatusCode();
-    $actual_status_first_char = substr($actual_status_code, 0, 1);
     $default_status_code = '2xx';
     $send_message = FALSE;
     if (!$test->has('status')) {
       $expected_status_code = $default_status_code;
-      if ($actual_status_first_char !== '2') {
-        $test->setFailed();
-        $send_message = TRUE;
-      }
     }
     else {
       $expected_status_code = $test->get('status') ?: $default_status_code;
-      $expected_status_first_char = substr($expected_status_code, 0, 1);
-      if ($expected_status_first_char === '3') {
+      if ($compare('3xx', $expected_status_code) === 0) {
         $actual_status_code = $driver->getRedirectCode();
       }
-      if ($actual_status_code != $expected_status_code) {
-        $test->setFailed();
-        $send_message = TRUE;
-      }
+    }
+    if ($compare($actual_status_code, $expected_status_code) !== 0) {
+      $test->setFailed();
+      $send_message = TRUE;
     }
     if ($send_message) {
       $server = $driver->getResponse()->getHeader('server')[0] ?? NULL;
