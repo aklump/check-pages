@@ -35,7 +35,7 @@ verbose=''
 if [[ "${*}" == *'-v'* ]]; then
   verbose='-v'
 fi
-! ./vendor/bin/phpswap use 7.4 $verbose './vendor/bin/phpunit -c ./tests_unit/phpunit.xml' && failed "     PHP 7.4 tests failed.     " && exit 1
-! ./vendor/bin/phpswap use 8.0 $verbose './vendor/bin/phpunit -c ./tests_unit/phpunit.xml' && failed "     PHP 8.0 tests failed.     " && exit 1
-! ./vendor/bin/phpswap use 8.1 $verbose './vendor/bin/phpunit -c ./tests_unit/phpunit.xml' && failed "     PHP 8.1 tests failed.     " && exit 1
-! ./vendor/bin/phpswap use 8.2 $verbose './vendor/bin/phpunit -c ./tests_unit/phpunit.xml' && failed "     PHP 8.2 tests failed.     " && exit 1
+! ./vendor/bin/phpswap use 7.4 $verbose './vendor/bin/phpunit -c ./tests_phpunit/phpunit.xml' && failed "     PHP 7.4 tests failed.     " && exit 1
+! ./vendor/bin/phpswap use 8.0 $verbose './vendor/bin/phpunit -c ./tests_phpunit/phpunit.xml' && failed "     PHP 8.0 tests failed.     " && exit 1
+! ./vendor/bin/phpswap use 8.1 $verbose './vendor/bin/phpunit -c ./tests_phpunit/phpunit.xml' && failed "     PHP 8.1 tests failed.     " && exit 1
+! ./vendor/bin/phpswap use 8.2 $verbose './vendor/bin/phpunit -c ./tests_phpunit/phpunit.xml' && failed "     PHP 8.2 tests failed.     " && exit 1

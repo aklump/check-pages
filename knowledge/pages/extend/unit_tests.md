@@ -24,7 +24,7 @@ Currently the way the handler autoloading works, the unit tests do not have acce
 
 ## Test Coverage
 
-Add the files/directories which your handler uses to provide php classes, to _app/tests_unit/phpunit.xml_. You can probably exclude the handler controller class as this will be covered by the check pages test.
+Add the files/directories which your handler uses to provide php classes, to _app/tests_phpunit/phpunit.xml_. You can probably exclude the handler controller class as this will be covered by the check pages test.
 
 ```xml
 

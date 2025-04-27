@@ -6,7 +6,7 @@ cd "$__DIR__/.."
 ! [ -f ./vendor/bin/phpunit ] && echo && echo "❌️ Missing dependencies; try \`composer install\`" && echo && exit 1
 
 # https://phpunit.readthedocs.io/en/9.5/textui.html#command-line-options
-./vendor/bin/phpunit -c tests_unit/phpunit.xml "$@"
-#./vendor/bin/phpunit -c tests_unit/phpunit.xml --testdox "$@"
-#export XDEBUG_MODE=$XDEBUG_MODE,coverage;./vendor/bin/phpunit -c tests_unit/phpunit.xml "$@" --coverage-html=tests_unit/reports
-#echo tests_unit/reports/index.html
+./vendor/bin/phpunit -c tests_phpunit/phpunit.xml "$@"
+#./vendor/bin/phpunit -c tests_phpunit/phpunit.xml --testdox "$@"
+#export XDEBUG_MODE=$XDEBUG_MODE,coverage;./vendor/bin/phpunit -c tests_phpunit/phpunit.xml "$@" --coverage-html=tests_phpunit/reports
+#echo tests_phpunit/reports/index.html
