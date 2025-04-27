@@ -1,5 +1,34 @@
 ## Critical
-  
+
+- it may be that --retest is not working correctly.  When I run without it, it should erase all results.  Maybe it's the filter, which is unusual `bin/run_check_pages_tests.sh --filter="PR__widget|widget_users" --retest`
+
+Interpolation fails for `text`, e.g. count is interpolated as null for some reason.  I think it's because the test interpolates BEFORE the suite interpolates on the find array.
+
+```yaml
+-
+  set: count
+  value: 161507
+-
+  url: /widget
+  find:
+    -
+      dom: '#updates a>strong'
+      text: ${count}
+```
+
+The following fails when looking for the content in AJAX loaded content.
+
+```yaml
+find:
+  - lorem ipsum
+```
+
+- fix the tests!
+
+- rewrite \AKlump\CheckPages\Exceptions\TestFailedException::__construct() to take the test not the config, or the messages. Anyway we need to be able to extract the test messages from the exception, e.g. getTestMessages(), so they will be displayed and moved to the runner. Need to add test coverage to prevent regression.
+- display path to the output files in verbose mode
+
+
 - need to be able to set value on bash output
 
 ```yaml
