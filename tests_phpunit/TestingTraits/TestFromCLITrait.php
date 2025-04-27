@@ -1,8 +1,6 @@
 <?php
 
-namespace AKlump\CheckPages\Tests\Unit\TestingTraits;
-
-use AKlump\CheckPages\Tests\Unit\TestWithFilesTrait;
+namespace AKlump\CheckPages\Tests\TestingTraits;
 
 
 /**
@@ -20,7 +18,7 @@ trait TestFromCLITrait {
    * @return string[] The command output.
    */
   protected function runFromCommandLine(string $args): array {
-    $check_pages_bin = realpath(__DIR__ . '/../../checkpages');
+    $check_pages_bin = realpath(ROOT . '/checkpages');
     $runner = $this->getTestFileFilepath('runner.php');
     $dir = $this->getTestFilesDirectory() . '/';
     $command = "$check_pages_bin run $runner --dir=$dir $args";

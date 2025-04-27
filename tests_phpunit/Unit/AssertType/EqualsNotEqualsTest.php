@@ -1,0 +1,82 @@
+<?php
+
+namespace AKlump\CheckPages\Tests\Unit\AssertType;
+
+use AKlump\CheckPages\Assert;
+use AKlump\CheckPages\AssertType\Equals;
+use AKlump\CheckPages\AssertType\NotEquals;
+use AKlump\CheckPages\Parts\Test;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * @covers \AKlump\CheckPages\AssertType\Equals
+ * @covers \AKlump\CheckPages\AssertType\NotEquals
+ * @uses   \AKlump\CheckPages\Assert
+ * @uses   \AKlump\CheckPages\AssertType\LogicBase
+ * @uses   \AKlump\CheckPages\Traits\HasConfigTrait
+ * @uses   \AKlump\CheckPages\AssertType\EqualsTrait
+ * @uses   \AKlump\CheckPages\AssertType\NotLogicBase
+ *
+ */
+class EqualsNotEqualsTest extends TestCase {
+
+  public function dataFortestInvokeProvider() {
+    $tests = [];
+
+    $tests[] = [
+      [TRUE, FALSE],
+      [1, 0],
+      'apple',
+      ['apple'],
+    ];
+
+    $tests[] = [
+      [FALSE, TRUE],
+      [0, 0],
+      '',
+      [],
+    ];
+
+    return $tests;
+  }
+
+  /**
+   * @dataProvider dataFortestInvokeProvider
+   */
+  public function testEquals(array $expected_final_results, array $expected_counts, string $value, $haystack) {
+    $assert = new Assert(1, [], $this->createMock(Test::class));
+    $assert->setAssertion(Assert::ASSERT_EQUALS, $value);
+    $countable = [];
+    $result = (new Equals())($assert, $haystack, $countable);
+    $this->assertCount($expected_counts[0], $countable);
+    $this->assertSame($expected_final_results[0], $result);
+  }
+
+  /**
+   * @dataProvider dataFortestInvokeProvider
+   */
+  public function testNotEquals(array $expected_final_results, array $expected_counts, string $value, $haystack) {
+    $assert = new Assert(1, [], $this->createMock(Test::class));
+    $assert->setAssertion(Assert::ASSERT_NOT_EQUALS, $value);
+    $countable = [];
+    $result = (new NotEquals())($assert, $haystack, $countable);
+    $this->assertCount($expected_counts[1], $countable);
+    $this->assertSame($expected_final_results[1], $result);
+  }
+
+  public function testEqualsWithContainsThrows() {
+    $this->expectException(\InvalidArgumentException::class);
+    $assert = new Assert(1, [], $this->createMock(Test::class));
+    $assert->setAssertion(Assert::ASSERT_CONTAINS, 'foo');
+    $countable = [];
+    (new Equals())($assert, [], $countable);
+  }
+
+  public function testNotEqualsWithNotContainsThrows() {
+    $this->expectException(\InvalidArgumentException::class);
+    $assert = new Assert(1, [], $this->createMock(Test::class));
+    $assert->setAssertion(Assert::ASSERT_NOT_CONTAINS, 'foo');
+    $countable = [];
+    (new NotEquals())($assert, [], $countable);
+  }
+}
