@@ -1,5 +1,42 @@
 ## Critical
 
+- it may be that --retest is not working correctly.  When I run without it, it should erase all results.  Maybe it's the filter, which is unusual `bin/run_check_pages_tests.sh --filter="PR__widget|widget_users" --retest`
+
+Interpolation fails for `text`, e.g. count is interpolated as null for some reason.  I think it's because the test interpolates BEFORE the suite interpolates on the find array.
+
+```yaml
+-
+  set: count
+  value: 161507
+-
+  url: /widget
+  find:
+    -
+      dom: '#updates a>strong'
+      text: ${count}
+```
+
+The following fails when looking for the content in AJAX loaded content.
+
+```yaml
+find:
+  - lorem ipsum
+```
+
+- fix the tests!
+
+- rewrite \AKlump\CheckPages\Exceptions\TestFailedException::__construct() to take the test not the config, or the messages. Anyway we need to be able to extract the test messages from the exception, e.g. getTestMessages(), so they will be displayed and moved to the runner. Need to add test coverage to prevent regression.
+- display path to the output files in verbose mode
+
+
+- need to be able to set value on bash output
+
+```yaml
+  bash: cd /Users/aaronklump/Code/Projects/NationalUniversity/TheCommons/site/app && lando nxdb_drush uinf ${loadUserName} --field=uid
+  set: userId
+```
+
+- need to throw error when using `attr` not `attribute`
 - promote env_vars to a handler?
 - add test coverage for env_vars mixin
 - badge icons may be broken... see sessions.php
@@ -13,6 +50,7 @@
 
 ## Normal
 
+- we sometimes get a curl error, then immediately it works with --retest.  could this be "fixed" by using a while() loop to auto retry on certain curl errors?  I'm thinking it's resource is just crashing.
 - a means of setting a bandwidth throttle
 - look into upgrading per https://github.com/aklump/check-pages/security/dependabot
 - "spatie/browsershot": "^3.0 || ^4.0 || ^5.0", ... this will require >= php 8.2

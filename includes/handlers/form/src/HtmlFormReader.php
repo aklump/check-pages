@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Handlers\Form;
 
 use DOMElement;
 use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -66,7 +67,9 @@ final class HtmlFormReader {
       }
       $name = $el->getAttribute('name');
       $value = $this->getElementValue($el);
-      $response[$name] = $value;
+      if (!empty($name)) {
+        $response[$name] = $value;
+      }
     }
 
     return $response;
@@ -149,6 +152,11 @@ final class HtmlFormReader {
   public function getSubmit(string $submit_selector = ''): KeyLabelNode {
     /** @var \DOMElement $submit */
     $submit_selector = $submit_selector ?: 'input[type=submit],button[type=submit]';
+    /** @var \Symfony\Component\DomCrawler\Crawler $submit */
+    $submit = $this->getForm()->filter($submit_selector);
+    if ($submit->count() > 1) {
+      throw new RuntimeException(sprintf('Multiple submit elements in %s, you must use form.submit in this test.', $this->formSelector));
+    }
     $submit = $this->getForm()->filter($submit_selector)->getNode(0);
     if (!$submit instanceof DOMElement) {
       throw new InvalidArgumentException(sprintf('Cannot find submit button with selector: %s', $submit_selector));

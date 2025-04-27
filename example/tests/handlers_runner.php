@@ -4,6 +4,7 @@ add_directory(__DIR__);
 load_config('config/local');
 add_mixin('http_request_files');
 run_suite("handlers/bash");
+run_suite("handlers/benchmark");
 run_suite("handlers/breakpoint");
 run_suite("handlers/count");
 run_suite("handlers/device");

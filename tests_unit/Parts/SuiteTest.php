@@ -20,6 +20,36 @@ final class SuiteTest extends TestCase {
 
   private Runner $runner;
 
+  public static function dataFortestParsePathProvider(): array {
+    $tests = [];
+    $tests[] = [
+      'suites/HEAD/*',
+      ['group' => 'HEAD', 'id' => '*'],
+    ];
+    $tests[] = [
+      '/FooBar/Baz/site/app_support/tests_check_pages/suites/chat.yml',
+      ['group' => 'suites', 'id' => 'chat'],
+    ];
+    $tests[] = [
+      'suites/chat.yml',
+      ['group' => '', 'id' => 'chat'],
+    ];
+    $tests[] = [
+      'suites/homepage/chat.yml',
+      ['group' => 'homepage', 'id' => 'chat'],
+    ];
+
+    return $tests;
+  }
+
+  /**
+   * @dataProvider dataFortestParsePathProvider
+   */
+  public function testParsePath(string $subject, array $expected) {
+    $result = Suite::parsePath($subject);
+    $this->assertSame($expected, $result);
+  }
+
   public function testGetConfigReturnsArrayOfTestConfigs() {
     $suite = new Suite('foo', $this->runner);
     $this->assertSame([], $suite->getConfig());

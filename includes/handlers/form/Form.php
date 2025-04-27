@@ -50,6 +50,9 @@ final class Form implements HandlerInterface {
 
               // The form should not appear in this test, only the first.
               unset($second_config['form']);
+              // Form submissions should never need JS, so removing that the
+              // submission is faster.
+              unset($second_config['js']);
               $second_config['url'] = '${formAction}';
               $second_config['request'] = [
                 'method' => '${formMethod}',

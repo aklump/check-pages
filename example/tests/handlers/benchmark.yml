@@ -1,0 +1,9 @@
+-
+    benchmark:
+        ask: 'How long does it take for a visitor to see the h1 tag?'
+        times: 10
+    url: /handlers/benchmark.html
+    find:
+        -
+            dom: h1
+            is: 'Benchmark Handler Test Page'

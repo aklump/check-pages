@@ -31,6 +31,9 @@ class Matches extends LogicBase {
       }
       else {
         $reasons[] = $this->getReason($item, $this->value);
+        if (substr($this->value, 0, 1) !== substr($this->value, -1)) {
+          $reasons[] = 'Your RegEx appears to be missing delimiter(s).';
+        }
       }
       $this->setFinalResult($passes_test);
     }
@@ -42,7 +45,7 @@ class Matches extends LogicBase {
   }
 
   protected function getReason(...$sprintf_values): string {
-    return sprintf('Unable to match actual value \"%s\" using \"%s\"', ...$sprintf_values);
+    return sprintf('Unable to match actual value "%s" using "%s"', ...$sprintf_values);
   }
 
 }

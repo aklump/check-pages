@@ -8,6 +8,10 @@ namespace AKlump\CheckPages\Output;
  */
 class Icons {
 
+  const REQUEST = '🌐⬆ ';
+
+  const RESPONSE = '🌐⬇ ';
+
   const HINT = '🤔 ';
 
   const THUMBS_UP = '👍 ';
@@ -22,10 +26,6 @@ class Icons {
 
   const GLOBE = '🌐 ';
 
-  const REQUEST = '▲ ';
-
-  const RESPONSE = '▼ ';
-
   const SLEEP = '😴 ';
 
   const WAVE = '🙋 ';
@@ -35,6 +35,8 @@ class Icons {
   const STOPLIGHT = '🚦 ';
 
   const SUITECASE = '🧳 ';
+
+  const FILE = '📁 ';
 
   const FOOTBALL = '🏈 ';
 

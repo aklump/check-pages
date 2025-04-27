@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "required": [
+    "ask"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "ask": {
+      "type": "string"
+    },
+    "times": {
+      "type": "integer",
+      "inclusiveMinimum": 1
+    }
+  }
+}

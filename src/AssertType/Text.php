@@ -14,16 +14,18 @@ class Text extends LogicBase {
   /**
    * Get text-only content from $string.
    *
-   * @param string $value
+   * @param mixed $value
    *   Remove anything that should be ignored during a text comparison, e.g.
    *   HTML tags, leading/trailing whitespace, etc.
    *
-   * @return string
+   * @return mixed
    *   The prepared text.
    */
-  private function stripNonTextChars(string $value): string {
-    $value = strip_tags($value);
-    $value = trim($value);
+  private function stripNonTextChars($value) {
+    if (is_string($value)) {
+      $value = strip_tags($value);
+      $value = trim($value);
+    }
 
     return $value;
   }

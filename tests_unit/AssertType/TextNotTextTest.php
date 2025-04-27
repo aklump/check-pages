@@ -24,6 +24,33 @@ class TextNotTextTest extends TestCase {
     $tests = [];
 
     $tests[] = [
+      [FALSE, TRUE],
+      [0, 1],
+      NULL,
+      ["659", "178", "0", "0"],
+    ];
+
+    $tests[] = [
+      [FALSE, TRUE],
+      [0, 1],
+      '55',
+      ["659", "178", "0", "0"],
+    ];
+    $tests[] = [
+      [TRUE, FALSE],
+      [2, 0],
+      '178',
+      ["659", "178", "0", "0", "178"],
+    ];
+
+    $tests[] = [
+      [TRUE, FALSE],
+      [1, 0],
+      '659',
+      ["659", "178", "0", "0"],
+    ];
+
+    $tests[] = [
       [TRUE, FALSE],
       [1, 0],
       'foo',
@@ -64,7 +91,7 @@ class TextNotTextTest extends TestCase {
   /**
    * @dataProvider dataFortestInvokeProvider
    */
-  public function testNotText(array $expected_final_results, array $expected_counts, string $value, $haystack) {
+  public function testNotText(array $expected_final_results, array $expected_counts, $value, $haystack) {
     $assert = new Assert(1, [], $this->createMock(Test::class));
     $assert->setAssertion(Assert::ASSERT_NOT_TEXT, $value);
     $countable = [];
@@ -76,7 +103,7 @@ class TextNotTextTest extends TestCase {
   /**
    * @dataProvider dataFortestInvokeProvider
    */
-  public function testText(array $expected_final_results, array $expected_counts, string $value, $haystack) {
+  public function testText(array $expected_final_results, array $expected_counts, $value, $haystack) {
     $assert = new Assert(1, [], $this->createMock(Test::class));
     $assert->setAssertion(Assert::ASSERT_TEXT, $value);
     $countable = [];

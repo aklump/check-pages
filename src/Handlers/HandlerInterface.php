@@ -8,7 +8,7 @@ interface HandlerInterface extends EventSubscriberInterface {
 
   /**
    * @return string
-   *   The ID of this handler.
+   *   The lower, snake case ID for this handler.
    */
   public static function getId(): string;
 

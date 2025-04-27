@@ -31,6 +31,10 @@ services:
         class: \AKlump\CheckPages\Handlers\Bash
         tags:
             - { name: event_subscriber }
+    benchmark.handler:
+        class: \AKlump\CheckPages\Handlers\Benchmark
+        tags:
+            - { name: event_subscriber }
     breakpoint.handler:
         class: \AKlump\CheckPages\Handlers\Breakpoint
         tags:
