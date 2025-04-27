@@ -34,9 +34,18 @@
     "chrome": {
       "type": "string"
     },
-    "request_timeout": {
-      "type": "integer",
-      "description": "Maximum number of seconds to wait for each request before giving up."
+    "request": {
+      "type": "object",
+      "required": [
+        "timeout"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "timeout": {
+          "description": "Maximum number of seconds to wait for each request before giving up.",
+          "type": "integer"
+        }
+      }
     },
     "suites_to_ignore": {
       "description": "A list of suite filenames that will be ignored by run_suite() when this configuration is used.  This allows you to write a suite called live_only.yml that can be skipped by your config.dev.yml file.",

@@ -129,7 +129,7 @@ final class TestRunner implements EventDispatcherInterface {
       }, MessageType::DEBUG, Verbosity::DEBUG));
 
       try {
-        $timeout = $runner->getConfig()['request_timeout'] ?? NULL;
+        $timeout = $runner->getConfig()['request']['timeout'] ?? NULL;
         if (is_int($timeout)) {
           $this->getDriver()->setRequestTimeout($timeout);
         }
@@ -175,7 +175,7 @@ final class TestRunner implements EventDispatcherInterface {
         $test->addMessage(new Message([$exception->getMessage()], MessageType::ERROR, Verbosity::VERBOSE));
         $test->addMessage(new DebugMessage(
             [
-              sprintf('Try setting a value higher than %d for "request_timeout" in %s, or at the test level.', $this->getDriver()
+              sprintf('Try setting a value higher than %d for "request.timeout" in %s, or at the test level.', $this->getDriver()
                 ->getRequestTimeout(), basename($runner->getLoadedConfigPath())),
             ],
             MessageType::TODO)
