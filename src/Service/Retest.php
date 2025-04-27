@@ -110,23 +110,21 @@ final class Retest implements EventSubscriberInterface, ProvidesInputOptionsInte
    * @return void
    */
   private function markTestResultsAsPendingBySuite(Suite $suite) {
-    $collection = $this->loadResultsFromStorage() ?? new TestResultCollection();
-    $should_save = FALSE;
+    $results = $this->loadResultsFromStorage() ?? new TestResultCollection();
+    $results = $results->filter(function (TestResult $result) use ($suite) {
+      return $result->getSuiteId() !== $suite->id();
+    });
     foreach ($suite->getTests() as $test) {
-      $presumed_failure = new TestResult();
-      $presumed_failure
+      $pending_result = new TestResult();
+      $pending_result
         ->setGroupId($suite->getGroup())
         ->setSuiteId($suite->id())
         ->setTestId($test->id())
         ->setResult(Test::PENDING);
-      $is_changed = $collection->add($presumed_failure);
-      $should_save = $should_save ?: $is_changed;
+      $results->add($pending_result);
     }
-    if ($should_save) {
-      $filepath = $this->getPathToResultsLog();
-      $storage_service = new TestResultCollectionStorage();
-      $storage_service->save($filepath, $collection);
-    }
+    $filepath = $this->getPathToResultsLog();
+    (new TestResultCollectionStorage())->save($filepath, $results);
   }
 
   public function registerTestResult(Test $test) {
