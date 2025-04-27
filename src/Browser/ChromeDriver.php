@@ -116,7 +116,7 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
   /**
    * {@inheritdoc}
    */
-  public function request(array $assertions = NULL): RequestDriverInterface {
+  public function request(array $assertions = []): RequestDriverInterface {
     $this->response = NULL;
     $browserFactory = new BrowserFactory();
 
@@ -202,7 +202,7 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
    * @return string
    *   HTML for the page.
    */
-  private function getPageContents(array $assertions = NULL): string {
+  private function getPageContents(array $assertions = []): string {
     $messenger = $this->getMessenger();
     $next_message_time = NULL;
     $this->limits['time'] = time() + $this->getRequestTimeout();

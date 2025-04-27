@@ -11,6 +11,7 @@ use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Traits\SetTrait;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\Messaging\MessageType;
+use Exception;
 
 /**
  * Implements the Redirect handler.
@@ -43,13 +44,12 @@ final class Redirect implements HandlerInterface {
           $test = $event->getTest();
           $driver = $event->getDriver();
           try {
-            $expected_status_code = $handler->checkStatusCode($test, $driver);
+            $expected_status_code = $handler->assertStatusCode($test, $driver);
             if ($test->has('redirect') || $test->has('location')) {
-              $handler->checkRedirect($test, $driver);
+              $handler->assertLocation($test, $driver);
             }
 
-            // When the dev is expecting a redirect, we will capture the
-            // redirect information into variables.
+            // With redirects, capture the redirect context into variables.
             if ($test->has('status') && $expected_status_code[0] === '3') {
               $variables = $test->getSuite()->variables();
               $lines = [];
@@ -58,7 +58,7 @@ final class Redirect implements HandlerInterface {
               $test->addMessage(new Message($lines, MessageType::DEBUG, Verbosity::DEBUG));
             }
           }
-          catch (\Exception $e) {
+          catch (Exception $e) {
             throw new TestFailedException($test->getConfig(), $e);
           }
         },
@@ -66,7 +66,30 @@ final class Redirect implements HandlerInterface {
     ];
   }
 
-  protected function checkRedirect(Test $test, RequestDriverInterface $driver) {
+  protected function assertLocation(Test $test, RequestDriverInterface $driver) {
+    $expected_location = $this->getExpectedLocationByTest($test);
+    if (NULL === $expected_location) {
+      return;
+    }
+
+    $actual_location = $driver->getLocation();
+    if ($actual_location === $expected_location) {
+      $test->setPassed();
+    }
+    else {
+      $test->setFailed();
+      $test->addMessage(new Message([
+        sprintf('The actual "%s" and expected "%s" locations do not match', $actual_location, $expected_location),
+      ], MessageType::ERROR, Verbosity::VERBOSE));
+    }
+  }
+
+  /**
+   * @param \AKlump\CheckPages\Parts\Test $test
+   *
+   * @return string|null
+   */
+  private function getExpectedLocationByTest(Test $test) {
     $expected_location = NULL;
     if ($test->has('location')) {
       $expected_location = $test->get('location') ?? '';
@@ -78,19 +101,7 @@ final class Redirect implements HandlerInterface {
       $test->interpolate($expected_location);
     }
 
-    $http_location = $driver->getLocation();
-    if (!is_null($expected_location)) {
-      $location_test = $http_location === $expected_location;
-      if ($location_test) {
-        $test->setPassed();
-      }
-      else {
-        $test->setFailed();
-        $test->addMessage(new Message([
-          sprintf('The actual "%s" and expected "%s" locations do not match', $http_location, $expected_location),
-        ], MessageType::ERROR, Verbosity::VERBOSE));
-      }
-    }
+    return $expected_location;
   }
 
   /**
@@ -99,7 +110,7 @@ final class Redirect implements HandlerInterface {
    *
    * @return string This can be 200 or 2xx, hence a string.
    */
-  protected function checkStatusCode(Test $test, RequestDriverInterface $driver): string {
+  protected function assertStatusCode(Test $test, RequestDriverInterface $driver): string {
     $actual_status_code = $driver->getResponse()->getStatusCode();
     $actual_status_first_char = substr($actual_status_code, 0, 1);
     $default_status_code = '2xx';
@@ -113,7 +124,7 @@ final class Redirect implements HandlerInterface {
     }
     else {
       $expected_status_code = $test->get('status') ?: $default_status_code;
-      $expected_status_first_char = $expected_status_code[0] ?? '';
+      $expected_status_first_char = substr($expected_status_code, 0, 1);
       if ($expected_status_first_char === '3') {
         $actual_status_code = $driver->getRedirectCode();
       }
@@ -123,7 +134,6 @@ final class Redirect implements HandlerInterface {
       }
     }
     if ($send_message) {
-
       $server = $driver->getResponse()->getHeader('server')[0] ?? NULL;
       if ($server) {
         $server = " $server";

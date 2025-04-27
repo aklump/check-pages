@@ -45,7 +45,7 @@ interface RequestDriverInterface extends RequestInterface {
    *
    * @see \AKlump\CheckPages\Browser\RequestDriverInterface::getResponse();
    */
-  public function request(array $assertions = NULL): RequestDriverInterface;
+  public function request(array $assertions = []): RequestDriverInterface;
 
   /**
    * Return the response after fetching.
