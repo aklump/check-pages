@@ -63,6 +63,28 @@ final class VariablesTest extends TestCase {
     $this->assertSame($expect, $var->needsInterpolation($subject));
   }
 
+  public function testFoo() {
+    $variables = new Variables();
+    $variables->setItem('loop.index0', 1);
+    $variables->setItem('loop.value', 'p');
+
+    $subject = array(
+      'why' => 'Demonstrate loop array interpolation ($loop[${loop.index}] = ${loop.value})',
+      'url' => '/handlers/loop.html',
+      'find' =>
+        array(
+          0 =>
+            array(
+              'dom' => '${loop.value}',
+              'count' => '${loop.index0}',
+            ),
+        ),
+    );
+
+    $variables->interpolate($subject);
+    $this->assertSame(1, $subject['find'][0]['count']);
+  }
+
   public function testInterpolateNullValuesRemovesToken() {
     $var = new Variables();
     $var->setItem('foo', NULL);

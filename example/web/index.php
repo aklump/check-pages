@@ -22,7 +22,10 @@ if (isset($_GET['apiKey']) && $_GET['apiKey'] !== 'OWqQtt741kDd6x8c') {
 </a>
 
 <h1 class="page-title" data-timestamp="<?= time() ?>">
-  <span>About In the Loft Studios</span></h1>
+  <span>About In the Loft Studios</span>
+</h1>
+<h2>Creating the web since <span class="since">1999</span></h2>
+
 
 <h2 class="block-title">Quick Start</h2>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </p>

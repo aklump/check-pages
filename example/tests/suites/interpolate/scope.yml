@@ -1,0 +1,26 @@
+-
+  set: alpha
+  value: apple
+-
+  eval: "'${alpha}' == 'apple'"
+-
+  url: /
+  find:
+    -
+      why: Assert suite scope is available here.
+      eval: "'${alpha}' == 'apple'"
+    -
+      why: Set inside of find to test futher down.
+      set: charlie
+      value: coconut
+    -
+      why: Assert value in previous assert is available
+      eval: "'${charlie}' == 'coconut'"
+-
+  eval: "'${charlie}' == 'coconut'"
+-
+  why: Assert previous test.find.set is available to this test.find
+  url: /
+  find:
+    -
+      eval: "'${charlie}' == 'coconut'"

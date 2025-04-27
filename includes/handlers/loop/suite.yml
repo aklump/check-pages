@@ -74,7 +74,7 @@
     - p
     - span
 -
-  why: Demonstrate loop array interpolation ($loop[${loop.index}] = ${loop.value})
+  why: Assert we can use ${loop.index0} to count the number of ${loop.value} elements.
   visit: /test_subject.html
   find:
     -

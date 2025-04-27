@@ -15,6 +15,7 @@ add_mixin('mixins/foo', [
 
 add_mixin('http_request_files');
 
+run_suite('interpolate/*');
 run_suite('on_fail_skip');
 run_suite('ignored');
 run_suite('secrets');
