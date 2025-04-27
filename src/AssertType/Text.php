@@ -3,7 +3,6 @@
 namespace AKlump\CheckPages\AssertType;
 
 use AKlump\CheckPages\Assert;
-use RuntimeException;
 
 class Text extends LogicBase {
 
@@ -33,13 +32,14 @@ class Text extends LogicBase {
   public function __invoke(Assert $assert, $haystack, array &$countable): bool {
     parent::__invoke($assert, $haystack, $countable);
     $this->value = $this->stripNonTextChars($this->value);
+    $this->value = $this->getStringValueIfPossible($this->value);
 
     $countable = [];
     $flattened_haystack = implode('", "', $haystack);
     foreach ($haystack as $item) {
       $item = $this->stripNonTextChars($item);
       $passes_test = $this->applyCallbackWithVariations($item, function ($item_variation) use ($assert) {
-        if ($item_variation == $this->value) {
+        if (is_string($this->value) && strcmp($item_variation, $this->value) === 0) {
           $assert->setNeedleIfNotSet($item_variation);
 
           return TRUE;

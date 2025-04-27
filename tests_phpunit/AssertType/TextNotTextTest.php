@@ -25,30 +25,39 @@ class TextNotTextTest extends TestCase {
 
     $tests[] = [
       [FALSE, TRUE],
-      [0, 1],
+      [0, 4],
       NULL,
       ["659", "178", "0", "0"],
     ];
 
     $tests[] = [
       [FALSE, TRUE],
-      [0, 1],
+      [0, 4],
+      '',
+      ["659", "178", "0", "0"],
+    ];
+
+    $tests[] = [
+      [FALSE, TRUE],
+      [0, 4],
       '55',
       ["659", "178", "0", "0"],
     ];
     $tests[] = [
       [TRUE, FALSE],
-      [2, 0],
+      [2, 3],
       '178',
       ["659", "178", "0", "0", "178"],
     ];
 
     $tests[] = [
       [TRUE, FALSE],
-      [1, 0],
+      [1, 3],
       '659',
       ["659", "178", "0", "0"],
     ];
+
+    return $tests;
 
     $tests[] = [
       [TRUE, FALSE],

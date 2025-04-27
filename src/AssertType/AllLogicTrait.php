@@ -34,4 +34,22 @@ trait AllLogicTrait {
     return $result;
   }
 
+  /**
+   * Intelligently casts $value to string when possible.
+   *
+   * @param mixed $value
+   *
+   * @return mixed|string
+   */
+  protected function getStringValueIfPossible($value) {
+    if (NULL === $value) {
+      return '';
+    }
+    if (is_numeric($value)) {
+      return (string) $value;
+    }
+
+    return $value;
+  }
+
 }
