@@ -16,6 +16,8 @@ class HttpRequestFiles {
    */
   private $logFiles;
 
+  private array $options;
+
   public function __construct(array $mixin_config, LocalFilesProvider $log_files) {
     $this->options = $mixin_config;
     $this->logFiles = $log_files;

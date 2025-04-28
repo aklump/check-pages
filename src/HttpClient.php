@@ -44,6 +44,11 @@ class HttpClient implements ClientInterface {
   static $class_instance_id = 0;
 
   /**
+   * @var \AKlump\CheckPages\Browser\GuzzleDriver
+   */
+  private GuzzleDriver $driver;
+
+  /**
    * @param \AKlump\CheckPages\Parts\Runner $runner
    * @param \AKlump\Messaging\HasMessagesInterface $message_bag
    *   Request messages will be added to this instance.

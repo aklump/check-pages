@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages\Collections;
 
 use AKlump\CheckPages\Parts\Test;
+use InvalidArgumentException;
 
 class TestResult {
 
@@ -73,8 +74,7 @@ class TestResult {
       Test::PASSED,
       Test::FAILED,
     ])) {
-      throw new \InvalidArgumentException(sprintf('Invalid result value: %s', $value));
+      throw new InvalidArgumentException(sprintf('Invalid result value: %s', $value));
     }
   }
-
 }

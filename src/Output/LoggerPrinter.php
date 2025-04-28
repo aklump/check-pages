@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Output;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\Messaging\MessageInterface;
 use AKlump\Messaging\MessengerInterface;
+use DateTimeInterface;
 
 /**
  * Used to print messages to logfile.
@@ -20,6 +21,8 @@ final class LoggerPrinter implements MessengerInterface {
    * @var string
    */
   private $basename;
+
+  private string $type;
 
   public function __construct(string $basename, Runner $runner) {
     $this->runner = $runner;
@@ -49,7 +52,7 @@ final class LoggerPrinter implements MessengerInterface {
   }
 
   private function addDates($line) {
-    $time = date_create()->format(\DateTimeInterface::ISO8601);
+    $time = date_create()->format(DateTimeInterface::ISO8601);
 
     return sprintf('%s %s', $time, $line);
   }
