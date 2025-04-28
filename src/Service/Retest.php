@@ -113,7 +113,7 @@ final class Retest implements EventSubscriberInterface, ProvidesInputOptionsInte
   private function markTestResultsAsPendingBySuite(Suite $suite) {
     $results = $this->loadResultsFromStorage() ?? new TestResultCollection();
     $results = $results->filter(function (TestResult $result) use ($suite) {
-      return $result->getSuiteId() !== $suite->id();
+      return $this->getFilterKey($result) !== $this->getFilterKey($suite);
     });
     foreach ($suite->getTests() as $test) {
       $pending_result = new TestResult();
@@ -226,18 +226,18 @@ final class Retest implements EventSubscriberInterface, ProvidesInputOptionsInte
 
     // Get a unique list of suite ids to be run.
     $suites_to_run_by_id = array_values(array_unique(array_map(function (TestResult $result) {
-      return $result->getSuiteId();
+      return $this->getFilterKey($result);
     }, $tests_to_run->toArray())));
 
     $tests_to_ignore = $collection->filter(function (TestResult $result) use ($suites_to_run_by_id) {
       // We will ignore the test if it's suite is not one we want.
-      return !in_array($result->getSuiteId(), $suites_to_run_by_id);
+      return !in_array($this->getFilterKey($result), $suites_to_run_by_id);
     });
 
     // Convert the test results to filter strings and ensure they are unique.
     $ignore_filter_strings = array_map(function (TestResult $result) {
       // Given the results, we now will return the formatted strings.
-      return ltrim($result->getGroupId() . '/' . $result->getSuiteId(), '/');
+      return $this->getFilterKey($result);
     }, $tests_to_ignore->toArray());
 
     return array_values(array_unique($ignore_filter_strings));
@@ -280,5 +280,19 @@ final class Retest implements EventSubscriberInterface, ProvidesInputOptionsInte
       Retest::OPTION_RETEST,
       Retest::OPTION_CONTINUE,
     ];
+  }
+
+  private function getFilterKey($object) {
+    if ($object instanceof TestResult) {
+      $key = $object->getGroupId() . '/' . $object->getSuiteId();
+    }
+    elseif ($object instanceof Suite) {
+      $key = $object->getGroup() . '/' . $object->id();
+    }
+    else {
+      throw new \RuntimeException('Unknown object type.');
+    }
+
+    return ltrim($key, '/');
   }
 }
