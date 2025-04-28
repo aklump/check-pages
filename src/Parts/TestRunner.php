@@ -10,6 +10,7 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEvent;
 use AKlump\CheckPages\Event\TestEvent;
 use AKlump\CheckPages\Exceptions\RequestTimedOut;
+use AKlump\CheckPages\Helpers\GetResultCodePerExpectations;
 use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
@@ -226,34 +227,28 @@ final class TestRunner implements EventDispatcherInterface {
       $test->setPassed();
     }
 
-    $runtime_test_result = !$test->hasFailed();
+    $result_per_expectations = (new GetResultCodePerExpectations())($test);
+    $runtime_test_result = $result_per_expectations !== Test::FAILED;
 
     // Allow the result to be inverted by the test config.  This will cause the
     // opposite events to be called, but does not actually change the test value
     // on the object instance.
-    if ($test->has('expected outcome')) {
-      $expected_outcome = $test->get('expected outcome');
-      if (!$runtime_test_result && in_array($expected_outcome, [
-          'fail',
-          'failure',
-        ])) {
-        $runtime_test_result = TRUE;
+    if ($test->has('expected outcome') && $test->hasFailed() && $runtime_test_result) {
 
-        // Make all error messages success messages so as not to catch the eye.
-        $messages = array_map(function (Message $message) {
-          $type = $message->getMessageType();
-          if ($type === MessageType::ERROR) {
-            $message->setMessageType(MessageType::SUCCESS);
-          }
+      // Make all error messages success messages so as not to catch the eye.
+      $messages = array_map(function (Message $message) {
+        $type = $message->getMessageType();
+        if ($type === MessageType::ERROR) {
+          $message->setMessageType(MessageType::SUCCESS);
+        }
 
-          return $message;
-        }, $test->getMessages());
-        $test->setMessages($messages);
+        return $message;
+      }, $test->getMessages());
+      $test->setMessages($messages);
 
-        $test->addMessage(new Message([
-          'This test failed as expected.',
-        ], MessageType::SUCCESS, Verbosity::VERBOSE));
-      }
+      $test->addMessage(new Message([
+        'This test failed as expected.',
+      ], MessageType::SUCCESS, Verbosity::VERBOSE));
     }
 
     if ($runtime_test_result) {

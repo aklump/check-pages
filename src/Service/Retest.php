@@ -11,6 +11,7 @@ use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\BadSyntaxException;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Helpers\GetResultCodePerExpectations;
 use AKlump\CheckPages\Interfaces\ProvidesInputOptionsInterface;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message;
@@ -128,22 +129,14 @@ final class Retest implements EventSubscriberInterface, ProvidesInputOptionsInte
   }
 
   public function registerTestResult(Test $test) {
-    $result_code = $test->hasPassed() ? Test::PASSED : NULL;
-    if (!$result_code) {
-      $result_code = $test->hasFailed() ? Test::FAILED : NULL;
-    }
-    if (!$result_code) {
-      $result_code = $test->isSkipped() ? Test::SKIPPED : NULL;
-    }
-    $result_code = $result_code ?? Test::PENDING;
-
+    $result_code_per_expectations = (new GetResultCodePerExpectations())($test);
     $suite = $test->getSuite();
     $test_result = new TestResult();
     $test_result
       ->setGroupId($suite->getGroup())
       ->setSuiteId($suite->id())
       ->setTestId($test->id())
-      ->setResult($result_code);
+      ->setResult($result_code_per_expectations);
     $storage_service = new TestResultCollectionStorage();
     $filepath = $this->getPathToResultsLog();
     $collection = $storage_service->load($filepath) ?? new TestResultCollection();
