@@ -35,6 +35,7 @@
   url: /test_subject.php
   form:
     dom: .form-b
+    submit: '.form-save'
     input:
       -
         name: message
@@ -53,6 +54,7 @@
   url: /test_subject.php
   form:
     dom: .form-b
+    submit: '.form-save'
     input:
       -
         import: imports/form_data
