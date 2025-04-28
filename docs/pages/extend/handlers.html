@@ -4,9 +4,9 @@
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.23.1">
-      <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.23.1">
-      <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.23.1">
+      <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.23.2">
+      <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.23.2">
+      <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.23.2">
     <title>Handlers: Full Customization | Check Pages</title>
 </head>
 <body class="my-5">
@@ -86,14 +86,14 @@
 </ol>
 <ol>
 <li>Write the <em>suite.yml</em> file which will be run against _test_subject.html, test_subject.php, test<em>subject.json</em>, etc</li>
-<li>Create _test<em>subject.html</em> or _test<em>subject.php</em> as needed to test <em>
-suite.yml</em>.</li>
-<li>You may include more than one _test<em>subject.*</em> file.</li>
+<li>Create <em>test_subject.html</em> or <em>test_subject.php</em> as needed to test <em>suite.yml</em>.</li>
+<li>You may include more than one <em>test_subject.*</em> file.</li>
 <li><em>README.md</em> is optional, but will be added to the Check Pages documentation when it's compiled and should be used to give examples of how the handler should be implemented.</li>
 </ol>
 <h3>Handler Objects/Classes</h3>
 <ul>
 <li>Each handler will provide it's main class in the namespace <code>AKlump\CheckPages\Handlers</code> with an upper-camel case file matching it's id, e.g. _foo<em>bar/FooBar.php</em>.</li>
+<li>That class should implement <code>\AKlump\CheckPages\Handlers\HandlerInterface</code></li>
 <li>Any additional classes should be namespaced to the handler, e.g. <code>AKlump\CheckPages\Handlers\FooBar</code> and saved to _foo<em>bar/src/Alpha.php</em>`.</li>
 <li>Try to push all the logic into <em>src/*.php</em> classes and cover those with unit tests, keep the main class as dumb as possible and don't bother unit testing.</li>
 </ul>
@@ -135,7 +135,7 @@ suite.yml</em>.</li>
 <h2>Disabled</h2>
 <p>If you rename a handler directory with a leading underscore, e.g. "foo" to "_foo" then it will be ignored. This is a "disabled handler".</p>
 <h2>Advanced</h2>
-<p>The _json<em>schema</em> handler is a good example of a handler that totally handles the assertion on it's own. You may want to study that if you need to do something fancy.</p>
+<p>The <em>json_schema</em> handler is a good example of a handler that totally handles the assertion on it's own. You may want to study that if you need to do something fancy.</p>
 <h2>Testing Handlers</h2>
 <p>To run a handler's tests do this: <code>./bin/run_handler_tests &lt;handler&gt;</code>.  (Don't forget to <code>./bin/compile_app.sh</code> if you make a change.)</p>
 <h2>Handler Unit Tests</h2>
@@ -198,9 +198,9 @@ foreach ([
   <footer class="footer d-flex justify-content-center">
     <div class="flex-column justify-content-center">
               Version:
-        <strong>0.23.1</strong>
+        <strong>0.23.2</strong>
         &bull;
-                    Last Update: <strong>3/10/2025</strong>
+                    Last Update: <strong>4/27/2025</strong>
           </div>
   </footer>
 
@@ -943,9 +943,9 @@ foreach ([
   </div>
 </div>
 
-  <script src="../../dist/node_modules/bootstrap/dist/js/bootstrap.min.js?ver=0.23.1"></script>
-  <script src="../../dist/lunr.js?ver=0.23.1"></script>
-  <script src="../../dist/knowledge.min.js?ver=0.23.1"></script>
+  <script src="../../dist/node_modules/bootstrap/dist/js/bootstrap.min.js?ver=0.23.2"></script>
+  <script src="../../dist/lunr.js?ver=0.23.2"></script>
+  <script src="../../dist/knowledge.min.js?ver=0.23.2"></script>
 
 </body>
 </html>
