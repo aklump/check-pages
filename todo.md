@@ -1,6 +1,11 @@
 ## Critical
 
-- it may be that --retest is not working correctly.  When I run without it, it should erase all results.  Maybe it's the filter, which is unusual `bin/run_check_pages_tests.sh --filter="PR__widget|widget_users" --retest`
+- form test is failing
+
+### Form Handler
+
+- document this (fix knowledge?)
+- prevent this from happening: `1[name]=pass&1[value]=pass&op=Next&input=uber&form_build_id=form-EYcmhwbcrV34PSUt8ecSDNw21SadTTljqcmswa2Cf2M&form_id=user_login_form&pass=pass`
 
 Interpolation fails for `text`, e.g. count is interpolated as null for some reason.  I think it's because the test interpolates BEFORE the suite interpolates on the find array.
 
@@ -23,11 +28,8 @@ find:
   - lorem ipsum
 ```
 
-- fix the tests!
-
 - rewrite \AKlump\CheckPages\Exceptions\TestFailedException::__construct() to take the test not the config, or the messages. Anyway we need to be able to extract the test messages from the exception, e.g. getTestMessages(), so they will be displayed and moved to the runner. Need to add test coverage to prevent regression.
 - display path to the output files in verbose mode
-
 
 - need to be able to set value on bash output
 
@@ -50,6 +52,8 @@ find:
 
 ## Normal
 
+- test scope and suite scope for interpolation is confusing and unnecessary, they should become a single scope.
+
 - we sometimes get a curl error, then immediately it works with --retest.  could this be "fixed" by using a while() loop to auto retry on certain curl errors?  I'm thinking it's resource is just crashing.
 - a means of setting a bandwidth throttle
 - look into upgrading per https://github.com/aklump/check-pages/security/dependabot
@@ -61,9 +65,5 @@ find:
 - move AddHandlerAutoloads to a cached solution.
 - some passwords do not work in drupal, e.g. 'EGucqaBbgfajFVpkLnh4TP4ur4EoPrqjDKmUL8wegGQUyA4jcEawhEQhrjfAWdFb@vfi7ihr!cZBh3qViYqEP@Y4dFBB2X_hXx-Y' must have to do with special chars that need to be escaped.
 
-### Form Handler
-
-- document this (fix knowledge?)
-- prevent this from happening: `1[name]=pass&1[value]=pass&op=Next&input=uber&form_build_id=form-EYcmhwbcrV34PSUt8ecSDNw21SadTTljqcmswa2Cf2M&form_id=user_login_form&pass=pass`
 
 ## Complete
