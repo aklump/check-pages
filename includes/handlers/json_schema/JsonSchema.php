@@ -9,9 +9,9 @@ use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
+use AKlump\CheckPages\Service\DotAccessor;
 use AKlump\CheckPages\Traits\SerializationTrait;
 use AKlump\Messaging\MessageType;
-use Jasny\DotKey;
 use JsonSchema\Constraints\Factory;
 use JsonSchema\Exception\ResourceNotFoundException;
 use JsonSchema\SchemaStorage;
@@ -78,7 +78,7 @@ final class JsonSchema implements HandlerInterface {
       $item = $this->deserialize($item, $content_type);
       $path = $assert->path ?? NULL;
       if ($path) {
-        $item = DotKey::on($item)->get($path);
+        $item = (new DotAccessor($item))->get($path);
       }
 
       return $item;

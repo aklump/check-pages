@@ -7,6 +7,8 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class CrawlerToArray {
 
+  private string $reason;
+
   public function __invoke(Assert $assert, Crawler $crawler, &$pass): array {
     list($assert_type, $assert_value) = $assert->getAssertion();
 

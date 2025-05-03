@@ -1,6 +1,5 @@
 {
     "require": {
-        "opis/json-schema": "^2.3",
-        "jasny/dotkey": "^1.0"
+        "opis/json-schema": "^2.3"
     }
 }

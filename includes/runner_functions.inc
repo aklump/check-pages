@@ -14,6 +14,7 @@ use AKlump\CheckPages\Helpers\AssertRunSuiteNotCalled;
 use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Suite;
+use AKlump\CheckPages\Service\DotAccessor;
 use Jasny\DotKey;
 use Symfony\Component\Yaml\Yaml;
 
@@ -74,8 +75,8 @@ function config_get($config_path) {
   $runner = $container->get('runner');
   try {
     $delimiter = '.';
-    $o = DotKey::on($runner->getConfig());
-    if (!$o->exists($config_path)) {
+    $o = (new DotAccessor($runner->getConfig()));
+    if (!$o->has($config_path)) {
       if (strstr($config_path, $delimiter) === FALSE) {
         throw new RuntimeException(sprintf('No data at path "%s". Are you using the correct path delimiter "%s"?', $config_path, $delimiter));
       }

@@ -5,8 +5,8 @@ namespace AKlump\CheckPages\Handlers;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
+use AKlump\CheckPages\Service\DotAccessor;
 use AKlump\CheckPages\Traits\SerializationTrait;
-use BinaryCube\DotArray\DotArray;
 
 /**
  * Implements the Json Pointer handler.
@@ -60,10 +60,12 @@ final class Path implements HandlerInterface {
       $data = $this->deserialize($response_body, $content_type);
       $path = $assert->get('path') ?? '';
       $data = $this->valueToArray($data);
-      $dot = DotArray::create($data);
-      $value = $dot->get($path);
-      $exists = $dot->has($path);
-      if (!$exists) {
+      $accessor = new DotAccessor($data);
+      $exists = $accessor->has($path);
+      if ($exists) {
+        $value = $accessor->get($path);
+      }
+      else {
         $value = [];
       }
       $haystack = $this->valueToArray($value);

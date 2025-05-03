@@ -19,6 +19,8 @@ class HtmlFormReaderTest extends TestCase {
 
   use TestWithFilesTrait;
 
+  private $reader;
+
   public function testInputWithoutNameIsIgnored() {
     $html = '<body><form class="form-c" action="/thank_you.php" method="post"><input class="chosen-search-input default" type="text" autocomplete="off" value="Choose some options" style="width: 151.211px;"></form></body>';
     $form = new HtmlFormReader($html, '.form-c');
