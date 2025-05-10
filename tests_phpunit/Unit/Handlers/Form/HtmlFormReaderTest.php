@@ -21,6 +21,15 @@ class HtmlFormReaderTest extends TestCase {
 
   private $reader;
 
+  public function testInputWithBracketedNameWorks() {
+    $html = '<body><form action=""> <input type="text" name="foo[bar]" value="lorem"/> <input type="text" id="edit-field-expense-entities-choice-0" name="field_expense_entities[choice]" value="0"/> </form></body>';
+    $form = new HtmlFormReader($html, 'form');
+    $values = $form->getValues();
+    $this->assertCount(2, $values);
+    $this->assertSame('lorem', (string) $values['foo[bar]']);
+    $this->assertSame('0', (string) $values['field_expense_entities[choice]']);
+  }
+
   public function testInputWithoutNameIsIgnored() {
     $html = '<body><form class="form-c" action="/thank_you.php" method="post"><input class="chosen-search-input default" type="text" autocomplete="off" value="Choose some options" style="width: 151.211px;"></form></body>';
     $form = new HtmlFormReader($html, '.form-c');
@@ -209,6 +218,21 @@ class HtmlFormReaderTest extends TestCase {
     $form = new HtmlFormReader($html, '.form-c');
     $values = $form->getValues();
     $this->assertSame('lg|large', (string) $values['shirt_size']);
+  }
+
+  public function testRadioWithNoneChecked() {
+    $html = '<form><fieldset id="edit-field-expense-entities-choice--wrapper" required="required" aria-required="true" aria-invalid="true"><legend><span>Do you have any expenses to report?</span></legend><div><div id="edit-field-expense-entities-choice"><div><span> <input type="radio" id="edit-field-expense-entities-choice-0" name="field_expense_entities[choice]" value="0" aria-invalid="true"><label for="edit-field-expense-entities-choice-0">No</label></span></div><div><span> <input type="radio" id="edit-field-expense-entities-choice-1" name="field_expense_entities[choice]" value="1" aria-invalid="true"><label for="edit-field-expense-entities-choice-1">Yes</label></span></div></div></div></fieldset></form>';
+    $form = new HtmlFormReader($html, 'form');
+
+    $values = $form->getValues();
+    $this->assertSame('0|No', (string) $values['field_expense_entities[choice]']);
+    $expected_allowed_values = [
+      'field_expense_entities[choice]' => [
+        new KeyLabelNode('0', 'No'),
+        new KeyLabelNode('1', 'Yes'),
+      ],
+    ];
+    $this->assertEquals($expected_allowed_values, $form->getAllowedValues());
   }
 
   public function testRadiosInputElementWorksAsExpected() {

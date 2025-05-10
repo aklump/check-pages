@@ -248,9 +248,9 @@ final class HtmlFormReader {
     $name = $el->getAttribute('name');
     $form = $this->getForm();
     $input = $form
-      ->filter(sprintf("input[name=%s][checked=checked]", $name));
+      ->filter(sprintf('input[name="%s"][checked=checked]', $name));
     if ($input->count() === 0) {
-      $input = $form->filter(sprintf("input[name=%s]", $name));
+      $input = $form->filter(sprintf('input[name="%s"]', $name));
     }
     if ($input->count() > 0) {
       return $input->getNode(0);
