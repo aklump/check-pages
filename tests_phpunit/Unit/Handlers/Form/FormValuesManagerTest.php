@@ -16,6 +16,16 @@ use PHPUnit\Framework\TestCase;
 class FormValuesManagerTest extends TestCase {
 
 
+  public function testQueryStringDoesNotIncludeParamsWithEmptyStrings() {
+    $form_values_manager = new FormValuesManager();
+    $form_values_manager->setFormValues(array(
+      'field_additional_job_types[2]' => new KeyLabelNode('', 'Coatings - Plaza Membrane'),
+      'field_expense_entities[choice]' => new KeyLabelNode('0', 'No'),
+    ));
+    $http_query = $form_values_manager->getHttpQueryString();
+    $this->assertSame('field_expense_entities%5Bchoice%5D=0', $http_query);
+  }
+
   public function testQueryStringWorksWhenFormValuesAreKeyValueObjects() {
     $form_values_manager = new FormValuesManager();
     $form_values_manager->setFormValues(array(

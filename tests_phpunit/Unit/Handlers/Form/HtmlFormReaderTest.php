@@ -21,6 +21,15 @@ class HtmlFormReaderTest extends TestCase {
 
   private $reader;
 
+  public function testCheckedAndUncheckedCheckboxesAreReadCorrectly() {
+    $html = '<form><div class="js-form-item form-item js-form-type-checkbox form-item-field-additional-job-types-2 js-form-item-field-additional-job-types-2"><span class="input__container"> <input data-drupal-selector="edit-field-additional-job-types-2" type="checkbox" id="edit-field-additional-job-types-2" name="field_additional_job_types[2]" value="2" class="form-checkbox form-boolean form-boolean--type-checkbox" checked><label for="edit-field-additional-job-types-2" class="form-item__label option">Coatings - Plaza Membrane</label></span></div><div class="js-form-item form-item js-form-type-checkbox form-item-field-additional-job-types-3 js-form-item-field-additional-job-types-3"><span class="input__container"> <input data-drupal-selector="edit-field-additional-job-types-3" type="checkbox" id="edit-field-additional-job-types-3" name="field_additional_job_types[3]" value="3" class="form-checkbox form-boolean form-boolean--type-checkbox"><label for="edit-field-additional-job-types-3" class="form-item__label option">Coatings - Plaza Membrane</label></span></div></form>';
+    $form = new HtmlFormReader($html, 'form');
+    $values = $form->getValues();
+    $this->assertCount(2, $values);
+    $this->assertSame('2|Coatings - Plaza Membrane', (string) $values['field_additional_job_types[2]']);
+    $this->assertSame('|Coatings - Plaza Membrane', (string) $values['field_additional_job_types[3]']);
+  }
+
   public function testInputWithBracketedNameWorks() {
     $html = '<body><form action=""> <input type="text" name="foo[bar]" value="lorem"/> <input type="text" id="edit-field-expense-entities-choice-0" name="field_expense_entities[choice]" value="0"/> </form></body>';
     $form = new HtmlFormReader($html, 'form');

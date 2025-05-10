@@ -69,16 +69,23 @@ class FormValuesManager {
     // Reorder $values based on the order of $this->formValues keys.
     $ordered_values = array_merge(array_flip(array_keys($this->formValues)), $values);
 
-    // Convert objects to the query string format.
-    $ordered_values = array_map(function ($item) {
-      if ($item instanceof KeyLabelNode) {
-        return $item->getKey();
+    // Convert objects to the query string format.  Removing '' values from
+    // KeyLabels, so they are not submitted.  This matches what browsers seem to
+    // be doing.
+    $query_values = [];
+    foreach ($ordered_values as $key => $value) {
+      if ($value instanceof KeyLabelNode) {
+        $value = $value->getKey();
+        if ($value !== '') {
+          $query_values[$key] = $value;
+        }
       }
+      else {
+        $query_values[$key] = $value;
+      }
+    }
 
-      return $item;
-    }, $ordered_values);
-
-    return http_build_query($ordered_values);
+    return http_build_query($query_values);
   }
 
   private function extractValuesFromConfig(array $config): array {
