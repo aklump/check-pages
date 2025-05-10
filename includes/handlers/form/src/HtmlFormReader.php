@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages\Handlers\Form;
 
 use DOMElement;
+use DOMNode;
 use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\DomCrawler\Crawler;
@@ -67,7 +68,7 @@ final class HtmlFormReader {
       }
       $name = $el->getAttribute('name');
       $value = $this->getElementValue($el);
-      if (!empty($name)) {
+      if (NULL !== $value && !empty($name)) {
         $response[$name] = $value;
       }
     }
@@ -188,7 +189,9 @@ final class HtmlFormReader {
    * @return \AKlump\CheckPages\Handlers\Form\KeyLabelNode
    */
   private function getValueFromSelectElement(DOMElement $el): ?KeyLabelNode {
-    $option = $this->getSelectedOrFirstOption($el);
+    // Select elements, which no checked option element, should default to the
+    // first option element.
+    $option = $this->selectElGetSelectedOrFirstOption($el);
     if (!$option instanceof DOMElement) {
       return NULL;
     }
@@ -205,7 +208,12 @@ final class HtmlFormReader {
    * @return \AKlump\CheckPages\Handlers\Form\KeyLabelNode
    */
   private function getValueFromRadioElement(DOMElement $el): ?KeyLabelNode {
-    $input = $this->getCheckedOrFirstInput($el);
+    // A group of radio elements should never be assumed that the first is
+    // checked.  So, for radios, only checked elements are considered.
+    $input = $this->inputElGetFirstChecked($el);
+    if (!$input instanceof DOMElement) {
+      return NULL;
+    }
     $id = $input->getAttribute('id');
     $label = $this->getForm()->filter('label[for=' . $id . ']');
 
@@ -229,7 +237,7 @@ final class HtmlFormReader {
    *
    * @return \DOMElement|null
    */
-  private function getSelectedOrFirstOption(DOMElement $select_el): ?DOMElement {
+  private function selectElGetSelectedOrFirstOption(DOMElement $select_el): ?DOMNode {
     $crawler = new Crawler($select_el);
     $selected = $crawler->filter('option[selected]');
     if ($selected->count() > 0) {
@@ -244,15 +252,11 @@ final class HtmlFormReader {
     return NULL;
   }
 
-  private function getCheckedOrFirstInput(DOMElement $el): ?DOMElement {
+  private function inputElGetFirstChecked(DOMElement $el): ?DOMNode {
     $name = $el->getAttribute('name');
     $form = $this->getForm();
-    $input = $form
-      ->filter(sprintf('input[name="%s"][checked=checked]', $name));
-    if ($input->count() === 0) {
-      $input = $form->filter(sprintf('input[name="%s"]', $name));
-    }
-    if ($input->count() > 0) {
+    $input = $form->filter(sprintf('input[name="%s"][checked=checked]', $name));
+    if ($input->count() >= 1) {
       return $input->getNode(0);
     }
 

@@ -21,6 +21,16 @@ class HtmlFormReaderTest extends TestCase {
 
   private $reader;
 
+
+  public function testCheckBoxesAreReadAsFalseValues() {
+    $html = '<form><div id="edit-roles" class="form-checkboxes"><div class="js-form-item form-item js-form-type-checkbox form-item-roles-authenticated js-form-item-roles-authenticated input-field"> <input data-drupal-selector="edit-roles-authenticated" type="checkbox" id="edit-roles-authenticated" name="roles[authenticated]" value="authenticated" class="form-checkbox"><label for="edit-roles-authenticated" class="option">Authenticated user</label></div><div class="js-form-item form-item js-form-type-checkbox form-item-roles-group-administrator js-form-item-roles-group-administrator input-field"> <input data-drupal-selector="edit-roles-group-administrator" type="checkbox" id="edit-roles-group-administrator" name="roles[group_administrator]" value="group_administrator" class="form-checkbox" checked="checked"><label for="edit-roles-group-administrator" class="option">Group administrator</label></div></div></form>';
+    $form = new HtmlFormReader($html, 'form');
+    $values = $form->getValues();
+    $this->assertCount(2, $values);
+    $this->assertSame('|Authenticated user', (string) $values['roles[authenticated]']);
+    $this->assertSame('group_administrator|Group administrator', (string) $values['roles[group_administrator]']);
+  }
+
   public function testCheckedAndUncheckedCheckboxesAreReadCorrectly() {
     $html = '<form><div class="js-form-item form-item js-form-type-checkbox form-item-field-additional-job-types-2 js-form-item-field-additional-job-types-2"><span class="input__container"> <input data-drupal-selector="edit-field-additional-job-types-2" type="checkbox" id="edit-field-additional-job-types-2" name="field_additional_job_types[2]" value="2" class="form-checkbox form-boolean form-boolean--type-checkbox" checked><label for="edit-field-additional-job-types-2" class="form-item__label option">Coatings - Plaza Membrane</label></span></div><div class="js-form-item form-item js-form-type-checkbox form-item-field-additional-job-types-3 js-form-item-field-additional-job-types-3"><span class="input__container"> <input data-drupal-selector="edit-field-additional-job-types-3" type="checkbox" id="edit-field-additional-job-types-3" name="field_additional_job_types[3]" value="3" class="form-checkbox form-boolean form-boolean--type-checkbox"><label for="edit-field-additional-job-types-3" class="form-item__label option">Coatings - Plaza Membrane</label></span></div></form>';
     $form = new HtmlFormReader($html, 'form');
@@ -46,22 +56,11 @@ class HtmlFormReaderTest extends TestCase {
     $this->assertCount(0, $values);
   }
 
-  public function testCheckBoxesAreReadAsFalseValues() {
-    $html = '<form><div id="edit-roles" class="form-checkboxes"><div class="js-form-item form-item js-form-type-checkbox form-item-roles-authenticated js-form-item-roles-authenticated input-field"> <input data-drupal-selector="edit-roles-authenticated" type="checkbox" id="edit-roles-authenticated" name="roles[authenticated]" value="authenticated" class="form-checkbox"><label for="edit-roles-authenticated" class="option">Authenticated user</label></div><div class="js-form-item form-item js-form-type-checkbox form-item-roles-group-administrator js-form-item-roles-group-administrator input-field"> <input data-drupal-selector="edit-roles-group-administrator" type="checkbox" id="edit-roles-group-administrator" name="roles[group_administrator]" value="group_administrator" class="form-checkbox" checked="checked"><label for="edit-roles-group-administrator" class="option">Group administrator</label></div></div></form>';
-    $form = new HtmlFormReader($html, 'form');
-    $values = $form->getValues();
-    $this->assertCount(2, $values);
-    $this->assertSame('|Authenticated user', (string) $values['roles[authenticated]']);
-    $this->assertSame('group_administrator|Group administrator', (string) $values['roles[group_administrator]']);
-  }
-
-  public function testEmptySelectElementsGetNullValues() {
+  public function testSelectElementWithNoOptionChildrenIsIgnored() {
     $html = '<div class="block"><form action=""><select data-value="0" data-workreport-target="mileage" data-action="change-&gt;workReport#onMileageChange" data-drupal-selector="edit-field-foreman-period-0-subform-field-mileage-0-value" id="edit-field-foreman-period-0-subform-field-mileage-0-value" name="field_foreman_period[0][subform][field_mileage][0][value]" class="form-select form-element form-element--type-select"></select><select data-value="0" data-workreport-target="mileage" data-action="change-&gt;workReport#onMileageChange" data-drupal-selector="edit-field-worker-periods-0-subform-field-mileage-0-value" id="edit-field-worker-periods-0-subform-field-mileage-0-value" name="field_worker_periods[0][subform][field_mileage][0][value]" class="form-select form-element form-element--type-select"></select></form></div>';
     $form = new HtmlFormReader($html, 'form');
     $values = $form->getValues();
-    $this->assertCount(2, $values);
-    $this->assertNull($values["field_foreman_period[0][subform][field_mileage][0][value]"]);
-    $this->assertNull($values["field_worker_periods[0][subform][field_mileage][0][value]"]);
+    $this->assertCount(0, $values);
   }
 
   public function testDisabledInputBehavior() {
@@ -229,12 +228,13 @@ class HtmlFormReaderTest extends TestCase {
     $this->assertSame('lg|large', (string) $values['shirt_size']);
   }
 
-  public function testRadioWithNoneChecked() {
+  public function testTwoRadiosBothUncheckedReturnNoValuesForGetValues() {
     $html = '<form><fieldset id="edit-field-expense-entities-choice--wrapper" required="required" aria-required="true" aria-invalid="true"><legend><span>Do you have any expenses to report?</span></legend><div><div id="edit-field-expense-entities-choice"><div><span> <input type="radio" id="edit-field-expense-entities-choice-0" name="field_expense_entities[choice]" value="0" aria-invalid="true"><label for="edit-field-expense-entities-choice-0">No</label></span></div><div><span> <input type="radio" id="edit-field-expense-entities-choice-1" name="field_expense_entities[choice]" value="1" aria-invalid="true"><label for="edit-field-expense-entities-choice-1">Yes</label></span></div></div></div></fieldset></form>';
     $form = new HtmlFormReader($html, 'form');
 
     $values = $form->getValues();
-    $this->assertSame('0|No', (string) $values['field_expense_entities[choice]']);
+    $this->assertCount(0, $values);
+
     $expected_allowed_values = [
       'field_expense_entities[choice]' => [
         new KeyLabelNode('0', 'No'),
