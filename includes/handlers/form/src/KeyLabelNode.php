@@ -18,9 +18,9 @@ final class KeyLabelNode implements \Stringable {
   }
 
   /**
-   * @return mixed
+   * @return string
    */
-  public function getKey() {
+  public function getKey(): string {
     return $this->key;
   }
 

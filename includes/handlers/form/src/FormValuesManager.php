@@ -69,6 +69,15 @@ class FormValuesManager {
     // Reorder $values based on the order of $this->formValues keys.
     $ordered_values = array_merge(array_flip(array_keys($this->formValues)), $values);
 
+    // Convert objects to the query string format.
+    $ordered_values = array_map(function ($item) {
+      if ($item instanceof KeyLabelNode) {
+        return $item->getKey();
+      }
+
+      return $item;
+    }, $ordered_values);
+
     return http_build_query($ordered_values);
   }
 

@@ -15,6 +15,16 @@ use PHPUnit\Framework\TestCase;
  */
 class FormValuesManagerTest extends TestCase {
 
+
+  public function testQueryStringWorksWhenFormValuesAreKeyValueObjects() {
+    $form_values_manager = new FormValuesManager();
+    $form_values_manager->setFormValues(array(
+      'field_expense_entities[choice]' => new KeyLabelNode('0', 'No'),
+    ));
+    $http_query = $form_values_manager->getHttpQueryString();
+    $this->assertSame('field_expense_entities%5Bchoice%5D=0', $http_query);
+  }
+
   public function testConfigNotIndexedThrows() {
     $config = ['form' => ['input' => ['key' => 'value']]];
     $this->expectException(InvalidArgumentException::class);
@@ -78,6 +88,19 @@ class FormValuesManagerTest extends TestCase {
 
   public static function dataFortestGetHttpQueryStringProvider(): array {
     $tests = [];
+
+    $tests[] = [
+      [],
+      ['field_expense_entities[choice]' => new KeyLabelNode('1', 'Yes')],
+      'field_expense_entities%5Bchoice%5D=1',
+      FormValuesManager::OPTION_ALLOW_NON_FORM_KEYS,
+    ];
+    $tests[] = [
+      [],
+      ['field_expense_entities[choice]' => new KeyLabelNode('0', 'No')],
+      'field_expense_entities%5Bchoice%5D=0',
+      FormValuesManager::OPTION_ALLOW_NON_FORM_KEYS,
+    ];
     $tests[] = [
       [['name' => 'color', 'value' => 'w']],
       ['color' => new KeyLabelNode('w', 'White')],
@@ -146,9 +169,9 @@ class FormValuesManagerTest extends TestCase {
   /**
    * @dataProvider dataFortestGetHttpQueryStringProvider
    */
-  public function testGetHttpQueryString(array $subconfig, array $form_values, string $expected, int $options) {
+  public function testGetHttpQueryString(array $cp_test_form_config, array $form_values, string $expected, int $options) {
     $form_values_manager = new FormValuesManager($options);
-    $config = ['form' => ['input' => $subconfig]];
+    $config = ['form' => ['input' => $cp_test_form_config]];
     $form_values_manager->setConfig($config);
     $form_values_manager->setFormValues($form_values);
     $http_query = $form_values_manager->getHttpQueryString();
