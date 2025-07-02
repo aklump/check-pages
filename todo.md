@@ -1,6 +1,7 @@
 ## Critical
 
 - assert \AKlump\CheckPages\Parts\Runner::executeRunner passes only these defined vars: $path
+- tests for all runner_functions
 
 ---
 

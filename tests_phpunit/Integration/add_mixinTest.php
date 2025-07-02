@@ -8,10 +8,9 @@ use AKlump\CheckPages\Parts\Runner;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use function AKlump\CheckPages\add_mixin;
 
 /**
- * @covers function \AKlump\CheckPages\add_mixin
+ * @covers function \add_mixin
  */
 class add_mixinTest extends TestCase {
 

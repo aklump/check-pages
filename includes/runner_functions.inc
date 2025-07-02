@@ -1,7 +1,5 @@
 <?php
 
-namespace AKlump\CheckPages;
-
 /**
  * @file
  * These are functions available for writing tests.
@@ -19,7 +17,7 @@ use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Service\DotAccessor;
 use Symfony\Component\DependencyInjection\TaggedContainerInterface;
 use Symfony\Component\Yaml\Yaml;
-use Throwable;
+use AKlump\CheckPages\Event;
 
 /**
  * Load the configuration file to use for the test.

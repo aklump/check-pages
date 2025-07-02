@@ -15,6 +15,7 @@ use Mimey\MimeTypes;
 use PrettyXml\Formatter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Yaml\Yaml;
+use AKlump\CheckPages\Output\Icons;
 
 /**
  * Writes HTTP responses to files for certain mime types.
@@ -61,7 +62,10 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           $relative_path = self::getRelativePathBySuite($event->getSuite());
           $absolute_path = $log_files->tryResolveDir($relative_path, FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
           if ($absolute_path && is_dir($absolute_path)) {
-            $event->getRunner()->getLogFiles()->tryEmptyDir($absolute_path);
+            $event->getSuite()
+              ->getRunner()
+              ->getLogFiles()
+              ->tryEmptyDir($absolute_path);
           }
         },
       ],
