@@ -14,6 +14,7 @@ class Matches extends LogicBase {
   public function __invoke(Assert $assert, $haystack, array &$countable): bool {
     parent::__invoke($assert, $haystack, $countable);
 
+    $reasons = [];
     $countable = [];
     foreach ($haystack as $item) {
       $passes_test = $this->applyCallbackWithVariations($item, function ($item_variation) use ($assert) {
@@ -38,14 +39,15 @@ class Matches extends LogicBase {
       $this->setFinalResult($passes_test);
     }
     if (!empty($reasons)) {
-      $assert->setReason(implode('. ', $reasons));
+      $reasons[] = NULL;
+      $assert->setReason(implode(PHP_EOL, $reasons));
     }
 
     return $this->finalResult;
   }
 
   protected function getReason(...$sprintf_values): string {
-    return sprintf('Unable to match actual value "%s" using "%s"', ...$sprintf_values);
+    return sprintf('❗ %s', ...$sprintf_values);
   }
 
 }
