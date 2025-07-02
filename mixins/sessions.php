@@ -46,10 +46,11 @@ use AKlump\LoftLib\Bash\Color;
  * @endcode
  */
 
-/** @var \AKlump\CheckPages\Files\FilesProviderInterface $files */
+/** @var \Symfony\Component\DependencyInjection\ContainerInterface $container */
 /** @var \AKlump\CheckPages\Parts\Runner $runner */
 /** @var array $mixin_config */
 
+$files = $runner->getFiles();
 $credentials_file = $mixin_config['users'] ?? '';
 $credentials_file = $files->tryResolveFile($credentials_file)[0] ?? '';
 $users = (new LoadUsers())($credentials_file);
