@@ -7,7 +7,7 @@ use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
-use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\Messaging\MessageType;
 

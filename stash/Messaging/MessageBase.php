@@ -14,7 +14,6 @@ abstract class MessageBase implements MessageInterface {
   private $message;
 
   public function __construct(array $message, string $message_type) {
-    $info = new \ReflectionClass(MessageType::class);
     $this->messageType = $message_type;
     $this->message = array_map('strval', array_values($message));
   }

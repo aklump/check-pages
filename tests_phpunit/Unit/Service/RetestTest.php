@@ -3,13 +3,13 @@
 namespace AKlump\CheckPages\Tests\Unit\Service;
 
 use AKlump\CheckPages\Collections\TestResultCollection;
+use AKlump\CheckPages\EventSubscriber\Retest;
 use AKlump\CheckPages\Parts\Test;
-use AKlump\CheckPages\Service\Retest;
 use AKlump\CheckPages\Tests\TestingTraits\TestWithTestCollectionTrait;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \AKlump\CheckPages\Service\Retest
+ * @covers \AKlump\CheckPages\EventSubscriber\Retest
  * @uses   \AKlump\CheckPages\Collections\TestResult
  * @uses   \AKlump\CheckPages\Collections\TestResultCollection
  */

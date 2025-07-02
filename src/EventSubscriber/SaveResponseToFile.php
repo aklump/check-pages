@@ -1,11 +1,13 @@
 <?php
 
-namespace AKlump\CheckPages\Output;
+namespace AKlump\CheckPages\EventSubscriber;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Output\Message\Message;
+use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\Messaging\MessageType;

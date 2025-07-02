@@ -2,19 +2,20 @@
 
 namespace AKlump\CheckPages\Command;
 
+use AKlump\CheckPages\EventSubscriber\Feedback;
+use AKlump\CheckPages\EventSubscriber\Retest;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Handlers\Breakpoint;
-use AKlump\CheckPages\Output\Feedback;
 use AKlump\CheckPages\Output\Flags;
-use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Message\ExceptionMessage;
+use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Timer;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Runner;
-use AKlump\CheckPages\Service\Retest;
+use AKlump\LocalTimezone\LocalTimezone;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
-use AKlump\LocalTimezone\LocalTimezone;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
@@ -130,13 +131,10 @@ class RunCommand extends Command {
       // Convert the exception to messages.
       $message = trim($exception->getMessage());
       if ($message) {
-        // Message as an error message.
-        $lines = explode(PHP_EOL, $message);
-        $runner->addMessage(new Message($lines, MessageType::ERROR));
-        // Trace as a debug message.
+        $runner->addMessage(new ExceptionMessage($exception));
         $lines = explode(PHP_EOL, $exception->getTraceAsString());
         foreach ($lines as $line) {
-          $runner->addMessage(new Message([$line], MessageType::ERROR, Verbosity::DEBUG));
+          $runner->addMessage(new Message([$line], MessageType::ERROR, Verbosity::VERBOSE));
         }
       }
     }

@@ -57,7 +57,7 @@ $printer->deliver(new Message(
 ));
 
 // or it's shorthand...
-$printer->deliver(new \AKlump\CheckPages\Output\DebugMessage(
+$printer->deliver(new \AKlump\CheckPages\Output\Message\DebugMessage(
   [
      'Demo debug message',
      '',
@@ -69,6 +69,6 @@ $printer->deliver(new \AKlump\CheckPages\Output\DebugMessage(
 You will need an instance of `\AKlump\Messaging\MessengerInterface`, e.g.,
 
 ```php
-$printer = new \AKlump\CheckPages\Output\ConsoleEchoPrinter($runner->getOutput());
+$printer = new \AKlump\CheckPages\Output\Messenger\ConsoleEchoPrinter($runner->getOutput());
 ```
 

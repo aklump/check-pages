@@ -14,20 +14,20 @@ use PHPUnit\Framework\TestCase;
  * @uses   \AKlump\CheckPages\Handlers\AddHandlerAutoloads
  * @uses   \AKlump\CheckPages\Handlers\CommandLineTestHandlerBase
  * @uses   \AKlump\CheckPages\Helpers\BuildContainer
- * @uses   \AKlump\CheckPages\Output\Feedback
- * @uses   \AKlump\CheckPages\Output\Message
- * @uses   \AKlump\CheckPages\Output\SaveResponseToFile
+ * @uses   \AKlump\CheckPages\EventSubscriber\Feedback
+ * @uses   \AKlump\CheckPages\Output\Message\Message
+ * @uses   \AKlump\CheckPages\EventSubscriber\SaveResponseToFile
  * @uses   \AKlump\CheckPages\Output\VerboseDirective
  * @uses   \AKlump\CheckPages\Parts\Runner
  * @uses   \AKlump\CheckPages\Parts\Suite
  * @uses   \AKlump\CheckPages\Parts\Test
  * @uses   \AKlump\CheckPages\Plugin\HandlersManager
  * @uses   \AKlump\CheckPages\Service\DispatcherFactory
- * @uses   \AKlump\CheckPages\Service\InterpolationService
- * @uses   \AKlump\CheckPages\Service\Retest
- * @uses   \AKlump\CheckPages\Service\SecretsService
- * @uses   \AKlump\CheckPages\Service\SuiteIndexService
- * @uses   \AKlump\CheckPages\SuiteValidator
+ * @uses   \AKlump\CheckPages\EventSubscriber\InterpolationService
+ * @uses   \AKlump\CheckPages\EventSubscriber\Retest
+ * @uses   \AKlump\CheckPages\EventSubscriber\SecretsService
+ * @uses   \AKlump\CheckPages\EventSubscriber\SuiteIndexService
+ * @uses   \AKlump\CheckPages\EventSubscriber\SuiteValidator
  * @uses   \AKlump\CheckPages\Traits\HasConfigTrait
  * @uses   \AKlump\CheckPages\Traits\HasRunnerTrait
  * @uses   \AKlump\CheckPages\Traits\PassFailTrait

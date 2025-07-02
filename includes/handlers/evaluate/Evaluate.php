@@ -6,7 +6,7 @@ use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
-use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\Messaging\MessageType;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;

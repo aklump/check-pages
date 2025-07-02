@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\CheckPages\Output;
+namespace AKlump\CheckPages\Output\Message;
 
 use Symfony\Component\Yaml\Yaml;
 

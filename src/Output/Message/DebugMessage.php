@@ -1,7 +1,8 @@
 <?php
 
-namespace AKlump\CheckPages\Output;
+namespace AKlump\CheckPages\Output\Message;
 
+use AKlump\CheckPages\Output\Verbosity;
 use AKlump\Messaging\MessageType;
 
 /**

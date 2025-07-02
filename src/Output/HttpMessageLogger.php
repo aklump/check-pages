@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Output;
 
+use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Traits\SerializationTrait;
 use AKlump\Messaging\HasMessagesInterface;
 use AKlump\Messaging\Processors\Messenger;

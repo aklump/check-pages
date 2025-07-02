@@ -1,22 +1,25 @@
 <?php
 
+namespace AKlump\CheckPages;
+
 /**
  * @file
  * These are functions available for writing tests.
  */
 
-use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Helpers\AssertRunSuiteNotCalled;
-use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
+use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Service\DotAccessor;
-use Jasny\DotKey;
+use Symfony\Component\DependencyInjection\TaggedContainerInterface;
 use Symfony\Component\Yaml\Yaml;
+use Throwable;
 
 /**
  * Load the configuration file to use for the test.
@@ -48,13 +51,13 @@ function load_config(string $config, bool $allow_override = TRUE) {
     try {
       $files->tryResolveFile($override, ['yaml', 'yml'])[0];
     }
-    catch (\Exception $exception) {
+    catch (Exception $exception) {
       $override = 'config/' . $override;
     }
     try {
       $files->tryResolveFile($override, ['yaml', 'yml'])[0];
     }
-    catch (\Exception $exception) {
+    catch (Exception $exception) {
       // If the presumption failed, then we just rollback.
       $override = $input->getOption('config');
     }
@@ -85,7 +88,7 @@ function config_get($config_path) {
 
     return $o->get($config_path);
   }
-  catch (\Exception $exception) {
+  catch (Exception $exception) {
     throw new RuntimeException(sprintf("%s\nCheck your configuration file: %s", $exception->getMessage(), $runner->getLoadedConfigPath()), $exception->getCode(), $exception);
   }
 }
@@ -254,20 +257,19 @@ function add_mixin(string $mixin, array $mixin_config = []) {
     try {
       $require_path = $files->tryResolveFile("mixins/$mixin", ['php'])[0];
     }
-    catch (\Exception $exception) {
+    catch (Exception $exception) {
       throw new StopRunnerException(sprintf('Cannot add mixin "%s"; the path does not resolve.', $mixin), $exception->getCode(), $exception);
     }
   }
   try {
-    // Some variables are available in the require files:
-    $runner = $container->get('runner');
-
-    require_once $require_path;
+    // We create a new scope for the mixin required file, which limited shared variables.
+    (function (string $path, TaggedContainerInterface $container, Runner $runner, array $mixin_config) {
+      require_once $path;
+    })($require_path, $container, $runner, $mixin_config);
   }
-  catch (\Exception $exception) {
-    $class = get_class($exception);
+  catch (Throwable $exception) {
     $message = sprintf('The mixin "%s" has failed.%s', $mixin, PHP_EOL . '└── ' . $exception->getMessage());
-    throw new $class($message, $exception->getCode(), $exception);
+    throw new (get_class($exception))($message, $exception->getCode(), $exception);
   }
 }
 

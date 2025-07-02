@@ -1,29 +1,29 @@
 services:
   suite_validator:
-    class: \AKlump\CheckPages\SuiteValidator
+    class: \AKlump\CheckPages\EventSubscriber\SuiteValidator
     tags:
       - { name: event_subscriber }
   response_files:
-    class: \AKlump\CheckPages\Output\SaveResponseToFile
+    class: \AKlump\CheckPages\EventSubscriber\SaveResponseToFile
     tags:
       - { name: event_subscriber }
   feedback:
-    class: \AKlump\CheckPages\Output\Feedback
+    class: \AKlump\CheckPages\EventSubscriber\Feedback
     tags:
       - { name: event_subscriber }
   retest:
-    class: \AKlump\CheckPages\Service\Retest
+    class: \AKlump\CheckPages\EventSubscriber\Retest
     tags:
       - { name: event_subscriber }
   suite_index:
-    class: \AKlump\CheckPages\Service\SuiteIndexService
+    class: \AKlump\CheckPages\EventSubscriber\SuiteIndexService
     tags:
       - { name: event_subscriber }
   config_secrets:
-    class: \AKlump\CheckPages\Service\SecretsService
+    class: \AKlump\CheckPages\EventSubscriber\SecretsService
     tags:
       - { name: event_subscriber }
   interpolator:
-    class: \AKlump\CheckPages\Service\InterpolationService
+    class: \AKlump\CheckPages\EventSubscriber\InterpolationService
     tags:
       - { name: event_subscriber }

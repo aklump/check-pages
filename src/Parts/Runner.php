@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Parts;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\RunnerEvent;
 use AKlump\CheckPages\Event\SuiteEvent;
+use AKlump\CheckPages\EventSubscriber\Retest;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\SuiteFailedException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
@@ -12,17 +13,16 @@ use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Files\LocalFilesProvider;
 use AKlump\CheckPages\Helpers\FilterSuites;
-use AKlump\CheckPages\Output\ConsoleEchoPrinter;
-use AKlump\CheckPages\Output\DevNullPrinter;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Icons;
-use AKlump\CheckPages\Output\LoggerPrinter;
-use AKlump\CheckPages\Output\Message;
-use AKlump\CheckPages\Output\MultiPrinter;
+use AKlump\CheckPages\Output\Message\Message;
+use AKlump\CheckPages\Output\Messenger\ConsoleEchoPrinter;
+use AKlump\CheckPages\Output\Messenger\DevNullPrinter;
+use AKlump\CheckPages\Output\Messenger\LoggerPrinter;
+use AKlump\CheckPages\Output\Messenger\MultiPrinter;
 use AKlump\CheckPages\Output\VerboseDirective;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Service\DispatcherFactory;
-use AKlump\CheckPages\Service\Retest;
 use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
 use AKlump\CheckPages\SuiteCollection;
@@ -241,7 +241,7 @@ class Runner implements HasMessagesInterface {
    *
    * Shorthand for $this->getMessenger()->deliver(...
    *
-   * @param \AKlump\CheckPages\Output\Message $message
+   * @param \AKlump\CheckPages\Output\Message\Message $message
    * @param int|NULL $flags
    *
    * @return void
@@ -529,7 +529,10 @@ class Runner implements HasMessagesInterface {
         Verbosity::VERBOSE
       ));
 
-      require $runner_path;
+      // Create a new scope for execution of $runner_path.
+      (function (string $path) {
+        require $path;
+      })($runner_path);
 
       if (count($this->filters) > 0 && !$this->atLeastOneSuiteMadeItPastTheFilters) {
         $this->echo(new Message([''], MessageType::INFO, Verbosity::VERBOSE));

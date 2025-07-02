@@ -3,7 +3,7 @@
 namespace AKlump\CheckPages\Output;
 
 /**
- * @see \AKlump\CheckPages\Output\ConsoleEchoPrinter
+ * @see \AKlump\CheckPages\Output\Messenger\ConsoleEchoPrinter
  */
 class Flags {
 

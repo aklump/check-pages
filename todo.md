@@ -1,5 +1,34 @@
 ## Critical
 
+- assert \AKlump\CheckPages\Parts\Runner::executeRunner passes only these defined vars: $path
+
+---
+
+- assert that StopRunnerException shows without verbose
+- assert that StopRunnerException shows in -v
+- [x] assert that StopRunnerException shows in -vv
+- [x] assert that StopRunnerException shows in -vvv
+
+
+.foobar__action a*3
+
+not works
+```yaml
+    -
+      why: Assert member can leave the group.
+      dom: .foobar__action a
+      href: /group/68282/leave
+      count: 1
+```
+
+works.
+```yaml
+    -
+      why: Assert member can leave the group.
+      dom: .foobar__action a[href="/group/68282/leave"]
+      count: 1
+```
+
 - form test is failing
 
 ### Form Handler
@@ -52,6 +81,8 @@ find:
 
 ## Normal
 
+- get rid of all global vars
+- wrap the entry file in IIFE pattern to isolate variables.  
 - test scope and suite scope for interpolation is confusing and unnecessary, they should become a single scope.
 
 - we sometimes get a curl error, then immediately it works with --retest.  could this be "fixed" by using a while() loop to auto retry on certain curl errors?  I'm thinking it's resource is just crashing.

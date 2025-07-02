@@ -22,6 +22,7 @@ namespace AKlump\CheckPages\Mixins\MyMixin;
  * @endcode
  */
 
+/** @var \Symfony\Component\DependencyInjection\ContainerInterface $container */
 /** @var \AKlump\CheckPages\Parts\Runner $runner */
 /** @var array $mixin_config */
 

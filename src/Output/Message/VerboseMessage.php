@@ -1,6 +1,8 @@
 <?php
 
-namespace AKlump\CheckPages\Output;
+namespace AKlump\CheckPages\Output\Message;
+
+use AKlump\CheckPages\Output\VerboseDirective;
 
 /**
  * A class that represents a verbose message.
