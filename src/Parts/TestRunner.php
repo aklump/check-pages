@@ -16,6 +16,7 @@ use AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Output\YamlMessage;
 use AKlump\CheckPages\Service\Assertion;
+use AKlump\CheckPages\Service\SystemResourcesManager;
 use AKlump\Messaging\MessageType;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
@@ -84,8 +85,20 @@ final class TestRunner implements EventDispatcherInterface {
    */
   public function run(): TestRunner {
     $this->tryValidateTestCanBeRun($this->test);
-
     $test = $this->test;
+
+    $resources = new SystemResourcesManager();
+
+    $open_files_usage = $resources->getOpenFilesPercentage();
+    $type = MessageType::DEBUG;
+    $verbosity = Verbosity::DEBUG;
+    if ($open_files_usage > 80) {
+      $type = MessageType::ERROR;
+      $verbosity = Verbosity::NORMAL;
+    }
+    $message = sprintf('Open files: %d%% of %d', round($open_files_usage, 2), $resources->getSystemLimit());
+    $test->addMessage(new Message([$message], $type, $verbosity));
+
     $memory_used = round(memory_get_usage() / 1024 / 1024, 2) . 'MB';
     $test->addMessage(new Message(['Memory used: ' . $memory_used], MessageType::DEBUG, Verbosity::DEBUG));
     $runner = $test->getRunner();
