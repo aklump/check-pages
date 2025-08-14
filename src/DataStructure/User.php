@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\DataStructure;
 
+use DateTimeZone;
 use JsonSerializable;
 
 class User implements UserInterface, JsonSerializable {
@@ -14,6 +15,8 @@ class User implements UserInterface, JsonSerializable {
 
   protected string $pass = '';
 
+  protected DateTimeZone $timeZone;
+
   protected array $properties = [];
 
   /**
@@ -23,6 +26,7 @@ class User implements UserInterface, JsonSerializable {
   public function __construct(string $name = '', string $pass = '') {
     $this->name = $name;
     $this->pass = $pass;
+    $this->setTimeZone(new DateTimeZone('UTC'));
   }
 
 
@@ -97,6 +101,14 @@ class User implements UserInterface, JsonSerializable {
 
   public function getPassword(): string {
     return $this->pass;
+  }
+
+  public function getTimeZone(): DateTimeZone {
+    return $this->timeZone;
+  }
+
+  public function setTimeZone(DateTimeZone $time_zone): void {
+    $this->timeZone = $time_zone;
   }
 
   public function jsonSerialize(): array {

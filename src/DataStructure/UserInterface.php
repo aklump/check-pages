@@ -2,6 +2,8 @@
 
 namespace AKlump\CheckPages\DataStructure;
 
+use DateTimeZone;
+
 interface UserInterface {
 
   public function setProperty(string $name, $value);
@@ -44,4 +46,9 @@ interface UserInterface {
    *   The plain-text user password.
    */
   public function getPassword(): string;
+
+  /**
+   * @return \DateTimeZone The timezone object for the user.
+   */
+  public function getTimeZone(): DateTimeZone;
 }
