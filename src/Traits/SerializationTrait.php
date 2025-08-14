@@ -2,7 +2,7 @@
 
 namespace AKlump\CheckPages\Traits;
 
-use AKlump\CheckPages\Output\DebugMessage;
+use AKlump\CheckPages\Output\Message\DebugMessage;
 use AKlump\Messaging\MessengerInterface;
 use InvalidArgumentException;
 use Laminas\Xml2Json\Xml2Json;

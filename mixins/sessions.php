@@ -46,10 +46,11 @@ use AKlump\LoftLib\Bash\Color;
  * @endcode
  */
 
-/** @var \AKlump\CheckPages\Files\FilesProviderInterface $files */
+/** @var \Symfony\Component\DependencyInjection\ContainerInterface $container */
 /** @var \AKlump\CheckPages\Parts\Runner $runner */
 /** @var array $mixin_config */
 
+$files = $runner->getFiles();
 $credentials_file = $mixin_config['users'] ?? '';
 $credentials_file = $files->tryResolveFile($credentials_file)[0] ?? '';
 $users = (new LoadUsers())($credentials_file);
@@ -94,7 +95,8 @@ add_test_option('user', [
       ->setItem('user.uid', $validated_user->id())
       ->setItem('user.mail', $validated_user->getEmail())
       ->setItem('user.name', $validated_user->getAccountName())
-      ->setItem('user.pass', $validated_user->getPassword());
+      ->setItem('user.pass', $validated_user->getPassword())
+      ->setItem('user.timezone', $validated_user->getTimeZone()->getName());
 
     //
     // Add visual feedback that the request is authenticated.

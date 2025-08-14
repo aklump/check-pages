@@ -5,7 +5,7 @@ namespace AKlump\CheckPages\Exceptions;
 class TestFailedException extends StopRunnerException {
 
   /**
-   * @var \AKlump\CheckPages\Output\Message[]
+   * @var \AKlump\CheckPages\Output\Message\Message[]
    */
   private array $messages;
 
@@ -14,7 +14,7 @@ class TestFailedException extends StopRunnerException {
    *   The configuration of the test that failed.
    * @param null $message_or_exception
    *   A string message or an exception whose message will be used.
-   * @param \AKlump\CheckPages\Output\Message[] $messages
+   * @param \AKlump\CheckPages\Output\Message\Message[] $messages
    */
   public function __construct(array $config, $message_or_exception = NULL, $messages = []) {
     $this->messages = $messages;

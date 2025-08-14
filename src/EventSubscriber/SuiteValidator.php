@@ -1,7 +1,8 @@
 <?php
 
-namespace AKlump\CheckPages;
+namespace AKlump\CheckPages\EventSubscriber;
 
+use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\BadSyntaxException;

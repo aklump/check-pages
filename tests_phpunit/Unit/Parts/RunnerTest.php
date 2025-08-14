@@ -32,9 +32,9 @@ use function count;
  * @uses   \AKlump\CheckPages\Parts\TestRunner
  * @uses   \AKlump\CheckPages\Browser\RequestDriver
  * @uses   \AKlump\CheckPages\Event\RunnerEvent
- * @uses   \AKlump\CheckPages\Output\ConsoleEchoPrinter
- * @uses   \AKlump\CheckPages\Output\LoggerPrinter
- * @uses   \AKlump\CheckPages\Output\MultiPrinter
+ * @uses   \AKlump\CheckPages\Output\Messenger\ConsoleEchoPrinter
+ * @uses   \AKlump\CheckPages\Output\Messenger\LoggerPrinter
+ * @uses   \AKlump\CheckPages\Output\Messenger\MultiPrinter
  * @uses   \AKlump\CheckPages\Service\DispatcherFactory
  */
 final class RunnerTest extends TestCase {

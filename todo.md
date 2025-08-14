@@ -51,6 +51,38 @@ The most reliable way to adjust the open file limit is by modifying the shell st
 
 ---
 
+- assert \AKlump\CheckPages\Parts\Runner::executeRunner passes only these defined vars: $path
+- tests for all runner_functions
+
+---
+
+- assert that StopRunnerException shows without verbose
+- assert that StopRunnerException shows in -v
+- [x] assert that StopRunnerException shows in -vv
+- [x] assert that StopRunnerException shows in -vvv
+
+
+.foobar__action a*3
+
+not works
+```yaml
+    -
+      why: Assert member can leave the group.
+      dom: .foobar__action a
+      href: /group/68282/leave
+      count: 1
+```
+
+works.
+```yaml
+    -
+      why: Assert member can leave the group.
+      dom: .foobar__action a[href="/group/68282/leave"]
+      count: 1
+```
+
+- form test is failing
+
 ### Form Handler
 
 - document this (fix knowledge?)
@@ -101,6 +133,9 @@ find:
 - in TestRunner on line 196 ( $assert = $assert_runner->run(new Assert($id, $definition, $test));)) if JsonSchema.php tries to include a class not exists, there is no error output.
 
 ## Normal
+
+- get rid of all global vars
+- wrap the entry file in IIFE pattern to isolate variables.
 
 - add symfony output progress bars for better DX?
 - can we simplify Variables class by leveraging https://github.com/aklump/token-engine

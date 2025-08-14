@@ -10,7 +10,7 @@ use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\BadSyntaxException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
-use AKlump\CheckPages\Output\DebugMessage;
+use AKlump\CheckPages\Output\Message\DebugMessage;
 use AKlump\CheckPages\Traits\SerializationTrait;
 use AKlump\Messaging\MessageType;
 use Exception;

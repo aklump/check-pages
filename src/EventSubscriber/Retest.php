@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\CheckPages\Service;
+namespace AKlump\CheckPages\EventSubscriber;
 
 use AKlump\CheckPages\Collections\TestResult;
 use AKlump\CheckPages\Collections\TestResultCollection;
@@ -14,9 +14,10 @@ use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Helpers\GetResultCodePerExpectations;
 use AKlump\CheckPages\Interfaces\ProvidesInputOptionsInterface;
 use AKlump\CheckPages\Output\Flags;
-use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
+use AKlump\CheckPages\Service\TestResultCollectionStorage;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\Messaging\MessageType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

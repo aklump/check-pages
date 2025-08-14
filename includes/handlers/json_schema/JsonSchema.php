@@ -7,7 +7,7 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
-use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Service\DotAccessor;
 use AKlump\CheckPages\Traits\SerializationTrait;

@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\CheckPages\Output;
+namespace AKlump\CheckPages\Output\Messenger;
 
 use AKlump\Messaging\MessageInterface;
 use AKlump\Messaging\MessengerInterface;

@@ -4,9 +4,9 @@ namespace AKlump\CheckPages\Handlers;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\Output\DebugMessage;
 use AKlump\CheckPages\Output\Icons;
-use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Message\DebugMessage;
+use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\Messaging\MessageType;
 

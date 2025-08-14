@@ -4,6 +4,8 @@ namespace AKlump\Messaging;
 
 interface MessageType {
 
+  const EMERGENCY = 'emergency';
+
   const ERROR = 'error';
 
   const SUCCESS = 'success';

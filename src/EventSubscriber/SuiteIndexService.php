@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\CheckPages\Service;
+namespace AKlump\CheckPages\EventSubscriber;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\RunnerEventInterface;

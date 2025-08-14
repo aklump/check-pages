@@ -6,6 +6,7 @@ use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Browser\Session;
 use AKlump\CheckPages\DataStructure\User;
 use GuzzleHttp\RequestOptions;
+use Symfony\Component\DomCrawler\Crawler;
 
 class ValidateSession {
 
@@ -36,6 +37,9 @@ class ValidateSession {
     $html = $this->get($this->baseUrl . '/user/' . $user_id . '/edit');
     $user->setAccountName($this->scrapeUsername($html));
     $user->setEmail($this->scrapeEmail($html));
+    if ($timezone_name = $this->scrapeTimeZoneName($html)) {
+      $user->setTimeZone(timezone_open($timezone_name));
+    }
 
     return $user;
   }
@@ -44,6 +48,16 @@ class ValidateSession {
     preg_match('#<input.+?name="name".+?value="(.+?)"#', $html, $matches);
 
     return $matches[1] ?? '';
+  }
+
+  private function scrapeTimeZoneName(string $html): string {
+    $crawler = new Crawler($html);
+    $selected_option = $crawler->filter('select[name="timezone"] option[selected]');
+    if ($selected_option) {
+      return $selected_option->attr('value');
+    }
+
+    return '';
   }
 
   /**

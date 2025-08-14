@@ -5,7 +5,7 @@ namespace AKlump\CheckPages\Browser;
 
 use AKlump\CheckPages\Exceptions\RequestTimedOut;
 use AKlump\CheckPages\Output\Icons;
-use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Response;
 use AKlump\CheckPages\Service\Assertion;

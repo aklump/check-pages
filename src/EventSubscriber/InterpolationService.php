@@ -1,14 +1,14 @@
 <?php
 
-namespace AKlump\CheckPages\Service;
+namespace AKlump\CheckPages\EventSubscriber;
 
+use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Handlers\Value;
 use AKlump\CheckPages\Interfaces\ScopeInterface;
 use AKlump\CheckPages\Parts\Test;
-use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Traits\SetTrait;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use AKlump\CheckPages\Event\TestEventInterface;
 
 class InterpolationService implements EventSubscriberInterface {
 

@@ -1,7 +1,8 @@
 <?php
 
-namespace AKlump\CheckPages\Output;
+namespace AKlump\CheckPages\Output\Messenger;
 
+use AKlump\CheckPages\Output\VerboseDirective;
 use AKlump\Messaging\MessengerInterface;
 
 /**

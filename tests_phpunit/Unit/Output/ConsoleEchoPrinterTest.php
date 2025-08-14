@@ -2,15 +2,15 @@
 
 namespace AKlump\CheckPages\Tests\Unit\Output;
 
-use AKlump\CheckPages\Output\ConsoleEchoPrinter;
-use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Message\Message;
+use AKlump\CheckPages\Output\Messenger\ConsoleEchoPrinter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @group default
- * @covers \AKlump\CheckPages\Output\ConsoleEchoPrinter
- * @uses   \AKlump\CheckPages\Output\Message
+ * @covers \AKlump\CheckPages\Output\Messenger\ConsoleEchoPrinter
+ * @uses   \AKlump\CheckPages\Output\Message\Message
  * @uses   \AKlump\CheckPages\Output\VerboseDirective
  */
 final class ConsoleEchoPrinterTest extends TestCase {

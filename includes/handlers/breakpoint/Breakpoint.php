@@ -5,7 +5,7 @@ namespace AKlump\CheckPages\Handlers;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Interfaces\ProvidesInputOptionsInterface;
-use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Message\Message;
 use AKlump\Messaging\MessageType;
 
 /**

@@ -83,6 +83,7 @@ final class AppCompiler {
       $special_compiler_path = $handler['path'] . '/compile.php';
       if (file_exists($special_compiler_path)) {
         $output_base_dir = $this->examplesPath;
+        // TODO Should this be IFFE?
         $result = require $special_compiler_path;
         if (!$result) {
           throw new RuntimeException(sprintf("Compilation failed in %s.", basename($handler['path']) . '/compile.php'));

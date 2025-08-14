@@ -1,11 +1,16 @@
 <?php
 
-namespace AKlump\CheckPages\Output;
+namespace AKlump\CheckPages\EventSubscriber;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Output\Flags;
+use AKlump\CheckPages\Output\HttpMessageLogger;
+use AKlump\CheckPages\Output\Icons;
+use AKlump\CheckPages\Output\Message\Message;
+use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Traits\SerializationTrait;
 use AKlump\LoftLib\Bash\Color;

@@ -7,7 +7,7 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Interfaces\HasConfigInterface;
 use AKlump\CheckPages\Interfaces\MayBeInterpolatedInterface;
-use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Traits\SetTrait;

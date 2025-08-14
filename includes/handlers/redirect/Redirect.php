@@ -7,10 +7,10 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Helpers\CompareStatusCodes;
-use AKlump\CheckPages\Output\Message;
+use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
-use AKlump\CheckPages\Traits\SetTrait;
 use AKlump\CheckPages\Parts\Test;
+use AKlump\CheckPages\Traits\SetTrait;
 use AKlump\Messaging\MessageType;
 use Exception;
 
