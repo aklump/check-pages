@@ -86,3 +86,8 @@ chapters:
     pages:
       - authentication
       - custom
+  -
+    id: troubleshooting
+    title: Troubleshooting
+    pages:
+      - curl_errors

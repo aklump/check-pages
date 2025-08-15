@@ -56,7 +56,10 @@ if (isset($_POST['op'])) {
   <input type="hidden" name="form_token" value="HC-doLJjcGKhIIkbn1wUreeJgoxgLZw2VJrNyHcfe30"/>
   <input type="text" name="field_amount[0][value]" value="$5.99"/>
   <input id="edit-submit" type="submit" name="op" value="Save"/>
+  <input id="edit-delete" type="submit" name="delete" value="Delete"/>
 </form>
+
+<div class="post-array-as-json"><?= json_encode($_POST)?></div>
 
 </body>
 </html>

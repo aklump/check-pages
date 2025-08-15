@@ -7,7 +7,7 @@
       <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.23.2">
       <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.23.2">
       <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.23.2">
-    <title>How To Use A Custom Directory For Suite Files | Check Pages</title>
+    <title>CURL Errors | Check Pages</title>
 </head>
 <body class="my-5">
 
@@ -26,13 +26,13 @@
          aria-controls="table-of-contents">TOC</a>
     </li>
     <li class="breadcrumb-item">
-      <a href="custom_dirs.html">Going Deeper</a></li>
+      <a href="curl_errors.html">Troubleshooting</a></li>
   </ol>
 </nav>
 
       </div>
       <div class="header__tags me-3">  </div>
-      <div class="header__page-numbers flex-shrink-1">38
+      <div class="header__page-numbers flex-shrink-1">50
         / 50</div>
     </div>
   </div>
@@ -41,22 +41,11 @@
 <main class="container-md flex-column">
   <div class="row mb-5 pt-5">
     <article class="col">
-      <h1 class="mb-4 text-primary">How To Use A Custom Directory For Suite Files</h1>
-      <p>You may locate suite files in directories other than the main one, by registering those directories with the <code>add_directory()</code> function. After that <code>run_suite()</code> will also look for suite names in the added directory(ies).</p>
-<pre><code class="php">&lt;?php
-/**
- * @file
- * Assert URLs as an anonymous user.
- */
-load_config('config/dev.yml');
-add_directory(__DIR__ . '/../web/themes/custom/gop_theme/components/smodal');
-
-run_suite('*');
-
-// Glob doesn't yet work with add_directory(), so you have to list the suite
-// explicitly like this:
-run_suite('smodal');
-
+      <h1 class="mb-4 text-primary">CURL Errors</h1>
+      <blockquote class="blockquote"><p>cURL error 6: Could not resolve host:</p>
+</blockquote>
+<p>This may happen if you your system doesn't allow many open files. This is a known bug. The current work around is to include this in your script.</p>
+<pre><code class="shell">ulimit -n 10240
 </code></pre>
     </article>
   </div>
@@ -75,11 +64,11 @@ run_suite('smodal');
 <nav class="nav d-flex justify-content-center align-items-center
   fixed-bottom">
   <div class="btn-group flex-fill">
-              <a href="custom_dirs.html" class="btn nav__prev-chapter btn-secondary"><i class="bi
-      bi-caret-left-fill"></i> How To Use A Custom Directory For Suite Files</a>
+              <a href="curl_errors.html" class="btn nav__prev-chapter btn-secondary"><i class="bi
+      bi-caret-left-fill"></i> CURL Errors</a>
   
     
-              <a href="../dev/development.html" class="btn nav__prev-page js-nav__prev-page
+              <a href="../authentication/custom.html" class="btn nav__prev-page js-nav__prev-page
     btn-primary"><i class="bi
       bi-caret-left-fill"></i></a>
   
@@ -90,9 +79,8 @@ run_suite('smodal');
        aria-controls="table-of-contents"><i class="bi
            bi-list-ol"></i></a>
     
-              <a href="deep__organizing.html" class="btn nav__next-page js-nav__next-page
-    btn-primary"><i class="bi bi-file-earmark"></i> Filenaming and Organization <i class="bi
-       bi-caret-right-fill"></i></a>
+              <span class="btn nav__next-page js-nav__next-page
+    btn-primary"></span>
   
     
               <span class="btn nav__next-chapter btn-secondary "></span>
@@ -379,28 +367,28 @@ run_suite('smodal');
     </li>
   
                                                           <li data-page="custom_dirs" value="38">
-      <a class="js-page-link" href="custom_dirs.html">How To Use A Custom Directory For Suite Files<span
+      <a class="js-page-link" href="../deep/custom_dirs.html">How To Use A Custom Directory For Suite Files<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="deep__organizing" value="39">
-      <a class="js-page-link" href="deep__organizing.html">Filenaming and Organization<span
+      <a class="js-page-link" href="../deep/deep__organizing.html">Filenaming and Organization<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="setup" value="40">
-      <a class="js-page-link" href="setup.html">Setup Before Test<span
+      <a class="js-page-link" href="../deep/setup.html">Setup Before Test<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
                                     <li data-page="variables" value="41">
-      <a class="js-page-link" href="variables.html">Variables<span
+      <a class="js-page-link" href="../deep/variables.html">Variables<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
@@ -463,7 +451,7 @@ run_suite('smodal');
     </li>
   
                                                           <li data-page="curl_errors" value="50">
-      <a class="js-page-link" href="../troubleshooting/curl_errors.html">CURL Errors<span
+      <a class="js-page-link" href="curl_errors.html">CURL Errors<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
@@ -633,19 +621,19 @@ run_suite('smodal');
               <h2 class="h4 mt-4">Going Deeper</h2>
         <ol>
                                 <li data-page="custom_dirs" value="38">
-      <a class="js-page-link" href="custom_dirs.html">How To Use A Custom Directory For Suite Files</a>
+      <a class="js-page-link" href="../deep/custom_dirs.html">How To Use A Custom Directory For Suite Files</a>
     </li>
   
                                 <li data-page="deep__organizing" value="39">
-      <a class="js-page-link" href="deep__organizing.html">Filenaming and Organization</a>
+      <a class="js-page-link" href="../deep/deep__organizing.html">Filenaming and Organization</a>
     </li>
   
                                 <li data-page="setup" value="40">
-      <a class="js-page-link" href="setup.html">Setup Before Test</a>
+      <a class="js-page-link" href="../deep/setup.html">Setup Before Test</a>
     </li>
   
                                 <li data-page="variables" value="41">
-      <a class="js-page-link" href="variables.html">Variables</a>
+      <a class="js-page-link" href="../deep/variables.html">Variables</a>
     </li>
   
                   </ol>
@@ -699,7 +687,7 @@ run_suite('smodal');
               <h2 class="h4 mt-4">Troubleshooting</h2>
         <ol>
                                 <li data-page="curl_errors" value="50">
-      <a class="js-page-link" href="../troubleshooting/curl_errors.html">CURL Errors</a>
+      <a class="js-page-link" href="curl_errors.html">CURL Errors</a>
     </li>
   
                   </ol>
@@ -795,13 +783,13 @@ run_suite('smodal');
                                                 <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="../dev/development.html">Developing Check Pages Locally</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="custom_dirs.html">How To Use A Custom Directory For Suite Files</a>
+                 data-tags="[]" href="../deep/custom_dirs.html">How To Use A Custom Directory For Suite Files</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="deep__organizing.html">Filenaming and Organization</a>
+                 data-tags="[]" href="../deep/deep__organizing.html">Filenaming and Organization</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="setup.html">Setup Before Test</a>
+                 data-tags="[]" href="../deep/setup.html">Setup Before Test</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="variables.html">Variables</a>
+                 data-tags="[]" href="../deep/variables.html">Variables</a>
                                                 <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="../code/code__add_test_option.html">Mixin Code Example</a>
                                                 <a class="list-group-item list-group-item-action"
@@ -819,7 +807,7 @@ run_suite('smodal');
                                                 <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="../authentication/custom.html">How to Write a Custom Authentication</a>
                                                 <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="../troubleshooting/curl_errors.html">CURL Errors</a>
+                 data-tags="[]" href="curl_errors.html">CURL Errors</a>
                               </ul>
       </div>
     </div>

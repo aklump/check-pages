@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- Fixed submission of untriggered submit elements. Only the triggering submit element will now be sent to the server when using the form handler.
 - ability to override the group based on dirname, e.g. `run_suite($component_id, 'group_alias');`
 - the log file should not be deleted, only truncated between runners.
 - "why" does not work with "import", it needs to be able to be there and override as well.

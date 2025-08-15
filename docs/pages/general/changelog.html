@@ -33,7 +33,7 @@
       </div>
       <div class="header__tags me-3">  </div>
       <div class="header__page-numbers flex-shrink-1">5
-        / 49</div>
+        / 50</div>
     </div>
   </div>
 </header>
@@ -46,6 +46,7 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>, and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2>[Unreleased]</h2>
 <ul>
+<li>Fixed submission of untriggered submit elements. Only the triggering submit element will now be sent to the server when using the form handler.</li>
 <li>ability to override the group based on dirname, e.g. <code>run_suite($component_id, 'group_alias');</code></li>
 <li>the log file should not be deleted, only truncated between runners.</li>
 <li>"why" does not work with "import", it needs to be able to be there and override as well.</li>
@@ -344,7 +345,7 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
               Version:
         <strong>0.23.2</strong>
         &bull;
-                    Last Update: <strong>4/27/2025</strong>
+                    Last Update: <strong>8/14/2025</strong>
           </div>
   </footer>
 
@@ -739,6 +740,13 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
+                                                          <li data-page="curl_errors" value="50">
+      <a class="js-page-link" href="../troubleshooting/curl_errors.html">CURL Errors<span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
                               </ol>
       </div>
         
@@ -966,6 +974,13 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
     </li>
   
                   </ol>
+              <h2 class="h4 mt-4">Troubleshooting</h2>
+        <ol>
+                                <li data-page="curl_errors" value="50">
+      <a class="js-page-link" href="../troubleshooting/curl_errors.html">CURL Errors</a>
+    </li>
+  
+                  </ol>
           </div>
   </div>
 </div>
@@ -1081,6 +1096,8 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
                  data-tags="[]" href="../authentication/authentication.html">Authentication</a>
                                                 <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="../authentication/custom.html">How to Write a Custom Authentication</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="../troubleshooting/curl_errors.html">CURL Errors</a>
                               </ul>
       </div>
     </div>

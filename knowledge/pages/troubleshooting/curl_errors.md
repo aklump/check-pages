@@ -1,3 +1,8 @@
+<!--
+id: curl_errors
+tags: ''
+-->
+
 # CURL Errors
 
 > cURL error 6: Could not resolve host:

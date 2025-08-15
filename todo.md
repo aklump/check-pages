@@ -1,18 +1,6 @@
 ## Critical
 
-- limit the POST to only one type=submit button.
-
-```html
-<form method="post">
-  <input type="submit" name="save" value="Save">
-  <input type="submit" name="delete" value="Delete">
-</form>
-
-```
-
-
----
-
+- form handler: prevent this from happening: `1[name]=pass&1[value]=pass&op=Next&input=uber&form_build_id=form-EYcmhwbcrV34PSUt8ecSDNw21SadTTljqcmswa2Cf2M&form_id=user_login_form&pass=pass`
 
 - commit tests_phpunit/files/*
 - --continue needs to go back one test, I think it's starting late. WE MUST HAVE A TEST TO ENSURE THIS DOESN'T REGRESS
@@ -61,10 +49,10 @@ The most reliable way to adjust the open file limit is by modifying the shell st
 - [x] assert that StopRunnerException shows in -vv
 - [x] assert that StopRunnerException shows in -vvv
 
-
 .foobar__action a*3
 
 not works
+
 ```yaml
     -
       why: Assert member can leave the group.
@@ -74,19 +62,13 @@ not works
 ```
 
 works.
+
 ```yaml
     -
       why: Assert member can leave the group.
       dom: .foobar__action a[href="/group/68282/leave"]
       count: 1
 ```
-
-- form test is failing
-
-### Form Handler
-
-- document this (fix knowledge?)
-- prevent this from happening: `1[name]=pass&1[value]=pass&op=Next&input=uber&form_build_id=form-EYcmhwbcrV34PSUt8ecSDNw21SadTTljqcmswa2Cf2M&form_id=user_login_form&pass=pass`
 
 Interpolation fails for `text`, e.g. count is interpolated as null for some reason. I think it's because the test interpolates BEFORE the suite interpolates on the find array.
 
