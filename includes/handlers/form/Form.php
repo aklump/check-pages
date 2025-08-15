@@ -4,11 +4,11 @@ namespace AKlump\CheckPages\Handlers;
 
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\SuiteEventInterface;
-use AKlump\CheckPages\Exceptions\OutdatedSyntaxException;
 use AKlump\CheckPages\Handlers\Form\HtmlFormReader;
 use AKlump\CheckPages\Handlers\Form\FormValuesManager;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use Exception;
+use AKlump\CheckPages\Event\DriverEventInterface;
 
 /**
  * Implements the Form handler.
@@ -73,7 +73,7 @@ final class Form implements HandlerInterface {
         /**
          * Analyze the form and import action, method, values, etc.
          */
-        function (Event\DriverEventInterface $event) {
+        function (DriverEventInterface $event) {
           $test = $event->getTest();
           $config = $test->getConfig();
           if (empty($config['form'])) {
@@ -106,7 +106,25 @@ final class Form implements HandlerInterface {
 
             // Add the correct submit button to the request.
             $submit = $reader->getSubmit($config['form']['submit'] ?? '');
-            $form_values[$submit->getKey()] = $submit->getLabel();
+            $triggering_element = $submit->getKey();
+            $form_values[$triggering_element] = $submit->getLabel();
+
+            // When a form with multiple submit buttons is submitted, the
+            // browser includes the name and value of *only the clicked submit
+            // button* in the submitted data.  Other submit buttons within the
+            // same form are ignored.  This allows the server-side code to
+            // determine which button initiated the form submission and process
+            // the data accordingly. "If a form contains more than one submit
+            // button, only the activated submit button is successful." @url
+            // https://www.w3.org/TR/html401/interact/forms.html#h-17.13.2 "A
+            // button (and its value) is only included in the form submission if
+            // the button itself was used to initiate the form submission." @url
+            // https://html.spec.whatwg.org/multipage/form-elements.html
+            foreach (array_keys($reader->getSubmits()) as $submit_element) {
+              if ($submit_element !== $triggering_element) {
+                unset($form_values[$submit_element]);
+              }
+            }
 
             // Handle the merging of form vars and config vars.
             $form_values_manager = new FormValuesManager();

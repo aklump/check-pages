@@ -58,9 +58,23 @@ final class HtmlFormReader {
    * @return array Key/value array of values that exist in the form
    */
   public function getValues(): array {
-    $form = $this->getForm();
+    $elements = $this->getForm()->filter('input,select');
+
+    return $this->getElementsAsKeyValueArray($elements);
+  }
+
+  /**
+   * @return array Key/value array of any form submit elements.
+   */
+  public function getSubmits(): array {
+    $elements = $this->getForm()->filter('[type=submit]');
+
+    return $this->getElementsAsKeyValueArray($elements);
+  }
+
+  private function getElementsAsKeyValueArray(Crawler $elements): array {
     $response = [];
-    foreach ($form->filter('input,select') as $el) {
+    foreach ($elements as $el) {
       /** @var \DOMElement $el */
       if (!$this->options & self::OPTION_INCLUDE_DISABLED
         && $el->hasAttribute('disabled')) {

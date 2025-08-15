@@ -27,3 +27,8 @@ The DOM element must be present in the markup and not added via AJAX, if it's no
 ## _Element Name Attribute_ issue
 
 If the input element is missing the `name` attribute, strange things may happen.
+
+## Reference
+
+* https://www.w3.org/TR/html401/interact/forms.html
+* https://html.spec.whatwg.org/multipage/form-elements.html

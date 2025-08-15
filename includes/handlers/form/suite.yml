@@ -142,10 +142,32 @@
       text: Your shirt size is sm.
 
 -
+  why: Demonstrate only the clicked submit button is received by server.
+  url: /test_subject.php
+  form:
+    dom: .drupal-form
+    submit: '[name="op"]'
+  find:
+    -
+      dom: .post-array-as-json
+      is: '{"form_id":"drupal_form","form_build_id":"form-GCz0YacA8dPFAKxjqF41M0rUJgoM8VbyN8RNTG48GxQ","form_token":"HC-doLJjcGKhIIkbn1wUreeJgoxgLZw2VJrNyHcfe30","field_amount":[{"value":"$5.99"}],"op":"Save"}'
+-
+  why: Demonstrate only the clicked submit button is received by server.
+  url: /test_subject.php
+  form:
+    dom: .drupal-form
+    submit: '[name="delete"]'
+  find:
+    -
+      dom: .post-array-as-json
+      is: '{"form_id":"drupal_form","form_build_id":"form-GCz0YacA8dPFAKxjqF41M0rUJgoM8VbyN8RNTG48GxQ","form_token":"HC-doLJjcGKhIIkbn1wUreeJgoxgLZw2VJrNyHcfe30","field_amount":[{"value":"$5.99"}],"delete":"Delete"}'
+
+-
   why: Demonstrate textfield default value is submitted.
   url: /test_subject.php
   form:
     dom: .drupal-form
+    submit: '[name="op"]'
   find:
     -
       dom: .messages
@@ -160,7 +182,6 @@
       -
         name: field_amount[0][value]
         value: $19.99
-
     # This is optional, but may help with readability.
     submit: '#edit-submit'
 
