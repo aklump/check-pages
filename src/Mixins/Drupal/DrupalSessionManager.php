@@ -74,10 +74,9 @@ final class DrupalSessionManager {
     if (empty($account['uid'])) {
       throw new RuntimeException(sprintf('Could not determine user ID for %s', $username));
     }
-
     self::$sessions[$username] = [
-      'cookie' => $auth->getSessionCookie(),
-      'expires' => $auth->getSessionExpires(),
+      'cookie' => $auth->getSession()->getCookieHeader(),
+      'expires' => $auth->getSession()->getExpires(),
       'account' => $account,
       'csrf_token' => $auth->getCsrfToken(),
     ];

@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Helpers;
 
+use AKlump\CheckPages\Browser\SessionInterface;
 use AKlump\CheckPages\DataStructure\UserInterface;
 
 /**
@@ -21,6 +22,8 @@ interface AuthenticationInterface {
    */
   public function login(UserInterface $user);
 
+  public function getSession(): SessionInterface;
+
   /**
    * Get the value to send in the "Cookie" header for the authenticated session.
    *
@@ -29,6 +32,8 @@ interface AuthenticationInterface {
    *
    * @throws \RuntimeException
    *   The there is no session, i.e., ::login has not first been called.
+   *
+   * @deprecated Since version 23.3, Use AuthenticateInterface::getSession() instead.
    */
   public function getSessionCookie(): string;
 
@@ -37,6 +42,8 @@ interface AuthenticationInterface {
    *
    * @return int
    *   The timestamp for when the cookie expires.
+   *
+   * @deprecated Since version 23.3, Use AuthenticateInterface::getSession() instead.
    */
   public function getSessionExpires(): int;
 

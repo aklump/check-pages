@@ -5,13 +5,15 @@ namespace AKlump\CheckPages\Browser;
 use AKlump\CheckPages\DataStructure\User;
 use AKlump\CheckPages\DataStructure\UserInterface;
 
-class Session implements SessionInterface {
+final class Session implements SessionInterface {
 
-  protected User $user;
+  private User $user;
 
-  protected string $name = '';
+  private string $name = '';
 
-  protected string $value = '';
+  private string $value = '';
+
+  private int $expires;
 
   public function getName(): string {
     return $this->name;
@@ -38,6 +40,15 @@ class Session implements SessionInterface {
   }
 
   public function getSessionCookie(): string {
+    @trigger_error(sprintf('%s() is deprecated in version 0.23.3 and is removed from . Use SessionInterface::getCookieHeader() instead.', __METHOD__), E_USER_DEPRECATED);
+
+    return $this->getCookieHeader();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCookieHeader(): string {
     if (!$this->getName() || !$this->getValue()) {
       return '';
     }
@@ -45,4 +56,11 @@ class Session implements SessionInterface {
     return implode('=', [$this->getName(), $this->getValue()]);
   }
 
+  public function setExpires(int $expiration) {
+    $this->expires = $expiration;
+  }
+
+  public function getExpires(): int {
+    return $this->expires;
+  }
 }

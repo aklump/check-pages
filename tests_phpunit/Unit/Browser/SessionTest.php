@@ -8,9 +8,15 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \AKlump\CheckPages\Browser\Session
- * @uses \AKlump\CheckPages\DataStructure\User
+ * @uses   \AKlump\CheckPages\DataStructure\User
  */
 class SessionTest extends TestCase {
+
+  public function testExpires() {
+    $session = new Session();
+    $session->setExpires(123);
+    $this->assertSame(123, $session->getExpires());
+  }
 
   public function testGetSetUser() {
     $user = new User('foo', '123pass');
@@ -18,15 +24,17 @@ class SessionTest extends TestCase {
     $session->setUser($user);
     $this->assertSame($user, $session->getUser());
   }
+
   public function testEmptySessionCookie() {
     $session = new Session();
-    $this->assertSame('', $session->getSessionCookie());
+    $this->assertSame('', $session->getCookieHeader());
   }
-  public function testGetSessionCookie() {
+
+  public function testGetCookieHeader() {
     $session = new Session();
     $session->setName('foo');
     $session->setValue('bar');
-    $this->assertSame('foo=bar', $session->getSessionCookie());
+    $this->assertSame('foo=bar', $session->getCookieHeader());
   }
 
   public function testGetSetValue() {

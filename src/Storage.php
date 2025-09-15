@@ -14,9 +14,9 @@ class Storage implements StorageInterface {
    *
    * @var string
    */
-  protected $filepath;
+  protected string $filepath;
 
-  private $data;
+  protected array $data;
 
   public function __construct(FilesProviderInterface $log_files) {
     $this->filepath = $log_files->tryResolveFile('cache/storage.json', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
@@ -53,4 +53,7 @@ class Storage implements StorageInterface {
     $this->data[$key] = $value;
   }
 
+  public function delete($key) {
+    unset($this->data[$key]);
+  }
 }

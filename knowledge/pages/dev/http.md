@@ -26,7 +26,7 @@ $response = $http_client
 An example with `Cookie` header as well as getting the driver, then location.
 
 ```php
-$http_client->sendRequest(new Request('get', $url, ['Cookie' => $this->getSessionCookie()]));
+$http_client->sendRequest(new Request('get', $url, ['Cookie' => $this->getSession()->getCookieHeader()]));
 $location = $this->httpClient->getDriver()->getLocation()
 ```
 
