@@ -1,10 +1,5 @@
 ## Critical
 
-- continue with cleanup and new release
-- replace parse_url with spatie/url
-- test on ovagraph drupal 7
-
-
 - why does it take so long to skip a file when --retest is enabled?
 
 - form handler: prevent this from happening: `1[name]=pass&1[value]=pass&op=Next&input=uber&form_build_id=form-EYcmhwbcrV34PSUt8ecSDNw21SadTTljqcmswa2Cf2M&form_id=user_login_form&pass=pass`
@@ -16,7 +11,7 @@
 
 * https://medium.com/mindful-technology/too-many-open-files-limit-ulimit-on-mac-os-x-add0f1bfddde
 
-## Me
+I wrote
 
 * add `ulimit -n 65536` to _run_check_pages_tests.sh_ as a bandaid fix.
 
@@ -24,7 +19,7 @@ how to fix Too many open files in /Users/aklump/Code/Packages/cli/check-pages/ap
 
 * https://packagist.org/packages/cronfig/sysinfo
 
-## AI Assistant
+AI Assistant
 
 It's not caused by a bug in the code you've shown but rather by the way the code is being used or the system's configuration. Here's how to troubleshoot and fix it:
 
@@ -126,6 +121,7 @@ find:
 
 ## Normal
 
+- on init rename _gitignore_ to _.gitignore_
 - get rid of all global vars
 - wrap the entry file in IIFE pattern to isolate variables.
 

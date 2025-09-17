@@ -19,13 +19,12 @@ extras:
 Set up _Check Pages_ to be the canonical configuration for both _Check Pages_ and _Cypress_.
 
 1. Use JSON for _Check Pages_ configuration since Cypress doesn't support YAML.
-3. Create this file, e.g. _check_pages/config/dev.json_.
-4. Create a symlink to _check_pages/config/dev.json_ as _cypress/config/check_pages.dev.json_
-5. Require the file in your _Cypress_ configuration and implement values. Here is an example that uses `base_url`:
+1. Create the canonical config file, e.g. _check_pages/config/dev.json_.
+1. Require that file in your _Cypress_ configuration and implement its values. Here is an example showing `base_url`:
 
      ```javascript
      const { defineConfig } = require('cypress');
-     const checkPages = require('./check_pages.dev.json');
+     const checkPages = require('../../tests_check_pages/config/dev.json');
      
      module.exports = defineConfig({
        e2e: {
@@ -49,7 +48,7 @@ You can pass env vars per test by doing something like this in your _suite.yml_ 
 
 ## Share Users with Cypress
 
-1. Create _tests_check_pages/config/users.json_.
+1. Configure user credentials in _tests_check_pages/fixtures/dev.users.json_.
 
       ```json
       [
@@ -60,12 +59,11 @@ You can pass env vars per test by doing something like this in your _suite.yml_ 
       ]
       ```
 
-2. Create a symlink to the above as _cypress/fixtures/users.json_.
 3. Create _cypress/config/dev.config.js_ with the following.  **This provides the users array to Cypress to be accessed as needed.**
 
       ```javascript
       const { defineConfig } = require('cypress');
-      const users = require('../fixtures/users.dev.json');
+      const users = require('../../tests_check_pages/fixtures/dev.users.json');
       
       module.exports = defineConfig({
         e2e: {
