@@ -140,7 +140,7 @@ final class AuthenticateDrupal7 extends AuthenticateDrupal {
     $this->session->setName($name);
     $this->session->setValue($value);
     $this->session->setExpires($expires);
-
+    $this->session->setUser($user);
 
     $id = $this->requestUserId($user);
     if ($id) {
