@@ -9,31 +9,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-- Fixed submission of untriggered submit elements. Only the triggering submit element will now be sent to the server when using the form handler.
-- ability to override the group based on dirname, e.g. `run_suite($component_id, 'group_alias');`
-- the log file should not be deleted, only truncated between runners.
-- "why" does not work with "import", it needs to be able to be there and override as well.
-- There is an issue with the JS browser that looses the session cookie if the url has a redirect. When the browser redirects to the new URL, the session will be lost. I believe it's a bug in this library: https://github.com/chrome-php/chrome. If you're trying to assert w/javascript on a redirected URL, the work around is to use two tests where the first does not use javascript and captures the variable `${redirect.location}` which you can then use in the subsequent test, which uses the JS browser.
-
-  ```yaml
-  -
-    user: foo_user
-    js: false
-    visit: /my-current-cycle
-    status: 302
-  
-  -
-    why: Assert chart print link button appears on my-current-cycle page
-    user: foo_user
-    js: true
-    visit: "${redirect.location}"
-    find: ...
-   
-  ```
-
-## [0.23.3] - 2025-09-16
+## [0.23.3] - 2025-09-17
 
 ### Added
 
@@ -51,17 +27,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `\AKlump\CheckPages\Helpers\AuthenticationInterface::getSessionCookie`
 - `\AKlump\CheckPages\Helpers\AuthenticationInterface::getSessionExpires`
 
-### Removed
-
-- lorem
-
 ### Fixed
 
-- lorem
-
-### Security
-
-- lorem
+- Fixed submission of untriggered submit elements. Only the triggering submit element will now be sent to the server when using the form handler.
 
 ## [0.23.1] - 2025-03-05
 

@@ -1,7 +1,7 @@
 ## Critical
 
 - continue with cleanup and new release
-- replace parse_url with spatie/url  
+- replace parse_url with spatie/url
 - test on ovagraph drupal 7
 
 
@@ -144,3 +144,30 @@ find:
 - some passwords do not work in drupal, e.g. 'EGucqaBbgfajFVpkLnh4TP4ur4EoPrqjDKmUL8wegGQUyA4jcEawhEQhrjfAWdFb@vfi7ihr!cZBh3qViYqEP@Y4dFBB2X_hXx-Y' must have to do with special chars that need to be escaped.
 
 ## Complete
+
+## Backlog
+
+## Notes
+
+The following was found in CHANGELOG, I'm not sure if they were completed or slated to be done; sort through them and complete, record, etc.
+
+- ability to override the group based on dirname, e.g. `run_suite($component_id, 'group_alias');`
+- the log file should not be deleted, only truncated between runners.
+- "why" does not work with "import", it needs to be able to be there and override as well.
+- There is an issue with the JS browser that looses the session cookie if the url has a redirect. When the browser redirects to the new URL, the session will be lost. I believe it's a bug in this library: https://github.com/chrome-php/chrome. If you're trying to assert w/javascript on a redirected URL, the work around is to use two tests where the first does not use javascript and captures the variable `${redirect.location}` which you can then use in the subsequent test, which uses the JS browser.
+
+  ```yaml
+  -
+    user: foo_user
+    js: false
+    visit: /my-current-cycle
+    status: 302
+  
+  -
+    why: Assert chart print link button appears on my-current-cycle page
+    user: foo_user
+    js: true
+    visit: "${redirect.location}"
+    find: ...
+   
+  ```
