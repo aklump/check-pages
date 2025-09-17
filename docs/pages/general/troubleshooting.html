@@ -7,7 +7,7 @@
       <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.23.2">
       <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.23.2">
       <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.23.2">
-    <title>Using `why` For Better Clarity | Check Pages</title>
+    <title>Troubleshooting | Check Pages</title>
 </head>
 <body class="my-5">
 
@@ -32,7 +32,7 @@
 
       </div>
       <div class="header__tags me-3">  </div>
-      <div class="header__page-numbers flex-shrink-1">3
+      <div class="header__page-numbers flex-shrink-1">25
         / 51</div>
     </div>
   </div>
@@ -41,38 +41,13 @@
 <main class="container-md flex-column">
   <div class="row mb-5 pt-5">
     <article class="col">
-      <h1 class="mb-4 text-primary">Using `why` For Better Clarity</h1>
-      <p>The test suite output will automatically generate a line for each assertion, which in many cases is sufficient for test readability. However you may use the <code>why</code> key in your tests if you wish. This serves two purposes, it makes the tests more clear and readable, and it makes the test output more understandable, and especially if you're trying to troubleshoot a failed assertion.</p>
-<h1>At the Test Level</h1>
-<p>You may attach <code>why</code> to a test, like this...</p>
-<pre><code class="yaml">-
-  why: Assert homepage has lorem text.
-  url: /index.php
-  find:
-    - Lorem ipsum.
-</code></pre>
-<pre><code>⏱  RUNNING "SUITE" SUITE...
-🔎 Assert homepage has lorem text.
-👍 http://localhost:8000/index.php
-├── HTTP 200
-├── Find "Lorem ipsum" on the page.
-└── Test passed.
-</code></pre>
-<h1>At the Assert Level</h1>
-<p>... or to any assertion, like this:</p>
-<pre><code class="yaml">-
-  url: /index.php
-  find:
-    -
-      dom: h1
-      why: Assert page title is lorem text.
-      text: Lorem ipsum
-</code></pre>
-<pre><code>⏱  RUNNING "SUITE" SUITE...
-👍 http://localhost:8000/index.php
-├── HTTP 200
-├── Assert page title is lorem text.
-└── Test passed.
+      <h1 class="mb-4 text-primary">Troubleshooting</h1>
+      <p>If you are using multiple instances of PHP on your system, or accross different projects this presents an additional challenge.  <strong>You must ensure that you run <em>Check Pages</em> using the same PHP version with which it was installed.</strong></p>
+<h2>Composer Issues When Running Tests</h2>
+<p>If  <code>./bin/run_check_pages_tests.sh</code> tells you <em>Composer detected issues in your platform</em> then you probably need to hardcode the PHP version into that file. Open the file and look for <code>CHECK_PAGES_PHP</code> and set its value to match the PHP used to install <em>Check Pages</em>.</p>
+<h2>Setup an Alias for Alternative PHP</h2>
+<p>Add something like the following to your terminal config, adjusting for the correct PHP path.</p>
+<pre><code>alias checkpages="/Applications/MAMP/bin/php/php8.1.31/bin/php $(which checkpages)"
 </code></pre>
     </article>
   </div>
@@ -95,7 +70,7 @@
       bi-caret-left-fill"></i> Check Pages</a>
   
     
-              <a href="cheatsheet.html" class="btn nav__prev-page js-nav__prev-page
+              <a href="readme_old.html" class="btn nav__prev-page js-nav__prev-page
     btn-primary"><i class="bi
       bi-caret-left-fill"></i></a>
   
@@ -106,8 +81,8 @@
        aria-controls="table-of-contents"><i class="bi
            bi-list-ol"></i></a>
     
-              <a href="files.html" class="btn nav__next-page js-nav__next-page
-    btn-primary"><i class="bi bi-file-earmark"></i> File Output <i class="bi
+              <a href="../extend/unit_tests.html" class="btn nav__next-page js-nav__next-page
+    btn-primary"><i class="bi bi-file-earmark"></i> Unit Tests <i class="bi
        bi-caret-right-fill"></i></a>
   
     

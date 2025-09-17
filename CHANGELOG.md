@@ -28,7 +28,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
    
   ```
 
-## [] -
+## [0.23.3] - 2025-09-16
+
+### Added
+
+- Support for JSON configuration files.
+- A configuration property `_comments` for use with JSON configuration files.
+- `authenticate: false` to the drupal authentication for loading user variables without authenticating against the server
+
+### Changed
+
+- Cypress configuration paths should be relative to the configuration file rather than absolute as before.
+- Configuration schema now allows additional properties.
+
+### Deprecated
+
+- `\AKlump\CheckPages\Helpers\AuthenticationInterface::getSessionCookie`
+- `\AKlump\CheckPages\Helpers\AuthenticationInterface::getSessionExpires`
+
+### Removed
+
+- lorem
+
+### Fixed
+
+- lorem
+
+### Security
+
+- lorem
+
+## [0.23.1] - 2025-03-05
 
 ### Changed
 
