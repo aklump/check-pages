@@ -8,6 +8,10 @@ use RuntimeException;
 
 /**
  * @covers \AKlump\CheckPages\Browser\ChromeDriver
+ * @uses   \AKlump\CheckPages\Browser\RequestDriver
+ * @uses   \AKlump\CheckPages\Response
+ * @uses   \AKlump\CheckPages\Service\RequestHistory
+ * @uses   \AKlump\CheckPages\Traits\BaseUrlTrait
  */
 class ChromeDriverTest extends TestCase {
 

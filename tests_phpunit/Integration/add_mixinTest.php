@@ -2,7 +2,6 @@
 
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Files\LocalFilesProvider;
-use AKlump\CheckPages\Helpers\AssertRunSuiteNotCalled;
 use AKlump\CheckPages\Helpers\BuildContainer;
 use AKlump\CheckPages\Parts\Runner;
 use PHPUnit\Framework\TestCase;
@@ -10,7 +9,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @covers function \add_mixin
+ * @covers ::add_mixin
+ * @uses \AKlump\CheckPages\Exceptions\StopRunnerException
+ * @uses \AKlump\CheckPages\Files\LocalFilesProvider
+ * @uses \AKlump\CheckPages\Helpers\AssertRunSuiteNotCalled
+ * @uses \AKlump\CheckPages\Helpers\BuildContainer
+ * @uses \AKlump\CheckPages\Parts\Runner
+ * @uses \AKlump\CheckPages\Plugin\HandlersManager
+ * @uses \AKlump\CheckPages\Exceptions\UnresolvablePathException
  */
 class add_mixinTest extends TestCase {
 

@@ -36,6 +36,9 @@ use function count;
  * @uses   \AKlump\CheckPages\Output\Messenger\LoggerPrinter
  * @uses   \AKlump\CheckPages\Output\Messenger\MultiPrinter
  * @uses   \AKlump\CheckPages\Service\DispatcherFactory
+ * @uses   \AKlump\CheckPages\Output\Message\Message
+ * @uses   \AKlump\CheckPages\Service\SystemResourcesManager
+ * @uses   \AKlump\CheckPages\Helpers\GetResultCodePerExpectations
  */
 final class RunnerTest extends TestCase {
 

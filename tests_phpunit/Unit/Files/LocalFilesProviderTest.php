@@ -18,17 +18,16 @@ use Symfony\Component\Config\Exception\FileLocatorFileNotFoundException;
  */
 final class LocalFilesProviderTest extends TestCase {
 
-  public function _testTryWriteFileWorksAsExpected() {
-    $files = new LocalFilesProvider();
+  public function testTryWriteFileWorksAsExpected() {
     $base_path = $this->establishTempDir();
+    $files = new LocalFilesProvider($base_path);
     $files->tryWriteFile("$base_path/data.json", json_encode(['one', 'two']));
     $this->assertSame('["one","two"]', file_get_contents("$base_path/data.json"));
   }
 
-  public function _testTryEmptyDirWorksAsExpected() {
-    $files = new LocalFilesProvider();
+  public function testTryEmptyDirWorksAsExpected() {
     $base_path = $this->establishTempDir();
-
+    $files = new LocalFilesProvider($base_path);
 
     $files->tryCreateDir("$base_path/foo/bar");
     $this->assertTrue(touch("$base_path/foo/bar/baz.txt"));
@@ -43,9 +42,9 @@ final class LocalFilesProviderTest extends TestCase {
     $this->assertFalse(file_exists("$base_path/foo/bar/baz.txt"));
   }
 
-  public function _testTryEmptyDirThrowsOnFileArgument() {
-    $files = new LocalFilesProvider();
+  public function testTryEmptyDirThrowsOnFileArgument() {
     $base_path = $this->establishTempDir();
+    $files = new LocalFilesProvider($base_path);
 
     $files->tryCreateDir("$base_path/foo/bar");
     $this->assertTrue(touch("$base_path/foo/bar/baz.txt"));
@@ -54,9 +53,9 @@ final class LocalFilesProviderTest extends TestCase {
     $files->tryEmptyDir("$base_path/foo/bar/baz.txt");
   }
 
-  public function _testTryCreateDirWorksAsExpected() {
-    $files = new LocalFilesProvider();
+  public function testTryCreateDirWorksAsExpected() {
     $base_path = $this->establishTempDir();
+    $files = new LocalFilesProvider($base_path);
 
     $result = $files->tryCreateDir("$base_path/foo");
     $this->assertSame($files, $result);
@@ -80,6 +79,8 @@ final class LocalFilesProviderTest extends TestCase {
    * @testdox Calling $method outside base throws.
    *
    * @param string $method
+   *
+   * // TODO Fix this test
    */
   public function _testTryDestructiveMethodOutsideBaseThrows(string $method, array $args) {
     $base_path = $this->establishTempDir('foo');
@@ -109,27 +110,31 @@ final class LocalFilesProviderTest extends TestCase {
    * @testdox Calling $method in read-only instance throws.
    *
    * @param string $method
+   * // TODO Fix this test
    */
   public function _testTryDestructiveMethodInReadOnlyInstanceThrows(string $method, array $args) {
-    $files = new LocalFilesProvider();
     $base_path = $this->establishTempDir();
 
-    $this->expectException(NotWriteableException::class);
-    call_user_func_array([
-      $files,
-      $method,
-    ], array_map(function ($arg) use ($base_path) {
+    // By default this is read only because that is in the constructor.
+    $files = new LocalFilesProvider($base_path);
+
+    $args = array_map(function ($arg) use ($base_path) {
       if (is_string($arg)) {
         $arg = str_replace('$base_path', $base_path, $arg);
       }
 
       return $arg;
-    }, $args));
+    }, $args);
+    $this->expectException(NotWriteableException::class);
+    call_user_func_array([
+      $files,
+      $method,
+    ], $args);
   }
 
-  public function _testTryResolveFileReturnsArrayWithFilesScenarioB() {
-    $files = new LocalFilesProvider();
+  public function testTryResolveFileReturnsArrayWithFilesScenarioB() {
     $base_path = $this->establishTempDir('foo');
+    $files = new LocalFilesProvider($base_path);
     $this->establishTempDir('bar', $base_path);
 
     $files->addResolveDir("$base_path");
@@ -202,9 +207,9 @@ final class LocalFilesProviderTest extends TestCase {
     $files->locate('a.txt');
   }
 
-  public function _testTryResolveFileThrowsWhenExtensionIsOutsideScope() {
-    $files = new LocalFilesProvider();
+  public function testTryResolveFileThrowsWhenExtensionIsOutsideScope() {
     $base_dir = $this->establishTempDir();
+    $files = new LocalFilesProvider($base_dir);
     $files->addResolveDir($base_dir);
     touch("$base_dir/foo.txt");
     $this->assertCount(1, $files->tryResolveFile('foo', ['txt']));
