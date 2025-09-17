@@ -62,9 +62,10 @@ $session_manager = new DrupalSessionManager($mixin_config);
 add_test_option('user', [
   Event::TEST_CREATED => function ($username, TestEventInterface $event) use ($session_manager) {
     if (!empty($username)) {
-      $session_vars = $session_manager($username, $event->getTest());
-      foreach ($session_vars as $name => $value) {
-        $event->getTest()->getSuite()->variables()->setItem($name, $value);
+      $vars = $event->getTest()->getSuite()->variables();
+      $account_vars = $session_manager($username, $event->getTest());
+      foreach ($account_vars as $name => $value) {
+        $vars->setItem($name, $value);
       }
     }
   },

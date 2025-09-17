@@ -60,6 +60,7 @@ final class AuthenticateProviderFactory {
       );
     }
     catch (Exception $exception) {
+      // TODO Is this the correct exception here, or shoudl it be one of SPL?
       throw new StopRunnerException($exception->getMessage(), $exception->getCode(), $exception);
     }
   }

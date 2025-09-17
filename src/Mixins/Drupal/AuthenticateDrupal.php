@@ -3,18 +3,20 @@
 namespace AKlump\CheckPages\Mixins\Drupal;
 
 use AKlump\CheckPages\Browser\GuzzleDriver;
+use AKlump\CheckPages\Browser\Session;
+use AKlump\CheckPages\Browser\SessionInterface;
 use AKlump\CheckPages\DataStructure\UserInterface;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Files\HttpLogging;
 use AKlump\CheckPages\Helpers\AuthenticationInterface;
 use AKlump\CheckPages\HttpClient;
-use DOMElement;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use RuntimeException;
+use Spatie\Url\Url;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -25,36 +27,26 @@ class AuthenticateDrupal implements AuthenticationInterface {
   const LOG_FILE_PATH = 'drupal/authenticate.http';
 
   /**
-   * @var string
+   * @var \AKlump\CheckPages\Browser\SessionInterface
    */
-  private $sessionValue;
+  protected $session;
 
   /**
-   * @var string
+   * @var mixed|string
    */
-  private $sessionName;
-
-  /**
-   * @var \DateTime
-   */
-  private $sessionExpires;
+  private $csrfToken;
 
   /**
    * The most recent authentication request response.
    *
    * @var \GuzzleHttp\Psr7\Response
    */
-  private $response;
+  protected $response;
 
   /**
    * @var \AKlump\CheckPages\Files\FilesProviderInterface
    */
   protected $logFiles;
-
-  /**
-   * @var string
-   */
-  protected $usersFile;
 
   /**
    * @var string
@@ -107,108 +99,34 @@ class AuthenticateDrupal implements AuthenticationInterface {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function login(UserInterface $user) {
-    $username = $user->getAccountName();
-    $password = $user->getPassword();
-
-    // Scrape the form_build_id, which is necessary lest the form not submit.
-    $log_file_contents = HttpLogging::request('Scrape the login form', 'get', $this->loginUrl);
-    $this->writeLogFile($log_file_contents);
-
-    $this->response = $this->httpClient
-      ->setWhyForNextRequestOnly(__METHOD__)
-      ->sendRequest(new Request('get', $this->loginUrl));
-    $body = strval($this->response->getBody());
-
-    $crawler = new Crawler($body);
-    $form_build_id = $crawler->filter($this->formSelector . ' input[name="form_build_id"]')
-      ->getNode(0);
-    if ($form_build_id instanceof DOMElement) {
-      $form_build_id = $form_build_id->getAttribute('value');
-    }
-    else {
-      throw new RuntimeException(sprintf('Login form missing from %s', $this->loginUrl));
-    }
-
-    // Now that we have a complete form, try to log in and get a session.
-    $jar = new CookieJar();
     try {
-      $failed_message = [
-        sprintf('Login failed for username "%s" with password "%s".',
-          $username,
-          substr($password, 0, 2) . str_repeat('*', strlen($password) - 2)
-        ),
-      ];
-      $failed = FALSE;
-
-      $form_params = [
-        'op' => 'Log in',
-        'name' => $username,
-        'pass' => $password,
-        'form_id' => $this->formId,
-        'form_build_id' => $form_build_id,
-      ];
-      $log_file_contents = HttpLogging::request('Submit login form', 'post', $this->loginUrl, [
-        'content-type' => 'application/x-www-form-urlencoded',
-      ], $form_params);
-      $this->writeLogFile($log_file_contents);
-
-      $guzzle = new GuzzleDriver();
-      $this->response = $guzzle
-        ->getClient()
-        ->request('POST', $this->loginUrl, [
-          'cookies' => $jar,
-          'form_params' => $form_params,
-        ]);
-
-      //      $this->response = $this->httpClient->sendRequest(new Request('post', $this->loginUrl, [
-      //        'cookies' => $jar,
-      //        'form_params' => $form_params,
-      //      ]));
+      $this->establishUserSession($user);
     }
-    catch (GuzzleException $exception) {
-      $failed = TRUE;
+    catch (\Exception $exception) {
+      $failed_message = [];
+      $password = $user->getPassword();
+      $failed_message[] = sprintf('Login failed for username "%s" with password "%s".',
+        $user->getAccountName(),
+        substr($password, 0, 2) . str_repeat('*', strlen($password) - 2)
+      );
       $failed_message[] = $exception->getMessage();
+      $failed_message = implode(PHP_EOL, $failed_message);
+      throw new RuntimeException($failed_message, 0, $exception);
     }
 
-    if (!$failed) {
-      // Look for the login form again in the page response, if it's still here,
-      // that means login failed.  We could also look in the headers for
-      // "Set-Cookie" to see if it changed from the request above, if this doesn't
-      // prove to work over time.  A changed session cookie indicates a new
-      // session was created, but not necessarily that the login succeeded.
-      $crawler = new Crawler(strval($this->response->getBody()));
-      $failed = $crawler->filter($this->formSelector)->count() > 0;
-    }
-
-    // TODO Figure out how to read the session-based messages, so we can add them from Drupal to $failed_message for easier debugging.
-
-    if ($failed) {
-      throw new RuntimeException(implode(PHP_EOL, $failed_message));
-    }
-
-    $session_cookie = array_values(array_filter($jar->toArray(), function ($item) {
-      return strpos($item['Name'], 'SESS') !== FALSE;
-    }))[0] ?? NULL;
-    if (empty($session_cookie)) {
-      throw new RuntimeException(sprintf('Did not obtain session cookie for username "%s".', $username));
-    }
-
-    $this->sessionName = $session_cookie['Name'];
-    $this->sessionValue = $session_cookie['Value'];
-    $this->sessionExpires = $session_cookie['Expires'];
-
-    $id = $this->requestUserId($user);
-    if ($id) {
+    // It may be that this gets set in during the session establishment, so
+    // we'll check first before sending off another request.
+    if (!$user->id()
+      && ($id = $this->requestUserId($user))) {
       $user->setId($id);
     }
-
-    $mail = $this->requestUserEmail($user);
-    if ($mail) {
+    if (!$user->getEmail()
+      && ($mail = $this->requestUserEmail($user))) {
       $user->setEmail($mail);
     }
   }
 
-  private function writeLogFile(string $contents) {
+  protected function writeLogFile(string $contents) {
     $filepath = $this->logFiles->tryResolveFile(self::LOG_FILE_PATH, [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
     $this->logFiles->tryCreateDir(dirname($filepath));
     $fp = fopen($filepath, 'a');
@@ -227,18 +145,19 @@ class AuthenticateDrupal implements AuthenticationInterface {
    * @see \AKlump\CheckPages\Helpers\AuthenticateDrupal::login()
    */
   protected function requestUserId(UserInterface $user): int {
-    $parts = parse_url($this->loginUrl);
-    $url = $parts['scheme'] . '://' . $parts['host'] . '/user';
+    $url = Url::fromString($this->loginUrl);
+    $url = (string) $url->withPath('/user');
+    $cookie_header = $this->getSession()->getCookieHeader();
     try {
 
       $log_file_contents = HttpLogging::request('Request the user ID', 'get', $url, [
-        'Cookie' => $this->getSessionCookie(),
+        'Cookie' => $cookie_header,
       ]);
       $this->writeLogFile($log_file_contents);
 
       $this->httpClient
         ->setWhyForNextRequestOnly(__METHOD__)
-        ->sendRequest(new Request('get', $url, ['Cookie' => $this->getSessionCookie()]));
+        ->sendRequest(new Request('get', $url, ['Cookie' => $cookie_header]));
       $request_result = $this->httpClient->getDriver();
 
       // If the user page is not aliased the UID will appear in the location bar.
@@ -288,24 +207,27 @@ class AuthenticateDrupal implements AuthenticationInterface {
     if (!$uid) {
       return '';
     }
-    $parts = parse_url($this->loginUrl);
-    $url = $parts['scheme'] . '://' . $parts['host'] . "/user/$uid/edit";
+
+    $url = Url::fromString($this->loginUrl);
+    $url = (string) $url->withPath('/user/' . $uid . '/edit');
+    $cookie_header = $this->getSession()->getCookieHeader();
     try {
       $log_file_contents = HttpLogging::request('Request the user email', 'get', $url, [
-        'Cookie' => $this->getSessionCookie(),
+        'Cookie' => $cookie_header,
       ]);
       $this->writeLogFile($log_file_contents);
-
-      $body = (string) $this->httpClient
+      $response = $this->httpClient
         ->setWhyForNextRequestOnly(__METHOD__)
         ->sendRequest(new Request('get', $url, [
-          'Cookie' => $this->getSessionCookie(),
-        ]))->getBody();
-
-      $crawler = new Crawler($body);
-      $email_input = $crawler->filter('input[name="mail"]')->getNode(0);
-      if ($email_input) {
-        $mail = $email_input->getAttribute('value');
+          'Cookie' => $cookie_header,
+        ]));
+      if ($response->getStatusCode() === 200) {
+        $body = (string) $response->getBody();
+        $crawler = new Crawler($body);
+        $email_input = $crawler->filter('input[name="mail"]')->getNode(0);
+        if ($email_input) {
+          $mail = $email_input->getAttribute('value');
+        }
       }
     }
     catch (ConnectException $exception) {
@@ -315,22 +237,30 @@ class AuthenticateDrupal implements AuthenticationInterface {
     return $mail ?? '';
   }
 
+  public function getSession(): SessionInterface {
+    return $this->session;
+  }
+
   /**
    * {@inheritdoc}
    */
   public function getSessionExpires(): int {
-    return $this->sessionExpires;
+    @trigger_error(sprintf('%s() is deprecated in version 23.3 and is removed from . Use AuthenticateInterface::getSession() instead.', __METHOD__), E_USER_DEPRECATED);
+
+    return $this->getSession()->getExpires();
   }
 
   /**
    * @inherit
    */
   public function getSessionCookie(): string {
-    if (empty($this->sessionName) || empty($this->sessionValue)) {
+    @trigger_error(sprintf('%s() is deprecated in version 23.3 and is removed from . Use AuthenticateInterface::getSession() instead.', __METHOD__), E_USER_DEPRECATED);
+    $header = $this->getSession()->getCookieHeader();
+    if (!$header) {
       throw new RuntimeException('Missing session, have you called ::login()?');
     }
 
-    return $this->sessionName . '=' . $this->sessionValue;
+    return $header;
   }
 
   /**
@@ -345,23 +275,76 @@ class AuthenticateDrupal implements AuthenticationInterface {
    * {@inheritdoc}
    */
   public function getCsrfToken(): string {
-    $url = $this->buildUrl($this->loginUrl, '/session/token');
-    try {
-      return (string) $this->httpClient
-        ->setWhyForNextRequestOnly(__METHOD__)
-        ->sendRequest(new Request('get', $url, [
-          'Cookie' => $this->getSessionCookie(),
-        ]))
-        ->getBody();
+    if (!isset($this->csrfToken)) {
+      $url = Url::fromString($this->loginUrl);
+      $url = (string) $url->withPath('/session/token');
+      try {
+        $this->csrfToken = (string) $this->httpClient
+          ->setWhyForNextRequestOnly(__METHOD__)
+          ->sendRequest(new Request('get', $url, [
+            'Cookie' => $this->getSession()->getCookieHeader(),
+          ]))
+          ->getBody();
+      }
+      catch (ConnectException $exception) {
+        return '';
+      }
     }
-    catch (ConnectException $exception) {
-      return '';
-    }
+
+    return $this->csrfToken;
   }
 
-  private function buildUrl(string $loginUrl, string $appendPath): string {
-    $parts = parse_url($loginUrl);
+  protected function establishUserSession(UserInterface $user): void {
+    $login_url = Url::fromString($this->loginUrl);
+    $login_url = (string) $login_url->withQueryParameter('_format', 'json');
+    $data = [
+      'name' => $user->getAccountName(),
+      'pass' => $user->getPassword(),
+    ];
+    $method = 'post';
+    $log_file_contents = HttpLogging::request('Authenticate the user', $method, $login_url, [], $data);
+    $this->writeLogFile($log_file_contents);
 
-    return $parts['scheme'] . '://' . $parts['host'] . $appendPath;
+    $guzzle = new GuzzleDriver();
+    $jar = new CookieJar();
+    try {
+      $this->response = $guzzle
+        ->getClient()
+        ->request($method, $login_url, [
+          'cookies' => $jar,
+          'json' => $data,
+        ]);
+    }
+    catch (GuzzleException $e) {
+      throw new RuntimeException(sprintf('Failed to establish session for username "%s" at: %s.', $user->getAccountName(), $login_url), 0, $e);
+    }
+
+    $session_cookie = array_values(array_filter($jar->toArray(), function ($item) {
+      return strpos($item['Name'], 'SESS') !== FALSE;
+    }))[0] ?? NULL;
+
+    $name = $session_cookie['Name'] ?? $session_cookie['name'] ?? '';
+    $value = $session_cookie['Value'] ?? $session_cookie['value'] ?? '';
+    $expires = $session_cookie['Expires'] ?? $session_cookie['expires'] ?? '';
+    if (!$name || !$value || !$expires) {
+      throw new RuntimeException(sprintf('Failed to establish session for username "%s". SESSION response header is either missing or incomplete.', $user->getAccountName()));
+    }
+
+    $this->session = new Session();
+    $this->session->setName($name);
+    $this->session->setValue($value);
+    $this->session->setExpires($expires);
+    $this->session->setUser($user);
+
+    // We may have some additional information that we can save on future
+    // requests by gleening it from this response.
+    $json = strval($this->response->getBody());
+    $data = json_decode($json, TRUE);
+    if (isset($data['current_user']['uid'])) {
+      $user->setId($data['current_user']['uid']);
+    }
+    if (isset($data['csrf_token'])) {
+      $this->csrfToken = $data['csrf_token'];
+    }
   }
 }

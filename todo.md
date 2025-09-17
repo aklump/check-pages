@@ -1,5 +1,12 @@
 ## Critical
 
+- continue with cleanup and new release
+- replace parse_url with spatie/url  
+- test on ovagraph drupal 7
+
+
+- why does it take so long to skip a file when --retest is enabled?
+
 - form handler: prevent this from happening: `1[name]=pass&1[value]=pass&op=Next&input=uber&form_build_id=form-EYcmhwbcrV34PSUt8ecSDNw21SadTTljqcmswa2Cf2M&form_id=user_login_form&pass=pass`
 
 - commit tests_phpunit/files/*
@@ -10,6 +17,8 @@
 * https://medium.com/mindful-technology/too-many-open-files-limit-ulimit-on-mac-os-x-add0f1bfddde
 
 ## Me
+
+* add `ulimit -n 65536` to _run_check_pages_tests.sh_ as a bandaid fix.
 
 how to fix Too many open files in /Users/aklump/Code/Packages/cli/check-pages/app/vendor/composer/ClassLoader.php on line 576
 
@@ -37,6 +46,7 @@ You can't directly change the `ulimit` setting from within a PHP script reliably
 
 The most reliable way to adjust the open file limit is by modifying the shell startup files as described in my previous response, or using system administration tools provided by your operating system. Those methods ensure the limit is set correctly before the PHP process even starts.
 
+**1. **Race Conditions:** If your code involves multiple threads or processes accessing shared resources, a race condition might be the culprit. The debugger's presence alters timing, inadvertently resolving the race. Look for areas in your code where shared resources (files, databases, variables) are accessed without proper synchronization mechanisms (locks, mutexes).**
 ---
 
 - assert \AKlump\CheckPages\Parts\Runner::executeRunner passes only these defined vars: $path

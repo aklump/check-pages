@@ -21,6 +21,8 @@ interface SessionInterface {
 
   public function getExpires(): int;
 
+  public function getUser(): UserInterface;
+
   /**
    * Get the cookie header value.
    *
