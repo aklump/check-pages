@@ -41,13 +41,16 @@ final class AuthenticateProviderFactory {
 
     // Ensure this is absolute.
     $login_url = $this->test->getRunner()->withBaseUrl($login_url);
-    $host_name = $this->extractHostName($login_url);
+    $cid = parse_url($login_url, PHP_URL_HOST);
+    if (empty($cid)) {
+      throw new InvalidArgumentException(sprintf('Invalid URL %s.', $login_url));
+    }
 
     try {
-      if (empty(self::$cached[$host_name])) {
-        self::$cached[$host_name] = $this->determineAuthenticationClass($http_client, $login_url);
+      if (empty(self::$cached[$cid])) {
+        self::$cached[$cid] = $this->determineAuthenticationClass($http_client, $login_url);
       }
-      $authentication_class = self::$cached[$host_name];
+      $authentication_class = self::$cached[$cid];
       $this->addClassContextToHttpClient($http_client, $authentication_class);
 
       return new $authentication_class(
@@ -110,22 +113,5 @@ final class AuthenticateProviderFactory {
       ['why' => $class_name],
       $suite
     ));
-  }
-
-  /**
-   * Extract the host name from a URL.
-   *
-   * @param string $url
-   *
-   * @return string
-   */
-  private function extractHostName(string $url): string {
-    $host_name = parse_url($url, PHP_URL_HOST);
-
-    if (!$host_name) {
-      throw new InvalidArgumentException('Invalid URL provided.');
-    }
-
-    return $host_name;
   }
 }
