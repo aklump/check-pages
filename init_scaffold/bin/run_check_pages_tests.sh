@@ -9,7 +9,7 @@ cd "$__DIR__/../"
 
 # ========= CONFIG =========
 CHECK_PAGES_BIN=$(which checkpages)
-CHECK_PAGES_PHP="/Applications/MAMP/bin/php/php8.1.31/bin/php"
+#CHECK_PAGES_PHP="/Applications/MAMP/bin/php/php8.1.31/bin/php"
 # ========= /CONFIG =========
 
 mode=$(lando xdebug --mode 2> /dev/null | tr -cd "[:print:]\n")
