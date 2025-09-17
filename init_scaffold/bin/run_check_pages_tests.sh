@@ -7,6 +7,11 @@
 s="${BASH_SOURCE[0]}";[[ "$s" ]] || s="${(%):-%N}";while [ -h "$s" ];do d="$(cd -P "$(dirname "$s")" && pwd)";s="$(readlink "$s")";[[ $s != /* ]] && s="$d/$s";done;__DIR__=$(cd -P "$(dirname "$s")" && pwd)
 cd "$__DIR__/../"
 
+# ========= CONFIG =========
+CHECK_PAGES_BIN=$(which checkpages)
+CHECK_PAGES_PHP="/Applications/MAMP/bin/php/php8.1.31/bin/php"
+# ========= /CONFIG =========
+
 mode=$(lando xdebug --mode 2> /dev/null | tr -cd "[:print:]\n")
 if [[ "$mode" && "$mode" != 'off' ]]; then
   message="                                                               "
@@ -19,12 +24,8 @@ if [[ "$mode" && "$mode" != 'off' ]]; then
   echo -e "${F_BOLD}${C_YELLOW}$message${NO_FORMAT}"
 fi
 
-check_pages_bin=$(which checkpages)
-#check_pages_bin=./vendor/bin/check_pages
-#if [ -f "$HOME/Code/Packages/php/check-pages/check_pages" ]; then
-#  check_pages_bin="$HOME/Code/Packages/php/check-pages/check_pages"
-#fi
-#"$check_pages_bin" run ./tests_check_pages/runner.php --dir=./tests_check_pages "$@"
-# Use this to force a PHP version.
-CHECK_PAGES_PHP="/Applications/MAMP/bin/php/php7.4.33/bin/php"
-"$CHECK_PAGES_PHP" "$check_pages_bin" run ./tests_check_pages/runner.php --dir=./tests_check_pages "$@"
+if [[ "$CHECK_PAGES_PHP" ]]; then
+  "$CHECK_PAGES_PHP" "$CHECK_PAGES_BIN" run ./tests_check_pages/runner.php --dir=./tests_check_pages "$@"
+else
+  "$CHECK_PAGES_BIN" run ./tests_check_pages/runner.php --dir=./tests_check_pages "$@"
+fi

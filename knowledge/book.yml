@@ -29,6 +29,7 @@ chapters:
       - testing_legacy
       - cli
       - readme_old
+      - troubleshooting
   -
     id: extend
     title: Extending

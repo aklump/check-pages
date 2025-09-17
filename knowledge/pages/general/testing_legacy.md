@@ -10,12 +10,12 @@ If your website project uses Composer but is less than the minimum requirments f
 1. Use composer to install it on a server with the proper requirements, in this example it was installed at _/Users/aklump/Code/Packages/php/check-pages_
 2. Create a file in your app in _./bin/run_check_pages.sh_
 3. Add the code as shown below.
-4. Execute testing with `./bin/run_check_pages.sh`
+4. Execute testing with `./bin/run_check_pages_tests.sh`
 
 ```text
 .
 ├── bin
-│   └── run_check_pages.sh
+│   └── run_check_pages_tests.sh
 └── tests_check_pages
 ```
 
