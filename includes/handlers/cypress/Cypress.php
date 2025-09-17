@@ -61,6 +61,11 @@ final class Cypress implements HandlerInterface {
             $command[] = sprintf("--env '%s'", $env);
           }
 
+          // This is here to suppress a bug in Cypress that prints the following
+          // to stderr "DevTools listening on ws://...".
+          // @url https://github.com/cypress-io/cypress/issues/26753
+          $command[] = '2>/dev/null';
+
           $test->addMessage(new Message([Icons::FOOTBALL . "Handoff to Cypress..."], MessageType::INFO, Verbosity::VERBOSE));
 
           $command = implode(' ', $command);
@@ -71,10 +76,9 @@ final class Cypress implements HandlerInterface {
           $cypress_output = [];
           $test_result = 0;
           exec($command, $cypress_output, $test_result);
-
           $test_result == 0 ? $test->setPassed() : $test->setFailed();
 
-          $message_type = MessageType::DEBUG;
+          $message_type = MessageType::INFO;
           $verbosity = Verbosity::VERBOSE;
           if ($test->hasFailed()) {
             $message_type = MessageType::ERROR;
