@@ -11,6 +11,7 @@ use AKlump\CheckPages\Exceptions\SuiteFailedException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Files\LoadConfig;
 use AKlump\CheckPages\Files\LocalFilesProvider;
 use AKlump\CheckPages\Helpers\FilterSuites;
 use AKlump\CheckPages\Output\Flags;
@@ -399,18 +400,12 @@ class Runner implements HasMessagesInterface {
   }
 
   public function loadConfig(string $resolve_config_path) {
-    $config_path = $this->files->tryResolveFile($resolve_config_path, [
-      'yaml',
-      'yml',
-    ])[0];
+    $config_path = $resolve_config_path;
     try {
-      $config = Yaml::parseFile($config_path);
-      if (!$config || !is_array($config)) {
-        throw new ParseException('');
-      }
+      $config = (new LoadConfig($this->files))($config_path);
     }
-    catch (ParseException $exception) {
-      throw new StopRunnerException(sprintf('Failed to load configuration from "%s" due to a parse error.', $resolve_config_path), 0, $exception);
+    catch (\UnexpectedValueException $exception) {
+      throw new StopRunnerException($exception->getMessage(), $exception->getCode(), $exception);;
     }
     $this->setConfig($config);
     $this->configPath = $config_path;
