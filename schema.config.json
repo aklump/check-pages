@@ -6,7 +6,7 @@
   "required": [
     "base_url"
   ],
-  "additionalProperties": false,
+  "additionalProperties": true,
   "properties": {
     "base_url": {
       "title": "Base URL",
@@ -61,6 +61,10 @@
     "extras": {
       "type": "object",
       "description": "Used for arbitrary configuration as determined by end user.  Use config_get() to access."
+    },
+    "_comments": {
+      "type": "array",
+      "description": "Since comments are disallowed in JSON we give a key into which developers can write their comments if they user JSON files."
     }
   }
 }
