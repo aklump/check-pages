@@ -12,7 +12,7 @@ CHECK_PAGES_BIN=$(which checkpages)
 #CHECK_PAGES_PHP="/Applications/MAMP/bin/php/php8.1.31/bin/php"
 # ========= /CONFIG =========
 
-mode=$(lando xdebug --mode 2> /dev/null | tr -cd "[:print:]\n")
+mode=$(lando xdebug --mode 2> /dev/null | tr -cd "[:print:]\n" | head -n 1)
 if [[ "$mode" && "$mode" != 'off' ]]; then
   message="                                                               "
   message="$message\n     XDebug is running in Lando and will slow things down.     "
