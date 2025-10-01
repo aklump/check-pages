@@ -17,7 +17,7 @@ trait HasTestTrait {
   }
 
   /**
-   * @param mixed $test
+   * @param \AKlump\CheckPages\Parts\Test $test
    *
    * @return self
    *   Self for chaining.

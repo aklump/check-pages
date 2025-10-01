@@ -7,6 +7,7 @@ namespace AKlump\CheckPages\Browser;
 use AKlump\Messaging\MessengerInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 interface RequestDriverInterface extends RequestInterface {
 
@@ -104,4 +105,7 @@ interface RequestDriverInterface extends RequestInterface {
 
   public function setMessenger(MessengerInterface $messenger): RequestDriverInterface;
 
+  public function getDispatcher(): EventDispatcher;
+
+  public function setDispatcher(EventDispatcher $dispatcher): RequestDriverInterface;
 }

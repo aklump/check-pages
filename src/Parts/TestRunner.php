@@ -63,8 +63,12 @@ final class TestRunner implements EventDispatcherInterface {
       else {
         $this->driver = new GuzzleDriver();
       }
-      $this->driver->setMessenger($test->getRunner()->getMessenger());
-    };
+      $runner = $test->getRunner();
+      $this->driver
+        ->setTest($test)
+        ->setDispatcher($runner->getDispatcher())
+        ->setMessenger($runner->getMessenger());
+    }
 
     return $this->driver;
   }
