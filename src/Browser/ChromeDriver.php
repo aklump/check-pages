@@ -153,7 +153,7 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
           $response['headers'] = $params['response']['headers'] ?? [];
         });
 
-      $this->page->navigate($this->getUrl())
+      $this->page->navigate($this->getUri())
         ->waitForNavigation(Page::LOAD, $this->getRequestTimeout() * 1000);
       $page_contents = $this->getPageContents($response, $assertions);
 
