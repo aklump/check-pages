@@ -9,6 +9,7 @@ use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
+use AKlump\CheckPages\Files\LoadConfig;
 use AKlump\CheckPages\Helpers\AssertRunSuiteNotCalled;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
@@ -47,13 +48,13 @@ function load_config(string $config, bool $allow_override = TRUE) {
     // to allow "--config=foo" instead.  That's the reason for the next few
     // lines.  July 16, 2021 at 11:23:12 AM PDT, aklump.
     try {
-      $files->tryResolveFile($override, ['yaml', 'yml'])[0];
+      $files->tryResolveFile($override, LoadConfig::CONFIG_EXTENSIONS)[0];
     }
     catch (Exception $exception) {
       $override = 'config/' . $override;
     }
     try {
-      $files->tryResolveFile($override, ['yaml', 'yml'])[0];
+      $files->tryResolveFile($override, LoadConfig::CONFIG_EXTENSIONS)[0];
     }
     catch (Exception $exception) {
       // If the presumption failed, then we just rollback.

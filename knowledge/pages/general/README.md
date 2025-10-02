@@ -61,6 +61,27 @@ For more code examples explore the _/examples_ directory.
 
 {{ installer.instructions|raw }}
 
+1. Test your installaion by typing `checkpages` in a new terminal window.
+    1. If you see a Composer PHP version warning then you will need to setup an alias (see [Troubleshooting](@troubleshooting))
+3. You should see the welcome screen if installation is working properly.
+
+## Quick Start
+
+### Initialize Your Project
+
+1. `cd my/project/root`
+2. `mkdir bin` (do this only if you want the binary(ies) to be installed here.)
+3. `checkpages init`
+4. Review the output for any important messages.
+
+### Run the Demonstration Tests
+
+1. `bin/run_check_pages_tests.sh`
+2. If you are online, you should see passing tests.
+3. Try again with maximim verbosity `bin/run_check_pages_tests.sh -vvv`
+
+See [Troubleshooting](@troubleshooting) if you experiences problems.
+
 ## Documentation
 
-https://aklump.github.io/check-pages/
+<https://aklump.github.io/check-pages/>

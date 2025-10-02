@@ -155,6 +155,9 @@ final class Retest implements EventSubscriberInterface, ProvidesInputOptionsInte
    */
   private function getPathToResultsLog(): string {
     $log_files = $this->getRunner()->getLogFiles();
+    if (empty($log_files)) {
+      return '';
+    }
     $filepath = $log_files->tryResolveFile('results.csv', [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
     $log_files->tryCreateDir(dirname($filepath));
 

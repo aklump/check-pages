@@ -1,4 +1,4 @@
-base_url: https://www.foo.com
+base_url: https://www.intheloftstudios.com/
 stop_on_failed_suite: true
 stop_on_failed_test: true
 suites_to_ignore:

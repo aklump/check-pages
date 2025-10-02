@@ -10,6 +10,10 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \AKlump\CheckPages\Helpers\GetResultCodePerExpectations
+ * @uses   \AKlump\CheckPages\Parts\Suite
+ * @uses   \AKlump\CheckPages\Parts\Test
+ * @uses   \AKlump\CheckPages\Traits\HasConfigTrait
+ * @uses   \AKlump\CheckPages\Traits\HasRunnerTrait
  */
 class GetResultCodePerExpectationsTest extends TestCase {
 

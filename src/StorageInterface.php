@@ -18,7 +18,14 @@ interface StorageInterface {
    * @param $key
    * @param $value
    *
-   * @return $this
+   * @return void
    */
   public function set($key, $value);
+
+  /**
+   * @param $key
+   *
+   * @return void
+   */
+  public function delete($key);
 }

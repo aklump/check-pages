@@ -1,5 +1,7 @@
 ## Critical
 
+- why does it take so long to skip a file when --retest is enabled?
+
 - form handler: prevent this from happening: `1[name]=pass&1[value]=pass&op=Next&input=uber&form_build_id=form-EYcmhwbcrV34PSUt8ecSDNw21SadTTljqcmswa2Cf2M&form_id=user_login_form&pass=pass`
 
 ---
@@ -33,13 +35,15 @@ find:
 
 * https://medium.com/mindful-technology/too-many-open-files-limit-ulimit-on-mac-os-x-add0f1bfddde
 
-## Me
+I wrote
+
+* add `ulimit -n 65536` to _run_check_pages_tests.sh_ as a bandaid fix.
 
 how to fix Too many open files in /Users/aklump/Code/Packages/cli/check-pages/app/vendor/composer/ClassLoader.php on line 576
 
 * https://packagist.org/packages/cronfig/sysinfo
 
-## AI Assistant
+AI Assistant
 
 It's not caused by a bug in the code you've shown but rather by the way the code is being used or the system's configuration. Here's how to troubleshoot and fix it:
 
@@ -61,6 +65,7 @@ You can't directly change the `ulimit` setting from within a PHP script reliably
 
 The most reliable way to adjust the open file limit is by modifying the shell startup files as described in my previous response, or using system administration tools provided by your operating system. Those methods ensure the limit is set correctly before the PHP process even starts.
 
+**1. **Race Conditions:** If your code involves multiple threads or processes accessing shared resources, a race condition might be the culprit. The debugger's presence alters timing, inadvertently resolving the race. Look for areas in your code where shared resources (files, databases, variables) are accessed without proper synchronization mechanisms (locks, mutexes).**
 ---
 
 - assert \AKlump\CheckPages\Parts\Runner::executeRunner passes only these defined vars: $path
@@ -140,6 +145,7 @@ find:
 
 ## Normal
 
+- on init rename _gitignore_ to _.gitignore_
 - get rid of all global vars
 - wrap the entry file in IIFE pattern to isolate variables.
 
@@ -158,3 +164,30 @@ find:
 - some passwords do not work in drupal, e.g. 'EGucqaBbgfajFVpkLnh4TP4ur4EoPrqjDKmUL8wegGQUyA4jcEawhEQhrjfAWdFb@vfi7ihr!cZBh3qViYqEP@Y4dFBB2X_hXx-Y' must have to do with special chars that need to be escaped.
 
 ## Complete
+
+## Backlog
+
+## Notes
+
+The following was found in CHANGELOG, I'm not sure if they were completed or slated to be done; sort through them and complete, record, etc.
+
+- ability to override the group based on dirname, e.g. `run_suite($component_id, 'group_alias');`
+- the log file should not be deleted, only truncated between runners.
+- "why" does not work with "import", it needs to be able to be there and override as well.
+- There is an issue with the JS browser that looses the session cookie if the url has a redirect. When the browser redirects to the new URL, the session will be lost. I believe it's a bug in this library: https://github.com/chrome-php/chrome. If you're trying to assert w/javascript on a redirected URL, the work around is to use two tests where the first does not use javascript and captures the variable `${redirect.location}` which you can then use in the subsequent test, which uses the JS browser.
+
+  ```yaml
+  -
+    user: foo_user
+    js: false
+    visit: /my-current-cycle
+    status: 302
+  
+  -
+    why: Assert chart print link button appears on my-current-cycle page
+    user: foo_user
+    js: true
+    visit: "${redirect.location}"
+    find: ...
+   
+  ```

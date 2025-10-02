@@ -1,4 +1,8 @@
 vendor/
 *.cache
 reports/
-files/
+files/*
+!files/load_users.yml
+!files/load_users.yaml
+!files/load_users.json
+!files/load_users_empty.json

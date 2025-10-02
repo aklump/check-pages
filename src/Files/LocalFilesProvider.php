@@ -64,7 +64,7 @@ final class LocalFilesProvider implements FilesProviderInterface, FileLocatorInt
         && ':' === $file[1]
         && ('\\' === $file[2] || '/' === $file[2])
       )
-      || NULL !== parse_url($file, \PHP_URL_SCHEME)
+      || NULL !== parse_url($file, PHP_URL_SCHEME)
     ) {
       return TRUE;
     }

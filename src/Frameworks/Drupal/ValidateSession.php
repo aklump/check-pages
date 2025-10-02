@@ -70,7 +70,7 @@ class ValidateSession {
     $guzzle = new GuzzleDriver();
     $response = $guzzle->getClient([
       'headers' => [
-        'Cookie' => $this->session->getSessionCookie(),
+        'Cookie' => $this->session->getCookieHeader(),
       ],
       RequestOptions::ALLOW_REDIRECTS => [
         'max' => 2,

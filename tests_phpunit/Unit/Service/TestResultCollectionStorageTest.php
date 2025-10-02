@@ -14,10 +14,15 @@ use PHPUnit\Framework\TestCase;
  * @uses   \AKlump\CheckPages\Collections\TestResult
  * @uses   \AKlump\CheckPages\Collections\TestResultCollection
  */
-class TestResultCollectionServiceTest extends TestCase {
+class TestResultCollectionStorageTest extends TestCase {
 
   use TestWithFilesTrait;
   use TestWithTestCollectionTrait;
+
+  public function testSaveWithEmptyFilepathThrows() {
+    $this->expectException(\InvalidArgumentException::class);
+    (new TestResultCollectionStorage())->save('', new TestResultCollection());;
+  }
 
   public function testCantWriteFileThrows() {
 

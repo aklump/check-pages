@@ -4,12 +4,13 @@ namespace AKlump\CheckPages\Service;
 
 use AKlump\CheckPages\Collections\TestResult;
 use AKlump\CheckPages\Collections\TestResultCollection;
+use InvalidArgumentException;
 
 class TestResultCollectionStorage {
 
   public function load(string $filepath): ?TestResultCollection {
     if (!file_exists($filepath)) {
-      return null;
+      return NULL;
     }
     $result_collection = new TestResultCollection();
     $fp = fopen($filepath, 'r');
@@ -30,6 +31,9 @@ class TestResultCollectionStorage {
   }
 
   public function save(string $filepath, TestResultCollection $collection): void {
+    if (empty($filepath)) {
+      throw new InvalidArgumentException('Filepath cannot be empty');
+    }
     try {
       $fp = fopen($filepath, 'w');
       if (FALSE === $fp) {

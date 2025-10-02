@@ -1,0 +1,10 @@
+[
+  {
+    "name": "site_test.authenticated",
+    "pass": ""
+  },
+  {
+    "name": "site_test.admin",
+    "pass": ""
+  }
+]

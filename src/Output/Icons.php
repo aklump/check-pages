@@ -8,6 +8,12 @@ namespace AKlump\CheckPages\Output;
  */
 class Icons {
 
+  const COMPLETE = '✅ ';
+
+  const INCOMPLETE = '❌ ';
+
+  const OOPS = '😬 ';
+
   const REQUEST = '🌐⬆ ';
 
   const RESPONSE = '🌐⬇ ';

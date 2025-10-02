@@ -62,9 +62,10 @@ $session_manager = new DrupalSessionManager($mixin_config);
 add_test_option('user', [
   Event::TEST_CREATED => function ($username, TestEventInterface $event) use ($session_manager) {
     if (!empty($username)) {
-      $session_vars = $session_manager($username, $event->getTest());
-      foreach ($session_vars as $name => $value) {
-        $event->getTest()->getSuite()->variables()->setItem($name, $value);
+      $vars = $event->getTest()->getSuite()->variables();
+      $account_vars = $session_manager($username, $event->getTest());
+      foreach ($account_vars as $name => $value) {
+        $vars->setItem($name, $value);
       }
     }
   },
@@ -102,7 +103,7 @@ add_test_option('user', [
     // Add the session cookie header to requests to make them authenticated.
     $session = $session_manager->getSession();
     $event->getDriver()
-      ->setHeader('Cookie', [$session->getSessionCookie()]);
+      ->setHeader('Cookie', [$session->getCookieHeader()]);
   },
 ]);
 
@@ -132,13 +133,13 @@ respond_to(Event::SUITE_STARTED, function (SuiteEventInterface $suite_event) {
 
 /**
  * Delete any sessions that were captured in Storage.  This is more reliable
- * than keeping the sessions across runner executions and depending on the
+ * than keeping the sessions across runner executions and to depend on the
  * session expiry, which may lead to sessions that no longer exist on the
  * remote, and subsequently annoying test failures.  The performance hit of this
  * has been measured and is very small.  The reliability gain far exceeds the
  * slight hit in performance.
  */
 respond_to(Event::RUNNER_FINISHED, function () use ($runner) {
-  $runner->getStorage()->set('drupal.sessions', []);
+  $runner->getStorage()->delete('drupal.sessions');
 });
 

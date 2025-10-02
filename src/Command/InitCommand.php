@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages\Command;
 
 use AKlump\CheckPages\EventSubscriber\SecretsService;
+use AKlump\CheckPages\Output\Icons;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -11,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 class InitCommand extends Command {
 
   const DEFAULT_DIR = 'tests_check_pages';
+
+  protected int $hiccups;
 
   private string $dir;
 
@@ -30,6 +33,7 @@ class InitCommand extends Command {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
+    // TODO Convert the output to use \AKlump\CheckPages\Output\Message\Message?
     try {
       $this->dir = $input->getOption('dir') ?? self::DEFAULT_DIR;
       $this->tryCheckEnvironment();
@@ -40,7 +44,14 @@ class InitCommand extends Command {
 
       return Command::FAILURE;
     }
-    $output->writeln(sprintf('Test directory "%s" creating with test scaffolding', $this->dir));
+
+    $this->hiccups = 0;
+    $this->handleBinDir($output);
+    $output->writeln('<info>' . sprintf(Icons::COMPLETE . 'Test directory "%s" creating with test scaffolding', $this->dir) . '</info>');
+    if ($this->hiccups > 0) {
+      $output->writeln('<info>' . sprintf(Icons::OOPS . 'However, things did not go exactly as planned; see above.', $this->hiccups) . '</info>');
+      $output->writeln('');
+    }
 
     return Command::SUCCESS;
   }
@@ -72,6 +83,35 @@ class InitCommand extends Command {
   private function tryCheckEnvironment() {
     if (file_exists($this->dir)) {
       throw new \RuntimeException(sprintf('%s already exists.  Please choose a non-existent directory name.', $this->dir));
+    }
+  }
+
+  private function handleBinDir(OutputInterface $output) {
+    if (!file_exists("$this->dir/../bin/")) {
+      return;
+    }
+    $source_binaries = glob("$this->dir/bin/*");
+    foreach ($source_binaries as $source) {
+      $basename = basename($source);
+      $destination = "$this->dir/../bin/$basename";
+      if (file_exists($destination)) {
+        $message = sprintf('Failed to move "%s"', $source);
+        $output->writeln(Icons::INCOMPLETE . '<error>' . $message . '</error>');
+        $message = sprintf('"%s" already exists.', realpath($destination));
+        $output->writeln(Icons::HINT . $message);
+        $output->writeln('');
+        ++$this->hiccups;
+      }
+      else {
+        rename($source, $destination);
+        $output->writeln(Icons::COMPLETE . '<info>' . sprintf('"%s" created.', realpath($destination)) . '</info>');
+      }
+    }
+
+    $source_bin_dir = "$this->dir/bin";
+    if (!rmdir($source_bin_dir)) {
+      $message = sprintf('Failed to delete "%s"', $source_bin_dir);
+      $output->writeln(Icons::INCOMPLETE . '<error>' . $message . '</error>');
     }
   }
 
