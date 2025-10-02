@@ -16,8 +16,6 @@ class GuzzleDriver extends RequestDriver {
 
   use HasTestTrait;
 
-  private EventDispatcher $dispatcher;
-
   /**
    * {@inheritdoc}
    */
@@ -78,16 +76,6 @@ class GuzzleDriver extends RequestDriver {
       }
       throw new RequestTimedOut($message, $exception->getCode(), $exception);
     }
-
-    return $this;
-  }
-
-  public function getDispatcher(): EventDispatcher {
-    return $this->dispatcher;
-  }
-
-  public function setDispatcher(EventDispatcher $dispatcher): RequestDriverInterface {
-    $this->dispatcher = $dispatcher;
 
     return $this;
   }

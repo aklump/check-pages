@@ -16,6 +16,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Non-Javascript response driver.
@@ -32,6 +33,8 @@ abstract class RequestDriver implements RequestDriverInterface {
    */
   const MAX_REDIRECTS = 10;
 
+  private EventDispatcher $dispatcher;
+
   protected string $method = 'GET';
 
   protected string $body = '';
@@ -44,7 +47,7 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * @var \Psr\Http\Message\ResponseInterface|null
    */
-  protected  $response;
+  protected $response;
 
   protected array $headers;
 
@@ -317,6 +320,16 @@ abstract class RequestDriver implements RequestDriverInterface {
 
   public function withUri(UriInterface $uri, bool $preserveHost = FALSE): RequestInterface {
     // TODO: Implement withUri() method.
+  }
+
+  public function getDispatcher(): EventDispatcher {
+    return $this->dispatcher;
+  }
+
+  public function setDispatcher(EventDispatcher $dispatcher): RequestDriverInterface {
+    $this->dispatcher = $dispatcher;
+
+    return $this;
   }
 
 }

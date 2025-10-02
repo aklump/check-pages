@@ -29,8 +29,6 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
 
   use HasTestTrait;
 
-  private EventDispatcher $dispatcher;
-
   /**
    * @var array
    */
@@ -288,15 +286,5 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
     }
 
     return $evaluated;
-  }
-
-  public function getDispatcher(): EventDispatcher {
-    return $this->dispatcher;
-  }
-
-  public function setDispatcher(EventDispatcher $dispatcher): RequestDriverInterface {
-    $this->dispatcher = $dispatcher;
-
-    return $this;
   }
 }

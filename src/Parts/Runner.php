@@ -358,6 +358,7 @@ class Runner implements HasMessagesInterface {
    */
   public function getDispatcher(): EventDispatcher {
     if (empty($this->dispatcher)) {
+      // TODO Get rid of global and pass this in?
       global $container;
       if ($container) {
         $this->dispatcher = DispatcherFactory::createFromContainer($container);
