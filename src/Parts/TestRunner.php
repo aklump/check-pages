@@ -56,17 +56,15 @@ final class TestRunner implements EventDispatcherInterface {
 
   public function getDriver(): RequestDriverInterface {
     if (empty($this->driver)) {
-      $test = $this->test;
-      if ($test->get('js') ?? FALSE) {
-        $this->driver = new ChromeDriver();
+      $runner = $this->test->getRunner();
+      if ($this->test->get('js') ?? FALSE) {
+        $this->driver = new ChromeDriver($runner->getDispatcher());
       }
       else {
-        $this->driver = new GuzzleDriver();
+        $this->driver = new GuzzleDriver($runner->getDispatcher());
       }
-      $runner = $test->getRunner();
       $this->driver
-        ->setTest($test)
-        ->setDispatcher($runner->getDispatcher())
+        ->setTest($this->test)
         ->setMessenger($runner->getMessenger());
     }
 

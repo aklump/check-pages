@@ -3,8 +3,10 @@
 namespace AKlump\CheckPages\Tests\Unit\Browser;
 
 use AKlump\CheckPages\Browser\ChromeDriver;
+use AKlump\CheckPages\Parts\Test;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @covers \AKlump\CheckPages\Browser\ChromeDriver
@@ -16,8 +18,9 @@ use RuntimeException;
 class ChromeDriverTest extends TestCase {
 
   public function testChromeDriverReturnsCorrectRedirectAndStatusCodes() {
-    $driver = new ChromeDriver();
+    $driver = new ChromeDriver($this->createMock(EventDispatcher::class));
     $driver->setUrl('http://localhost:8000/moved.php');
+    $driver->setTest($this->createMock(Test::class));
     try {
       $response = $driver->request();
       $redirect_code = $response->getRedirectCode();

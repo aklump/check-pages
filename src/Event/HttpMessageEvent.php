@@ -19,11 +19,13 @@ class HttpMessageEvent extends Event {
 
   private int $statusCode;
 
-  public function __construct(Test $test, array $headers, string $body, int $status_code) {
-    $this->setTest($test);
+  public function __construct(array $headers, string $body, int $status_code, Test $test = NULL) {
     $this->headers = (new NormalizeHeaders())($headers);
     $this->body = $body;
     $this->statusCode = $status_code;
+    if (isset($test)) {
+      $this->setTest($test);
+    }
   }
 
   /**

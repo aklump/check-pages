@@ -70,6 +70,13 @@ abstract class RequestDriver implements RequestDriverInterface {
   private MessengerInterface $messenger;
 
   /**
+   * @param \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher
+   */
+  public function __construct(EventDispatcher $dispatcher) {
+    $this->dispatcher = $dispatcher;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function allowInvalidCertificate(): bool {
@@ -324,12 +331,6 @@ abstract class RequestDriver implements RequestDriverInterface {
 
   public function getDispatcher(): EventDispatcher {
     return $this->dispatcher;
-  }
-
-  public function setDispatcher(EventDispatcher $dispatcher): RequestDriverInterface {
-    $this->dispatcher = $dispatcher;
-
-    return $this;
   }
 
 }

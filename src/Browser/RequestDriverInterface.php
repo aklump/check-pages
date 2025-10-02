@@ -106,6 +106,4 @@ interface RequestDriverInterface extends RequestInterface {
   public function setMessenger(MessengerInterface $messenger): RequestDriverInterface;
 
   public function getDispatcher(): EventDispatcher;
-
-  public function setDispatcher(EventDispatcher $dispatcher): RequestDriverInterface;
 }

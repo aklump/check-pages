@@ -5,6 +5,7 @@ namespace AKlump\CheckPages\Tests\Unit\Browser;
 use AKlump\CheckPages\Browser\RequestDriver;
 use AKlump\CheckPages\Browser\RequestDriverInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @covers \AKlump\CheckPages\Browser\RequestDriver::setHeader
@@ -12,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 class RequestDriverTest extends TestCase {
 
   public function testPassingStringArgument() {
-    $driver = new TestableRequestDriver();
+    $driver = new TestableRequestDriver($this->createMock(EventDispatcher::class));
     $deprecation_message = '';
     $deprecation_triggered = FALSE;
 
@@ -30,7 +31,7 @@ class RequestDriverTest extends TestCase {
   }
 
   public function testSetHeaderWorksWithArrayValue() {
-    $driver = new TestableRequestDriver();
+    $driver = new TestableRequestDriver($this->createMock(EventDispatcher::class));
     $driver->setHeader('foo', ['bar', 'baz']);
     $this->assertSame(['bar', 'baz'], $driver->getHeaders()['foo']);
   }

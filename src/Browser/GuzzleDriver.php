@@ -10,7 +10,6 @@ use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\RequestOptions;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class GuzzleDriver extends RequestDriver {
 
@@ -47,10 +46,10 @@ class GuzzleDriver extends RequestDriver {
             $page_contents = (string) $this->response->getBody();
             $this->getDispatcher()
               ->dispatch(new HttpMessageEvent(
-                $this->getTest(),
                 $this->response->getHeaders(),
                 $page_contents,
                 $this->response->getStatusCode(),
+                $this->getTest(),
               ), Event::RESPONSE_RECEIVED);
             $fire_message_event = FALSE;
           }

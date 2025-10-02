@@ -54,8 +54,9 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
    */
   private $deviceOverrides;
 
-  public function __construct() {
-    // Set the max memory to 50% of the allowed to prevent out of memory errors.
+  public function __construct(EventDispatcher $dispatcher) {
+    parent::__construct($dispatcher);
+    // Set the max memory to 50% of the allowed to prevent out-of-memory errors.
     $this->limits = [
       'php_memory_limit' => intval(ini_get('memory_limit')),
       'test_use_allocation' => 0.5,
@@ -229,10 +230,10 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
       if ($fire_message_event || $remaining_time <= 0 || $remaining_memory <= 0) {
         $this->getDispatcher()
           ->dispatch(new HttpMessageEvent(
-            $this->getTest(),
             $response['headers'],
             $page_contents,
             $response['status'],
+            $this->getTest(),
           ), Event::RESPONSE_RECEIVED);
         $fire_message_event = FALSE;
       }
