@@ -2,6 +2,30 @@
 
 - form handler: prevent this from happening: `1[name]=pass&1[value]=pass&op=Next&input=uber&form_build_id=form-EYcmhwbcrV34PSUt8ecSDNw21SadTTljqcmswa2Cf2M&form_id=user_login_form&pass=pass`
 
+---
+- if there are four find elements, and the same variable is used, in one and three, assigned in two and four, the interpolation happens for two and four at two, so that three doesn't assing to four correctly.  This is counter-intuitive.
+
+```html
+
+<div class="a">10</div>
+<div class="b">5</div>
+```
+
+```yaml
+find:
+  -
+    dom: div.a
+    set: foo
+  -
+    eval: ${foo} = 10
+  -
+    dom: div.b
+    set: foo
+  -
+    eval: ${foo} == 5
+```
+---
+
 - commit tests_phpunit/files/*
 - --continue needs to go back one test, I think it's starting late. WE MUST HAVE A TEST TO ENSURE THIS DOESN'T REGRESS
 - TEST FOR --retest PICKS UP AT THE CORRECT PLACE.
