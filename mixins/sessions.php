@@ -80,7 +80,7 @@ add_test_option('user', [
     if (!$cookie) {
       throw new StopRunnerException("No session found for user: $username. Try: export CP_USERNAME=foobar");
     }
-    $event->getDriver()->setHeader('Cookie', $cookie);
+    $event->getDriver()->setHeader('Cookie', [$cookie]);
 
     $validated_user = validateSession($session, $event->getTest()
       ->getRunner()

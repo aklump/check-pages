@@ -102,7 +102,7 @@ add_test_option('user', [
     // Add the session cookie header to requests to make them authenticated.
     $session = $session_manager->getSession();
     $event->getDriver()
-      ->setHeader('Cookie', $session->getSessionCookie());
+      ->setHeader('Cookie', [$session->getSessionCookie()]);
   },
 ]);
 

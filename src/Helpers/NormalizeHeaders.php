@@ -2,6 +2,8 @@
 
 namespace AKlump\CheckPages\Helpers;
 
+use InvalidArgumentException;
+
 class NormalizeHeaders {
 
   /**
@@ -14,13 +16,22 @@ class NormalizeHeaders {
    * @return array
    */
   public function __invoke(array $headers): array {
-    $headers = array_combine(array_map('strtolower', array_keys($headers)), array_map(function ($value) {
-      if (is_string($value)) {
-        return [$value];
+    $headers = array_change_key_case($headers);
+    $headers = array_map(function ($value) {
+      if (is_object($value)) {
+        throw new InvalidArgumentException('Headers must be an array of strings.');
+      }
+      if (!is_array($value)) {
+        $value = [$value];
       }
 
-      return $value;
-    }, $headers));
+      $headers = array_map('strval', $value);
+      if ($headers !== array_values($headers)) {
+        throw new InvalidArgumentException('Header values must be numerically indexed arrays, not associative arrays.');
+      }
+
+      return $headers;
+    }, $headers);
     ksort($headers);
 
     return $headers;

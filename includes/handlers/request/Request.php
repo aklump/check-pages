@@ -8,8 +8,8 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\Exceptions\BadSyntaxException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
+use AKlump\CheckPages\Helpers\NormalizeHeaders;
 use AKlump\CheckPages\Output\Message\DebugMessage;
 use AKlump\CheckPages\Traits\SerializationTrait;
 use AKlump\Messaging\MessageType;
@@ -134,22 +134,11 @@ final class Request implements HandlerInterface {
 
             $headers = $config[self::SELECTOR]['headers'] ?? [];
             if ($headers) {
+              $headers = (new NormalizeHeaders())($headers);
               $test->interpolate($headers);
               $interpolation_review['headers'] = $headers;
-
-              $headers = array_change_key_case($headers);
-              $headers = array_filter($headers, function ($value) {
-                return !empty($value);
-              });
-              $headers = array_map(function ($header) {
-                if (!is_scalar($header)) {
-                  throw new BadSyntaxException('Request header values must be strings.');
-                }
-
-                return strval($header);
-              }, $headers);
-
               foreach ($headers as $key => $value) {
+                // Set one at a time because we are ADDING to any existing.
                 $driver->setHeader($key, $value);
               }
             }

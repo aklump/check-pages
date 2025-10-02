@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Browser;
 
+use AKlump\CheckPages\Helpers\NormalizeHeaders;
 use AKlump\CheckPages\Response;
 use AKlump\CheckPages\Service\RequestHistory;
 use AKlump\CheckPages\Traits\BaseUrlTrait;
@@ -124,8 +125,18 @@ abstract class RequestDriver implements RequestDriverInterface {
     return new Client($options + ['verify' => !$this->allowInvalidCertificate()]);
   }
 
-  public function setHeader(string $key, string $value): RequestDriverInterface {
-    $this->headers[$key] = $value;
+  /**
+   * @param string $key
+   * @param $value
+   *
+   * @return \AKlump\CheckPages\Browser\RequestDriverInterface
+   */
+  public function setHeader(string $key, $value): RequestDriverInterface {
+    if (is_string($value)) {
+      @trigger_error(sprintf('%s(string $value) is deprecated in version 0.23.3 and will not be supported in future versions. Use %s(array $value) instead.', __METHOD__, __METHOD__), E_USER_DEPRECATED);
+    }
+    $this->headers ??= [];
+    $this->headers += (new NormalizeHeaders())([$key => $value]);
 
     return $this;
   }
@@ -172,6 +183,7 @@ abstract class RequestDriver implements RequestDriverInterface {
     }
 
     $string = implode(PHP_EOL, $string) . PHP_EOL;
+
     return Utils::streamFor($string);
   }
 
