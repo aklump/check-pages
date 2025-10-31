@@ -149,8 +149,15 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
         ->waitForNavigation(Page::LOAD, $this->getRequestTimeout() * 1000);
       $page_contents = $this->getPageContents($assertions);
 
-      $computed_styles = $this->getComputedStyles();
-      if ($computed_styles) {
+      try {
+        $computed_styles = $this->getComputedStyles();
+      }
+      catch (\Exception $exception) {
+        $this->getMessenger()->deliver(new Message([
+          $exception->getMessage(),
+        ], MessageType::ERROR, Verbosity::NORMAL));
+      }
+      if (!empty($computed_styles)) {
         // By passing as a custom header, we are able to still utilize the
         // ResponseInterface because the called need only access this header.
         $response['headers']['X-Computed-Styles'] = json_encode($computed_styles);
