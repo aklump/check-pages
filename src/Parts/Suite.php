@@ -2,8 +2,7 @@
 
 namespace AKlump\CheckPages\Parts;
 
-use AKlump\CheckPages\Interfaces\HasConfigInterface;
-use AKlump\CheckPages\Traits\HasConfigTrait;
+use AKlump\CheckPages\Traits\HasFilePathTrait;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Traits\SkipTrait;

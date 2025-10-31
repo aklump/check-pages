@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Output\Messenger;
 
+use AKlump\CheckPages\Helpers\GetRealStringLength;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\VerboseDirective;
 use AKlump\CheckPages\Output\Verbosity;
@@ -15,6 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Echos test feedback to the CLI console.
  */
 final class ConsoleEchoPrinter implements MessengerInterface {
+
+  const MAX_LINE_LENGTH = 80;
 
   private $callbacks = [];
 
@@ -59,7 +62,31 @@ final class ConsoleEchoPrinter implements MessengerInterface {
 
     $lines = $this->alterMessageBodyByMessageType($lines, $message_type);
 
-    if ($flags & Flags::INVERT_FIRST_LINE) {
+    if ($flags & Flags::BANNER) {
+
+      // Add top and bottom padding lines.
+      array_unshift($lines, '');
+      $lines[] = '';
+
+      $max_line_length = self::MAX_LINE_LENGTH;
+      foreach ($lines as $line) {
+        $max_line_length = max($max_line_length, (new GetRealStringLength())($line) + 2);
+      }
+
+
+      // Make all lines N chars
+      $lines = array_map(function ($line) use ($max_line_length) {
+        if (substr($line, 0, 1) !== ' ') {
+          $line = ' ' . $line;
+        }
+        $length = (new GetRealStringLength())($line);
+
+        return $line . str_repeat(' ', $max_line_length - $length);
+
+      }, $lines);
+      $color = $this->getColor($message_type, TRUE);
+    }
+    elseif ($flags & Flags::INVERT_FIRST_LINE) {
       $first_line = array_shift($lines);
 
       // This gives a little right padding to our bg color.
@@ -71,10 +98,11 @@ final class ConsoleEchoPrinter implements MessengerInterface {
     }
 
     if ($lines) {
-      $flat_message = implode(PHP_EOL, $lines);
-      $color = $this->getColor($message_type);
-      $message = Color::wrap($color, $flat_message);
-      $this->output->writeln($message);
+      $color = $color ?? $this->getColor($message_type);
+      foreach ($lines as $line) {
+        $message = Color::wrap($color, $line);
+        $this->output->writeln($message);
+      }
     }
   }
 

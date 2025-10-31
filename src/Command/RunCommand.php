@@ -6,6 +6,7 @@ use AKlump\CheckPages\EventSubscriber\Feedback;
 use AKlump\CheckPages\EventSubscriber\Retest;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Files\GetShortPath;
 use AKlump\CheckPages\Handlers\Breakpoint;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message\ExceptionMessage;
@@ -205,13 +206,11 @@ class RunCommand extends Command {
     else {
       $last_failed_suite = $runner->getLastFailedSuite();
       if ($last_failed_suite) {
-        $title = sprintf("Suite: %s", $last_failed_suite);
-        $margin = str_repeat(' ', 27);
         $message = new Message([
-          "$margin$title$margin",
-          '',
+          sprintf("Failed suite: %s", (new GetShortPath())($last_failed_suite->getFilePath())),
         ], MessageType::ERROR);
-        $messenger->deliver($message, Flags::INVERT_FIRST_LINE);
+        $messenger->deliver($message, Flags::BANNER);
+        $messenger->deliver(new Message(['']));
       }
 
       // Sometimes a test fails without an assertion failing, e.g. the HTTP response code.

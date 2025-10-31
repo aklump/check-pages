@@ -6,12 +6,12 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Files\GetShortPath;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\Messaging\MessageType;
-use Mimey\MimeTypes;
 use PrettyXml\Formatter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -148,12 +148,8 @@ final class SaveResponseToFile implements EventSubscriberInterface {
 
   private function addPathSavedMessage(Test $test, string $path) {
     $test->addMessage(new Message([
-      sprintf("%s%s%s", Icons::RESPONSE, Icons::FILE, basename($path)),
+      sprintf("%s%s%s", Icons::RESPONSE, Icons::FILE, (new GetShortPath())($path)),
     ], MessageType::INFO, Verbosity::VERBOSE));
-
-    $test->addMessage(new Message([
-      $path,
-    ], MessageType::TODO, Verbosity::DEBUG));
   }
 
 }

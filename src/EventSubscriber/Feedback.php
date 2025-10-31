@@ -6,6 +6,7 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
+use AKlump\CheckPages\Files\GetShortPath;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\HttpMessageLogger;
 use AKlump\CheckPages\Output\Icons;
@@ -67,10 +68,12 @@ final class Feedback implements EventSubscriberInterface {
       Event::SUITE_CREATED => [
         function (SuiteEventInterface $event) {
           $suite = $event->getSuite();
-          self::echoSuiteTitle($suite->getRunner()
-            ->getMessenger(), new Message([
-            sprintf('%s ...', $suite),
-          ], MessageType::INFO, Verbosity::VERBOSE), Flags::INVERT_FIRST_LINE);
+          $message = new Message([
+            Icons::SPYGLASS . (new GetShortPath())($suite->getFilePath()),
+          ], MessageType::INFO, Verbosity::VERBOSE);
+          $suite->getRunner()
+            ->getMessenger()
+            ->deliver($message, Flags::BANNER);
         },
       ],
 
