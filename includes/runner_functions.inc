@@ -195,6 +195,7 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
     $parsed += Suite::parsePath($absolute_path);
 
     $suite = new Suite($parsed['id'], $runner);
+    $suite->setFilePath($absolute_path);
     foreach ($suite_config as $item) {
       $suite->addTestByConfig($item);
     }

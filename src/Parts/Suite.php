@@ -15,6 +15,7 @@ class Suite implements PartInterface, JsonSerializable {
   use PassFailTrait;
   use HasRunnerTrait;
   use SkipTrait;
+  use HasFilePathTrait;
 
   /**
    * @var Test[]
