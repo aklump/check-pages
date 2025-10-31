@@ -1,2 +1,4 @@
 fixtures/*users*
 logfiles/
+secrets.yml
+secrets.json
