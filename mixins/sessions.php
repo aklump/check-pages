@@ -82,15 +82,15 @@ add_test_option('user', [
     }
     $event->getDriver()->setHeader('Cookie', [$cookie]);
 
-    $validated_user = validateSession($session, $event->getTest()
-      ->getRunner()
-      ->getBaseUrl());
+    $test = $event->getTest();
+
+    $validated_user = validateSession($session, $test->getRunner());
     if (!$validated_user->getAccountName()) {
       $validated_user->setAccountName($username);
     }
 
     // TODO These are not being set correctly I don't think.
-    $variables = $event->getTest()->getSuite()->variables();
+    $variables = $test->getSuite()->variables();
     $variables->setItem('user.id', $validated_user->id())
       ->setItem('user.uid', $validated_user->id())
       ->setItem('user.mail', $validated_user->getEmail())

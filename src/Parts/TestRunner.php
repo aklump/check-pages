@@ -153,6 +153,15 @@ final class TestRunner implements EventDispatcherInterface {
         }
         // Keep this after the timeout so that handlers may override.
         $this->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_CREATED);
+
+        // Do this once again after Event::REQUEST_CREATED, when user
+        // credentials have been assigned to their tokens, e.g. "user.id". Do
+        // not interpolate 'find' yet!!!
+        $config = $test->getConfig();
+        $test->interpolate($config['url']);
+        $test->setConfig($config);
+        unset($config);
+
         $this->getDriver()
           ->setUrl($runner->withBaseUrl($test->getConfig()['url'] ?? ''));
         // TODO Do we really need this event?
