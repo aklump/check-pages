@@ -43,6 +43,13 @@ final class Form implements HandlerInterface {
               // example the user plugin and authentication.
               $second_config = $test->getConfig();
 
+              // Status should be on the form response, so unset it from the
+              // first request, which is form discovery.
+              unset($config['status']);
+
+              // This too, should move to the second.
+              unset($config['expected outcome']);
+
               // The find will be pushed to the secondary test.
               unset($config['find']);
               $config['why'] = sprintf('Load and analyze form (%s)', $config['form']['dom']);
@@ -50,9 +57,11 @@ final class Form implements HandlerInterface {
 
               // The form should not appear in this test, only the first.
               unset($second_config['form']);
+
               // Form submissions should never need JS, so removing that the
               // submission is faster.
               unset($second_config['js']);
+
               $second_config['url'] = '${formAction}';
               $second_config['request'] = [
                 'method' => '${formMethod}',

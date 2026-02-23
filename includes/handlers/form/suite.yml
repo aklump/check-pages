@@ -1,4 +1,24 @@
 -
+  why: Demo using status to assert the form response status code.
+  url: /test_subject.php?status=404
+  status: 404
+  form:
+    dom: form
+    input:
+      -
+        name: name
+        value: Mary
+  find:
+    - Hello Mary!
+
+-
+  why: Demonstrate a failure when not using status to accept 404
+  expected outcome: failure
+  url: /test_subject.php?status=404
+  form:
+    dom: form
+
+-
   why: An example to load the page and submit the form.
   url: /test_subject.php
   form:
