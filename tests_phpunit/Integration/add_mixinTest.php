@@ -17,6 +17,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @uses \AKlump\CheckPages\Parts\Runner
  * @uses \AKlump\CheckPages\Plugin\HandlersManager
  * @uses \AKlump\CheckPages\Exceptions\UnresolvablePathException
+ * @uses AKlump\CheckPages\RuntimeContext::add
+ * @uses AKlump\CheckPages\RuntimeContext::get
  */
 class add_mixinTest extends TestCase {
 
