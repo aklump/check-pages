@@ -17,6 +17,7 @@ class GetRealStringLength {
 
     // Handle certain emojis whose length is not counted correctly by mb_strlen.
     $string = str_replace(Icons::SPYGLASS, '   ', $string);
+    $string = str_replace(Icons::NO, '   ', $string);
 
     return mb_strlen($string);
   }

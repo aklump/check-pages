@@ -138,15 +138,12 @@ final class Feedback implements EventSubscriberInterface {
       Event::SUITE_FAILED => [
         function (Event\SuiteEvent $event) {
           $suite = $event->getSuite();
-          $lines = [strval($suite)];
-          if (!$suite->getRunner()->getOutput()->isVerbose()) {
-            // In verbose mode, the failures will be printed in red at the assert
-            // level, so therefor by printing it here as an error, it comes
-            // across to the user as another error.  Therefore we don't want to
-            // do that.
-            self::echoSuiteTitle($suite->getRunner()
-              ->getMessenger(), new Message($lines, MessageType::ERROR, Verbosity::NORMAL), Flags::INVERT_FIRST_LINE);
-          }
+          $message = new Message([
+            self::FAILED_PREFIX . (new GetShortPath())($suite->getFilePath()),
+          ], MessageType::ERROR, Verbosity::NORMAL);
+          $suite->getRunner()
+            ->getMessenger()
+            ->deliver($message, Flags::BANNER);
         },
       ],
 
