@@ -30,6 +30,8 @@ chapters:
       - cli
       - readme_old
       - troubleshooting
+      - security
+      - sizing_elements
   -
     id: extend
     title: Extending
@@ -92,3 +94,9 @@ chapters:
     title: Troubleshooting
     pages:
       - curl_errors
+      - performance
+  -
+    id: scenarios
+    title: Scenarios
+    pages:
+      - images

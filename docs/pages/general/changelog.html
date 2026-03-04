@@ -4,9 +4,9 @@
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.23.4">
-      <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.23.4">
-      <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.23.4">
+      <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.24.0">
+      <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.24.0">
+      <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.24.0">
     <title>Changelog | Check Pages</title>
 </head>
 <body class="my-5">
@@ -33,7 +33,7 @@
       </div>
       <div class="header__tags me-3">  </div>
       <div class="header__page-numbers flex-shrink-1">5
-        / 51</div>
+        / 55</div>
     </div>
   </div>
 </header>
@@ -44,6 +44,21 @@
       <h1 class="mb-4 text-primary">Changelog</h1>
       <p>All notable changes to this project will be documented in this file.</p>
 <p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>, and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<h2>[0.24.0] - 2026-03-04</h2>
+<h3>Added</h3>
+<ul>
+<li>New class methods to <code>\AKlump\CheckPages\Browser\RequestDriverInterface</code> <code>::setBody, ::setMethod, ::setHeader</code></li>
+<li><code>\AKlump\CheckPages\DataStructure\MediaTypeHeader</code></li>
+<li><code>\AKlump\CheckPages\DataStructure\ContentTypeHeader</code></li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li><code>\AKlump\CheckPages\Browser\RequestDriver::setBody()</code> nows takes an instance of <code>\GuzzleHttp\Psr7\Utils::streamFor($body)</code> instead of string.</li>
+</ul>
+<h3>Deprecated</h3>
+<ul>
+<li><code>\AKlump\CheckPages\DataStructure\HttpHeader::get</code>; use <code>\AKlump\CheckPages\DataStructure\HttpHeader::getLines()</code> instead.</li>
+</ul>
 <h2>[0.23.3] - 2025-09-17</h2>
 <h3>Added</h3>
 <ul>
@@ -341,9 +356,9 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
   <footer class="footer d-flex justify-content-center">
     <div class="flex-column justify-content-center">
               Version:
-        <strong>0.23.4</strong>
+        <strong>0.24.0</strong>
         &bull;
-                    Last Update: <strong>9/17/2025</strong>
+                    Last Update: <strong>3/4/2026</strong>
           </div>
   </footer>
 
@@ -570,183 +585,211 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                                          <li data-page="unit_tests" value="26">
+                                    <li data-page="security" value="26">
+      <a class="js-page-link" href="security.html">Security<span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                    <li data-page="sizing_elements" value="27">
+      <a class="js-page-link" href="sizing_elements.html">Sizing DOM Elements<span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                                          <li data-page="unit_tests" value="28">
       <a class="js-page-link" href="../extend/unit_tests.html">Unit Tests<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="ex__ssl" value="27">
+                                    <li data-page="ex__ssl" value="29">
       <a class="js-page-link" href="../extend/ex__ssl.html">Ex  Ssl<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="options" value="28">
+                                    <li data-page="options" value="30">
       <a class="js-page-link" href="../extend/options.html">Options: Configurable Abstraction<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="events" value="29">
+                                    <li data-page="events" value="31">
       <a class="js-page-link" href="../extend/events.html">Events<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="handlers" value="30">
+                                    <li data-page="handlers" value="32">
       <a class="js-page-link" href="../extend/handlers.html">Handlers: Full Customization<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="imports" value="31">
+                                    <li data-page="imports" value="33">
       <a class="js-page-link" href="../extend/imports.html">Imports: Static Abstraction<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="mixins" value="32">
+                                    <li data-page="mixins" value="34">
       <a class="js-page-link" href="../extend/mixins.html">Mixins: Shared Code Between Runners<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="shorthand" value="33">
+                                    <li data-page="shorthand" value="35">
       <a class="js-page-link" href="../extend/shorthand.html">Shorthand: Simpler, Cleaner, and More Readable<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="ext__snippets" value="34">
+                                    <li data-page="ext__snippets" value="36">
       <a class="js-page-link" href="../extend/ext__snippets.html">Code Snippets<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                                          <li data-page="dev__code_flow" value="35">
+                                                          <li data-page="dev__code_flow" value="37">
       <a class="js-page-link" href="../dev/dev__code_flow.html">Dev  Code Flow<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="dev__http" value="36">
+                                    <li data-page="dev__http" value="38">
       <a class="js-page-link" href="../dev/dev__http.html">Making HTTP Requests in Your Custom Code<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="dev__output" value="37">
+                                    <li data-page="dev__output" value="39">
       <a class="js-page-link" href="../dev/dev__output.html">Developers Note: User Messages<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="development" value="38">
+                                    <li data-page="development" value="40">
       <a class="js-page-link" href="../dev/development.html">Developing Check Pages Locally<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                                          <li data-page="custom_dirs" value="39">
+                                                          <li data-page="custom_dirs" value="41">
       <a class="js-page-link" href="../deep/custom_dirs.html">How To Use A Custom Directory For Suite Files<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="deep__organizing" value="40">
+                                    <li data-page="deep__organizing" value="42">
       <a class="js-page-link" href="../deep/deep__organizing.html">Filenaming and Organization<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="setup" value="41">
+                                    <li data-page="setup" value="43">
       <a class="js-page-link" href="../deep/setup.html">Setup Before Test<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="variables" value="42">
+                                    <li data-page="variables" value="44">
       <a class="js-page-link" href="../deep/variables.html">Variables<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                                          <li data-page="code__add_test_option" value="43">
+                                                          <li data-page="code__add_test_option" value="45">
       <a class="js-page-link" href="../code/code__add_test_option.html">Mixin Code Example<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="code__modify_response_body" value="44">
+                                    <li data-page="code__modify_response_body" value="46">
       <a class="js-page-link" href="../code/code__modify_response_body.html">How to Modify a Response Body<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                                          <li data-page="javascript" value="45">
+                                                          <li data-page="javascript" value="47">
       <a class="js-page-link" href="../demo/javascript.html">Javascript<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                                          <li data-page="config__secrets" value="46">
+                                                          <li data-page="config__secrets" value="48">
       <a class="js-page-link" href="../config/config__secrets.html">Config Secrets<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="config__suites_to_ignore" value="47">
+                                    <li data-page="config__suites_to_ignore" value="49">
       <a class="js-page-link" href="../config/config__suites_to_ignore.html">Ignore Suites<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                                          <li data-page="pdfs" value="48">
+                                                          <li data-page="pdfs" value="50">
       <a class="js-page-link" href="../special/pdfs.html">Asserting PDFs<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                                          <li data-page="authentication" value="49">
+                                                          <li data-page="authentication" value="51">
       <a class="js-page-link" href="../authentication/authentication.html">Authentication<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                    <li data-page="custom" value="50">
+                                    <li data-page="custom" value="52">
       <a class="js-page-link" href="../authentication/custom.html">How to Write a Custom Authentication<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
     </li>
   
-                                                          <li data-page="curl_errors" value="51">
+                                                          <li data-page="curl_errors" value="53">
       <a class="js-page-link" href="../troubleshooting/curl_errors.html">CURL Errors<span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                    <li data-page="performance" value="54">
+      <a class="js-page-link" href="../troubleshooting/performance.html">Performance<span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                                          <li data-page="images" value="55">
+      <a class="js-page-link" href="../scenarios/images.html">Testing Images<span
               class="js-search-score
               badge
               bg-info rounded-pill badge-sm"></span></a>
@@ -858,135 +901,154 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
       <a class="js-page-link" href="troubleshooting.html">Troubleshooting</a>
     </li>
   
+                                <li data-page="security" value="26">
+      <a class="js-page-link" href="security.html">Security</a>
+    </li>
+  
+                                <li data-page="sizing_elements" value="27">
+      <a class="js-page-link" href="sizing_elements.html">Sizing DOM Elements</a>
+    </li>
+  
                   </ol>
               <h2 class="h4 mt-4">Extending</h2>
         <ol>
-                                <li data-page="unit_tests" value="26">
+                                <li data-page="unit_tests" value="28">
       <a class="js-page-link" href="../extend/unit_tests.html">Unit Tests</a>
     </li>
   
-                                <li data-page="ex__ssl" value="27">
+                                <li data-page="ex__ssl" value="29">
       <a class="js-page-link" href="../extend/ex__ssl.html">Ex  Ssl</a>
     </li>
   
-                                <li data-page="options" value="28">
+                                <li data-page="options" value="30">
       <a class="js-page-link" href="../extend/options.html">Options: Configurable Abstraction</a>
     </li>
   
-                                <li data-page="events" value="29">
+                                <li data-page="events" value="31">
       <a class="js-page-link" href="../extend/events.html">Events</a>
     </li>
   
-                                <li data-page="handlers" value="30">
+                                <li data-page="handlers" value="32">
       <a class="js-page-link" href="../extend/handlers.html">Handlers: Full Customization</a>
     </li>
   
-                                <li data-page="imports" value="31">
+                                <li data-page="imports" value="33">
       <a class="js-page-link" href="../extend/imports.html">Imports: Static Abstraction</a>
     </li>
   
-                                <li data-page="mixins" value="32">
+                                <li data-page="mixins" value="34">
       <a class="js-page-link" href="../extend/mixins.html">Mixins: Shared Code Between Runners</a>
     </li>
   
-                                <li data-page="shorthand" value="33">
+                                <li data-page="shorthand" value="35">
       <a class="js-page-link" href="../extend/shorthand.html">Shorthand: Simpler, Cleaner, and More Readable</a>
     </li>
   
-                                <li data-page="ext__snippets" value="34">
+                                <li data-page="ext__snippets" value="36">
       <a class="js-page-link" href="../extend/ext__snippets.html">Code Snippets</a>
     </li>
   
                   </ol>
               <h2 class="h4 mt-4">Dev</h2>
         <ol>
-                                <li data-page="dev__code_flow" value="35">
+                                <li data-page="dev__code_flow" value="37">
       <a class="js-page-link" href="../dev/dev__code_flow.html">Dev  Code Flow</a>
     </li>
   
-                                <li data-page="dev__http" value="36">
+                                <li data-page="dev__http" value="38">
       <a class="js-page-link" href="../dev/dev__http.html">Making HTTP Requests in Your Custom Code</a>
     </li>
   
-                                <li data-page="dev__output" value="37">
+                                <li data-page="dev__output" value="39">
       <a class="js-page-link" href="../dev/dev__output.html">Developers Note: User Messages</a>
     </li>
   
-                                <li data-page="development" value="38">
+                                <li data-page="development" value="40">
       <a class="js-page-link" href="../dev/development.html">Developing Check Pages Locally</a>
     </li>
   
                   </ol>
               <h2 class="h4 mt-4">Going Deeper</h2>
         <ol>
-                                <li data-page="custom_dirs" value="39">
+                                <li data-page="custom_dirs" value="41">
       <a class="js-page-link" href="../deep/custom_dirs.html">How To Use A Custom Directory For Suite Files</a>
     </li>
   
-                                <li data-page="deep__organizing" value="40">
+                                <li data-page="deep__organizing" value="42">
       <a class="js-page-link" href="../deep/deep__organizing.html">Filenaming and Organization</a>
     </li>
   
-                                <li data-page="setup" value="41">
+                                <li data-page="setup" value="43">
       <a class="js-page-link" href="../deep/setup.html">Setup Before Test</a>
     </li>
   
-                                <li data-page="variables" value="42">
+                                <li data-page="variables" value="44">
       <a class="js-page-link" href="../deep/variables.html">Variables</a>
     </li>
   
                   </ol>
               <h2 class="h4 mt-4">Code</h2>
         <ol>
-                                <li data-page="code__add_test_option" value="43">
+                                <li data-page="code__add_test_option" value="45">
       <a class="js-page-link" href="../code/code__add_test_option.html">Mixin Code Example</a>
     </li>
   
-                                <li data-page="code__modify_response_body" value="44">
+                                <li data-page="code__modify_response_body" value="46">
       <a class="js-page-link" href="../code/code__modify_response_body.html">How to Modify a Response Body</a>
     </li>
   
                   </ol>
               <h2 class="h4 mt-4">Handlers and Example Tests</h2>
         <ol>
-                                <li data-page="javascript" value="45">
+                                <li data-page="javascript" value="47">
       <a class="js-page-link" href="../demo/javascript.html">Javascript</a>
     </li>
   
                   </ol>
               <h2 class="h4 mt-4">Config</h2>
         <ol>
-                                <li data-page="config__secrets" value="46">
+                                <li data-page="config__secrets" value="48">
       <a class="js-page-link" href="../config/config__secrets.html">Config Secrets</a>
     </li>
   
-                                <li data-page="config__suites_to_ignore" value="47">
+                                <li data-page="config__suites_to_ignore" value="49">
       <a class="js-page-link" href="../config/config__suites_to_ignore.html">Ignore Suites</a>
     </li>
   
                   </ol>
               <h2 class="h4 mt-4">Special</h2>
         <ol>
-                                <li data-page="pdfs" value="48">
+                                <li data-page="pdfs" value="50">
       <a class="js-page-link" href="../special/pdfs.html">Asserting PDFs</a>
     </li>
   
                   </ol>
               <h2 class="h4 mt-4">Authentication</h2>
         <ol>
-                                <li data-page="authentication" value="49">
+                                <li data-page="authentication" value="51">
       <a class="js-page-link" href="../authentication/authentication.html">Authentication</a>
     </li>
   
-                                <li data-page="custom" value="50">
+                                <li data-page="custom" value="52">
       <a class="js-page-link" href="../authentication/custom.html">How to Write a Custom Authentication</a>
     </li>
   
                   </ol>
               <h2 class="h4 mt-4">Troubleshooting</h2>
         <ol>
-                                <li data-page="curl_errors" value="51">
+                                <li data-page="curl_errors" value="53">
       <a class="js-page-link" href="../troubleshooting/curl_errors.html">CURL Errors</a>
+    </li>
+  
+                                <li data-page="performance" value="54">
+      <a class="js-page-link" href="../troubleshooting/performance.html">Performance</a>
+    </li>
+  
+                  </ol>
+              <h2 class="h4 mt-4">Scenarios</h2>
+        <ol>
+                                <li data-page="images" value="55">
+      <a class="js-page-link" href="../scenarios/images.html">Testing Images</a>
     </li>
   
                   </ol>
@@ -1058,6 +1120,10 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
                                                 <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="troubleshooting.html">Troubleshooting</a>
                                                 <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="security.html">Security</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="sizing_elements.html">Sizing DOM Elements</a>
+                                                <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="../extend/unit_tests.html">Unit Tests</a>
                                                 <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="../extend/ex__ssl.html">Ex  Ssl</a>
@@ -1109,15 +1175,19 @@ selector. It will now be forcefully set (or overridden) to <code>true</code>. Th
                  data-tags="[]" href="../authentication/custom.html">How to Write a Custom Authentication</a>
                                                 <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="../troubleshooting/curl_errors.html">CURL Errors</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="../troubleshooting/performance.html">Performance</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="../scenarios/images.html">Testing Images</a>
                               </ul>
       </div>
     </div>
   </div>
 </div>
 
-  <script src="../../dist/node_modules/bootstrap/dist/js/bootstrap.min.js?ver=0.23.4"></script>
-  <script src="../../dist/lunr.js?ver=0.23.4"></script>
-  <script src="../../dist/knowledge.min.js?ver=0.23.4"></script>
+  <script src="../../dist/node_modules/bootstrap/dist/js/bootstrap.min.js?ver=0.24.0"></script>
+  <script src="../../dist/lunr.js?ver=0.24.0"></script>
+  <script src="../../dist/knowledge.min.js?ver=0.24.0"></script>
 
 </body>
 </html>

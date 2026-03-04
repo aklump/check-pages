@@ -7,7 +7,7 @@
       <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.24.0">
       <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.24.0">
       <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.24.0">
-    <title>Troubleshooting | Check Pages</title>
+    <title>Sizing DOM Elements | Check Pages</title>
 </head>
 <body class="my-5">
 
@@ -32,7 +32,7 @@
 
       </div>
       <div class="header__tags me-3">  </div>
-      <div class="header__page-numbers flex-shrink-1">25
+      <div class="header__page-numbers flex-shrink-1">27
         / 55</div>
     </div>
   </div>
@@ -41,13 +41,27 @@
 <main class="container-md flex-column">
   <div class="row mb-5 pt-5">
     <article class="col">
-      <h1 class="mb-4 text-primary">Troubleshooting</h1>
-      <p>If you are using multiple instances of PHP on your system, or accross different projects this presents an additional challenge.  <strong>You must ensure that you run <em>Check Pages</em> using the same PHP version with which it was installed.</strong></p>
-<h2>Composer Issues When Running Tests</h2>
-<p>If  <code>./bin/run_check_pages_tests.sh</code> tells you <em>Composer detected issues in your platform</em> then you probably need to hardcode the PHP version into that file. Open the file and look for <code>CHECK_PAGES_PHP</code> and set its value to match the PHP used to install <em>Check Pages</em>.</p>
-<h2>Setup an Alias for Alternative PHP</h2>
-<p>Add something like the following to your terminal config, adjusting for the correct PHP path.</p>
-<pre><code>alias checkpages="/Applications/MAMP/bin/php/php8.1.31/bin/php $(which checkpages)"
+      <h1 class="mb-4 text-primary">Sizing DOM Elements</h1>
+      <h2>Assert a DOM element has a height greater than N</h2>
+<pre><code class="yaml">-
+  url: /
+  find:
+    -
+      why: Assert the element to be measured.
+      dom: '[data-test="foobar"]'
+      count: 1
+    -
+      why: Measure the line height so we know what two lines amount to.
+      dom: '[data-test="foobar"]'
+      style: line-height
+      set: lineHeight
+    -
+      why: Get the calculated height of the element.
+      javascript: document.querySelector('[data-test="foobar"]').getBoundingClientRect().height
+      set: height
+    -
+      why: Assert the height is greater than the threshold.
+      eval: ${nameHeight} &gt;= (${lineHeight} * 2)
 </code></pre>
     </article>
   </div>
@@ -70,7 +84,7 @@
       bi-caret-left-fill"></i> Check Pages</a>
   
     
-              <a href="readme_old.html" class="btn nav__prev-page js-nav__prev-page
+              <a href="security.html" class="btn nav__prev-page js-nav__prev-page
     btn-primary"><i class="bi
       bi-caret-left-fill"></i></a>
   
@@ -81,8 +95,8 @@
        aria-controls="table-of-contents"><i class="bi
            bi-list-ol"></i></a>
     
-              <a href="security.html" class="btn nav__next-page js-nav__next-page
-    btn-primary"><i class="bi bi-file-earmark"></i> Security <i class="bi
+              <a href="../extend/unit_tests.html" class="btn nav__next-page js-nav__next-page
+    btn-primary"><i class="bi bi-file-earmark"></i> Unit Tests <i class="bi
        bi-caret-right-fill"></i></a>
   
     

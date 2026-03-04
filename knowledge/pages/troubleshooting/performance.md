@@ -1,3 +1,8 @@
+<!--
+id: performance
+tags: ''
+-->
+
 # Performance
 
 > Turn on Xdebug for faster performance.
