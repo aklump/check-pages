@@ -12,8 +12,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\Utils;
 use InvalidArgumentException;
-use Psr\Http\Message\MessageInterface;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
@@ -89,23 +87,28 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * @param string $method
    *
-   * @return self
+   * @return $this
    *   Self for chaining.
    */
-  public function setMethod(string $method): self {
+  public function setMethod(string $method): RequestDriverInterface {
     $this->method = $method;
 
     return $this;
   }
 
   /**
-   * @param string $body
+   * @param \Psr\Http\Message\StreamInterface $body
    *
-   * @return self
+   * @return $this
    *   Self for chaining.
    */
-  public function setBody(string $body): self {
-    $this->body = $body;
+  public function setBody($body): RequestDriverInterface {
+    if (!$body instanceof StreamInterface) {
+      @trigger_error('string $body is deprecated since version 0.24. Use \Psr\Http\Message\StreamInterface instead.', E_USER_DEPRECATED);
+    }
+
+    // TODO Maybe we don't cast to string yet; should the class hold the instance?
+    $this->body = (string) $body;
 
     return $this;
   }
@@ -139,6 +142,11 @@ abstract class RequestDriver implements RequestDriverInterface {
 
   /**
    * Mutable equivalent of PSR-7 withHeader(): replace the header entirely.
+   *
+   * @param string $name
+   * @param $value
+   *
+   * @return \AKlump\CheckPages\Browser\RequestDriverInterface
    */
   public function setHeader(string $name, $value): RequestDriverInterface {
     if (is_string($value)) {
@@ -158,46 +166,6 @@ abstract class RequestDriver implements RequestDriverInterface {
     }
 
     $this->headers[$normalizedName] = array_values($normalizedValues);
-
-    return $this;
-  }
-
-  /**
-   * Mutable equivalent of PSR-7 withAddedHeader(): append values to any existing.
-   */
-  public function addHeader(string $name, $value): RequestDriverInterface {
-    $normalized = (new NormalizeHeaders())([$name => $value]);
-    $normalizedName = (string) key($normalized);
-    $normalizedValues = (array) current($normalized);
-
-    $this->headers ??= [];
-
-    // Append to an existing key matching case-insensitively (preserve casing).
-    $targetKey = $normalizedName;
-    foreach (array_keys($this->headers) as $existingName) {
-      if (strcasecmp($existingName, $normalizedName) === 0) {
-        $targetKey = $existingName;
-        break;
-      }
-    }
-
-    $existingValues = isset($this->headers[$targetKey]) ? (array) $this->headers[$targetKey] : [];
-    $this->headers[$targetKey] = array_values(array_merge($existingValues, $normalizedValues));
-
-    return $this;
-  }
-
-  /**
-   * Mutable equivalent of PSR-7 withoutHeader(): remove the header.
-   */
-  public function unsetHeader(string $name): RequestDriverInterface {
-    $this->headers ??= [];
-
-    foreach (array_keys($this->headers) as $existingName) {
-      if (strcasecmp($existingName, $name) === 0) {
-        unset($this->headers[$existingName]);
-      }
-    }
 
     return $this;
   }
@@ -246,7 +214,6 @@ abstract class RequestDriver implements RequestDriverInterface {
    * {@inheritdoc}
    */
   public function getBody(): StreamInterface {
-    // TODO The interface says this has to return as a StreamResource, how to?
     $string = [];
     if ($this->body) {
       $body = $this->body;
@@ -340,7 +307,7 @@ abstract class RequestDriver implements RequestDriverInterface {
     return $this->protocolVersion ?? '1.1';
   }
 
-  public function withProtocolVersion(string $version): MessageInterface {
+  public function withProtocolVersion(string $version): RequestDriverInterface {
     $clone = clone $this;
     $clone->protocolVersion = $version;
 
@@ -362,11 +329,11 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * {@inheritdoc}
    *
-   * @deprecated For CheckPages driver mutation, use setHeader()/addHeader()/unsetHeader().
+   * @deprecated For CheckPages driver mutation, prefer set*() methods.
    * This method exists for PSR-7 compliance and returns a clone.
    * @see \AKlump\CheckPages\Browser\RequestDriverInterface::setHeader()
    */
-  public function withHeader(string $name, $value): MessageInterface {
+  public function withHeader(string $name, $value): RequestDriverInterface {
     $normalized = (new NormalizeHeaders())([$name => $value]);
     $normalizedName = (string) key($normalized);
     $normalizedValues = (array) current($normalized);
@@ -391,11 +358,11 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * {@inheritdoc}
    *
-   * @deprecated For CheckPages driver mutation, use setHeader()/addHeader()/unsetHeader().
+   * @deprecated For CheckPages driver mutation, prefer add*() methods.
    * This method exists for PSR-7 compliance and returns a clone.
    * @see \AKlump\CheckPages\Browser\RequestDriverInterface::addHeader()
    */
-  public function withAddedHeader(string $name, $value): MessageInterface {
+  public function withAddedHeader(string $name, $value): RequestDriverInterface {
     $normalized = (new NormalizeHeaders())([$name => $value]);
     $normalizedName = (string) key($normalized);
     $normalizedValues = (array) current($normalized);
@@ -425,11 +392,11 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * {@inheritdoc}
    *
-   * @deprecated For CheckPages driver mutation, use setHeader()/addHeader()/unsetHeader().
+   * @deprecated For CheckPages driver mutation, prefer unset*() methods.
    * This method exists for PSR-7 compliance and returns a clone.
    * @see \AKlump\CheckPages\Browser\RequestDriverInterface::unsetHeader()
    */
-  public function withoutHeader(string $name): MessageInterface {
+  public function withoutHeader(string $name): RequestDriverInterface {
     $clone = clone $this;
 
     $headers = $clone->headers ?? [];
@@ -443,9 +410,15 @@ abstract class RequestDriver implements RequestDriverInterface {
     return $clone;
   }
 
-  public function withBody(StreamInterface $body): MessageInterface {
+  /**
+   * @deprecated For CheckPages driver mutation, prefer set*() methods.
+   * This method exists for PSR-7 compliance and returns a clone.
+   *
+   * @see \AKlump\CheckPages\Browser\RequestDriver::setBody()
+   */
+  public function withBody(StreamInterface $body): RequestDriverInterface {
     $clone = clone $this;
-    $clone->body = $body;
+    $clone->body = (string) $body;
 
     return $clone;
   }
@@ -454,7 +427,7 @@ abstract class RequestDriver implements RequestDriverInterface {
     return (string) $this->getUri();
   }
 
-  public function withRequestTarget(string $requestTarget): RequestInterface {
+  public function withRequestTarget(string $requestTarget): RequestDriverInterface {
     $clone = clone $this;
     $clone->setUrl($requestTarget);
 
@@ -468,9 +441,15 @@ abstract class RequestDriver implements RequestDriverInterface {
     return $this->method ?? '';
   }
 
-  public function withMethod(string $method): RequestInterface {
+  /**
+   * @deprecated For CheckPages driver mutation, prefer set*() methods.
+   * This method exists for PSR-7 compliance and returns a clone.
+   *
+   * @see \AKlump\CheckPages\Browser\RequestDriver::setMethod()
+   */
+  public function withMethod(string $method): RequestDriverInterface {
     $clone = clone $this;
-    $clone->setMethod($method);
+    $clone->method = $method;
 
     return $clone;
   }
@@ -482,7 +461,7 @@ abstract class RequestDriver implements RequestDriverInterface {
     return new Uri($this->url ?? '');
   }
 
-  public function withUri(UriInterface $uri, bool $preserveHost = FALSE): RequestInterface {
+  public function withUri(UriInterface $uri, bool $preserveHost = FALSE): RequestDriverInterface {
     $clone = clone $this;
     $clone->setUrl((string) $uri);
 

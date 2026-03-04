@@ -116,7 +116,7 @@ class Suite implements PartInterface, JsonSerializable {
    * @param array $config
    *   The configuration array for the new test.
    *
-   * @return self
+   * @return $this
    *   Self for chaining.
    */
   public function addTestByConfig(array $config): self {

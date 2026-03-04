@@ -19,10 +19,10 @@ trait HasTestTrait {
   /**
    * @param \AKlump\CheckPages\Parts\Test $test
    *
-   * @return self
+   * @return $this
    *   Self for chaining.
    */
-  public function setTest(Test $test): self {
+  public function setTest(Test $test) {
     $this->hasTestTraitTest = $test;
 
     return $this;

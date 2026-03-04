@@ -13,6 +13,7 @@ use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\Messaging\HasMessagesInterface;
 use AKlump\Messaging\MessageType;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Utils;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;

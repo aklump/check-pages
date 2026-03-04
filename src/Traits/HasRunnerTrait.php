@@ -19,10 +19,10 @@ trait HasRunnerTrait {
   /**
    * @param mixed $runner
    *
-   * @return self
+   * @return $this
    *   Self for chaining.
    */
-  public function setRunner(Runner $runner): self {
+  public function setRunner(Runner $runner) {
     $this->hasRunnerTraitRunner = $runner;
 
     return $this;

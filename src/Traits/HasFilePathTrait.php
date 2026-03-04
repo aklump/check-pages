@@ -10,7 +10,10 @@ trait HasFilePathTrait {
     return $this->filePath;
   }
 
-  public function setFilePath(string $filePath): self {
+  /**
+   * @return $this
+   */
+  public function setFilePath(string $filePath) {
     $this->filePath = $filePath;
 
     return $this;

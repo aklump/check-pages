@@ -15,6 +15,7 @@ use AKlump\CheckPages\Output\Message\DebugMessage;
 use AKlump\CheckPages\Traits\SerializationTrait;
 use AKlump\Messaging\MessageType;
 use Exception;
+use GuzzleHttp\Psr7\Utils;
 
 /**
  * Implements the Request handler.
@@ -153,6 +154,7 @@ final class Request implements HandlerInterface {
               $interpolation_review['body'] = $body;
 
               $body = $handler->getEncodedBody($headers, $body);
+              $body = Utils::streamFor($body);
               $driver->setBody($body);
             }
 

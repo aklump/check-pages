@@ -123,23 +123,15 @@ interface RequestDriverInterface extends RequestInterface {
    */
   public function setHeader(string $name, $value): RequestDriverInterface;
 
-  /**
-   * Mutable equivalent of PSR-7 withAddedHeader(): append values to any existing.
-   *
-   * @param string $name
-   * @param string|string[] $value
-   *
-   * @return $this
-   */
-  public function addHeader(string $name, $value): RequestDriverInterface;
+  public function setMethod(string $method): RequestDriverInterface;
 
   /**
-   * Mutable equivalent of PSR-7 withoutHeader(): remove the header.
+   * Set the body of the request.
    *
-   * @param string $name
+   * @param \Psr\Http\Message\StreamInterface $body
    *
-   * @return $this
+   * // TODO Add typehint in a future version
    */
-  public function unsetHeader(string $name): RequestDriverInterface;
+  public function setBody($body): RequestDriverInterface;
 
 }

@@ -17,9 +17,9 @@ trait PassFailTrait {
   /**
    * Clear any pass/fail result previously set.
    *
-   * @return self
+   * @return $this
    */
-  public function clearResult(): self {
+  public function clearResult() {
     $this->passFailTraitFailed = NULL;
 
     return $this;
@@ -28,10 +28,9 @@ trait PassFailTrait {
   /**
    * @param bool $failed
    *
-   * @return
-   *   Self for chaining.
+   * @return $this
    */
-  public function setFailed(): self {
+  public function setFailed() {
     $this->passFailTraitFailed = TRUE;
 
     return $this;
@@ -40,10 +39,9 @@ trait PassFailTrait {
   /**
    * @param bool $failed
    *
-   * @return
-   *   Self for chaining.
+   * @return $this
    */
-  public function setPassed(): self {
+  public function setPassed() {
     $this->passFailTraitFailed = FALSE;
 
     return $this;

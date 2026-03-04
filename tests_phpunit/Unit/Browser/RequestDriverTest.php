@@ -4,12 +4,13 @@ namespace AKlump\CheckPages\Tests\Unit\Browser;
 
 use AKlump\CheckPages\Browser\RequestDriver;
 use AKlump\CheckPages\Browser\RequestDriverInterface;
+use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @covers \AKlump\CheckPages\Browser\RequestDriver
- * @uses \AKlump\CheckPages\Helpers\NormalizeHeaders
+ * @uses   \AKlump\CheckPages\Helpers\NormalizeHeaders
  */
 class RequestDriverTest extends TestCase {
 
@@ -80,7 +81,7 @@ class RequestDriverTest extends TestCase {
 
   public function testWithMethod() {
     $driver = new TestableRequestDriver($this->createMock(EventDispatcher::class));
-    $driver->setMethod('GET');
+    $driver = $driver->withMethod('GET');
     $clone = $driver->withMethod('POST');
     $this->assertNotSame($driver, $clone);
     $this->assertSame('GET', $driver->getMethod());
@@ -105,9 +106,17 @@ class RequestDriverTest extends TestCase {
     $this->assertSame('2.0', $clone->getProtocolVersion());
   }
 
+  public function testSetBody() {
+    $driver = new TestableRequestDriver($this->createMock(EventDispatcher::class));
+    $body = Utils::streamFor('foo');
+    $result = $driver->setBody($body);
+    $this->assertSame($driver, $result);
+    $this->assertSame("foo\n", (string) $result->getBody());
+  }
+
   public function testWithBody() {
     $driver = new TestableRequestDriver($this->createMock(EventDispatcher::class));
-    $body = \GuzzleHttp\Psr7\Utils::streamFor('foo');
+    $body = Utils::streamFor('foo');
     $clone = $driver->withBody($body);
     $this->assertNotSame($driver, $clone);
     $this->assertSame("foo\n", (string) $clone->getBody());

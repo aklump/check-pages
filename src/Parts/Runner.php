@@ -223,7 +223,7 @@ class Runner implements HasMessagesInterface {
   /**
    * @param \AKlump\CheckPages\Files\FilesProviderInterface $files ;
    *
-   * @return self
+   * @return $this
    *   Self for chaining.
    */
   public function setFiles(FilesProviderInterface $files): self {

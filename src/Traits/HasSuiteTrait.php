@@ -18,10 +18,10 @@ trait HasSuiteTrait {
   /**
    * @param \AKlump\CheckPages\Parts\Suite $suite
    *
-   * @return self
+   * @return $this
    *   Self for chaining.
    */
-  public function setSuite(Suite $suite): self {
+  public function setSuite(Suite $suite) {
     $this->hasSuiteTraitSuite = $suite;
 
     return $this;

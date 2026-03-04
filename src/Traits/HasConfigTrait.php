@@ -20,7 +20,7 @@ trait HasConfigTrait {
   /**
    * @param array $config
    *
-   * @return self
+   * @return $this
    *   Self for chaining.
    */
   public function setConfig(array $config): void {
