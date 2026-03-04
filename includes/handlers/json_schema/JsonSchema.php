@@ -7,6 +7,7 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
+use AKlump\CheckPages\Files\GetShortPath;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Service\DotAccessor;
@@ -75,7 +76,7 @@ final class JsonSchema implements HandlerInterface {
     $response = $event->getDriver()->getResponse();
     $content_type = $this->getContentType($response);
     $haystack = array_map(function ($item) use ($assert, $content_type) {
-      $item = $this->deserialize($item, $content_type);
+      $item = self::deserialize($item, $content_type);
       $path = $assert->path ?? NULL;
       if ($path) {
         $item = (new DotAccessor($item))->get($path);
@@ -84,12 +85,21 @@ final class JsonSchema implements HandlerInterface {
       return $item;
     }, $assert->getHaystack());
     $assert->setHaystack($haystack);
+
+    // TODO Write to file if debugging to help better write schemas?
+
     $assert->setSearch(self::getId(), $assert->schema);
+    $path_to_schema = $this->files->tryResolveFile($assert->schema, [
+      'json',
+      'schema.json',
+    ])[0];
+    list($uri, $schema, $path_to_schema) = $this->decodeSchemaValue($path_to_schema, $assert->schema);
+    $config = $assert->getConfig();
 
-    $assert->setAssertion(Assert::ASSERT_CALLABLE, function ($assert) use ($response) {
-
+    $config['extras']['json_schema']['short_path'] = (new GetShortPath(getcwd()))($path_to_schema);
+    $assert->setConfig($config);
+    $assert->setAssertion(Assert::ASSERT_CALLABLE, function ($assert) use ($response, $uri, $schema, $path_to_schema) {
       $expected = $assert->matches ?? TRUE;
-      list($uri, $schema) = $this->decodeSchemaValue($assert->schema);
 
       // This is required to allow for relative path $ref.
       // @link https://github.com/justinrainbow/json-schema#with-inline-references
@@ -101,10 +111,10 @@ final class JsonSchema implements HandlerInterface {
           $validator->validate($data, $schema);
         }
         catch (ResourceNotFoundException $exception) {
-          $message = $exception->getMessage();
-          preg_match('#file:\/\/(.+)\)#', $message, $matches);
-          $message = $matches[1] ?? $message;
-          $message = sprintf('Cannot find schema $ref: %s', $message);
+          $exception_message = $exception->getMessage();
+          // TODO Not sure why this is falling back to the exception message when the path to schema is missing?
+          $ref = $path_to_schema ?? $exception_message;
+          $message = sprintf('Cannot find schema $ref: %s', $ref);
 
           throw new TestFailedException($assert->getConfig(), $message);
         }
@@ -133,7 +143,7 @@ final class JsonSchema implements HandlerInterface {
    *
    * @return object
    */
-  private function decodeSchemaValue(string $schema_config_value) {
+  private function decodeSchemaValue(string $path_to_schema, string $schema_config_value) {
     $cid = crc32($schema_config_value);
     if (!isset($this->jsonSchemas[$cid])) {
       $is_json = substr(ltrim($schema_config_value), 0, 1) === '{';
@@ -143,7 +153,6 @@ final class JsonSchema implements HandlerInterface {
       }
       else {
         try {
-          $path_to_schema = $this->files->tryResolveFile($schema_config_value, ['json'])[0];
           $uri = 'file://' . $path_to_schema;
         }
         catch (UnresolvablePathException $exception) {
@@ -177,8 +186,9 @@ final class JsonSchema implements HandlerInterface {
     if ($assert->path ?? NULL) {
       $path = "\"$assert->path\"";
     }
+    $short_path = $assert->getConfig()['extras']['json_schema']['short_path'] ?? $assert->schema;
 
-    return sprintf('%s %s JSON schema: %s', $path, $matches ? 'matches' : 'does not match', $assert->schema);
+    return sprintf('%s %s JSON schema: %s', $path, $matches ? 'matches' : 'does not match', $short_path);
   }
 
   public static function getId(): string {

@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\CheckPages;
+namespace AKlump\CheckPages\Files;
 
 /**
  * Use this class with care.  See link below.
@@ -52,7 +52,8 @@ final class HttpContentTypeGuesser {
   }
 
   private function isXML() {
-    set_error_handler(function () { });
+    set_error_handler(function () {
+    });
     $is = is_string($this->content) && FALSE !== @simplexml_load_string($this->content);
     restore_error_handler();
 

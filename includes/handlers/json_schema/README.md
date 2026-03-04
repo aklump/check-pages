@@ -117,16 +117,42 @@ You can use `add_directory()` in your runner to create a directory that is resol
 ```
 
 runner.php
+
 ```php
 add_directory(__DIR__ . '/../json_schema');
 ```
 
 suites/foo.yml
+
 ```yaml
 -
   url: /
   find:
     -
       schema: response.schema.json
-      
+
+```
+
+## With or Without File Extensions
+
+You may omit extensions when you set the value of `schema`. These two extensions may be omitted `.schema.json` and `.json` as shown below.
+
+All of these point to the same _response.schema.json_.
+
+```yaml
+-
+  url: /
+  find:
+    -
+      schema: response.schema.json
+-
+  url: /
+  find:
+    -
+      schema: response.schema
+-
+  url: /
+  find:
+    -
+      schema: response
 ```
