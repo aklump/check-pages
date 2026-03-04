@@ -8,7 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * @covers \AKlump\CheckPages\Browser\RequestDriver::setHeader
+ * @covers \AKlump\CheckPages\Browser\RequestDriver
+ * @uses \AKlump\CheckPages\Helpers\NormalizeHeaders
  */
 class RequestDriverTest extends TestCase {
 

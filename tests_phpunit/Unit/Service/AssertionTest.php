@@ -22,6 +22,16 @@ use Symfony\Component\DomCrawler\Crawler;
  * @uses   \AKlump\CheckPages\Parts\Suite
  * @uses   \AKlump\CheckPages\Parts\Test
  * @uses   \AKlump\CheckPages\Service\DispatcherFactory
+ * @uses   \AKlump\CheckPages\Browser\GuzzleDriver
+ * @uses   \AKlump\CheckPages\Browser\RequestDriver
+ * @uses   \AKlump\CheckPages\EventSubscriber\Feedback
+ * @uses   \AKlump\CheckPages\EventSubscriber\InterpolationService
+ * @uses   \AKlump\CheckPages\EventSubscriber\Retest
+ * @uses   \AKlump\CheckPages\EventSubscriber\SaveResponseToFile
+ * @uses   \AKlump\CheckPages\EventSubscriber\SecretsService
+ * @uses   \AKlump\CheckPages\EventSubscriber\SuiteIndexService
+ * @uses   \AKlump\CheckPages\EventSubscriber\SuiteValidator
+ * @uses   \AKlump\CheckPages\Handlers\CommandLineTestHandlerBase
  * @uses   \AKlump\CheckPages\AssertType\Equals
  * @uses   \AKlump\CheckPages\Helpers\CrawlerToArray
  * @uses   \AKlump\CheckPages\Variables

@@ -31,6 +31,7 @@ use function count;
  * @uses   \AKlump\CheckPages\Parts\Test
  * @uses   \AKlump\CheckPages\Parts\TestRunner
  * @uses   \AKlump\CheckPages\Browser\RequestDriver
+ * @uses   \AKlump\CheckPages\Browser\GuzzleDriver
  * @uses   \AKlump\CheckPages\Event\RunnerEvent
  * @uses   \AKlump\CheckPages\Output\Messenger\ConsoleEchoPrinter
  * @uses   \AKlump\CheckPages\Output\Messenger\LoggerPrinter

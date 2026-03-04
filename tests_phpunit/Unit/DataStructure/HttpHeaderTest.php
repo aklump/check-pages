@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \AKlump\CheckPages\DataStructure\HttpHeader
+ * @uses \AKlump\CheckPages\Helpers\NormalizeHeaders
  */
 class HttpHeaderTest extends TestCase {
 

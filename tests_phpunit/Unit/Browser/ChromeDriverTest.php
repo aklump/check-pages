@@ -14,6 +14,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @uses   \AKlump\CheckPages\Response
  * @uses   \AKlump\CheckPages\Service\RequestHistory
  * @uses   \AKlump\CheckPages\Traits\BaseUrlTrait
+ * @uses   \AKlump\CheckPages\Event\HttpMessageEvent
+ * @uses   \AKlump\CheckPages\Helpers\NormalizeHeaders
  */
 class ChromeDriverTest extends TestCase {
 

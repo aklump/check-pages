@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \AKlump\CheckPages\Event\HttpMessageEvent
+ * @uses \AKlump\CheckPages\Helpers\NormalizeHeaders
  */
 class HttpMessageEventTest extends TestCase {
 

@@ -44,9 +44,9 @@ class HttpClient implements ClientInterface {
   static $class_instance_id = 0;
 
   /**
-   * @var \AKlump\CheckPages\Browser\GuzzleDriver
+   * @var \AKlump\CheckPages\Browser\RequestDriverInterface
    */
-  private GuzzleDriver $driver;
+  private RequestDriverInterface $driver;
 
   /**
    * @param \AKlump\CheckPages\Parts\Runner $runner
@@ -100,10 +100,11 @@ class HttpClient implements ClientInterface {
 
   public function sendRequest(RequestInterface $request): ResponseInterface {
     $dispatcher = $this->getRunner()->getDispatcher();
-    $logger = new HttpMessageLogger($this->getRunner()->getInput(), $this->messageBag);
+    $logger = new HttpMessageLogger($this->getRunner()
+      ->getInput(), $this->messageBag);
 
     // TODO Add support for JS driver.
-    $this->driver = new GuzzleDriver();
+    $this->driver = $this->createDriver();
 
     // Note: Don't set base URL because that will cause URLs to be printed
     // without the host, which is not what is expected!!!
@@ -111,9 +112,7 @@ class HttpClient implements ClientInterface {
     $this->driver->setMethod($request->getMethod());
     $this->driver->setBody($request->getBody());
     foreach ($request->getHeaders() as $key => $values) {
-      foreach ($values as $value) {
-        $this->driver->setHeader($key, $value);
-      }
+      $this->driver->setHeader($key, $values);
     }
 
     if ($this->testForDispatcher) {
@@ -143,6 +142,10 @@ class HttpClient implements ClientInterface {
    */
   public function getDriver(): ?RequestDriverInterface {
     return $this->driver ?? NULL;
+  }
+
+  protected function createDriver(): RequestDriverInterface {
+    return new GuzzleDriver();
   }
 
 }
