@@ -9,7 +9,7 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * A helper class to access the mime type from Content-type header
  */
-final class ContentTypeHeader extends HttpHeader {
+final class ContentTypeHeader extends MediaTypeHeader {
 
   private array $values;
 
@@ -64,7 +64,7 @@ final class ContentTypeHeader extends HttpHeader {
         default:
           return $value;
       }
-    }, $this->get()));
+    }, $this->getMediaTypes()));
   }
 
 }

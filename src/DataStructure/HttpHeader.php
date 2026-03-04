@@ -24,14 +24,20 @@ class HttpHeader implements \Stringable {
     return key($this->normalized);
   }
 
+  public function getLines(): array {
+    return $this->normalized[$this->getName()] ?? [];
+  }
+
+  /**
+   * @deprecated Use getLines()
+   * @return string[]
+   */
   public function get(): array {
-    return array_filter(array_map(function (string $value) {
-      return explode(';', $value, 2)[0] ?? '';
-    }, $this->normalized[$this->getName()]));
+    return $this->getLines();
   }
 
   public function __toString() {
-    return $this->get()[0] ?? '';
+    return $this->getLines()[0] ?? '';
   }
 
 
