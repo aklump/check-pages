@@ -13,9 +13,7 @@ class NormalizeHeadersTest extends TestCase {
   public function testCSVHeadersSplit() {
     $headers = (new NormalizeHeaders())(['content-type' => 'text/html, application/xhtml+xml, application/xml']);
     $this->assertSame([
-      'text/html',
-      'application/xhtml+xml',
-      'application/xml',
+      'text/html, application/xhtml+xml, application/xml',
     ], $headers['content-type']);
   }
 

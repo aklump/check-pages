@@ -22,7 +22,7 @@ class NormalizeHeaders {
         throw new InvalidArgumentException('Headers must be an array of strings.');
       }
       if (!is_array($value)) {
-        $value = preg_split('/\s*,\s*/', $value);
+        $value = [$value];
       }
 
       $headers = array_map('strval', $value);
