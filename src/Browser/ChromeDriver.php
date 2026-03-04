@@ -3,17 +3,23 @@
 namespace AKlump\CheckPages\Browser;
 
 
+use AKlump\CheckPages\DataStructure\ContentTypeHeader;
+use AKlump\CheckPages\DataStructure\HttpHeader;
+use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Event\HttpMessageEvent;
 use AKlump\CheckPages\Exceptions\RequestTimedOut;
 use AKlump\CheckPages\Output\Icons;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Response;
 use AKlump\CheckPages\Service\Assertion;
+use AKlump\CheckPages\Traits\HasTestTrait;
 use AKlump\Messaging\MessageType;
 use Exception;
 use HeadlessChromium\BrowserFactory;
 use HeadlessChromium\Exception\OperationTimedOut;
 use HeadlessChromium\Page;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /*
  * @url https://github.com/chrome-php/chrome
@@ -48,8 +54,9 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
    */
   private $deviceOverrides;
 
-  public function __construct() {
-    // Set the max memory to 50% of the allowed to prevent out of memory errors.
+  public function __construct(EventDispatcher $dispatcher) {
+    parent::__construct($dispatcher);
+    // Set the max memory to 50% of the allowed to prevent out-of-memory errors.
     $this->limits = [
       'php_memory_limit' => intval(ini_get('memory_limit')),
       'test_use_allocation' => 0.5,
@@ -123,7 +130,10 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
     // starts headless chrome
     $browser = $browserFactory->createBrowser([
       'ignoreCertificateErrors' => $this->allowInvalidCertificate(),
-      'headers' => $this->getHeaders(),
+      'headers' => array_map(function ($header) {
+        // TODO Sort out the not-need for name 'foo', make it optional perhaps?
+        return (string) (new HttpHeader('foo', $header));
+      }, $this->getHeaders()),
       //      'debugLogger' => 'php://stdout',
       //      'headless' => FALSE,
     ]);
@@ -145,9 +155,17 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
           $response['headers'] = $params['response']['headers'] ?? [];
         });
 
-      $this->page->navigate($this->getUrl())
+      $page_url = (string) $this->getUri();
+      if (!empty($this->body)) {
+        $content_type = (string) (new ContentTypeHeader($this->getHeader('content-type')));
+        if ($content_type !== 'application/x-www-form-urlencoded') {
+          throw new \RuntimeException(sprintf('Only application/x-www-form-urlencoded is supported for request bodies with %s.', __CLASS__));
+        }
+        $page_url = (string) $this->getUri()->withQuery($this->body);
+      }
+      $this->page->navigate($page_url)
         ->waitForNavigation(Page::LOAD, $this->getRequestTimeout() * 1000);
-      $page_contents = $this->getPageContents($assertions);
+      $page_contents = $this->getPageContents($response, $assertions);
 
       try {
         $computed_styles = $this->getComputedStyles();
@@ -209,10 +227,11 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
    * @return string
    *   HTML for the page.
    */
-  private function getPageContents(array $assertions = []): string {
+  private function getPageContents(array $response, array $assertions = []): string {
     $messenger = $this->getMessenger();
     $next_message_time = NULL;
     $this->limits['time'] = time() + $this->getRequestTimeout();
+    $fire_message_event = TRUE;
     do {
       $page_contents = $this->page->getHtml();
       $assertions = array_filter($assertions, function (Assertion $assertion) use ($page_contents) {
@@ -222,12 +241,28 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
       });
       $remaining_time = max(0, $this->limits['time'] - time());
       $remaining_memory = max(0, $this->limits['memory'] - memory_get_usage());
+      // Fire this at once, then possibly once more to help debug if the request
+      // is timing out.  Given an AJAX context the first and last $page_contents
+      // could be different.  Capturing both of these states will be the most
+      // helpful to the failing test debugging.
+      if ($fire_message_event || $remaining_time <= 0 || $remaining_memory <= 0) {
+        $this->getDispatcher()
+          ->dispatch(new HttpMessageEvent(
+            $response['headers'],
+            $page_contents,
+            $response['status'],
+            $this->getTest(),
+          ), Event::RESPONSE_RECEIVED);
+        $fire_message_event = FALSE;
+      }
 
+      // TODO Instead of using messenger here, we should be firing some kind of "waiting for assert in DOM to load" event.
+      // TODO We should be able to remove the messenger property for simplification?
       if ($messenger) {
         if (is_null($next_message_time) || $remaining_time < $next_message_time) {
           $next_message_time = $remaining_time - 10;
           $lines = array_map(function (Assertion $assert) {
-            return '├── ' . Icons::CLOCK . 'Waiting for: ' . $assert;
+            return '├── ' . Icons::SPYGLASS . Icons::SHRUG . $assert;
           }, $assertions);
           $messenger->deliver(new Message($lines, MessageType::INFO, Verbosity::VERBOSE));
         }
@@ -270,6 +305,13 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
     }
 
     return $evaluated;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSupportedMethods(): array {
+    return ['get'];
   }
 
 }

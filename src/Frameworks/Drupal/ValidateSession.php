@@ -5,15 +5,20 @@ namespace AKlump\CheckPages\Frameworks\Drupal;
 use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Browser\Session;
 use AKlump\CheckPages\DataStructure\User;
+use AKlump\CheckPages\Parts\Runner;
 use GuzzleHttp\RequestOptions;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class ValidateSession {
 
+  protected EventDispatcher $dispatcher;
+
   private string $baseUrl;
 
-  public function __construct(string $base_url) {
-    $this->baseUrl = $base_url;
+  public function __construct(Runner $runner) {
+    $this->dispatcher = $runner->getDispatcher();
+    $this->baseUrl = $runner->getBaseUrl();
   }
 
   /**
@@ -67,7 +72,7 @@ class ValidateSession {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   private function get($url): string {
-    $guzzle = new GuzzleDriver();
+    $guzzle = new GuzzleDriver($this->dispatcher);
     $response = $guzzle->getClient([
       'headers' => [
         'Cookie' => $this->session->getCookieHeader(),

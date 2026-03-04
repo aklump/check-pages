@@ -4,12 +4,13 @@ namespace AKlump\CheckPages\Handlers;
 
 use AKlump\CheckPages\Browser\HeadlessBrowserInterface;
 use AKlump\CheckPages\Browser\RequestDriverInterface;
+use AKlump\CheckPages\DataStructure\ContentTypeHeader;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\Exceptions\BadSyntaxException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
+use AKlump\CheckPages\Helpers\NormalizeHeaders;
 use AKlump\CheckPages\Output\Message\DebugMessage;
 use AKlump\CheckPages\Traits\SerializationTrait;
 use AKlump\Messaging\MessageType;
@@ -119,7 +120,6 @@ final class Request implements HandlerInterface {
             $driver = $event->getDriver();
             $config = $test->getConfig();
             $interpolation_review = [];
-
             $handler = new self();
 
             //
@@ -134,22 +134,16 @@ final class Request implements HandlerInterface {
 
             $headers = $config[self::SELECTOR]['headers'] ?? [];
             if ($headers) {
+              // This is not superfluous because this plugin allows for string
+              // header values.  We should convert it here so that setHeader
+              // does not fail when it receives the string.  At this time
+              // setHeader allows a string, but that will be removed.  This is
+              // the cleanest way to ensure compatibility.
+              $headers = (new NormalizeHeaders())($headers);
               $test->interpolate($headers);
               $interpolation_review['headers'] = $headers;
-
-              $headers = array_change_key_case($headers);
-              $headers = array_filter($headers, function ($value) {
-                return !empty($value);
-              });
-              $headers = array_map(function ($header) {
-                if (!is_scalar($header)) {
-                  throw new BadSyntaxException('Request header values must be strings.');
-                }
-
-                return strval($header);
-              }, $headers);
-
               foreach ($headers as $key => $value) {
+                // Set one at a time because we are ADDING to any existing.
                 $driver->setHeader($key, $value);
               }
             }
@@ -210,14 +204,8 @@ final class Request implements HandlerInterface {
     if (!$body || is_scalar($body)) {
       return $body;
     }
-
-    $content_type = 'application/octet-stream';
-    foreach ($headers as $header => $value) {
-      if (strcasecmp('content-type', $header) === 0) {
-        $content_type = $value;
-        break;
-      }
-    }
+    // TODO Should this really be the default?
+    $content_type = (string) (new ContentTypeHeader($headers['content-type'] ?? 'application/octet-stream'));
 
     return $this->serialize($body, $content_type);
   }

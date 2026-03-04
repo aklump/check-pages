@@ -45,6 +45,7 @@
     "ext-curl": "*",
     "ext-dom": "*",
     "ext-json": "*",
+    "ext-simplexml": "*",
     "guzzlehttp/guzzle": "^6.3 || ^7.0",
     "justinrainbow/json-schema": "^5.2",
     "laminas/laminas-xml2json": "^3.2",
@@ -62,7 +63,8 @@
     "wikimedia/composer-merge-plugin": "^2.1",
     "ramsey/collection": "^1.3",
     "dflydev/dot-access-data": "^3.0",
-    "spatie/url": "^2.4"
+    "spatie/url": "^2.4",
+    "aklump/json-schema-validation": "^0.0"
   },
   "bin": [
     "./checkpages"

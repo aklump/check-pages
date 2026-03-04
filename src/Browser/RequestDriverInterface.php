@@ -7,6 +7,7 @@ namespace AKlump\CheckPages\Browser;
 use AKlump\Messaging\MessengerInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 interface RequestDriverInterface extends RequestInterface {
 
@@ -103,5 +104,13 @@ interface RequestDriverInterface extends RequestInterface {
   public function getMessenger(): ?MessengerInterface;
 
   public function setMessenger(MessengerInterface $messenger): RequestDriverInterface;
+
+  public function getDispatcher(): EventDispatcher;
+
+  /**
+   * @return string[] An array of LOWER-CASE http methods that are supported by
+   * this driver.  To support all methods return an empty array.
+   */
+  public function getSupportedMethods(): array;
 
 }

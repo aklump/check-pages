@@ -2,9 +2,13 @@
 
 namespace AKlump\CheckPages\Traits;
 
+use AKlump\CheckPages\DataStructure\ContentTypeHeader;
+use AKlump\CheckPages\Files\HttpContentTypeGuesser;
 use AKlump\CheckPages\Output\Message\DebugMessage;
+use AKlump\JsonSchema\JsonDecodeLossless;
 use AKlump\Messaging\MessengerInterface;
 use InvalidArgumentException;
+use Laminas\Xml2Json\Exception\RuntimeException;
 use Laminas\Xml2Json\Xml2Json;
 use Psr\Http\Message\MessageInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -20,13 +24,12 @@ trait SerializationTrait {
    *   The lower-cased content type, e.g. 'application/json'
    */
   protected static function getContentType(MessageInterface $http_message): string {
-    $type = $http_message->getHeader('content-type')[0] ?? NULL;
+    $type = (string) (new ContentTypeHeader($http_message->getHeaderLine('content-type')));
     if (empty($type)) {
-      $guesser = new \AKlump\CheckPages\HttpContentTypeGuesser();
+      $guesser = new HttpContentTypeGuesser();
       $body = $http_message->getBody();
       $type = $guesser->guessType($body);
     }
-    [$type] = explode(';', $type . ';');
 
     return strtolower($type);
   }
@@ -79,6 +82,7 @@ trait SerializationTrait {
    * @todo Support other content types.
    */
   protected static function deserialize(string $serial, string $type, MessengerInterface $printer = NULL) {
+    $type = (new ContentTypeHeader($type))->normalize()->get()[0];
     switch (strtolower($type)) {
       case 'text/html':
         return $serial;
@@ -88,33 +92,43 @@ trait SerializationTrait {
 
         return $data;
 
-      case 'json':
       case 'application/json':
-        return json_decode($serial);
+        //        return json_decode($serial);
+        return (new JsonDecodeLossless())($serial);
 
       case 'application/pdf':
         // TODO What's the best solution here?
         return [];
 
-      case 'yaml':
-      case 'yml':
-      case 'application/x+yaml':
-      case 'application/x+yml':
-      case 'text/yml':
-      case 'text/yaml':
+      case 'application/yaml':
         return Yaml::parse($serial);
 
-      case 'xml':
       case 'application/xml':
-      case 'application/rss+xml':
-        $serial = Xml2Json::fromXml($serial, TRUE);
+        try {
+          $serial = Xml2Json::fromXml($serial, TRUE);
+        }
+        catch (RuntimeException $exception) {
+          if (@simplexml_load_string($serial)->count() === 0) {
+            // Trying to catch the result of Xml2Json processing an empty node
+            // like <foo/>, which throws an exception but really is an empty
+            // payload, which is not an exception, but empty JSON.
+            // From the web: "The most common approach is representing it as an
+            // empty object `{}`. This is what most XML-to-JSON converters use
+            // by default, as it best preserves the structure while maintaining
+            // valid JSON syntax."
+            $serial = '{}';
+          }
+          else {
+            throw $exception;
+          }
+        }
         if (!$serial) {
           return NULL;
         }
-        $data = json_decode($serial, TRUE);
-        $data = static::typecastNumbers($data);
 
-        return json_decode(json_encode($data));
+        $data = (new JsonDecodeLossless())($serial);
+
+        return static::typecastNumbers($data);
 
       default:
         if ($printer) {
@@ -146,12 +160,13 @@ trait SerializationTrait {
   }
 
   protected static function typecastNumbers($value) {
-    if (!is_array($value)) {
+    if (is_scalar($value)) {
       return is_numeric($value) ? $value * 1 : $value;
     }
-    foreach ($value as $k => $v) {
-      $value[$k] = static::typecastNumbers($v);
+    foreach ($value as &$v) {
+      $v = static::typecastNumbers($v);
     }
+    unset($v);
 
     return $value;
   }

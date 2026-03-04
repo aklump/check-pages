@@ -2,13 +2,27 @@
 
 namespace AKlump\CheckPages\Browser;
 
+use AKlump\CheckPages\Event;
+use AKlump\CheckPages\Event\HttpMessageEvent;
 use AKlump\CheckPages\Exceptions\RequestTimedOut;
+use AKlump\CheckPages\Service\DispatcherFactory;
+use AKlump\CheckPages\Traits\HasTestTrait;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\RequestOptions;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class GuzzleDriver extends RequestDriver {
+
+  public function __construct(EventDispatcher $dispatcher = NULL) {
+    if (is_null($dispatcher)) {
+      global $container;
+      $dispatcher = DispatcherFactory::createFromContainer($container);
+    }
+    parent::__construct($dispatcher);
+  }
+
 
   /**
    * {@inheritdoc}
@@ -31,10 +45,23 @@ class GuzzleDriver extends RequestDriver {
       ]);
       $attempts = 1;
       $max_attempts = 1;
-      $is_successful = false;
+      $is_successful = FALSE;
+      $fire_message_event = TRUE;
+
       while (!$is_successful && $attempts <= $max_attempts) {
         try {
           $this->response = $client->request($this->method, $this->getUri(), ['body' => $this->body]);
+          if ($fire_message_event) {
+            $page_contents = (string) $this->response->getBody();
+            $this->getDispatcher()
+              ->dispatch(new HttpMessageEvent(
+                $this->response->getHeaders(),
+                $page_contents,
+                $this->response->getStatusCode(),
+                $this->getTest(),
+              ), Event::RESPONSE_RECEIVED);
+            $fire_message_event = FALSE;
+          }
           $is_successful = TRUE;
         }
         catch (ConnectException $exception) {
@@ -59,6 +86,10 @@ class GuzzleDriver extends RequestDriver {
     }
 
     return $this;
+  }
+
+  public function getSupportedMethods(): array {
+    return [];
   }
 
 }

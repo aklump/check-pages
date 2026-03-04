@@ -40,6 +40,8 @@ final class Event {
 
   const REQUEST_PREPARED = 'request.prepared';
 
+  const RESPONSE_RECEIVED = 'request.received';
+
   const REQUEST_FINISHED = 'request.finished';
 
   const ASSERT_CREATED = 'assert.created';

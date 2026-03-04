@@ -56,15 +56,17 @@ final class TestRunner implements EventDispatcherInterface {
 
   public function getDriver(): RequestDriverInterface {
     if (empty($this->driver)) {
-      $test = $this->test;
-      if ($test->get('js') ?? FALSE) {
-        $this->driver = new ChromeDriver();
+      $runner = $this->test->getRunner();
+      if ($this->test->get('js') ?? FALSE) {
+        $this->driver = new ChromeDriver($runner->getDispatcher());
       }
       else {
-        $this->driver = new GuzzleDriver();
+        $this->driver = new GuzzleDriver($runner->getDispatcher());
       }
-      $this->driver->setMessenger($test->getRunner()->getMessenger());
-    };
+      $this->driver
+        ->setTest($this->test)
+        ->setMessenger($runner->getMessenger());
+    }
 
     return $this->driver;
   }
@@ -151,6 +153,15 @@ final class TestRunner implements EventDispatcherInterface {
         }
         // Keep this after the timeout so that handlers may override.
         $this->dispatch(new DriverEvent($test, $this->getDriver()), Event::REQUEST_CREATED);
+
+        // Do this once again after Event::REQUEST_CREATED, when user
+        // credentials have been assigned to their tokens, e.g. "user.id". Do
+        // not interpolate 'find' yet!!!
+        $config = $test->getConfig();
+        $test->interpolate($config['url']);
+        $test->setConfig($config);
+        unset($config);
+
         $this->getDriver()
           ->setUrl($runner->withBaseUrl($test->getConfig()['url'] ?? ''));
         // TODO Do we really need this event?
@@ -184,7 +195,16 @@ final class TestRunner implements EventDispatcherInterface {
               ->id(), $test->id(), $assert_id, $config);
           }
         }
-        $this->getDriver()->request($assertions_to_wait_for);
+
+        $driver = $this->getDriver();
+
+        // Validate the driver can handle the method.
+        $method = $driver->getMethod();
+        $supported_methods = $driver->getSupportedMethods();
+        if ($supported_methods && !in_array(strtolower($method), $supported_methods)) {
+          throw new \RuntimeException(sprintf('Method "%s" is not a supported by %s.', strtoupper($method), get_class($driver)));
+        }
+        $driver->request($assertions_to_wait_for);
       }
       catch (RequestTimedOut $exception) {
         $test->setFailed();

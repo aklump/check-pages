@@ -24,6 +24,8 @@ class Icons {
 
   const CLOCK = '⏱  ';
 
+  const SHRUG = '🤷🏻‍♀️ ';
+
   const SPYGLASS = '🔎 ';
 
   const NO = '🚫 ';

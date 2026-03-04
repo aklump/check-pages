@@ -4,12 +4,16 @@ namespace AKlump\CheckPages\Mixins\Session;
 
 use AKlump\CheckPages\Browser\Session;
 use AKlump\CheckPages\DataStructure\User;
+use AKlump\CheckPages\DataStructure\UserInterface;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
+use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Files\LoadUsers;
 use AKlump\CheckPages\Frameworks\Drupal\ValidateSession;
 use AKlump\CheckPages\Helpers\FilterUsersByName;
+use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\Parts\Test;
 use AKlump\LoftLib\Bash\Color;
 
 /**
@@ -80,23 +84,15 @@ add_test_option('user', [
     if (!$cookie) {
       throw new StopRunnerException("No session found for user: $username. Try: export CP_USERNAME=foobar");
     }
-    $event->getDriver()->setHeader('Cookie', $cookie);
+    $event->getDriver()->setHeader('Cookie', [$cookie]);
 
-    $validated_user = validateSession($session, $event->getTest()
-      ->getRunner()
-      ->getBaseUrl());
+    $test = $event->getTest();
+
+    $validated_user = validateSession($session, $test->getRunner());
     if (!$validated_user->getAccountName()) {
       $validated_user->setAccountName($username);
     }
-
-    // TODO These are not being set correctly I don't think.
-    $variables = $event->getTest()->getSuite()->variables();
-    $variables->setItem('user.id', $validated_user->id())
-      ->setItem('user.uid', $validated_user->id())
-      ->setItem('user.mail', $validated_user->getEmail())
-      ->setItem('user.name', $validated_user->getAccountName())
-      ->setItem('user.pass', $validated_user->getPassword())
-      ->setItem('user.timezone', $validated_user->getTimeZone()->getName());
+    setUserVariables($test, $validated_user);
 
     //
     // Add visual feedback that the request is authenticated.
@@ -111,19 +107,49 @@ add_test_option('user', [
       $event->getTest()->addBadge('👤');
     }
   },
+  Event::TEST_FINISHED => function ($username, TestEventInterface $event) use ($users) {
+    // These have to be deleted before the next test runs or they will be
+    // interpolated by \AKlump\CheckPages\Handlers\Value::getSubscribedEvents and
+    // include the wrong user values.
+    deleteUserVariables($event->getTest());
+  },
 ]);
-
 
 /**
  * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
+ * @throws \GuzzleHttp\Exception\GuzzleException
  */
-function validateSession($session, string $base_url): User {
+function validateSession($session, Runner $runner): User {
   // TODO Add caching so this doesn't validate every test
-  $user = (new ValidateSession($base_url))($session);
+  $user = (new ValidateSession($runner))($session);
   if (!$user) {
     throw new StopRunnerException(sprintf('Session is invalid or expired for user: %s.', $session->getUser()
       ->getAccountName()));
   }
 
   return $user;
+}
+
+// TODO This should be moved to a global area and used by any handler doing this type of thing.
+function setUserVariables(Test $test, UserInterface $user) {
+  $test->getSuite()->variables()
+    ->setItem('user.id', $user->id())
+    ->setItem('user.uid', $user->id())
+    ->setItem('user.mail', $user->getEmail())
+    ->setItem('user.name', $user->getAccountName())
+    ->setItem('user.pass', $user->getPassword())
+    ->setItem('user.timezone', $user->getTimeZone()->getName());
+}
+
+// TODO This should be moved to a global area and used by any handler doing this type of thing.
+function deleteUserVariables(Test $test) {
+  $test
+    ->getSuite()
+    ->variables()
+    ->removeItem('user.id')
+    ->removeItem('user.uid')
+    ->removeItem('user.mail')
+    ->removeItem('user.name')
+    ->removeItem('user.pass')
+    ->removeItem('user.timezone');
 }

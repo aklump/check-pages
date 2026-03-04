@@ -2,9 +2,11 @@
 
 namespace AKlump\CheckPages\Browser;
 
+use AKlump\CheckPages\Helpers\NormalizeHeaders;
 use AKlump\CheckPages\Response;
 use AKlump\CheckPages\Service\RequestHistory;
 use AKlump\CheckPages\Traits\BaseUrlTrait;
+use AKlump\CheckPages\Traits\HasTestTrait;
 use AKlump\Messaging\MessengerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
@@ -15,6 +17,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Non-Javascript response driver.
@@ -22,6 +25,7 @@ use Psr\Http\Message\UriInterface;
 abstract class RequestDriver implements RequestDriverInterface {
 
   use BaseUrlTrait;
+  use HasTestTrait;
 
   /**
    * Maximum number of redirects to allow per request.  Child classes should
@@ -30,6 +34,8 @@ abstract class RequestDriver implements RequestDriverInterface {
    * implementation.
    */
   const MAX_REDIRECTS = 10;
+
+  private EventDispatcher $dispatcher;
 
   protected string $method = 'GET';
 
@@ -43,7 +49,7 @@ abstract class RequestDriver implements RequestDriverInterface {
   /**
    * @var \Psr\Http\Message\ResponseInterface|null
    */
-  protected  $response;
+  protected $response;
 
   protected array $headers;
 
@@ -64,6 +70,13 @@ abstract class RequestDriver implements RequestDriverInterface {
   private $redirectCode;
 
   private MessengerInterface $messenger;
+
+  /**
+   * @param \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher
+   */
+  public function __construct(EventDispatcher $dispatcher) {
+    $this->dispatcher = $dispatcher;
+  }
 
   /**
    * {@inheritdoc}
@@ -124,8 +137,18 @@ abstract class RequestDriver implements RequestDriverInterface {
     return new Client($options + ['verify' => !$this->allowInvalidCertificate()]);
   }
 
-  public function setHeader(string $key, string $value): RequestDriverInterface {
-    $this->headers[$key] = $value;
+  /**
+   * @param string $key
+   * @param $value
+   *
+   * @return \AKlump\CheckPages\Browser\RequestDriverInterface
+   */
+  public function setHeader(string $key, $value): RequestDriverInterface {
+    if (is_string($value)) {
+      @trigger_error(sprintf('%s(string $value) is deprecated in version 0.23.3 and will not be supported in future versions. Use %s(array $value) instead.', __METHOD__, __METHOD__), E_USER_DEPRECATED);
+    }
+    $this->headers ??= [];
+    $this->headers += (new NormalizeHeaders())([$key => $value]);
 
     return $this;
   }
@@ -134,7 +157,20 @@ abstract class RequestDriver implements RequestDriverInterface {
    * {@inheritdoc}
    */
   public function getHeaders(): array {
-    return $this->headers ?? [];
+    $headers = $this->headers ?? [];
+    // TODO Change global to DI?
+    global $container;
+    $test = $this->getTest();
+    if ($container && $test) {
+      $headers['x-testing-framework'] = [
+        $container->get('x-testing-framework')(),
+      ];
+      $headers['x-testing-token'] = [
+        $test->getRunner()->get('testing_token'),
+      ];
+    }
+
+    return $headers;
   }
 
   /**
@@ -142,11 +178,12 @@ abstract class RequestDriver implements RequestDriverInterface {
    */
   public function getHeader($name): array {
     $headers = array_change_key_case($this->getHeaders());
+    $name = strtolower($name);
     if (empty($headers[$name])) {
       return [];
     }
 
-    return [$headers[$name]];
+    return $headers[$name];
   }
 
   /**
@@ -172,6 +209,7 @@ abstract class RequestDriver implements RequestDriverInterface {
     }
 
     $string = implode(PHP_EOL, $string) . PHP_EOL;
+
     return Utils::streamFor($string);
   }
 
@@ -257,8 +295,16 @@ abstract class RequestDriver implements RequestDriverInterface {
     // TODO: Implement withProtocolVersion() method.
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getHeaderLine(string $name): string {
-    // TODO: Implement getHeaderLine() method.
+    $header = $this->getHeader($name);
+    if (empty($header)) {
+      return '';
+    }
+
+    return implode(',', $header);
   }
 
   public function withHeader(string $name, $value): MessageInterface {
@@ -305,6 +351,10 @@ abstract class RequestDriver implements RequestDriverInterface {
 
   public function withUri(UriInterface $uri, bool $preserveHost = FALSE): RequestInterface {
     // TODO: Implement withUri() method.
+  }
+
+  public function getDispatcher(): EventDispatcher {
+    return $this->dispatcher;
   }
 
 }

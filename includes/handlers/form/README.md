@@ -28,6 +28,18 @@ The DOM element must be present in the markup and not added via AJAX, if it's no
 
 If the input element is missing the `name` attribute, strange things may happen.
 
+## Use of `status`
+
+**When you use `status` in a form test, it will test the final status AFTER the form is submitted, not the status of the form page itself.**  For example if your form redirects to a 404 page after it is submitted, and you want to verify this, you should use `status: 404` like so:
+
+```yaml
+-
+  url: /my-redirecting-form
+  status: 403
+  form:
+    dom: form
+```
+
 ## Reference
 
 * https://www.w3.org/TR/html401/interact/forms.html

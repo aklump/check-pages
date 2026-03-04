@@ -2,16 +2,20 @@
 
 namespace AKlump\CheckPages\EventSubscriber;
 
+use AKlump\CheckPages\DataStructure\ContentTypeHeader;
 use AKlump\CheckPages\Event;
-use AKlump\CheckPages\Event\DriverEventInterface;
+use AKlump\CheckPages\Event\HttpMessageEvent;
 use AKlump\CheckPages\Event\SuiteEventInterface;
 use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Files\GetShortPath;
+use AKlump\CheckPages\Helpers\NormalizeHeaders;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
+use AKlump\CheckPages\Traits\HasTestTrait;
 use AKlump\Messaging\MessageType;
+use Mimey\MimeTypes;
 use PrettyXml\Formatter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -21,6 +25,8 @@ use AKlump\CheckPages\Output\Icons;
  * Writes HTTP responses to files for certain mime types.
  */
 final class SaveResponseToFile implements EventSubscriberInterface {
+
+  use HasTestTrait;
 
   /**
    * @var int
@@ -73,83 +79,81 @@ final class SaveResponseToFile implements EventSubscriberInterface {
       //
       // Write request responses to file.
       //
-      Event::TEST_FINISHED => [
-        function (DriverEventInterface $event) {
-          try {
-            $content_type = $event->getDriver()
-                              ->getResponse()
-                              ->getHeader('content-type')[0] ?? '';
-          }
-          catch (\Exception $exception) {
-            $content_type = NULL;
-          }
-          if (!$content_type) {
-            return;
-          }
-
-          $handler = new self();
-
-          $regex = '/^(' . implode('|', array_map(function ($item) {
-              return preg_quote($item, '/');
-            }, array_keys(self::$mime_types))) . ')/i';
-          if (!preg_match($regex, $content_type, $mime_type)) {
-            return;
-          }
-          $mime_type = $mime_type[0];
-
+      Event::RESPONSE_RECEIVED => [
+        function (HttpMessageEvent $event) {
           $test = $event->getTest();
-          $path_by_suite = self::getRelativePathBySuite($test->getSuite());
-          $relative_path = dirname($path_by_suite);
-          // We cannot use the test ID as a sequence ID because it cannot be
-          // guaranteed to be unique or not empty, since tests may be inserted
-          // during bootstrap, resulting in test IDs that are out of sequence.
-          // Therefor we use our own ad hoc sequence and we put it at the front
-          // to ensure our directory listings appear in sequential order.
-          $relative_path .= '/' . str_pad((string) self::$counter++, 3, 0, STR_PAD_LEFT);
-          $relative_path .= '_' . basename($path_by_suite);
-          // The test ID is helpful, but not guaranteed to be there.
-          $relative_path .= rtrim('_' . $test->id(), '_');
-
-          $response = $event->getDriver()->getResponse();
-          $content = $response->getBody();
+          $handler = new self();
+          $handler->setTest($test);
+          $runner = $test->getRunner();
+          $headers = $event->getHeaders();
+          $content_type = (string) (new ContentTypeHeader($headers['content-type'] ?? ''))->normalize();
+          $content = $event->getBody();
           switch ($content_type) {
             case 'application/xml':
               $formatter = new Formatter();
-              $content = $formatter->format($content);
+              $prepared_content_as_string = $formatter->format($content);
               break;
 
             case 'application/json':
-              $content = json_encode(json_decode($content), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+              $prepared_content_as_string = json_encode(json_decode($content), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+              break;
+
+            default:
+              $prepared_content_as_string = $content;
               break;
           }
-          $test = $event->getTest();
-          $runner = $test->getRunner();
+          $base_path = $handler->getOutputBasePath();
+
+          $test->addMessage(new Message([Icons::RESPONSE . Icons::FILE], MessageType::INFO, Verbosity::VERBOSE));
 
           // Write the headers to a separate file.
-          $headers = $response->getHeaders();
-          $headers['Status'] = [
-            sprintf('%s %s', $response->getStatusCode(), $response->getReasonPhrase()),
-          ];
-          ksort($headers);
-          $absolute_path = $runner->writeToFile($relative_path . ".headers.yml", [Yaml::dump($headers)], 'w+');
-          $handler->addPathSavedMessage($test, $absolute_path);
+          $headers['Status'] = [$event->getStatusCode()];
+          $headers = (new NormalizeHeaders())($headers);
+          $headers_as_string = Yaml::dump($headers);
+
+          $absolute_path = $runner->writeToFile($base_path . '.headers.yml', [$headers_as_string], 'w+');
+          $handler->addFileSavedMessages($absolute_path);
 
           // Now write the request content as appropriate by mimetype.
-          $extensions = self::$mime_types[$mime_type];
+          $extensions = self::$mime_types[$content_type] ?? ['txt'];
           foreach ($extensions as $extension) {
-            $absolute_path = $runner->writeToFile($relative_path . ".$extension", [$content], 'w+');
-            $handler->addPathSavedMessage($test, $absolute_path);
+            $absolute_path = $runner->writeToFile($base_path . '.' . $extension, [$prepared_content_as_string], 'w+');
+            $handler->addFileSavedMessages($absolute_path);
           }
+          $test->echoMessages();
         },
-        -1,
       ],
     ];
   }
 
-  private function addPathSavedMessage(Test $test, string $path) {
-    $test->addMessage(new Message([
-      sprintf("%s%s%s", Icons::RESPONSE, Icons::FILE, (new GetShortPath())($path)),
-    ], MessageType::INFO, Verbosity::VERBOSE));
+  private function addFileSavedMessages(string $path) {
+    $short_path = (new GetShortPath(getcwd()))($path);
+    $test = $this->getTest();
+    $indent = str_repeat(' ', mb_strlen(Icons::RESPONSE . Icons::FILE));
+    $test->addMessage(new Message([$indent . $short_path], MessageType::TODO, Verbosity::VERBOSE));
+    $test->echoMessages();
+  }
+
+  private function getOutputBasePath(): string {
+    $test = $this->getTest();
+    $path_by_suite = self::getRelativePathBySuite($test->getSuite());
+    $base_path = dirname($path_by_suite);
+    // We cannot use the test ID as a sequence ID because it cannot be
+    // guaranteed to be unique or not empty, since tests may be inserted
+    // during bootstrap, resulting in test IDs that are out of sequence.
+    // Therefore, we use our own ad hoc sequence and we put it at the front
+    // to ensure our directory listings appear in sequential order.
+    static $counters = [];
+    $counters[$base_path] ??= -1;
+    $counters[$base_path]++;
+    $base_path .= '/' . str_pad((string) $counters[$base_path], 3, 0, STR_PAD_LEFT);
+    $base_path .= '_' . basename($path_by_suite);
+    // The test ID is helpful, but not guaranteed to be there.  So we will add
+    // it if possible, and if not make sure we don't end the file in an
+    // underscore.
+    $base_path .= rtrim('_' . $test->id(), '_');
+
+    return $base_path;
   }
 
 }

@@ -125,7 +125,7 @@ class Assertion implements HasConfigInterface {
     $runner = new Runner(new ArrayInput([]), new NullOutput());
     $suite = new Suite($suite_id, $runner);
     $this->test = new Test($test_id, [], $suite);
-    $this->driver = new GuzzleDriver();
+    $this->driver = new GuzzleDriver($runner->getDispatcher());
     $this->assert = new Assert($assert_id, $config, $this->test);
     $this->assert->setSearch(Assert::SEARCH_ALL);
     $this->vars = new Variables();

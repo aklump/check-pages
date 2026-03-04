@@ -19,47 +19,74 @@ if (isset($_POST['op'])) {
   $message = $_POST['field_amount'][0]['value'];
 }
 ?>
-<html>
-<head></head>
+
+<html lang="">
 <body>
-<?php if ($message): ?>
-  <div class="messages"><?= $message ?></div>
+
+
+<?php
+/**
+ * This will render the form used to test the form submission response status
+ */
+if (isset($_GET['status'])): ?>
+  <?php if (isset($_POST['name'])) {
+    if (isset($_GET['status'])) {
+      header(sprintf("HTTP/1.1 %s Forbidden", $_GET['status']));
+    }
+    echo sprintf("Hello %s!", $_POST['name']);
+  }
+  ?>
+  <form>
+    <input type="text" name="name"/>
+    <button type="submit"></button>
+  </form>
+
+<?php
+/**
+ * This will render the other various forms used to test this handler
+ */
+else: ?>
+
+  <?php if ($message): ?>
+    <div class="messages"><?= $message ?></div>
+  <?php endif ?>
+
+  <form class="form-a" method="post">
+    <input type="submit" name="message" value="Form A Was Submitted">
+  </form>
+
+  <form class="form-b" method="post">
+    <input type="hidden" name="message" value="Form B Was Submitted"/>
+    <input type="submit" class="form-save" name="message" value="Save Was Used to Submit">
+    <input type="submit" class="form-delete" name="message" value="Delete Was Used to Submit">
+  </form>
+
+  <form class="form-c" action="/thank_you.php" method="post">
+    <input type="text" name="first_name" value=""/>
+    <input type="date" name="date" value=""/>
+    <select name="shirt_size">
+      <option value="sm">Small</option>
+      <option value="lg">Large</option>
+    </select>
+    <select name="hair_color">
+      <option value="hc1">Blonde</option>
+      <option value="hc2">Grey</option>
+    </select>
+    <button type="submit">Submit</button>
+  </form>
+
+  <form class="drupal-form" method="post">
+    <input type="hidden" name="form_id" value="drupal_form"/>
+    <input type="hidden" name="form_build_id" value="form-GCz0YacA8dPFAKxjqF41M0rUJgoM8VbyN8RNTG48GxQ"/ >
+    <input type="hidden" name="form_token" value="HC-doLJjcGKhIIkbn1wUreeJgoxgLZw2VJrNyHcfe30"/>
+    <input type="text" name="field_amount[0][value]" value="$5.99"/>
+    <input id="edit-submit" type="submit" name="op" value="Save"/>
+    <input id="edit-delete" type="submit" name="delete" value="Delete"/>
+  </form>
+
+  <div class="post-array-as-json"><?= json_encode($_POST) ?></div>
+
 <?php endif ?>
-
-<form class="form-a" method="post">
-  <input type="submit" name="message" value="Form A Was Submitted">
-</form>
-
-<form class="form-b" method="post">
-  <input type="hidden" name="message" value="Form B Was Submitted"/>
-  <input type="submit" class="form-save" name="message" value="Save Was Used to Submit">
-  <input type="submit" class="form-delete" name="message" value="Delete Was Used to Submit">
-</form>
-
-<form class="form-c" action="/thank_you.php" method="post">
-  <input type="text" name="first_name" value=""/>
-  <input type="date" name="date" value=""/>
-  <select name="shirt_size">
-    <option value="sm">Small</option>
-    <option value="lg">Large</option>
-  </select>
-  <select name="hair_color">
-    <option value="hc1">Blonde</option>
-    <option value="hc2">Grey</option>
-  </select>
-  <button type="submit">Submit</button>
-</form>
-
-<form class="drupal-form" method="post">
-  <input type="hidden" name="form_id" value="drupal_form"/>
-  <input type="hidden" name="form_build_id" value="form-GCz0YacA8dPFAKxjqF41M0rUJgoM8VbyN8RNTG48GxQ"/ >
-  <input type="hidden" name="form_token" value="HC-doLJjcGKhIIkbn1wUreeJgoxgLZw2VJrNyHcfe30"/>
-  <input type="text" name="field_amount[0][value]" value="$5.99"/>
-  <input id="edit-submit" type="submit" name="op" value="Save"/>
-  <input id="edit-delete" type="submit" name="delete" value="Delete"/>
-</form>
-
-<div class="post-array-as-json"><?= json_encode($_POST)?></div>
 
 </body>
 </html>

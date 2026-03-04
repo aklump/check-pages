@@ -5,19 +5,45 @@ tags: ''
 
 # Developers Note: User Messages
 
-When working on this project, never `echo` directly.
+When working on this project, do no call PHP's `echo` directly. **You should not instantiate a printer instance (`ConsoleEchoPrinter, DevNullPrinter, LoggerPrinter, MultiPrinter`) unless absolutely necessary!**
 
-## Extension Authors
+Follow the code as shown below for user feedback. Favor the options at the top.
 
-For messages related to a test, you must use `$test->addToVariables(...` because the timing of the output will be handled by the runner. **You must not use a printer from within handlers or custom extensions!**
+The instance of `\AKlump\Messaging\MessengerInterface` will determine how the messages are formatted. As you write code you should simply focus on the message text, severity, and verbosity.
 
-In some cases you may want to display your messages sooner than later, if so you may call `$test->echoMessages()`. Not this will print all test messages, including those set so far in the processing. This ensures FIFO.
+## Writing a User Message
 
-For output initiated from inside non-test event handlers, you may use `$runner->echo()` for real time printing.
+Given a message instance...
+```php
+$message = new \AKlump\CheckPages\Output\Message\Message(['Foo was found'], \AKlump\Messaging\MessageType::INFO);
+```
 
-## Core Authors
+### When `$test` is available
 
-Follow the code as shown below for user feedback. The instance of `\AKlump\Messaging\MessengerInterface` will determine how the messages are printed, you just worry about the message, level, and verbosity as you write code.
+```php
+// Queue your message to be printed with a possible delay.
+$test->addMessage($message, Verbosity::VERBOSE));
+```
+
+Note that the message will not be printed immediately (by default), rather it will be queued up to be printed by the runner instance.  **If you need to see the output appear immediately then also call `$test->echoMessages()`.**  This will print any previously queued messages, followed by your message. Don't use this command unless necessary as it can be slightly less efficient.
+
+```php
+// Print your message immediately.
+$test->addMessage($message, Verbosity::VERBOSE);
+$test->echoMessages();
+```
+
+### When `$test` is not available
+
+```php
+$runner->echo($message)
+```
+
+### When `$runner` is not available
+
+```php
+$printer->deliver($message);
+```
 
 ```php
 // INFO MESSAGE
