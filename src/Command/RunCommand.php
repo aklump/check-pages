@@ -18,7 +18,6 @@ use AKlump\CheckPages\RuntimeContext;
 use AKlump\LocalTimezone\LocalTimezone;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
-use Exception;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -202,6 +201,7 @@ class RunCommand extends Command {
       );
     }
     else {
+      // TODO Should this be removed because too much noise?
       $last_failed_suite = $runner->getLastFailedSuite();
       if ($last_failed_suite) {
         $message = new Message([
