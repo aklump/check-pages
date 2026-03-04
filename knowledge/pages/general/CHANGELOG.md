@@ -9,6 +9,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.0] - 2026-03-04
+
+### Added
+
+- New class methods to `\AKlump\CheckPages\Browser\RequestDriverInterface` `::setBody, ::setMethod, ::setHeader`
+- `\AKlump\CheckPages\DataStructure\MediaTypeHeader`
+- `\AKlump\CheckPages\DataStructure\ContentTypeHeader`
+
+### Changed
+
+- `\AKlump\CheckPages\Browser\RequestDriver::setBody()` nows takes an instance of `\GuzzleHttp\Psr7\Utils::streamFor($body)` instead of string.
+
+### Deprecated
+
+- `\AKlump\CheckPages\DataStructure\HttpHeader::get`; use `\AKlump\CheckPages\DataStructure\HttpHeader::getLines()` instead.
+
 ## [0.23.3] - 2025-09-17
 
 ### Added

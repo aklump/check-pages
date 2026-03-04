@@ -1,3 +1,8 @@
+<!--
+id: sizing_elements
+tags: ''
+-->
+
 # Sizing DOM Elements
 
 ## Assert a DOM element has a height greater than N

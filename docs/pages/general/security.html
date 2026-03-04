@@ -7,7 +7,7 @@
       <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.24.0">
       <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.24.0">
       <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.24.0">
-    <title>Troubleshooting | Check Pages</title>
+    <title>Security | Check Pages</title>
 </head>
 <body class="my-5">
 
@@ -32,7 +32,7 @@
 
       </div>
       <div class="header__tags me-3">  </div>
-      <div class="header__page-numbers flex-shrink-1">25
+      <div class="header__page-numbers flex-shrink-1">26
         / 55</div>
     </div>
   </div>
@@ -41,14 +41,51 @@
 <main class="container-md flex-column">
   <div class="row mb-5 pt-5">
     <article class="col">
-      <h1 class="mb-4 text-primary">Troubleshooting</h1>
-      <p>If you are using multiple instances of PHP on your system, or accross different projects this presents an additional challenge.  <strong>You must ensure that you run <em>Check Pages</em> using the same PHP version with which it was installed.</strong></p>
-<h2>Composer Issues When Running Tests</h2>
-<p>If  <code>./bin/run_check_pages_tests.sh</code> tells you <em>Composer detected issues in your platform</em> then you probably need to hardcode the PHP version into that file. Open the file and look for <code>CHECK_PAGES_PHP</code> and set its value to match the PHP used to install <em>Check Pages</em>.</p>
-<h2>Setup an Alias for Alternative PHP</h2>
-<p>Add something like the following to your terminal config, adjusting for the correct PHP path.</p>
-<pre><code>alias checkpages="/Applications/MAMP/bin/php/php8.1.31/bin/php $(which checkpages)"
+      <h1 class="mb-4 text-primary">Security</h1>
+      <h2>Overview</h2>
+<p>This document explains the purpose and usage of two specialized HTTP headers used in the Check Pages testing framework. These headers enable your application to identify and validate requests that originate from the Check Pages testing infrastructure.</p>
+<h2>Testing Headers</h2>
+<h3>x-testing-token</h3>
+<p>The x-testing-token header serves as a validation mechanism to verify that a request is coming from the Check Pages testing framework.</p>
+<h4>Purpose</h4>
+<ul>
+<li><strong>Framework Identification</strong>: Confirms that a request originates from the Check Pages testing framework</li>
+<li><strong>Request Validation</strong>: Helps the application distinguish between regular user traffic and test-driven traffic</li>
+<li><strong>Testing Mode Trigger</strong>: Signals to the application that specific testing behaviors may be necessary</li>
+</ul>
+<h4>Implementation</h4>
+<ul>
+<li>The token is completely arbitrary and can be any string value</li>
+<li>Both the Check Pages framework and the application must be configured with the same token value</li>
+</ul>
+<h3>x-testing-framework</h3>
+<p>The x-testing-framework header provides information about the framework making the request.</p>
+<h4>Format</h4>
+<p>The header value follows this pattern:</p>
+<pre><code>Check Pages/0.23.4
 </code></pre>
+<p>This header is purely informational. The application may log this value or use it for debugging purposes, but its specific usage is entirely up to the implementation.</p>
+<h2>Important Note</h2>
+<p>These headers are NOT authentication mechanisms. They do not provide security or access control. Their sole purpose is to allow the application to identify and validate requests coming from the Check Pages testing framework. These headers should not be confused with or used as a substitute for proper authentication headers.</p>
+<h2>Usage</h2>
+<p>These headers are automatically included in HTTP requests made by Check Pages testing tools to the application:</p>
+<pre><code>GET /api/endpoint
+Host: example.com
+x-testing-token: your_arbitrary_token_here
+x-testing-framework: Check Pages/0.23.4
+</code></pre>
+<h2>Application Configuration</h2>
+<p>The application must be configured to:</p>
+<ol>
+<li>Recognize these headers</li>
+<li>Validate the token against a list of allowed values</li>
+</ol>
+<h2>Implementation Considerations</h2>
+<ul>
+<li>Since these headers are only for framework identification and not security, the token value can be simple and consistent across environments</li>
+<li>The application code should check for the presence and validity of these headers when determining if a request comes from the Check Pages testing framework</li>
+<li>The behavior changes triggered by these headers should be limited to testing-specific adjustments and should not bypass any security measures</li>
+</ul>
     </article>
   </div>
 </main>
@@ -70,7 +107,7 @@
       bi-caret-left-fill"></i> Check Pages</a>
   
     
-              <a href="readme_old.html" class="btn nav__prev-page js-nav__prev-page
+              <a href="troubleshooting.html" class="btn nav__prev-page js-nav__prev-page
     btn-primary"><i class="bi
       bi-caret-left-fill"></i></a>
   
@@ -81,8 +118,8 @@
        aria-controls="table-of-contents"><i class="bi
            bi-list-ol"></i></a>
     
-              <a href="security.html" class="btn nav__next-page js-nav__next-page
-    btn-primary"><i class="bi bi-file-earmark"></i> Security <i class="bi
+              <a href="sizing_elements.html" class="btn nav__next-page js-nav__next-page
+    btn-primary"><i class="bi bi-file-earmark"></i> Sizing DOM Elements <i class="bi
        bi-caret-right-fill"></i></a>
   
     
