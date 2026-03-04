@@ -15,12 +15,39 @@ use Exception;
  */
 class ExceptionMessage extends Message {
 
-  public function __construct(Exception $exception) {
+  const SEARCH_DEPTH = 4;
+
+  public function __construct(Exception $exception, int $verbosity = Verbosity::NORMAL, string $fallback_message = '') {
+    $message = $this->lookDeepForMessage($exception) ?: trim($fallback_message);
+    $verbosity = $verbosity ?? $this->getVerbosityByException($exception);
+
+    // If the message and fallback are both empty then include the trace.
+    if (empty($message) || $verbosity & Verbosity::VERBOSE) {
+      $message .= ($message ? PHP_EOL : '') . $exception->getTraceAsString();
+    }
+
     parent::__construct(
-      explode(PHP_EOL, $exception->getMessage()),
+      explode(PHP_EOL, $message),
       $this->getMessageTypeByException($exception),
       $this->getVerbosityByException($exception)
     );
+  }
+
+  private function lookDeepForMessage(\Throwable $value, array &$context = []) {
+    $context += ['count' => 0];
+    if ($context['count']++ > static::SEARCH_DEPTH) {
+      return '';
+    }
+    $message = trim($value->getMessage());
+    if ($message) {
+      return $message;
+    }
+    $previous = $value->getPrevious();
+    if (!$previous instanceof \Throwable) {
+      return '';
+    }
+
+    return $this->lookDeepForMessage($previous, $context);
   }
 
   private function getMessageTypeByException(Exception $exception): string {
@@ -32,7 +59,7 @@ class ExceptionMessage extends Message {
     return MessageType::ERROR;
   }
 
-  private function getVerbosityByException(Exception $exception): string {
+  private function getVerbosityByException(Exception $exception): int {
     if ($exception instanceof StopRunnerException) {
       // This is a major error and must be seen at all times.
       return Verbosity::NORMAL;

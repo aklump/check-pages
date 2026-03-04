@@ -21,7 +21,7 @@ trait TestFromCLITrait {
     $check_pages_bin = realpath(ROOT . '/checkpages');
     $runner = $this->getTestFileFilepath('runner.php');
     $dir = $this->getTestFilesDirectory() . '/';
-    $command = "$check_pages_bin run $runner --dir=$dir $args";
+    $command = PHP_BINARY . " $check_pages_bin run $runner --dir=$dir $args";
     $exit_code = NULL;
     exec($command, $output, $exit_code);
     $this->testFromCLITraitExitCode = (int) $exit_code;

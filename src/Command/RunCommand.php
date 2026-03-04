@@ -6,7 +6,6 @@ use AKlump\CheckPages\EventSubscriber\Feedback;
 use AKlump\CheckPages\EventSubscriber\Retest;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
-use AKlump\CheckPages\Files\GetShortPath;
 use AKlump\CheckPages\Handlers\Breakpoint;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message\ExceptionMessage;
@@ -14,6 +13,7 @@ use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Timer;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\RuntimeContext;
 use AKlump\LocalTimezone\LocalTimezone;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
@@ -63,6 +63,7 @@ class RunCommand extends Command {
 
     // Keep outside of try, because the catch needs this instance.
     $runner = new Runner($input, $output);
+    RuntimeContext::get()->add($runner);
 
     try {
 
@@ -74,6 +75,7 @@ class RunCommand extends Command {
       $plugins_manager->setRunner($runner);
 
       $messenger = $runner->getMessenger();
+      RuntimeContext::get()->add($messenger);
 
       // We set this now because there were not available before this point.  We
       // set them so that runner functions may use them.
@@ -128,16 +130,11 @@ class RunCommand extends Command {
       //        $runner->getDispatcher()
       //          ->dispatch(new SuiteEvent($suite), Event::SUITE_FAILED);
       //      }
-
-      // Convert the exception to messages.
-      $message = trim($exception->getMessage());
-      if ($message) {
-        $runner->addMessage(new ExceptionMessage($exception));
-        $lines = explode(PHP_EOL, $exception->getTraceAsString());
-        foreach ($lines as $line) {
-          $runner->addMessage(new Message([$line], MessageType::ERROR, Verbosity::VERBOSE));
-        }
-      }
+      $runner->addMessage(new ExceptionMessage(
+        $exception,
+        $runner->getMessenger()->getVerbosity(),
+        (string) RuntimeContext::get(),
+      ));
     }
 
     $this->echoResults($runner, $timer);

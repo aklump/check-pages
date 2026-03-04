@@ -28,7 +28,11 @@ trait TestWithDispatcherTrait {
     $container = (new BuildContainer($root_files))();
 
     $handlers_manager = $container->get('handlers_manager');
-    $loader = require 'vendor/autoload.php';
+    $dir = __DIR__;
+    while ($dir !== '/' && !file_exists($dir . '/vendor/autoload.php')) {
+      $dir = dirname($dir);
+    }
+    $loader = require $dir . '/vendor/autoload.php';
     (new AddHandlerAutoloads($handlers_manager))($loader);
 
     $input = $this->createConfiguredMock(InputInterface::class, [

@@ -27,4 +27,11 @@ interface MessengerInterface {
    * @return mixed
    */
   public function deliver(MessageInterface $message, int $flags = NULL);
+
+  /**
+   * @return int
+   *
+   * @see \AKlump\CheckPages\Output\Verbosity
+   */
+  public function getVerbosity(): int;
 }

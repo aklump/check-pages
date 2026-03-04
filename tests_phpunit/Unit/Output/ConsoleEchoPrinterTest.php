@@ -34,6 +34,12 @@ final class ConsoleEchoPrinterTest extends TestCase {
     $this->assertSame(1, substr_count($output, PHP_EOL));
   }
 
+  public function testGetVerbosity() {
+    $output = $this->createStub(OutputInterface::class);
+    $printer = new ConsoleEchoPrinter($output, \AKlump\CheckPages\Output\Verbosity::VERBOSE | \AKlump\CheckPages\Output\Verbosity::DEBUG);
+    $this->assertSame(\AKlump\CheckPages\Output\Verbosity::VERBOSE | \AKlump\CheckPages\Output\Verbosity::DEBUG, $printer->getVerbosity());
+  }
+
   private function getPrinter(): ConsoleEchoPrinter {
     $output = $this->createStub(OutputInterface::class);
     $output->method('writeln')

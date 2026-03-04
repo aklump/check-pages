@@ -23,6 +23,7 @@ use AKlump\CheckPages\Output\Messenger\LoggerPrinter;
 use AKlump\CheckPages\Output\Messenger\MultiPrinter;
 use AKlump\CheckPages\Output\VerboseDirective;
 use AKlump\CheckPages\Output\Verbosity;
+use AKlump\CheckPages\RuntimeContext;
 use AKlump\CheckPages\Service\DispatcherFactory;
 use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
@@ -376,7 +377,7 @@ class Runner implements HasMessagesInterface {
    *   The id or name of the runner.
    */
   public function id(): string {
-    return $this->id;
+    return $this->id ?? '';
   }
 
   /**
@@ -513,6 +514,7 @@ class Runner implements HasMessagesInterface {
       if (count($this->filters)) {
         $filter_message = '?' . urldecode(http_build_query($this->filters));
         $filter_message = preg_replace('/\[\d+\]/', '[]', $filter_message);
+        RuntimeContext::get()->add($this->filters, 'filters');
       }
 
       $this->echo(new Message(

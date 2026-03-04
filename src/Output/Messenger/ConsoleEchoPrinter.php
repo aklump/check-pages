@@ -158,4 +158,8 @@ final class ConsoleEchoPrinter implements MessengerInterface {
     return array_merge([$border], $lines, [$border]);
   }
 
+  public function getVerbosity(): int {
+    return $this->directive->toInt();
+  }
+
 }

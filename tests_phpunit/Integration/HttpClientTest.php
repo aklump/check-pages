@@ -29,6 +29,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @uses   \AKlump\CheckPages\Helpers\NormalizeHeaders
  * @uses   \AKlump\CheckPages\DataStructure\ContentTypeHeader
  * @uses   \AKlump\CheckPages\DataStructure\HttpHeader
+ * @uses   \AKlump\CheckPages\DataStructure\MediaTypeHeader
  * @uses   \AKlump\CheckPages\Files\HttpContentTypeGuesser
  * @uses   \AKlump\CheckPages\Output\Message\Message
  * @uses   \AKlump\CheckPages\Output\VerboseDirective

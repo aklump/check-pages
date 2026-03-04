@@ -224,4 +224,16 @@ final class VerboseDirectiveTest extends TestCase {
     }
   }
 
+  public function testToInt() {
+    $this->assertSame(Verbosity::NORMAL, (new VerboseDirective(''))->toInt());
+    $this->assertSame(Verbosity::VERBOSE, (new VerboseDirective('V'))->toInt());
+    $this->assertSame(Verbosity::DEBUG, (new VerboseDirective('D'))->toInt());
+    $this->assertSame(Verbosity::HEADERS, (new VerboseDirective('H'))->toInt());
+    $this->assertSame(Verbosity::REQUEST, (new VerboseDirective('S'))->toInt());
+    $this->assertSame(Verbosity::RESPONSE, (new VerboseDirective('R'))->toInt());
+
+    $this->assertSame(Verbosity::VERBOSE | Verbosity::DEBUG, (new VerboseDirective('VD'))->toInt());
+    $this->assertSame(Verbosity::HEADERS | Verbosity::REQUEST | Verbosity::RESPONSE, (new VerboseDirective('A'))->toInt());
+  }
+
 }

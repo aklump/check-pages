@@ -15,6 +15,7 @@ use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;
+use AKlump\CheckPages\RuntimeContext;
 use AKlump\CheckPages\Service\DotAccessor;
 use Symfony\Component\DependencyInjection\TaggedContainerInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -133,6 +134,7 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
     ->getConfig();
   $runtime_config = array_merge($base_config, $runtime_config);
   $runner->setConfig($runtime_config);
+  RuntimeContext::get()->add($path_to_suite, 'suite_path');
 
   // Expand a suite identified using a glob character
   $has_glob_char = function (string $path) {
@@ -196,6 +198,7 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
 
     $suite = new Suite($parsed['id'], $runner);
     $suite->setFilePath($absolute_path);
+    RuntimeContext::get()->add($suite);
     foreach ($suite_config as $item) {
       $suite->addTestByConfig($item);
     }

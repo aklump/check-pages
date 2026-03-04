@@ -21,4 +21,8 @@ class DevNullPrinter implements MessengerInterface {
   public function addProcessor(callable $callback): MessengerInterface {
     return $this;
   }
+
+  public function getVerbosity(): int {
+    return $this->getVerboseDirective()->toInt();
+  }
 }

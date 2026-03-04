@@ -147,4 +147,28 @@ final class VerboseDirective {
     return FALSE;
   }
 
+  public function toInt(): int {
+    $verbosity = 0;
+    if ($this->showDebugging()) {
+      $verbosity |= Verbosity::DEBUG;
+    }
+    if ($this->showVerbose()) {
+      $verbosity |= Verbosity::VERBOSE;
+    }
+    if ($this->showSendHeaders() || $this->showResponseHeaders()) {
+      $verbosity |= Verbosity::HEADERS;
+    }
+    if ($this->showSendBody()) {
+      $verbosity |= Verbosity::REQUEST;
+    }
+    if ($this->showResponseBody()) {
+      $verbosity |= Verbosity::RESPONSE;
+    }
+    if ($verbosity === 0) {
+      $verbosity = Verbosity::NORMAL;
+    }
+
+    return $verbosity;
+  }
+
 }

@@ -57,4 +57,8 @@ final class LoggerPrinter implements MessengerInterface {
     return sprintf('%s %s', $time, $line);
   }
 
+  public function getVerbosity(): int {
+    return 0;
+  }
+
 }

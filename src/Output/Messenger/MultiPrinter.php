@@ -43,4 +43,13 @@ class MultiPrinter implements MessengerInterface {
       $printer->deliver($message, $flags);
     }
   }
+
+  public function getVerbosity(): int {
+    $flags = 0;
+    foreach ($this->printers as $printer) {
+      $flags |= $printer->getVerbosity();
+    }
+
+    return $flags;
+  }
 }
