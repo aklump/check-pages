@@ -11,12 +11,14 @@ use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\LoadConfig;
 use AKlump\CheckPages\Helpers\AssertRunSuiteNotCalled;
+use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\RuntimeContext;
 use AKlump\CheckPages\Service\DotAccessor;
+use AKlump\Messaging\MessageType;
 use Symfony\Component\DependencyInjection\TaggedContainerInterface;
 use Symfony\Component\Yaml\Yaml;
 use AKlump\CheckPages\Event;
@@ -32,6 +34,7 @@ use AKlump\CheckPages\Event;
  */
 function load_config(string $config, bool $allow_override = TRUE) {
   global $container;
+  RuntimeContext::get()->add($config, 'configs');
 
   /** @var \AKlump\CheckPages\Parts\Runner $runner */
   $runner = $container->get('runner');
@@ -243,6 +246,7 @@ function with_extras(string $extras_filename, array $config) {
  */
 function add_mixin(string $mixin, array $mixin_config = []) {
   global $container;
+  RuntimeContext::get()->add($mixin, 'mixins');
 
   /** @var \AKlump\CheckPages\Parts\Runner $runner */
   $runner = $container->get('runner');
@@ -267,12 +271,17 @@ function add_mixin(string $mixin, array $mixin_config = []) {
   try {
     // We create a new scope for the mixin required file, which limited shared variables.
     (function (string $path, TaggedContainerInterface $container, Runner $runner, array $mixin_config) {
+      RuntimeContext::get()->add($path, 'mixins');
       require_once $path;
     })($require_path, $container, $runner, $mixin_config);
   }
-  catch (Throwable $exception) {
-    $message = sprintf('The mixin "%s" has failed.%s', $mixin, PHP_EOL . '└── ' . $exception->getMessage());
-    throw new (get_class($exception))($message, $exception->getCode(), $exception);
+  catch (\Exception $exception) {
+    $runner->getMessenger()
+      ->deliver(new Message([sprintf('The mixin "%s" has failed.', $mixin)],
+        MessageType::ERROR,
+        Verbosity::NORMAL,
+      ), Flags::BANNER);
+    throw $exception;
   }
 }
 
@@ -369,25 +378,35 @@ function add_test_option(string $selector, array $callbacks): void {
  */
 function add_shorthand(string $selector, callable $callback) {
   global $container;
+  RuntimeContext::get()->add($selector, 'shorthands');
 
   /** @var \AKlump\CheckPages\Parts\Runner $runner */
   $runner = $container->get('runner');
   (new AssertRunSuiteNotCalled())($runner, __FUNCTION__);
 
-  $runner->tryAddRuntimeOption($selector);
-
-  respond_to(Event::SUITE_STARTED, function ($event) use ($callback, $selector) {
-    foreach ($event->getSuite()->getTests() as $test) {
-      if (!$test->has($selector)) {
-        continue;
+  try {
+    $runner->tryAddRuntimeOption($selector);
+    respond_to(Event::SUITE_STARTED, function ($event) use ($callback, $selector) {
+      foreach ($event->getSuite()->getTests() as $test) {
+        if (!$test->has($selector)) {
+          continue;
+        }
+        $shorthand = $test->get($selector);
+        $test_config = $test->getConfig();
+        unset($test_config[$selector]);
+        $test->setConfig($test_config);
+        $callback($shorthand, $test);
       }
-      $shorthand = $test->get($selector);
-      $test_config = $test->getConfig();
-      unset($test_config[$selector]);
-      $test->setConfig($test_config);
-      $callback($shorthand, $test);
-    }
-  });
+    });
+  }
+  catch (\Exception $exception) {
+    $runner->getMessenger()
+      ->deliver(new Message([sprintf('The shorthand "%s" has failed.', $selector)],
+        MessageType::ERROR,
+        Verbosity::NORMAL,
+      ), Flags::BANNER);
+    throw $exception;
+  }
 }
 
 /**

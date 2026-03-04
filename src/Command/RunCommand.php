@@ -6,6 +6,7 @@ use AKlump\CheckPages\EventSubscriber\Feedback;
 use AKlump\CheckPages\EventSubscriber\Retest;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
+use AKlump\CheckPages\Files\GetShortPath;
 use AKlump\CheckPages\Handlers\Breakpoint;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Message\ExceptionMessage;
@@ -122,7 +123,7 @@ class RunCommand extends Command {
 
       $runner->executeRunner($path_to_runner);
     }
-    catch (Exception $exception) {
+    catch (\Exception $exception) {
       $runner->setFailed();
 
       //      $suite = $runner->getSuite();

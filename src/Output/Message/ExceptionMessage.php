@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Output\Message;
 
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Output\Verbosity;
+use AKlump\CheckPages\RuntimeContext;
 use AKlump\Messaging\MessageType;
 use Exception;
 
@@ -18,12 +19,13 @@ class ExceptionMessage extends Message {
   const SEARCH_DEPTH = 4;
 
   public function __construct(Exception $exception, int $verbosity = Verbosity::NORMAL, string $fallback_message = '') {
-    $message = $this->lookDeepForMessage($exception) ?: trim($fallback_message);
+    $message = $this->lookDeepForMessage($exception) ?? trim($fallback_message);
     $verbosity = $verbosity ?? $this->getVerbosityByException($exception);
 
     // If the message and fallback are both empty then include the trace.
     if (empty($message) || $verbosity & Verbosity::VERBOSE) {
-      $message .= ($message ? PHP_EOL : '') . $exception->getTraceAsString();
+      $message .= ($message ? PHP_EOL . PHP_EOL : '') . $exception->getTraceAsString();
+      $message .= PHP_EOL . PHP_EOL . RuntimeContext::class . ':' . PHP_EOL . json_encode(json_decode(RuntimeContext::get()), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
     parent::__construct(
@@ -36,15 +38,15 @@ class ExceptionMessage extends Message {
   private function lookDeepForMessage(\Throwable $value, array &$context = []) {
     $context += ['count' => 0];
     if ($context['count']++ > static::SEARCH_DEPTH) {
-      return '';
+      return NULL;
     }
     $message = trim($value->getMessage());
-    if ($message) {
+    if (strlen($message) > 0) {
       return $message;
     }
     $previous = $value->getPrevious();
     if (!$previous instanceof \Throwable) {
-      return '';
+      return NULL;
     }
 
     return $this->lookDeepForMessage($previous, $context);
