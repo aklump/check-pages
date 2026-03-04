@@ -811,7 +811,10 @@ class Runner implements HasMessagesInterface {
     $validator = new Validator();
     $suite_yaml = Yaml::dump($suite->jsonSerialize());
     $data = Yaml::parse($suite_yaml, YAML::PARSE_OBJECT_FOR_MAP);
+
+    // TODO This is the source of bad performance at times.
     $validator->validate($data, $schema);
+
     if (!$validator->isValid()) {
       $directive = Verbosity::DEBUG;
 
