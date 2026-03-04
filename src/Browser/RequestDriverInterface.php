@@ -113,4 +113,33 @@ interface RequestDriverInterface extends RequestInterface {
    */
   public function getSupportedMethods(): array;
 
+  /**
+   * Mutable equivalent of PSR-7 withHeader(): replace the header entirely.
+   *
+   * @param string $name
+   * @param string|string[] $value
+   *
+   * @return $this
+   */
+  public function setHeader(string $name, $value): RequestDriverInterface;
+
+  /**
+   * Mutable equivalent of PSR-7 withAddedHeader(): append values to any existing.
+   *
+   * @param string $name
+   * @param string|string[] $value
+   *
+   * @return $this
+   */
+  public function addHeader(string $name, $value): RequestDriverInterface;
+
+  /**
+   * Mutable equivalent of PSR-7 withoutHeader(): remove the header.
+   *
+   * @param string $name
+   *
+   * @return $this
+   */
+  public function unsetHeader(string $name): RequestDriverInterface;
+
 }

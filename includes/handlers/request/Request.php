@@ -143,7 +143,6 @@ final class Request implements HandlerInterface {
               $test->interpolate($headers);
               $interpolation_review['headers'] = $headers;
               foreach ($headers as $key => $value) {
-                // Set one at a time because we are ADDING to any existing.
                 $driver->setHeader($key, $value);
               }
             }

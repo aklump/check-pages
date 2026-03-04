@@ -138,17 +138,66 @@ abstract class RequestDriver implements RequestDriverInterface {
   }
 
   /**
-   * @param string $key
-   * @param $value
-   *
-   * @return \AKlump\CheckPages\Browser\RequestDriverInterface
+   * Mutable equivalent of PSR-7 withHeader(): replace the header entirely.
    */
-  public function setHeader(string $key, $value): RequestDriverInterface {
+  public function setHeader(string $name, $value): RequestDriverInterface {
     if (is_string($value)) {
       @trigger_error(sprintf('%s(string $value) is deprecated in version 0.23.3 and will not be supported in future versions. Use %s(array $value) instead.', __METHOD__, __METHOD__), E_USER_DEPRECATED);
     }
+    $normalized = (new NormalizeHeaders())([$name => $value]);
+    $normalizedName = (string) key($normalized);
+    $normalizedValues = (array) current($normalized);
+
     $this->headers ??= [];
-    $this->headers += (new NormalizeHeaders())([$key => $value]);
+
+    // Remove any existing header matching $name (case-insensitive).
+    foreach (array_keys($this->headers) as $existingName) {
+      if (strcasecmp($existingName, $name) === 0) {
+        unset($this->headers[$existingName]);
+      }
+    }
+
+    $this->headers[$normalizedName] = array_values($normalizedValues);
+
+    return $this;
+  }
+
+  /**
+   * Mutable equivalent of PSR-7 withAddedHeader(): append values to any existing.
+   */
+  public function addHeader(string $name, $value): RequestDriverInterface {
+    $normalized = (new NormalizeHeaders())([$name => $value]);
+    $normalizedName = (string) key($normalized);
+    $normalizedValues = (array) current($normalized);
+
+    $this->headers ??= [];
+
+    // Append to an existing key matching case-insensitively (preserve casing).
+    $targetKey = $normalizedName;
+    foreach (array_keys($this->headers) as $existingName) {
+      if (strcasecmp($existingName, $normalizedName) === 0) {
+        $targetKey = $existingName;
+        break;
+      }
+    }
+
+    $existingValues = isset($this->headers[$targetKey]) ? (array) $this->headers[$targetKey] : [];
+    $this->headers[$targetKey] = array_values(array_merge($existingValues, $normalizedValues));
+
+    return $this;
+  }
+
+  /**
+   * Mutable equivalent of PSR-7 withoutHeader(): remove the header.
+   */
+  public function unsetHeader(string $name): RequestDriverInterface {
+    $this->headers ??= [];
+
+    foreach (array_keys($this->headers) as $existingName) {
+      if (strcasecmp($existingName, $name) === 0) {
+        unset($this->headers[$existingName]);
+      }
+    }
 
     return $this;
   }
@@ -288,11 +337,14 @@ abstract class RequestDriver implements RequestDriverInterface {
    * {@inheritdoc}
    */
   public function getProtocolVersion(): string {
-    // TODO: Implement getProtocolVersion() method.
+    return $this->protocolVersion ?? '1.1';
   }
 
   public function withProtocolVersion(string $version): MessageInterface {
-    // TODO: Implement withProtocolVersion() method.
+    $clone = clone $this;
+    $clone->protocolVersion = $version;
+
+    return $clone;
   }
 
   /**
@@ -307,28 +359,106 @@ abstract class RequestDriver implements RequestDriverInterface {
     return implode(',', $header);
   }
 
+  /**
+   * {@inheritdoc}
+   *
+   * @deprecated For CheckPages driver mutation, use setHeader()/addHeader()/unsetHeader().
+   * This method exists for PSR-7 compliance and returns a clone.
+   * @see \AKlump\CheckPages\Browser\RequestDriverInterface::setHeader()
+   */
   public function withHeader(string $name, $value): MessageInterface {
-    // TODO: Implement withHeader() method.
+    $normalized = (new NormalizeHeaders())([$name => $value]);
+    $normalizedName = (string) key($normalized);
+    $normalizedValues = (array) current($normalized);
+
+    $clone = clone $this;
+
+    $headers = $clone->headers ?? [];
+
+    // Remove any existing header matching $name (case-insensitive).
+    foreach (array_keys($headers) as $existingName) {
+      if (strcasecmp($existingName, $name) === 0) {
+        unset($headers[$existingName]);
+      }
+    }
+
+    $headers[$normalizedName] = array_values($normalizedValues);
+    $clone->headers = $headers;
+
+    return $clone;
   }
 
+  /**
+   * {@inheritdoc}
+   *
+   * @deprecated For CheckPages driver mutation, use setHeader()/addHeader()/unsetHeader().
+   * This method exists for PSR-7 compliance and returns a clone.
+   * @see \AKlump\CheckPages\Browser\RequestDriverInterface::addHeader()
+   */
   public function withAddedHeader(string $name, $value): MessageInterface {
-    // TODO: Implement withAddedHeader() method.
+    $normalized = (new NormalizeHeaders())([$name => $value]);
+    $normalizedName = (string) key($normalized);
+    $normalizedValues = (array) current($normalized);
+
+    $clone = clone $this;
+
+    $headers = $clone->headers ?? [];
+
+    // Find an existing header key that matches case-insensitively, so we append
+    // to the originally-stored key (preserves current casing choice).
+    $targetKey = $normalizedName;
+    foreach (array_keys($headers) as $existingName) {
+      if (strcasecmp($existingName, $normalizedName) === 0) {
+        $targetKey = $existingName;
+        break;
+      }
+    }
+
+    $existingValues = isset($headers[$targetKey]) ? (array) $headers[$targetKey] : [];
+    $headers[$targetKey] = array_values(array_merge($existingValues, $normalizedValues));
+
+    $clone->headers = $headers;
+
+    return $clone;
   }
 
+  /**
+   * {@inheritdoc}
+   *
+   * @deprecated For CheckPages driver mutation, use setHeader()/addHeader()/unsetHeader().
+   * This method exists for PSR-7 compliance and returns a clone.
+   * @see \AKlump\CheckPages\Browser\RequestDriverInterface::unsetHeader()
+   */
   public function withoutHeader(string $name): MessageInterface {
-    // TODO: Implement withoutHeader() method.
+    $clone = clone $this;
+
+    $headers = $clone->headers ?? [];
+    foreach (array_keys($headers) as $existingName) {
+      if (strcasecmp($existingName, $name) === 0) {
+        unset($headers[$existingName]);
+      }
+    }
+    $clone->headers = $headers;
+
+    return $clone;
   }
 
   public function withBody(StreamInterface $body): MessageInterface {
-    // TODO: Implement withBody() method.
+    $clone = clone $this;
+    $clone->body = $body;
+
+    return $clone;
   }
 
   public function getRequestTarget(): string {
-    // TODO: Implement getRequestTarget() method.
+    return (string) $this->getUri();
   }
 
   public function withRequestTarget(string $requestTarget): RequestInterface {
-    // TODO: Implement withRequestTarget() method.
+    $clone = clone $this;
+    $clone->setUrl($requestTarget);
+
+    return $clone;
   }
 
   /**
@@ -339,7 +469,10 @@ abstract class RequestDriver implements RequestDriverInterface {
   }
 
   public function withMethod(string $method): RequestInterface {
-    // TODO: Implement withMethod() method.
+    $clone = clone $this;
+    $clone->setMethod($method);
+
+    return $clone;
   }
 
   /**
@@ -350,7 +483,10 @@ abstract class RequestDriver implements RequestDriverInterface {
   }
 
   public function withUri(UriInterface $uri, bool $preserveHost = FALSE): RequestInterface {
-    // TODO: Implement withUri() method.
+    $clone = clone $this;
+    $clone->setUrl((string) $uri);
+
+    return $clone;
   }
 
   public function getDispatcher(): EventDispatcher {
