@@ -6,6 +6,7 @@ use AKlump\CheckPages\Helpers\NormalizeHeaders;
 use AKlump\CheckPages\Response;
 use AKlump\CheckPages\Service\RequestHistory;
 use AKlump\CheckPages\Traits\BaseUrlTrait;
+use AKlump\CheckPages\Traits\HasTestTrait;
 use AKlump\Messaging\MessengerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
@@ -24,6 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 abstract class RequestDriver implements RequestDriverInterface {
 
   use BaseUrlTrait;
+  use HasTestTrait;
 
   /**
    * Maximum number of redirects to allow per request.  Child classes should
@@ -155,7 +157,20 @@ abstract class RequestDriver implements RequestDriverInterface {
    * {@inheritdoc}
    */
   public function getHeaders(): array {
-    return $this->headers ?? [];
+    $headers = $this->headers ?? [];
+    // TODO Change global to DI?
+    global $container;
+    $test = $this->getTest();
+    if ($container && $test) {
+      $headers['x-testing-framework'] = [
+        $container->get('x-testing-framework')(),
+      ];
+      $headers['x-testing-token'] = [
+        $test->getRunner()->get('testing_token'),
+      ];
+    }
+
+    return $headers;
   }
 
   /**
@@ -163,11 +178,12 @@ abstract class RequestDriver implements RequestDriverInterface {
    */
   public function getHeader($name): array {
     $headers = array_change_key_case($this->getHeaders());
+    $name = strtolower($name);
     if (empty($headers[$name])) {
       return [];
     }
 
-    return [$headers[$name]];
+    return $headers[$name];
   }
 
   /**
@@ -279,8 +295,16 @@ abstract class RequestDriver implements RequestDriverInterface {
     // TODO: Implement withProtocolVersion() method.
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getHeaderLine(string $name): string {
-    // TODO: Implement getHeaderLine() method.
+    $header = $this->getHeader($name);
+    if (empty($header)) {
+      return '';
+    }
+
+    return implode(',', $header);
   }
 
   public function withHeader(string $name, $value): MessageInterface {

@@ -62,6 +62,7 @@ final class Feedback implements EventSubscriberInterface {
             Verbosity::NORMAL
           ), Flags::INVERT);
         },
+        -100,
       ],
 
       Event::SUITE_CREATED => [

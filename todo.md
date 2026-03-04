@@ -1,5 +1,10 @@
 ## Critical
 
+- request.headers.cookie when used with form doesn't post with the form and it should
+
+- setup how to configure the x-testing-token.
+- setup the framework version string.
+
 - why does it take so long to skip a file when --retest is enabled?
 
 - form handler: prevent this from happening: `1[name]=pass&1[value]=pass&op=Next&input=uber&form_build_id=form-EYcmhwbcrV34PSUt8ecSDNw21SadTTljqcmswa2Cf2M&form_id=user_login_form&pass=pass`

@@ -89,11 +89,7 @@ final class JsonSchema implements HandlerInterface {
     // TODO Write to file if debugging to help better write schemas?
 
     $assert->setSearch(self::getId(), $assert->schema);
-    $path_to_schema = $this->files->tryResolveFile($assert->schema, [
-      'json',
-      'schema.json',
-    ])[0];
-    list($uri, $schema, $path_to_schema) = $this->decodeSchemaValue($path_to_schema, $assert->schema);
+    list($uri, $schema, $path_to_schema) = $this->decodeSchemaValue($assert->schema);
     $config = $assert->getConfig();
 
     $config['extras']['json_schema']['short_path'] = (new GetShortPath(getcwd()))($path_to_schema);
@@ -143,9 +139,10 @@ final class JsonSchema implements HandlerInterface {
    *
    * @return object
    */
-  private function decodeSchemaValue(string $path_to_schema, string $schema_config_value) {
+  private function decodeSchemaValue(string $schema_config_value) {
     $cid = crc32($schema_config_value);
     if (!isset($this->jsonSchemas[$cid])) {
+      $path_to_schema = '';
       $is_json = substr(ltrim($schema_config_value), 0, 1) === '{';
       if ($is_json) {
         $uri = SchemaStorage::INTERNAL_PROVIDED_SCHEMA_URI;
@@ -153,6 +150,10 @@ final class JsonSchema implements HandlerInterface {
       }
       else {
         try {
+          $path_to_schema = $this->files->tryResolveFile($schema_config_value, [
+            'json',
+            'schema.json',
+          ])[0];
           $uri = 'file://' . $path_to_schema;
         }
         catch (UnresolvablePathException $exception) {
@@ -171,7 +172,7 @@ final class JsonSchema implements HandlerInterface {
       catch (\Exception $exception) {
         throw new RuntimeException(sprintf('Cannot decode JSON schema from "%s".', $schema_config_value));
       }
-      $this->jsonSchemas[$cid] = [$uri, $schema];
+      $this->jsonSchemas[$cid] = [$uri, $schema, $path_to_schema];
     }
 
     return $this->jsonSchemas[$cid];

@@ -3,6 +3,9 @@
 namespace AKlump\CheckPages\Files;
 
 
+use AKlump\CheckPages\DataStructure\ContentTypeHeader;
+use AKlump\CheckPages\DataStructure\HttpHeader;
+
 class HttpLogging {
 
   const IGNORED_HEADER_KEYS = ['host'];
@@ -20,17 +23,18 @@ class HttpLogging {
 
     $export[] = sprintf('%s %s', strtoupper($method), $url);
 
-    $request_headers = array_change_key_case($request_headers);
-    foreach ($request_headers as $key => $value) {
-      if (!in_array($key, self::IGNORED_HEADER_KEYS)) {
-        $export[] = sprintf('%s: %s', $key, $value);
+    foreach ($request_headers as $name => $value) {
+      $header = (new HttpHeader($name, $value));
+      if (!in_array($name, self::IGNORED_HEADER_KEYS)) {
+        $export[] = sprintf('%s: %s', $header->getName(), $header);
       }
     }
 
     if (!empty($request_body_or_data)) {
-      $content_type = $request_headers['content-type'] ?? 'application/octet-stream';
       if (!is_string($request_body_or_data)) {
+        $content_type = (string) (new ContentTypeHeader($request_headers['content-type'] ?? 'application/octet-stream'));
         switch ($content_type) {
+          // TODO Can't we use \AKlump\CheckPages\Traits\SerializationTrait?
           case 'application/json':
             $request_body_or_data = json_encode($request_body_or_data);
             break;

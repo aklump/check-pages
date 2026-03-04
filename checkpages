@@ -12,6 +12,7 @@ use AKlump\CheckPages\Handlers\AddHandlerAutoloads;
 use AKlump\CheckPages\Helpers\BuildContainer;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Yaml\Yaml;
 
 foreach ([
            __DIR__ . '/../../autoload.php',
@@ -38,11 +39,13 @@ $handlers_manager = $container->get('handlers_manager');
 (new AddHandlerAutoloads($handlers_manager))($class_loader);
 
 $application = new Application();
-$application->setName('Check Pages by In the Loft Studios');
-
-$composer_json = $root_files->tryResolveFile('composer.json')[0];
-$version = json_decode(file_get_contents($composer_json))->version ?? '';
+$application->setName('Check Pages');
+$version = Yaml::parseFile(__DIR__ . '/.web_package/config.yml')['version'] ?? NULL;
+if (empty($version)) {
+  throw new RuntimeException('Cannot determine Check Pages version.');
+}
 $application->setVersion($version);
+$container->set('x-testing-framework', fn() => $application->getName() . '/' . $application->getVersion());
 
 $application->add(new RunCommand($root_files));
 $application->add(new InitCommand(__DIR__ . '/init_scaffold'));

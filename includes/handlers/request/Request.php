@@ -4,6 +4,7 @@ namespace AKlump\CheckPages\Handlers;
 
 use AKlump\CheckPages\Browser\HeadlessBrowserInterface;
 use AKlump\CheckPages\Browser\RequestDriverInterface;
+use AKlump\CheckPages\DataStructure\ContentTypeHeader;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\SuiteEventInterface;
@@ -119,7 +120,6 @@ final class Request implements HandlerInterface {
             $driver = $event->getDriver();
             $config = $test->getConfig();
             $interpolation_review = [];
-
             $handler = new self();
 
             //
@@ -134,6 +134,11 @@ final class Request implements HandlerInterface {
 
             $headers = $config[self::SELECTOR]['headers'] ?? [];
             if ($headers) {
+              // This is not superfluous because this plugin allows for string
+              // header values.  We should convert it here so that setHeader
+              // does not fail when it receives the string.  At this time
+              // setHeader allows a string, but that will be removed.  This is
+              // the cleanest way to ensure compatibility.
               $headers = (new NormalizeHeaders())($headers);
               $test->interpolate($headers);
               $interpolation_review['headers'] = $headers;
@@ -199,14 +204,8 @@ final class Request implements HandlerInterface {
     if (!$body || is_scalar($body)) {
       return $body;
     }
-
-    $content_type = 'application/octet-stream';
-    foreach ($headers as $header => $value) {
-      if (strcasecmp('content-type', $header) === 0) {
-        $content_type = $value;
-        break;
-      }
-    }
+    // TODO Should this really be the default?
+    $content_type = (string) (new ContentTypeHeader($headers['content-type'] ?? 'application/octet-stream'));
 
     return $this->serialize($body, $content_type);
   }

@@ -195,7 +195,16 @@ final class TestRunner implements EventDispatcherInterface {
               ->id(), $test->id(), $assert_id, $config);
           }
         }
-        $this->getDriver()->request($assertions_to_wait_for);
+
+        $driver = $this->getDriver();
+
+        // Validate the driver can handle the method.
+        $method = $driver->getMethod();
+        $supported_methods = $driver->getSupportedMethods();
+        if ($supported_methods && !in_array(strtolower($method), $supported_methods)) {
+          throw new \RuntimeException(sprintf('Method "%s" is not a supported by %s.', strtoupper($method), get_class($driver)));
+        }
+        $driver->request($assertions_to_wait_for);
       }
       catch (RequestTimedOut $exception) {
         $test->setFailed();

@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\EventSubscriber;
 
+use AKlump\CheckPages\DataStructure\ContentTypeHeader;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\HttpMessageEvent;
 use AKlump\CheckPages\Event\SuiteEventInterface;
@@ -85,9 +86,8 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           $handler->setTest($test);
           $runner = $test->getRunner();
           $headers = $event->getHeaders();
-          $content_type = $headers['content-type'][0] ?? '';
+          $content_type = (string) (new ContentTypeHeader($headers['content-type'] ?? ''))->normalize();
           $content = $event->getBody();
-          $mime_type = $handler->parseMimeFromContentTypeHeader($content_type);
           switch ($content_type) {
             case 'application/xml':
               $formatter = new Formatter();
@@ -115,7 +115,7 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           $handler->addFileSavedMessages($absolute_path);
 
           // Now write the request content as appropriate by mimetype.
-          $extensions = self::$mime_types[$mime_type];
+          $extensions = self::$mime_types[$content_type] ?? ['txt'];
           foreach ($extensions as $extension) {
             $absolute_path = $runner->writeToFile($base_path . '.' . $extension, [$prepared_content_as_string], 'w+');
             $handler->addFileSavedMessages($absolute_path);
@@ -132,15 +132,6 @@ final class SaveResponseToFile implements EventSubscriberInterface {
     $indent = str_repeat(' ', mb_strlen(Icons::RESPONSE . Icons::FILE));
     $test->addMessage(new Message([$indent . $short_path], MessageType::TODO, Verbosity::VERBOSE));
     $test->echoMessages();
-  }
-
-  private function parseMimeFromContentTypeHeader(string $content_type): string {
-    $regex = '/^(' . implode('|', array_map(function ($item) {
-        return preg_quote($item, '/');
-      }, array_keys(self::$mime_types))) . ')/i';
-    preg_match($regex, $content_type, $mime_type);
-
-    return $mime_type[0] ?? '';
   }
 
   private function getOutputBasePath(): string {

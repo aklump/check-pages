@@ -1,8 +1,21 @@
 # Making Requests Other Than GET
 
-## Automatic Body Encoding
+## Sending Data
 
-When the body is not a scalar or null, it will be encoded based on the content type. The assumed content type is `application/octet-stream`
+### Request Field Types
+
+- **URL Parameters**: `query` or `params` fields are URL-encoded in the query string (regardless of HTTP verb)
+- **Request Body**: `data` or `body` fields are used for the request body (for all verbs that allow a body)
+
+### Data Encoding
+
+- URL parameters will always be URL-encoded (e.g., `key=value&key2=value2`)
+- Request body will be encoded based on the `Content-Type` header
+- If no `Content-Type` is provided, the default is `application/x-www-form-urlencoded`
+
+```yaml
+
+```
 
 ## Multiple Verbs
 

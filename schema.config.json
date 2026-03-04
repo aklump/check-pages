@@ -18,6 +18,10 @@
       ],
       "pattern": "^(http|https|localhost):.+$"
     },
+    "testing_token": {
+      "type": "string",
+      "description": "An arbitrary string for validating testing requests."
+    },
     "stop_on_failed_test": {
       "type": "boolean"
     },

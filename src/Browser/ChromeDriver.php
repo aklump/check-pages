@@ -3,6 +3,8 @@
 namespace AKlump\CheckPages\Browser;
 
 
+use AKlump\CheckPages\DataStructure\ContentTypeHeader;
+use AKlump\CheckPages\DataStructure\HttpHeader;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\HttpMessageEvent;
 use AKlump\CheckPages\Exceptions\RequestTimedOut;
@@ -26,8 +28,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 
 final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterface {
-
-  use HasTestTrait;
 
   /**
    * @var array
@@ -130,7 +130,10 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
     // starts headless chrome
     $browser = $browserFactory->createBrowser([
       'ignoreCertificateErrors' => $this->allowInvalidCertificate(),
-      'headers' => $this->getHeaders(),
+      'headers' => array_map(function ($header) {
+        // TODO Sort out the not-need for name 'foo', make it optional perhaps?
+        return (string) (new HttpHeader('foo', $header));
+      }, $this->getHeaders()),
       //      'debugLogger' => 'php://stdout',
       //      'headless' => FALSE,
     ]);
@@ -152,7 +155,15 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
           $response['headers'] = $params['response']['headers'] ?? [];
         });
 
-      $this->page->navigate($this->getUri())
+      $page_url = (string) $this->getUri();
+      if (!empty($this->body)) {
+        $content_type = (string) (new ContentTypeHeader($this->getHeader('content-type')));
+        if ($content_type !== 'application/x-www-form-urlencoded') {
+          throw new \RuntimeException(sprintf('Only application/x-www-form-urlencoded is supported for request bodies with %s.', __CLASS__));
+        }
+        $page_url = (string) $this->getUri()->withQuery($this->body);
+      }
+      $this->page->navigate($page_url)
         ->waitForNavigation(Page::LOAD, $this->getRequestTimeout() * 1000);
       $page_contents = $this->getPageContents($response, $assertions);
 
@@ -288,4 +299,12 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
 
     return $evaluated;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSupportedMethods(): array {
+    return ['get'];
+  }
+
 }

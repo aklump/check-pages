@@ -5,15 +5,24 @@ namespace AKlump\CheckPages\Browser;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\HttpMessageEvent;
 use AKlump\CheckPages\Exceptions\RequestTimedOut;
+use AKlump\CheckPages\Service\DispatcherFactory;
 use AKlump\CheckPages\Traits\HasTestTrait;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\RequestOptions;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class GuzzleDriver extends RequestDriver {
 
-  use HasTestTrait;
+  public function __construct(EventDispatcher $dispatcher = NULL) {
+    if (is_null($dispatcher)) {
+      global $container;
+      $dispatcher = DispatcherFactory::createFromContainer($container);
+    }
+    parent::__construct($dispatcher);
+  }
+
 
   /**
    * {@inheritdoc}
@@ -78,4 +87,9 @@ class GuzzleDriver extends RequestDriver {
 
     return $this;
   }
+
+  public function getSupportedMethods(): array {
+    return [];
+  }
+
 }

@@ -106,4 +106,11 @@ interface RequestDriverInterface extends RequestInterface {
   public function setMessenger(MessengerInterface $messenger): RequestDriverInterface;
 
   public function getDispatcher(): EventDispatcher;
+
+  /**
+   * @return string[] An array of LOWER-CASE http methods that are supported by
+   * this driver.  To support all methods return an empty array.
+   */
+  public function getSupportedMethods(): array;
+
 }

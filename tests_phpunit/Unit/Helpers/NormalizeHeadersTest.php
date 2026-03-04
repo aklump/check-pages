@@ -10,6 +10,15 @@ use PHPUnit\Framework\TestCase;
  */
 class NormalizeHeadersTest extends TestCase {
 
+  public function testCSVHeadersSplit() {
+    $headers = (new NormalizeHeaders())(['content-type' => 'text/html, application/xhtml+xml, application/xml']);
+    $this->assertSame([
+      'text/html',
+      'application/xhtml+xml',
+      'application/xml',
+    ], $headers['content-type']);
+  }
+
   public function testHeaderObjectValueThrows() {
     $this->expectException(\InvalidArgumentException::class);
     $this->expectExceptionMessage('Headers must be an array of strings.');

@@ -12,6 +12,20 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 class RequestDriverTest extends TestCase {
 
+  public function testGetHeaderLine() {
+    $driver = new TestableRequestDriver($this->createMock(EventDispatcher::class));
+    $driver->setHeader('fOo', ['bar', 'baz']);
+    $this->assertSame('bar,baz', $driver->getHeaderLine('FOO'));
+    $this->assertSame('bar,baz', $driver->getHeaderLine('foo'));
+  }
+
+  public function testGetHeader() {
+    $driver = new TestableRequestDriver($this->createMock(EventDispatcher::class));
+    $driver->setHeader('fOo', ['bar', 'baz']);
+    $this->assertSame(['bar', 'baz'], $driver->getHeader('FOO'));
+    $this->assertSame(['bar', 'baz'], $driver->getHeader('foo'));
+  }
+
   public function testPassingStringArgument() {
     $driver = new TestableRequestDriver($this->createMock(EventDispatcher::class));
     $deprecation_message = '';
@@ -42,5 +56,10 @@ class TestableRequestDriver extends RequestDriver {
   public function request(array $assertions = []): RequestDriverInterface {
     // TODO: Implement request() method.
   }
+
+  public function getSupportedMethods(): array {
+    return [];
+  }
+
 
 }
