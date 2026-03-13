@@ -34,4 +34,5 @@ interface MessengerInterface {
    * @see \AKlump\CheckPages\Output\Verbosity
    */
   public function getVerbosity(): int;
+
 }

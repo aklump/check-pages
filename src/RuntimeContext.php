@@ -70,6 +70,13 @@ class RuntimeContext implements \Stringable {
   }
 
   /**
+   * Get all context items for a given key.
+   */
+  public function getContext(string $key): array {
+    return $this->contexts[$key] ?? [];
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function __toString(): string {

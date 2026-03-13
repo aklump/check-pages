@@ -6,10 +6,12 @@ use AKlump\CheckPages\Helpers\GetRealStringLength;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\VerboseDirective;
 use AKlump\CheckPages\Output\Verbosity;
+use AKlump\CheckPages\RuntimeContext;
 use AKlump\LoftLib\Bash\Color;
 use AKlump\Messaging\MessageInterface;
 use AKlump\Messaging\MessageType;
 use AKlump\Messaging\MessengerInterface;
+use ReflectionClass;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -100,6 +102,15 @@ final class ConsoleEchoPrinter implements MessengerInterface {
     if ($lines) {
       $color = $color ?? $this->getColor($message_type);
       foreach ($lines as $line) {
+
+        // This can be used for automated testing
+        // @see \add_mixinTest::testFunctionAddsExceptionPrefixToThrownException
+        $context_line = trim($line);
+        if ($context_line !== '') {
+          RuntimeContext::get()
+            ->add($context_line, (new ReflectionClass($this))->getShortName());
+        }
+
         $message = Color::wrap($color, $line);
         $this->output->writeln($message);
       }

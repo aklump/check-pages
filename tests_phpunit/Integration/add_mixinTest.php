@@ -4,6 +4,7 @@ use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Files\LocalFilesProvider;
 use AKlump\CheckPages\Helpers\BuildContainer;
 use AKlump\CheckPages\Parts\Runner;
+use AKlump\CheckPages\RuntimeContext;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -17,8 +18,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @uses \AKlump\CheckPages\Parts\Runner
  * @uses \AKlump\CheckPages\Plugin\HandlersManager
  * @uses \AKlump\CheckPages\Exceptions\UnresolvablePathException
- * @uses AKlump\CheckPages\RuntimeContext::add
- * @uses AKlump\CheckPages\RuntimeContext::get
+ * @uses AKlump\CheckPages\RuntimeContext
+ * @uses \AKlump\CheckPages\Helpers\GetRealStringLength
+ * @uses \AKlump\CheckPages\Output\Message\Message
+ * @uses \AKlump\CheckPages\Output\Messenger\ConsoleEchoPrinter
+ * @uses \AKlump\CheckPages\Output\Messenger\LoggerPrinter
+ * @uses \AKlump\CheckPages\Output\Messenger\MultiPrinter
+ * @uses \AKlump\CheckPages\Output\VerboseDirective
  */
 class add_mixinTest extends TestCase {
 
@@ -42,7 +48,9 @@ class add_mixinTest extends TestCase {
       add_mixin('throws_mixin');
     }
     catch (StopRunnerException $exception) {
-      $this->assertStringContainsString('The mixin "throws_mixin" has failed.', $exception->getMessage());
+      $console_messages = RuntimeContext::get()
+        ->getContext('ConsoleEchoPrinter');
+      $this->assertContains('The mixin "throws_mixin" has failed.', $console_messages);
       $this->assertStringContainsString('Testing failed due to an unspecified error', $exception->getMessage());
     }
   }
