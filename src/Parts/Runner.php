@@ -298,6 +298,9 @@ class Runner implements HasMessagesInterface {
     $printers[] = new ConsoleEchoPrinter($output, $flags);
     $printers[] = new LoggerPrinter(self::LOGGER_PRINTER_BASENAME, $this);
 
+    // For some reason it does NOT work to create an instance as an object
+    // property and return that on subsequent method calls.  So we instantiate
+    // anew each time.
     return new MultiPrinter($printers);
   }
 
