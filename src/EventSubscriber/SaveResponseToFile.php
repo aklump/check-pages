@@ -82,6 +82,9 @@ final class SaveResponseToFile implements EventSubscriberInterface {
       Event::RESPONSE_RECEIVED => [
         function (HttpMessageEvent $event) {
           $test = $event->getTest();
+          if (!$test) {
+            return;
+          }
           $handler = new self();
           $handler->setTest($test);
           $runner = $test->getRunner();
