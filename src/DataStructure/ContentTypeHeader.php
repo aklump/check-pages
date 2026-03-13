@@ -45,10 +45,6 @@ final class ContentTypeHeader extends MediaTypeHeader {
         case 'application/json':
           return 'application/json';
 
-        case 'application/pdf':
-          // TODO What's the best solution here?
-          return [];
-
         case 'application/yaml':
         case 'yaml':
         case 'yml':
