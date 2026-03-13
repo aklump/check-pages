@@ -32,14 +32,14 @@ class SystemResourcesManager {
 
   private function getOpenFiles(): int {
     $pid = getmypid();
-    if (DIRECTORY_SEPARATOR == '/') { // Linux optimization.
-      $open_files_count = intval(shell_exec("ls -l /proc/$pid/fd 2>/dev/null | wc -l"));
-      if ($open_files_count !== 0) { // If successful on Linux return here.
+    if (DIRECTORY_SEPARATOR === '/' && is_dir("/proc/$pid/fd")) {
+      $open_files_count = (int) shell_exec("ls -1 /proc/$pid/fd 2>/dev/null | wc -l");
+      if ($open_files_count > 0) {
         return $open_files_count;
       }
     }
 
-    return intval(shell_exec("lsof -p $pid | wc -l"));
+    return (int) shell_exec("lsof -w -p $pid 2>/dev/null | tail -n +2 | wc -l");
   }
 
 }
