@@ -157,10 +157,6 @@ class Runner implements HasMessagesInterface {
    */
   protected $runtimeOptions = [];
 
-  /**
-   * @var array
-   */
-  protected $writeToFileResources;
 
   /**
    * @var array
@@ -403,7 +399,18 @@ class Runner implements HasMessagesInterface {
     return $this->configPath ?? '';
   }
 
-  public function loadConfig(string $resolve_config_path) {
+  /**
+   * Load the configuration from the filesystem.
+   *
+   * @param string $resolve_config_path
+   *   The path to the config file.  This may be a glob, in which case the first
+   *   file found will be used.
+   *
+   * @return $this
+   *
+   * @throws \AKlump\CheckPages\Exceptions\StopRunnerException
+   */
+  public function loadConfig(string $resolve_config_path): Runner {
     $config_path = $resolve_config_path;
     try {
       $config = (new LoadConfig($this->files))($config_path);
@@ -418,23 +425,15 @@ class Runner implements HasMessagesInterface {
   }
 
   /**
-   * Set the config file.
-   *
-   * @param string $path
-   *   A resolvable path to the config file.
-   *
-   * @return \AKlump\CheckPages\Parts\Runner
-   *   Self for chaining.
+   * {@inheritdoc}
    *
    * @see load_config()
    */
-  public function setConfig(array $config): Runner {
+  public function setConfig(array $config): void {
     $this->traitSetConfig($config);
     if (isset($config['base_url'])) {
       $this->setBaseUrl($config['base_url']);
     }
-
-    return $this;
   }
 
   /**
@@ -921,49 +920,47 @@ class Runner implements HasMessagesInterface {
   /**
    * Send data to a file in the files directory if it exists.
    *
-   * @param string $filename
+   * @param string $relative_path_to_file
    *   A filename (or path) relative to the files directory for the destination.
    * @param array $lines
    *   The content to write to the file; elements are joined by \n.
+   * @param string $mode
+   *   The mode for fopen().
    *
    * @return string The absolute filepath to the written file.
+   * @throws \RuntimeException If the file cannot be opened or written to.
    */
   public function writeToFile(string $relative_path_to_file, array $lines, string $mode = 'a'): string {
-    if (!$this->getLogFiles()) {
+    $log_files = $this->getLogFiles();
+    if (!$log_files) {
       return '';
     }
 
-    // Keep track of our open resources, opening only once.
-    if (empty($this->writeToFileResources[$relative_path_to_file])) {
-      $absolute_path = $this->getLogFiles()
-                         ->tryCreateDir(dirname($relative_path_to_file))
-                         ->tryResolveFile($relative_path_to_file, [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
-      $handle = fopen($absolute_path, $mode);
-      $this->writeToFileResources[$relative_path_to_file] = [
-        $handle,
-        $absolute_path,
-      ];
+    $absolute_path = $log_files
+                       ->tryCreateDir(dirname($relative_path_to_file))
+                       ->tryResolveFile($relative_path_to_file, [], FilesProviderInterface::RESOLVE_NON_EXISTENT_PATHS)[0];
+
+    $handle = fopen($absolute_path, $mode);
+    if (FALSE === $handle) {
+      throw new RuntimeException(sprintf('Failed to open file for writing: %s', $absolute_path));
     }
 
-    list($handle, $filepath) = $this->writeToFileResources[$relative_path_to_file];
-    fwrite($handle, implode(PHP_EOL, $lines) . PHP_EOL);
+    try {
+      $content = implode(PHP_EOL, $lines) . PHP_EOL;
+      $result = fwrite($handle, $content);
+      if (FALSE === $result) {
+        throw new RuntimeException(sprintf('Failed to write to file: %s', $absolute_path));
+      }
+    }
+    finally {
+      fclose($handle);
+    }
 
-    return $filepath;
+    return $absolute_path;
   }
 
   public function __toString() {
     return $this->id();
-  }
-
-  /**
-   * Close out file resources if any.
-   */
-  public function __destruct() {
-    $resources = $this->writeToFileResources ?? [];
-    foreach ($resources as $info) {
-      list($handle) = $info;
-      fclose($handle);
-    }
   }
 
   public function getLastFailedSuite(): ?Suite {
