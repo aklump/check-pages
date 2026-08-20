@@ -24,6 +24,100 @@ use Symfony\Component\Yaml\Yaml;
 use AKlump\CheckPages\Event;
 
 /**
+ * Add a preflight check to the test environment.
+ *
+ * Preflight checks are run before the test suite is run.  They are intended to
+ * ensure that the test environment is in a state that is ready for testing.
+ * They are not run when using the --retest option or the --filter option.
+ *
+ * @param string $assertion_message A statement of what is expected to be true,
+ * e.g. 'Xdebug should be disabled' or 'All Drupal database updates have run'.
+ * @param callable $assertion A callable that will handle asserting the
+ * assertion. The callable should return an empty array if all is well; an array
+ * with [$situationMessage, $defaultContinueWithTestingAnswer] if there is any
+ * issue; or throw any exception if testing should not proceed (nor any
+ * additional preflight checks.)
+ *
+ * @return void
+ */
+function add_preflight_check(string $assertion_message, callable $assertion): void {
+  global $preflights;
+  $preflights = $preflights ?? [];
+  $preflights[] = [$assertion_message, $assertion];
+}
+
+/**
+ * Runs all preflight checks and exits on failure.
+ *
+ * @return void
+ *
+ * @see add_preflight_check()
+ */
+function run_preflight(): void {
+  global $container, $preflights;
+  /** @var \Symfony\Component\Console\Input\Input $input */
+  $input = $container->get('input');
+  $isFiltered = count($input->getOption('filter')) > 0;
+  $isRetesting = $input->getOption('retest');
+  if (count($preflights) === 0 || $isFiltered || $isRetesting) {
+    unset($preflights);
+
+    return;
+  }
+
+  /** @var \AKlump\CheckPages\Parts\Runner $runner */
+  $runner = $container->get('runner');
+  $io = $runner->io();
+
+  try {
+    // To save time, we assume the tester would have already been alerted when
+    // running without these options, so we skip.
+    $io->title("Checking the test environment...");
+    $progressBar = $io->createProgressBar(count($preflights));
+    $progressBar->setFormat("%current%/%max% [%bar%] %percent:3s%%\n%message%\n");
+    $progressBar->setMessage('');
+    $progressBar->start();
+    $results = [];
+    $allMessages = '';
+    foreach ($preflights as $preflight) {
+      [$message, $assertion] = $preflight;
+      if ('' === $allMessages) {
+        $allMessages = PHP_EOL;
+      }
+      $allMessages .= '✓ ' . str_pad($message, 80) . PHP_EOL;
+      $progressBar->setMessage($allMessages);
+      // Each preflight should return an empty array if all is well; an array
+      // with [$situationMessage, $defaultContinueWithTestingAnswer] if there is
+      // any issue; or throw any exception if testing should not proceed (nor
+      // any additional preflight checks.)
+      $results[] = $assertion($runner);
+      $progressBar->advance();
+    }
+    $progressBar->finish();
+
+    // Report to the user any messages and ask if they wish to continue for
+    // each. If they do not, the application will exit(1).
+    foreach ($results as $result) {
+      if (empty($result)) {
+        continue;
+      }
+      [$message, $defaultAnswer] = $result;
+      $io->warning($message);
+      $userWantsToContinue = $io->confirm('Continue with testing? ', $defaultAnswer);
+      if (!$userWantsToContinue) {
+        throw new \Exception('Testing cancelled during preflight check.');
+      }
+      $io->writeln('');
+    }
+  }
+  catch (\Exception $exception) {
+    $io->error($exception->getMessage());
+    exit(1);
+  }
+  unset($preflights);
+}
+
+/**
  * Load the configuration file to use for the test.
  *
  * @param string $config
@@ -170,7 +264,6 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
   }
 
   foreach ($suite_paths as $absolute_path) {
-
     // This is a little redundant, but we make sure it's in there.  It will be
     // de-duped by Runner, so no problem calling multiple times.  This allows
     // resolution of paths only by the suite ID, a.k.a., the basename.
@@ -242,7 +335,8 @@ function with_extras(string $extras_filename, array $config) {
  * @param array $mixin_config
  *   Optional, configuration to be passed to the extra.
  *
- * @throws \AKlump\CheckPages\Exceptions\StopRunnerException If the mixin cannot be found.
+ * @throws \AKlump\CheckPages\Exceptions\StopRunnerException If the mixin
+ *   cannot be found.
  */
 function add_mixin(string $mixin, array $mixin_config = []) {
   global $container;
@@ -328,7 +422,6 @@ function add_test_option(string $selector, array $callbacks): void {
   $event_class = new ReflectionClass(Event::class);
 
   foreach ($callbacks as $event_name => $callback) {
-
     $event_name = $legacy_map[$event_name] ?? $event_name;
     if (!in_array($event_name, $event_class->getConstants())) {
       throw new \InvalidArgumentException(sprintf('The event "%s" is unknown.', $event_name));
@@ -372,7 +465,8 @@ function add_test_option(string $selector, array $callbacks): void {
  *   Will receive ($selector, \AKlump\CheckPages\Parts\Test $test) as
  *   arguments.  It should return void. If mutating the test config, then it
  *   should call $test->setConfig() with the new config.  Or if it's expanding
- *   one to many tests it should use $test->getSuite()->replaceTestWithMultiple().
+ *   one to many tests it should use
+ *   $test->getSuite()->replaceTestWithMultiple().
  *
  * @return void
  */
@@ -419,12 +513,9 @@ function add_shorthand(string $selector, callable $callback) {
  * @param $callback
  *   The function to call on event.
  *
- * @return $this
- *   Self for chaining.
- *
  * @link https://symfony.com/doc/current/event_dispatcher.html
  */
-function respond_to($event, callable $callback) {
+function respond_to($event, callable $callback): void {
   global $container;
 
   /** @var \AKlump\CheckPages\Parts\Runner $runner */
@@ -434,7 +525,7 @@ function respond_to($event, callable $callback) {
   if (!is_array($event)) {
     $event = [$event, 0];
   }
-  list($event, $priority) = $event;
+  [$event, $priority] = $event;
   $container->get('runner')
     ->getDispatcher()
     ->addListener($event, $callback, $priority);

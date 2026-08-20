@@ -6,6 +6,7 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\RunnerEvent;
 use AKlump\CheckPages\Event\SuiteEvent;
 use AKlump\CheckPages\EventSubscriber\Retest;
+use AKlump\CheckPages\EventSubscriber\SecretsService;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Exceptions\SuiteFailedException;
 use AKlump\CheckPages\Exceptions\TestFailedException;
@@ -193,6 +194,11 @@ class Runner implements HasMessagesInterface {
   private $output;
 
   /**
+   * @var \Symfony\Component\Console\Style\SymfonyStyle
+   */
+  private $io;
+
+  /**
    * @var \Symfony\Component\EventDispatcher\EventDispatcher
    */
   private $dispatcher;
@@ -211,6 +217,14 @@ class Runner implements HasMessagesInterface {
    * @var array|mixed
    */
   private $suitesToIgnore = [];
+
+  public function io(): SymfonyStyle {
+    if (!isset($this->io)) {
+      $this->io = new SymfonyStyle($this->input, $this->output);
+    }
+
+    return $this->io;
+  }
 
   public function __construct(InputInterface $input, OutputInterface $output) {
     $this->input = $input;

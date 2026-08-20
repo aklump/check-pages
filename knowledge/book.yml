@@ -57,8 +57,10 @@ chapters:
     id: deep
     title: 'Going Deeper'
     pages:
+      - autoload
       - custom_dirs
       - deep__organizing
+      - preflight
       - setup
       - variables
   -
