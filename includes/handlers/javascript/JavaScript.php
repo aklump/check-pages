@@ -8,12 +8,12 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\Parts\SetTrait;
+use AKlump\CheckPages\Output\Message\DebugMessage;
 
 /**
- * Implements the Javascript handler.
+ * Implements the JavaScript handler.
  */
-final class Javascript implements HandlerInterface {
+final class JavaScript implements HandlerInterface {
 
   const SELECTOR = 'javascript';
 
@@ -76,7 +76,7 @@ final class Javascript implements HandlerInterface {
           $search_value = $assert->{self::SELECTOR};
           $assert->setSearch(self::SELECTOR, $search_value);
 
-          $haystack = json_decode($response->getHeader('X-Javascript-Evals')[0] ?? '{}', TRUE);
+          $haystack = json_decode($response->getHeader('X-JavaScript-Evals')[0] ?? '[]', TRUE);
           $haystack = array_reduce($haystack, function ($result, $item) use ($search_value) {
             if ($search_value === $item['eval']) {
               $result .= $item['result'];
@@ -84,6 +84,11 @@ final class Javascript implements HandlerInterface {
 
             return $result;
           });
+
+          $event->getTest()->addMessage(new DebugMessage([
+            'JavaScript Result',
+            trim($haystack),
+          ]));
 
           // If we are simply running JS, then the assertion is not necessary and
           // we'll make the check the haystack so it will always pass.

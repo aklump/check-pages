@@ -39,6 +39,10 @@ services:
         class: \AKlump\CheckPages\Handlers\Breakpoint
         tags:
             - { name: event_subscriber }
+    ckeditor5.handler:
+        class: \AKlump\CheckPages\Handlers\Ckeditor5
+        tags:
+            - { name: event_subscriber }
     count.handler:
         class: \AKlump\CheckPages\Handlers\Count
         tags:
@@ -121,5 +125,9 @@ services:
             - { name: event_subscriber }
     xpath.handler:
         class: \AKlump\CheckPages\Handlers\Xpath
+        tags:
+            - { name: event_subscriber }
+    entity_op.handler:
+        class: \AKlump\CheckPages\Handlers\EntityOp
         tags:
             - { name: event_subscriber }

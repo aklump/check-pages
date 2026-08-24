@@ -18,7 +18,7 @@ use Psr\Http\Message\UriInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * Non-Javascript response driver.
+ * Non-JavaScript response driver.
  */
 abstract class RequestDriver implements RequestDriverInterface {
 

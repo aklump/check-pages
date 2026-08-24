@@ -64,7 +64,9 @@
     "ramsey/collection": "^1.3",
     "dflydev/dot-access-data": "^3.0",
     "spatie/url": "^2.4",
-    "aklump/json-schema-validation": "^0.0"
+    "aklump/json-schema-validation": "^0.0",
+    "aklump/token-engine": "^0.1.3",
+    "matthiasmullie/minify": "^1.3"
   },
   "bin": [
     "./checkpages"

@@ -1,0 +1,10 @@
+-
+  url: /node/add/text
+  ckeditor5:
+    # The DOM element that has the attached CKEditor5 instance
+    dom: '#edit-body-0-value'
+    invoke: setData('foobar')
+  find:
+    -
+      dom: '#edit-body-0-value-counter'
+      is: 4994 characters remaining.

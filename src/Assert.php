@@ -606,10 +606,10 @@ final class Assert implements HasConfigInterface {
         //      case Javascript::SEARCH_TYPE:
 
         if ($prefix) {
-          $suffix = sprintf('after JS evaluation of "%s"', $this->searchValue);
+          $suffix = sprintf('of JavaScript result');
         }
         else {
-          $suffix = sprintf('Evaluate JS code "%s"', $this->searchValue);
+          $suffix = sprintf('Evaluate JavaScript code "%s"', $this->searchValue);
         }
         break;
     }

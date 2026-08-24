@@ -13,7 +13,6 @@ use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Response;
 use AKlump\CheckPages\Service\Assertion;
-use AKlump\CheckPages\Traits\HasTestTrait;
 use AKlump\Messaging\MessageType;
 use Exception;
 use HeadlessChromium\BrowserFactory;
@@ -69,8 +68,10 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
    */
   public function addJavascriptEval(string $expression): HeadlessBrowserInterface {
     // It's very important to use the key so as not to duplicate the
-    // evaluations, duplicated evaluations lead to funny results.
-    $this->jsEvaluations[$expression] = [
+    // evaluations, duplicated evaluations lead to funny results.  We hash the
+    // key because super long $expressions.
+    $key = md5($expression);
+    $this->jsEvaluations[$key] = [
       'eval' => $expression,
       'result' => NULL,
     ];
@@ -183,7 +184,7 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
 
       $x_javascript_evals = $this->getEvaluatedJavascript();
       if ($x_javascript_evals) {
-        $response['headers']['X-Javascript-Evals'] = json_encode($x_javascript_evals);
+        $response['headers']['X-JavaScript-Evals'] = json_encode($x_javascript_evals);
       }
 
       $this->response = new Response(
