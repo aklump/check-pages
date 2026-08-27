@@ -183,7 +183,7 @@ abstract class RequestDriver implements RequestDriverInterface {
         $container->get('x-testing-framework')(),
       ];
       $headers['x-testing-token'] = [
-        $test->getRunner()->get('testing_token'),
+        $test->getRunner()->get('testing_token') ?? '',
       ];
     }
 

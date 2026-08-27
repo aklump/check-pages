@@ -13,16 +13,26 @@ interface HeadlessBrowserInterface {
    * @return \AKlump\CheckPages\HeadlessBrowserInterface
    *   Self for chaining.
    */
-  public function addJavascriptEval(string $expression): HeadlessBrowserInterface;
+  public function addJavaScriptEval(string $expression): HeadlessBrowserInterface;
 
-  public function getEvaluatedJavascript(): array;
+  /**
+   * Immediately executes the provided JavaScript code within the browser context and returns the result.
+   *
+   * @param mixed $javaScriptCode The JavaScript code to be evaluated. This can be a string or other types as supported
+   *                              by the underlying browser's evaluate method.
+   *
+   * @return string The result of the JavaScript code execution as a string.
+   *
+   * @throws \AKlump\CheckPages\Exceptions\JavaScriptException If an error occurs during the execution of the JavaScript code.
+   */
+  public function evaluateJavaScript(string $javaScriptCode): string;
 
   /**
    * Make a request for a computed styles value to be retrieved.
    *
-   * @param string $dom_query_selector
+   * @param string $domQuerySelector
    *   The selector pointing to the desired element whose style is desired.
-   * @param string $style_name
+   * @param string $styleName
    *   The CSS style name whose value is to be retrieved.
    *
    * @return \AKlump\CheckPages\Browser\HeadlessBrowserInterface Self for chaining.
@@ -30,7 +40,7 @@ interface HeadlessBrowserInterface {
    *
    * @see \AKlump\CheckPages\Handlers\Dom;
    */
-  public function addStyleRequest(string $dom_query_selector, string $style_name): HeadlessBrowserInterface;
+  public function addStyleRequest(string $domQuerySelector, string $styleName): HeadlessBrowserInterface;
 
   /**
    * Get the computed styles that were requested.
@@ -47,11 +57,11 @@ interface HeadlessBrowserInterface {
    *
    * @param int|NULL $width
    * @param int|NULL $height
-   * @param float|NULL $pixel_ratio
+   * @param float|NULL $pixelRatio
    *
    * @return \AKlump\CheckPages\Browser\HeadlessBrowserInterface
    *   Self for chaining.
    */
-  public function setViewport(int $width = NULL, int $height = NULL, float $pixel_ratio = NULL);
+  public function setViewport(int $width = NULL, int $height = NULL, float $pixelRatio = NULL): HeadlessBrowserInterface;
 
 }

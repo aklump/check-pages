@@ -2,7 +2,6 @@
 
 namespace AKlump\CheckPages\Browser;
 
-
 use AKlump\CheckPages\DataStructure\ContentTypeHeader;
 use AKlump\CheckPages\DataStructure\HttpHeader;
 use AKlump\CheckPages\Event;
@@ -10,12 +9,14 @@ use AKlump\CheckPages\Event\HttpMessageEvent;
 use AKlump\CheckPages\Exceptions\RequestTimedOut;
 use AKlump\CheckPages\Output\Icons;
 use AKlump\CheckPages\Output\Message\Message;
+use AKlump\CheckPages\Output\Message\YamlMessage;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Response;
 use AKlump\CheckPages\Service\Assertion;
 use AKlump\Messaging\MessageType;
 use Exception;
 use HeadlessChromium\BrowserFactory;
+use AKlump\CheckPages\Exceptions\JavaScriptException;
 use HeadlessChromium\Exception\OperationTimedOut;
 use HeadlessChromium\Page;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -28,30 +29,17 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterface {
 
-  /**
-   * @var array
-   */
-  private $styleRequests;
+  private string $responseBody;
 
-  /**
-   * @var array
-   */
-  private $jsEvaluations;
+  private array $styleRequests;
 
-  /**
-   * @var \HeadlessChromium\Page
-   */
-  private $page;
+  private array $jsEvaluations;
 
-  /**
-   * @var array
-   */
-  private $limits;
+  private Page $page;
 
-  /**
-   * @var array
-   */
-  private $deviceOverrides;
+  private array $limits;
+
+  private array $deviceOverrides;
 
   public function __construct(EventDispatcher $dispatcher) {
     parent::__construct($dispatcher);
@@ -66,7 +54,7 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
   /**
    * {@inheritdoc}
    */
-  public function addJavascriptEval(string $expression): HeadlessBrowserInterface {
+  public function addJavaScriptEval(string $expression): HeadlessBrowserInterface {
     // It's very important to use the key so as not to duplicate the
     // evaluations, duplicated evaluations lead to funny results.  We hash the
     // key because super long $expressions.
@@ -82,8 +70,8 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
   /**
    * {@inheritdoc}
    */
-  public function addStyleRequest(string $dom_query_selector, string $style_name): HeadlessBrowserInterface {
-    $this->styleRequests[$dom_query_selector][] = $style_name;
+  public function addStyleRequest(string $domQuerySelector, string $styleName): HeadlessBrowserInterface {
+    $this->styleRequests[$domQuerySelector][] = $styleName;
 
     return $this;
   }
@@ -92,33 +80,32 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
    * {@inheritdoc}
    */
   public function getComputedStyles(): array {
-    $escape_chars = function ($value) {
+    $escapeChars = function ($value) {
       return str_replace('"', '\"', $value);;
     };
 
-    $computed_styles = [];
-    foreach (($this->styleRequests ?? []) as $selector => $style_names) {
-      $js_selector = $escape_chars($selector);
-      foreach (array_unique($style_names) as $style_name) {
-        $eval = sprintf(
+    $computedStyles = [];
+    foreach (($this->styleRequests ?? []) as $selector => $styleNames) {
+      $javaScriptSelector = $escapeChars($selector);
+      foreach (array_unique($styleNames) as $styleName) {
+        $javaScriptCode = sprintf(
           'window.getComputedStyle(document.querySelector("%s"))["%s"]',
-          $js_selector,
-          $escape_chars($style_name)
+          $javaScriptSelector,
+          $escapeChars($styleName)
         );
         try {
-          $computed_styles[$selector][$style_name] = $this->page->evaluate($eval)
-            ->getReturnValue();
+          $computedStyles[$selector][$styleName] = $this->evaluateJavaScript($javaScriptCode);
         }
         catch (Exception $e) {
           $class = get_class($e);
           // Catch exceptions long enough to add context.
-          $message = sprintf('%s.  Evaluated code: %s', $e->getMessage(), $eval);
+          $message = sprintf('%s.  Evaluated code: %s', $e->getMessage(), $javaScriptCode);
           throw new $class($message, $e->getCode(), $e);
         }
       }
     }
 
-    return $computed_styles;
+    return $computedStyles;
   }
 
   /**
@@ -164,31 +151,47 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
         }
         $page_url = (string) $this->getUri()->withQuery($this->body);
       }
-      $this->page->navigate($page_url)
-        ->waitForNavigation(Page::LOAD, $this->getRequestTimeout() * 1000);
-      $page_contents = $this->getPageContents($response, $assertions);
 
+      $javaScriptResults = [];
+      $computedStyles = [];
+
+      /**
+       * Take a snapshot of the browser window
+       */
       try {
-        $computed_styles = $this->getComputedStyles();
+        $this->page->navigate($page_url)
+          ->waitForNavigation(Page::LOAD, $this->getRequestTimeout() * 1000);
+        $this->runAssertions($response, $assertions);
+        $computedStyles = $this->getComputedStyles();
+        $javaScriptResults = $this->jsEvaluations ?? [];
+        foreach ($javaScriptResults as &$jsResult) {
+          $jsResult['result'] = $this->evaluateJavaScript($jsResult['eval']);
+        }
+        unset($jsResult);
       }
       catch (\Exception $exception) {
         $this->getMessenger()->deliver(new Message([
           $exception->getMessage(),
         ], MessageType::ERROR, Verbosity::NORMAL));
       }
-      if (!empty($computed_styles)) {
-        // By passing as a custom header, we are able to still utilize the
-        // ResponseInterface because the called need only access this header.
-        $response['headers']['X-Computed-Styles'] = json_encode($computed_styles);
-      }
 
-      $x_javascript_evals = $this->getEvaluatedJavascript();
-      if ($x_javascript_evals) {
-        $response['headers']['X-JavaScript-Evals'] = json_encode($x_javascript_evals);
-      }
+      /**
+       * Read the requested CSS
+       *
+       * By passing as a custom header, we are able to still utilize the ResponseInterface because the called need only access this header.
+       */
+      $response['headers']['X-Computed-Styles'] = $computedStyles ? json_encode($computedStyles) : '';
 
+      /**
+       * Read the Javascript evaulated results
+       */
+      $response['headers']['X-JavaScript-Evals'] = $javaScriptResults ? json_encode($javaScriptResults) : '';
+
+      /**
+       * Create a response object
+       */
       $this->response = new Response(
-        $page_contents,
+        $this->responseBody,
         $response['status'] ?? 0,
         array_map(function ($item) {
           return explode("\n", $item);
@@ -208,15 +211,15 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
   /**
    * {@inheritdoc}
    */
-  public function setViewport(int $width = NULL, int $height = NULL, float $pixel_ratio = NULL) {
+  public function setViewport(int $width = NULL, int $height = NULL, float $pixelRatio = NULL): HeadlessBrowserInterface {
     if (!is_null($width)) {
       $this->deviceOverrides['width'] = $width;
     }
     if (!is_null($height)) {
       $this->deviceOverrides['height'] = $height;
     }
-    if (!is_null($pixel_ratio)) {
-      $this->deviceOverrides['deviceScaleFactor'] = $pixel_ratio;
+    if (!is_null($pixelRatio)) {
+      $this->deviceOverrides['deviceScaleFactor'] = $pixelRatio;
     }
 
     return $this;
@@ -225,57 +228,98 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
   /**
    * Return the entire page HTML.
    *
+   * @param array $response
+   * @param Assertion[] $assertions
+   *
    * @return string
    *   HTML for the page.
+   * @throws \HeadlessChromium\Exception\CommunicationException
+   * @throws \HeadlessChromium\Exception\JavascriptException
    */
-  private function getPageContents(array $response, array $assertions = []): string {
+  private function runAssertions(array $response, array $assertions = []): string {
     $messenger = $this->getMessenger();
-    $next_message_time = NULL;
+    $unevaluatedAssertionCount = 0;
+    $waitingMessage = '';
+    $initialWaitingMessage = 'Waiting for assertion(s) to evaluate.';
+    $subsequentMessages = [
+      '...still waiting',
+      'TICK TOCK',
+      'hmmmmm',
+      'Nothing to see here.',
+      'Well alrighty, then!',
+      'um...',
+    ];
+    $nextMessageTime = NULL;
     $this->limits['time'] = time() + $this->getRequestTimeout();
-    $fire_message_event = TRUE;
+    $fireMessageOn = time() + 10;
+
+    $io = $this->getTest()->getRunner()->io();
+    $bar = $io->createProgressBar();
+
+    $this->getTest()->echoMessages();
+    $bar->start();
+
     do {
-      $page_contents = $this->page->getHtml();
-      $assertions = array_filter($assertions, function (Assertion $assertion) use ($page_contents) {
+      $this->responseBody = $this->page->getHtml();
+      $assertions = array_filter($assertions, function (Assertion $assertion) {
         // Only keep those that have not yet passed.  We'll try again as long as
         // there is time left.
-        return $assertion->reRunAgainst($page_contents) === FALSE;
+        return $assertion->reRunAgainst($this->responseBody) === FALSE;
       });
-      $remaining_time = max(0, $this->limits['time'] - time());
+      $remainingTime = max(0, $this->limits['time'] - time());
       $remaining_memory = max(0, $this->limits['memory'] - memory_get_usage());
       // Fire this at once, then possibly once more to help debug if the request
-      // is timing out.  Given an AJAX context the first and last $page_contents
+      // is timing out.  Given an AJAX context the first and last $this->responseBody
       // could be different.  Capturing both of these states will be the most
       // helpful to the failing test debugging.
-      if ($fire_message_event || $remaining_time <= 0 || $remaining_memory <= 0) {
+      if (time() > $fireMessageOn && $remainingTime > 0 && $remaining_memory > 0) {
         $this->getDispatcher()
           ->dispatch(new HttpMessageEvent(
             $response['headers'],
-            $page_contents,
+            $this->responseBody,
             $response['status'],
             $this->getTest(),
           ), Event::RESPONSE_RECEIVED);
-        $fire_message_event = FALSE;
+        $fireMessageOn = time() + 10;
       }
 
       // TODO Instead of using messenger here, we should be firing some kind of "waiting for assert in DOM to load" event.
       // TODO We should be able to remove the messenger property for simplification?
       if ($messenger) {
-        if (is_null($next_message_time) || $remaining_time < $next_message_time) {
-          $next_message_time = $remaining_time - 10;
-          $lines = array_map(function (Assertion $assert) {
-            return '├── ' . Icons::SPYGLASS . Icons::SHRUG . $assert;
-          }, $assertions);
-          $messenger->deliver(new Message($lines, MessageType::INFO, Verbosity::VERBOSE));
+        if (is_null($nextMessageTime) || $remainingTime < $nextMessageTime) {
+          $nextMessageTime = $remainingTime - 10;
+          $count = count($assertions);
+          // Only print the config if the assertion list changes, so the user
+          // knows for what he is waiting.
+          if ($unevaluatedAssertionCount !== $count) {
+            foreach ($assertions as $assertion) {
+              $message = new YamlMessage($assertion->getConfig());
+              $messenger->deliver($message);
+            }
+            $unevaluatedAssertionCount = $count;
+          }
+
+          if ($waitingMessage) {
+            $bar->setMessage($waitingMessage);
+            $waitingMessage = $waitingMessage ? $subsequentMessages[array_rand($subsequentMessages)] : $initialWaitingMessage;
+            $bar->advance();
+          }
+
+          //          // This is designed to only show on the second pass and beyond
+          //          if ($waitingMessage) {
+          //            $messenger->deliver((new Message([$waitingMessage], MessageType::INFO, Verbosity::VERBOSE))->setIcon(Icons::WAIT));
+          //          }
+          //          $waitingMessage = $waitingMessage ? $subsequentMessages[array_rand($subsequentMessages)] : $initialWaitingMessage;
         }
       }
-      if ($remaining_time <= 0) {
+      if ($remainingTime <= 0) {
         if ($messenger) {
           $messenger->deliver(new Message([
             sprintf('%srequest.timeout reached.', Icons::NO),
           ], MessageType::ERROR, Verbosity::NORMAL));
           $messenger->deliver(new Message([
             sprintf('%sUse `request.time` in your test with a value > %s', Icons::HINT, $this->getRequestTimeout()),
-          ], MessageType::TODO, Verbosity::DEBUG));
+          ], MessageType::TODO, Verbosity::VERY_VERBOSE));
         }
         break;
       }
@@ -286,26 +330,13 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
           ], MessageType::ERROR, Verbosity::NORMAL));
           $messenger->deliver(new Message([
             sprintf('%sTry increasing PHP\'s memory_limit > %s.', Icons::HINT, $this->limits['php_memory_limit']),
-          ], MessageType::TODO, Verbosity::DEBUG));
+          ], MessageType::TODO, Verbosity::VERY_VERBOSE));
         }
         break;
       }
     } while (!empty($assertions));
 
-    return $page_contents;
-  }
-
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getEvaluatedJavascript(): array {
-    $evaluated = $this->jsEvaluations ?? [];
-    foreach ($evaluated as &$eval) {
-      $eval['result'] = $this->page->evaluate($eval['eval'])->getReturnValue();
-    }
-
-    return $evaluated;
+    $bar->finish();
   }
 
   /**
@@ -313,6 +344,18 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
    */
   public function getSupportedMethods(): array {
     return ['get'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function evaluateJavaScript(mixed $javaScriptCode): string {
+    try {
+      return $this->page->evaluate($javaScriptCode)->getReturnValue();
+    }
+    catch (\Exception $exception) {
+      throw new JavaScriptException($exception->getMessage(), $exception->getCode(), $exception);
+    }
   }
 
 }
