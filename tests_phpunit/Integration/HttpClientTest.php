@@ -50,7 +50,7 @@ final class HttpClientTest extends TestCase {
     $this->driver->method('setMethod')->willReturn($this->driver);
     $this->driver->method('setBody')->willReturn($this->driver);
     $suite = new Suite('foo', $this->runner);
-    $test = new Test('bar', ['why' => 'baz'], $suite);
+    $test = new Test(1, ['why' => 'baz'], $suite);
     $this->client->dispatchEventsWith($test);
 
     $dispatchedEvents = [];
@@ -73,7 +73,7 @@ final class HttpClientTest extends TestCase {
     $this->driver->method('setMethod')->willReturn($this->driver);
     $this->driver->method('setBody')->willReturn($this->driver);
     $suite = new Suite('foo', $this->runner);
-    $test = new Test('bar', ['why' => 'original why'], $suite);
+    $test = new Test(2, ['why' => 'original why'], $suite);
     $this->client->dispatchEventsWith($test);
 
     $this->client->setWhyForNextRequestOnly('temporary why');

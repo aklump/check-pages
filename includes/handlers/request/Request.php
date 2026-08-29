@@ -13,7 +13,7 @@ use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Helpers\NormalizeHeaders;
 use AKlump\CheckPages\Output\Message\DebugMessage;
 use AKlump\CheckPages\Traits\SerializationTrait;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
 use Exception;
 use GuzzleHttp\Psr7\Utils;
 

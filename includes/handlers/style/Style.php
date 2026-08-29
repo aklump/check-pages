@@ -9,7 +9,7 @@ use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
 
 /**
  * Implements the style handler.

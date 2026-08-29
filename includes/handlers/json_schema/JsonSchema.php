@@ -12,7 +12,7 @@ use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Service\DotAccessor;
 use AKlump\CheckPages\Traits\SerializationTrait;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
 use JsonSchema\Constraints\Factory;
 use JsonSchema\Exception\ResourceNotFoundException;
 use JsonSchema\SchemaStorage;

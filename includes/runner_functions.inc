@@ -18,7 +18,7 @@ use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\RuntimeContext;
 use AKlump\CheckPages\Service\DotAccessor;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
 use Symfony\Component\DependencyInjection\TaggedContainerInterface;
 use Symfony\Component\Yaml\Yaml;
 use AKlump\CheckPages\Event;
@@ -300,14 +300,14 @@ function run_suite(string $path_to_suite, array $runtime_config = []): void {
     }
     $suite->setGroup($parsed['group']);
     try {
-      $runner->run($suite, $absolute_path);
+      $runner->runSuite($suite, $absolute_path);
     }
     catch (TestFailedException $exception) {
       foreach ($exception->getMessages() as $message) {
-        $runner->echo($message);
+        $runner->getMessenger()->writeln($message);
       }
-      $runner->echo(new Message([$exception->getMessage()]), Verbosity::NORMAL);
-      $runner->echo(new Message([$exception->getTraceAsString()]), Verbosity::DEBUG);
+      $runner->getMessenger()->writeln(new Message([$exception->getMessage()], NULL, Verbosity::NORMAL));
+      $runner->getMessenger()->writeln(new Message([$exception->getTraceAsString()], NULL, Verbosity::VERY_VERBOSE));
     }
   }
 }
@@ -495,7 +495,7 @@ function add_shorthand(string $selector, callable $callback) {
   }
   catch (\Exception $exception) {
     $runner->getMessenger()
-      ->deliver(new Message([sprintf('The shorthand "%s" has failed.', $selector)],
+      ->writeln(new Message([sprintf('The shorthand "%s" has failed.', $selector)],
         MessageType::ERROR,
         Verbosity::NORMAL,
       ), Flags::BANNER);

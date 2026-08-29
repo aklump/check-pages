@@ -20,7 +20,7 @@ class GetResultCodePerExpectationsTest extends TestCase {
   public function testReturnsFailWhenTestPassedAndExpectedOutcomeIsFail() {
     $runner = $this->createMock(Runner::class);
     $suite = new Suite('', $runner);
-    $test = new Test('', [
+    $test = new Test(1, [
       'expected outcome' => 'fail',
     ], $suite);
     $test->setPassed();
@@ -31,7 +31,7 @@ class GetResultCodePerExpectationsTest extends TestCase {
   public function testReturnsPassWhenTestFailedAndExpectedOutcomeIsFail() {
     $runner = $this->createMock(Runner::class);
     $suite = new Suite('', $runner);
-    $test = new Test('', [
+    $test = new Test(1, [
       'expected outcome' => 'fail',
     ], $suite);
     $test->setFailed();

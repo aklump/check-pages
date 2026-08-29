@@ -10,10 +10,9 @@ use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
-use AKlump\Messaging\HasMessagesInterface;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\HasMessagesInterface;
+use AKlump\CheckPages\Messaging\MessageType;
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Utils;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -28,7 +27,7 @@ class HttpClient implements ClientInterface {
   private $runner;
 
   /**
-   * @var \AKlump\Messaging\HasMessagesInterface
+   * @var \AKlump\CheckPages\Messaging\HasMessagesInterface
    */
   private $messageBag;
 
@@ -51,7 +50,7 @@ class HttpClient implements ClientInterface {
 
   /**
    * @param \AKlump\CheckPages\Parts\Runner $runner
-   * @param \AKlump\Messaging\HasMessagesInterface $message_bag
+   * @param \AKlump\CheckPages\Messaging\HasMessagesInterface $message_bag
    *   Request messages will be added to this instance.
    */
   public function __construct(Runner $runner, HasMessagesInterface $message_bag) {
@@ -74,7 +73,7 @@ class HttpClient implements ClientInterface {
     $suite->setGroup($suite_group);
     // Be careful:  We only pull a few items from the test sent to use because
     // recursion can happen very easily with events.
-    $this->testForDispatcher = new Test($test->id(), ['why' => $test->get('why')], $suite);
+    $this->testForDispatcher = new Test($test->getNumber(), ['why' => $test->get('why')], $suite);
 
     return $this;
   }

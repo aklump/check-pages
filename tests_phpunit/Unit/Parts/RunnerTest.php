@@ -33,7 +33,7 @@ use function count;
  * @uses   \AKlump\CheckPages\Browser\RequestDriver
  * @uses   \AKlump\CheckPages\Browser\GuzzleDriver
  * @uses   \AKlump\CheckPages\Event\RunnerEvent
- * @uses   \AKlump\CheckPages\Output\Messenger\ConsoleEchoPrinter
+ * @uses   \AKlump\CheckPages\Output\Messenger\SymfonyStyleConsolePrinter
  * @uses   \AKlump\CheckPages\Output\Messenger\LoggerPrinter
  * @uses   \AKlump\CheckPages\Output\Messenger\MultiPrinter
  * @uses   \AKlump\CheckPages\Service\DispatcherFactory
@@ -62,7 +62,7 @@ final class RunnerTest extends TestCase {
       'set' => 'title',
       'value' => 'lorem',
     ]);
-    $runner->run($suite, 'suite.yml');
+    $runner->runSuite($suite, 'suite.yml');
     $this->assertSame(2, $runner->getTotalTestsRun());
   }
 
@@ -77,7 +77,7 @@ final class RunnerTest extends TestCase {
       'set' => 'subtitle',
       'value' => 'ipsum',
     ]);
-    $runner->run($suite, 'suite.yml');
+    $runner->runSuite($suite, 'suite.yml');
     $this->assertSame(2, $runner->getTotalTestsRun());
     $this->assertSame(0, $runner->getTotalFailedTests());
     $this->assertSame(0, $runner->getTotalAssertionsRun());

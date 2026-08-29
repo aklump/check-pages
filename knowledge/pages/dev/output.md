@@ -14,8 +14,9 @@ The instance of `\AKlump\Messaging\MessengerInterface` will determine how the me
 ## Writing a User Message
 
 Given a message instance...
+
 ```php
-$message = new \AKlump\CheckPages\Output\Message\Message(['Foo was found'], \AKlump\Messaging\MessageType::INFO);
+$message = new \AKlump\CheckPages\Output\Message\Message(['Foo was found'], \AKlump\CheckPages\Messaging\MessageType::INFO);
 ```
 
 ### When `$test` is available
@@ -42,12 +43,12 @@ $runner->echo($message)
 ### When `$runner` is not available
 
 ```php
-$printer->deliver($message);
+$printer->writeln($message);
 ```
 
 ```php
 // INFO MESSAGE
-$printer->deliver(new Message(
+$printer->writeln(new Message(
   [
     'This is a two-line",
     "info message.',
@@ -55,35 +56,35 @@ $printer->deliver(new Message(
 ));
 
 // NOTICE MESSAGE
-$printer->deliver(new Message(
+$printer->writeln(new Message(
   [
     'This is an notice.',
     '',
   ],
-  \AKlump\Messaging\MessageType::SUCCESS,
+  \AKlump\CheckPages\Messaging\MessageType::SUCCESS,
 ));
 
 // ERROR MESSAGE
-$printer->deliver(new Message(
+$printer->writeln(new Message(
   [
     'This is an error message with an extra line break.',
     '',
   ],
-  \AKlump\Messaging\MessageType::ERROR,
+  \AKlump\CheckPages\Messaging\MessageType::ERROR,
 ));
 
 
 // VERBOSE, INFO
-$printer->deliver(new Message(
+$printer->writeln(new Message(
   [
     'This is a debug message that will show with (A)ny verbosity.',
   ],
-  \AKlump\Messaging\MessageType::DEBUG,
+  \AKlump\CheckPages\Messaging\MessageType::DEBUG,
   new \AKlump\CheckPages\Output\VerboseDirective('D')
 ));
 
 // or it's shorthand...
-$printer->deliver(new \AKlump\CheckPages\Output\Message\DebugMessage(
+$printer->writeln(new \AKlump\CheckPages\Output\Message\DebugMessage(
   [
      'Demo debug message',
      '',

@@ -8,7 +8,8 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEventInterface;
 use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Event\TestEventInterface;
-use AKlump\CheckPages\Output\Message\DebugMessage;
+use AKlump\CheckPages\Output\Icons;
+use AKlump\CheckPages\Output\Message\CodeMessage;
 
 /**
  * Implements the JavaScript handler.
@@ -85,10 +86,8 @@ final class JavaScript implements HandlerInterface {
             return $result;
           });
 
-          $event->getTest()->addMessage(new DebugMessage([
-            'JavaScript Result',
-            trim($haystack),
-          ]));
+          $event->getTest()
+            ->addMessage(new CodeMessage([Icons::CONSOLE_PROMPT . $haystack]));
 
           // If we are simply running JS, then the assertion is not necessary and
           // we'll make the check the haystack so it will always pass.

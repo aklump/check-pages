@@ -7,7 +7,8 @@ use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Output\Icons;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
+use AKlump\CheckPages\TAP\Result;
 
 /**
  * Implements the Sleep handler.
@@ -29,6 +30,7 @@ final class Sleep implements HandlerInterface {
           }
 
           $test->setPassed();
+          $test->setResult(Result::OK);
           $sleep_seconds = intval($test_config['sleep']);
           $elapsed = 0;
 

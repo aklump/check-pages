@@ -6,9 +6,11 @@ use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Exceptions\TestFailedException;
+use AKlump\CheckPages\Output\Icons;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
+use AKlump\CheckPages\TAP\Result;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 /**
@@ -49,23 +51,26 @@ final class Evaluate implements HandlerInterface {
 
           if ($assert->hasPassed()) {
             $test->setPassed();
+            $test->setResult(Result::OK);
             $test->addMessage(new Message(
               [
                 strval($assert),
               ],
-              MessageType::SUCCESS,
-              Verbosity::VERBOSE
+              MessageType::CODE,
+              Verbosity::DEBUG
             ));
           }
           elseif ($assert->hasFailed()) {
             $test->setFailed();
-            $test->addMessage(new Message(
+            $test->setResult(Result::NOT_OK);
+
+            $test->addMessage((new Message(
               [
                 $assert->getReason(),
               ],
-              MessageType::ERROR,
-              Verbosity::VERBOSE
-            ));
+              MessageType::CODE,
+              Verbosity::DEBUG
+            ))->setIcon(Icons::FAIL));
           }
         },
       ],

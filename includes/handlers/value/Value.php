@@ -10,8 +10,9 @@ use AKlump\CheckPages\Interfaces\MayBeInterpolatedInterface;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Test;
+use AKlump\CheckPages\TAP\Result;
 use AKlump\CheckPages\Traits\SetTrait;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
 
 /**
  * Implements the Value handler.
@@ -46,6 +47,7 @@ final class Value implements HandlerInterface, MayBeInterpolatedInterface {
           // the value to the variables will happen in the TEST_FINISHED event.
           if ($handler->isOnlySet($test)) {
             $test->setPassed();
+            $test->setResult(Result::OK);
 
             return;
           }
@@ -61,9 +63,12 @@ final class Value implements HandlerInterface, MayBeInterpolatedInterface {
 
           if ($assert->hasPassed()) {
             $test->setPassed();
+            $test->setResult(Result::OK);
           }
           elseif ($assert->hasFailed()) {
             $test->setFailed();
+            $test->setResult(Result::NOT_OK);
+
           }
         },
         -100,
@@ -114,7 +119,7 @@ final class Value implements HandlerInterface, MayBeInterpolatedInterface {
         -100,
       ],
 
-      Event:: ASSERT_FINISHED => [
+      Event::ASSERT_EVALUATED => [
         function (Event\AssertEventInterface $event) {
           $assert = $event->getAssert();
           if (!$assert->has(Assert::ASSERT_SETTER)) {
@@ -141,7 +146,7 @@ final class Value implements HandlerInterface, MayBeInterpolatedInterface {
             ->variables(), $data['name'], $data['value']);
           $test->addMessage(new Message(
             [$set_feedback],
-            MessageType::DEBUG,
+            MessageType::CODE,
             Verbosity::DEBUG
           ));
         },
@@ -211,7 +216,7 @@ final class Value implements HandlerInterface, MayBeInterpolatedInterface {
       $config[Assert::ASSERT_SETTER],
       $config['value']
     );
-    $test->addMessage(new Message([$set_message], MessageType::DEBUG, Verbosity::DEBUG));
+    $test->addMessage(new Message([$set_message], MessageType::CODE, Verbosity::DEBUG));
   }
 
   private function handleInterpolation(Test $test) {

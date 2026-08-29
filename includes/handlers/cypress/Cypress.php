@@ -8,7 +8,8 @@ use AKlump\CheckPages\Output\Icons;
 use AKlump\CheckPages\Output\Message\DebugMessage;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
+use AKlump\CheckPages\TAP\Result;
 
 /**
  * Implements the Cypress handler.
@@ -39,6 +40,8 @@ final class Cypress implements HandlerInterface {
               'The test could not be run due to missing runner configuration: extras.cypress.cypress',
             ], MessageType::ERROR));
             $test->setFailed();
+            $test->setResult(Result::NOT_OK);
+
 
             return;
           }
@@ -76,13 +79,20 @@ final class Cypress implements HandlerInterface {
           $cypress_output = [];
           $test_result = 0;
           exec($command, $cypress_output, $test_result);
-          $test_result == 0 ? $test->setPassed() : $test->setFailed();
+          if ($test_result == 0) {
+            $test->setPassed();
+            $test->setResult(Result::OK);
+          }
+          else {
+            $test->setFailed();
+            $test->setResult(Result::NOT_OK);
+          }
 
           $message_type = MessageType::INFO;
           $verbosity = Verbosity::VERBOSE;
           if ($test->hasFailed()) {
             $message_type = MessageType::ERROR;
-            $verbosity = $verbosity | Verbosity::DEBUG;
+            $verbosity = $verbosity | Verbosity::VERY_VERBOSE;
           }
           $test->addMessage(new Message(
             $cypress_output,

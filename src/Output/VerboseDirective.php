@@ -44,7 +44,7 @@ final class VerboseDirective {
    */
   public static function createFromInt(int $verbosity) {
     $directive = '';
-    if ($verbosity & Verbosity::DEBUG) {
+    if ($verbosity & Verbosity::VERY_VERBOSE) {
       $directive .= 'D';
     }
     if ($verbosity & Verbosity::VERBOSE) {
@@ -150,7 +150,7 @@ final class VerboseDirective {
   public function toInt(): int {
     $verbosity = 0;
     if ($this->showDebugging()) {
-      $verbosity |= Verbosity::DEBUG;
+      $verbosity |= Verbosity::VERY_VERBOSE;
     }
     if ($this->showVerbose()) {
       $verbosity |= Verbosity::VERBOSE;

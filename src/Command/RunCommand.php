@@ -2,7 +2,6 @@
 
 namespace AKlump\CheckPages\Command;
 
-use AKlump\CheckPages\EventSubscriber\Feedback;
 use AKlump\CheckPages\EventSubscriber\Retest;
 use AKlump\CheckPages\Exceptions\UnresolvablePathException;
 use AKlump\CheckPages\Files\FilesProviderInterface;
@@ -16,8 +15,8 @@ use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\RuntimeContext;
 use AKlump\LocalTimezone\LocalTimezone;
-use AKlump\Messaging\MessageType;
-use AKlump\Messaging\MessengerInterface;
+use AKlump\CheckPages\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessengerInterface;
 use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -58,12 +57,13 @@ class RunCommand extends Command {
   protected function execute(InputInterface $input, OutputInterface $output): int {
     global $container;
 
-    $timer = new Timer(LocalTimezone::get());
-    $timer->start();
-
     // Keep outside of try, because the catch needs this instance.
     $runner = new Runner($input, $output);
     RuntimeContext::get()->add($runner);
+
+    $timer = new Timer(LocalTimezone::get());
+    $timer->start();
+    $runner->setTimer($timer);
 
     try {
 
@@ -82,16 +82,15 @@ class RunCommand extends Command {
       $container->set('input', $input);
       $container->set('output', $output);
 
-      $this->echoTimer($messenger, $timer);
-
       $container->set('runner', $runner);
-      $path_to_runner = $input->getArgument('runner');
-      if (!file_exists($path_to_runner)) {
-        throw new UnresolvablePathException($path_to_runner);
+      $pathToRunnerFile = $input->getArgument('runner');
+      $runner->setPathToRunnerFile($pathToRunnerFile);
+      if (!file_exists($pathToRunnerFile)) {
+        throw new UnresolvablePathException($pathToRunnerFile);
       }
-      $runner->setId(pathinfo($path_to_runner, PATHINFO_FILENAME));
+      $runner->setId(pathinfo($pathToRunnerFile, PATHINFO_FILENAME));
 
-      $this->rootFiles->setBaseResolveDir(realpath(dirname($path_to_runner)));
+      $this->rootFiles->setBaseResolveDir(realpath(dirname($pathToRunnerFile)));
       $runner->setFiles($this->rootFiles);
 
       $dir = $input->getOption('dir');
@@ -120,10 +119,17 @@ class RunCommand extends Command {
         }
       }
 
-      $runner->executeRunner($path_to_runner);
+      $runner->executeRunner();
     }
     catch (\Exception $exception) {
       $runner->setFailed();
+
+      $message = new ExceptionMessage(
+        $exception,
+        $runner->getMessenger()->getVerbosity(),
+        (string) RuntimeContext::get(),
+      );
+      $runner->getMessenger()->writeln($message);
 
       //      $suite = $runner->getSuite();
       //      if ($suite) {
@@ -137,8 +143,6 @@ class RunCommand extends Command {
       ));
     }
 
-    $this->echoResults($runner, $timer);
-
     if ($runner->hasPassed()) {
       return Command::SUCCESS;
     }
@@ -146,106 +150,4 @@ class RunCommand extends Command {
     return Command::FAILURE;
   }
 
-  private function echoResults(Runner $runner, Timer $timer) {
-    $messenger = $runner->getMessenger();
-    $this->echoTimer($messenger, $timer);
-
-    foreach ($runner->getMessages() as $message) {
-      $messenger->deliver($message);
-    }
-
-    $total_test_count = $runner->getTotalTestsRun();
-
-    // Percentage
-    $percentage = NULL;
-    if ($runner->hasPassed()) {
-      $passed_test_count = $runner->getTotalPassingTestsRun();
-      $percentage = $total_test_count ? intval(100 * $passed_test_count / $total_test_count) : 100;
-      $message = new Message([
-          sprintf("%d / %d (%d%%)", $passed_test_count, $total_test_count, $percentage),
-        ]
-      );
-      $messenger->deliver($message);
-    }
-
-    // Calculated, total elapsed time.
-    $messenger->deliver(new Message(
-      [
-        sprintf("Time: %s", $timer->getElapsed()),
-        '',
-      ]
-    ));
-
-    if ($runner->getTotalSkippedSuites() > 0) {
-      $message = new Message([
-        Feedback::SKIPPED_PREFIX . "At least one suite was skipped.",
-        '',
-      ], 'skipped');
-      $messenger->deliver($message);
-    }
-
-    $total_assertion_count = $runner->getTotalAssertionsRun();
-    $ok = $runner->hasPassed() || 100 === $percentage;
-    $flags = Flags::INVERT_FIRST_LINE;
-    if ($total_test_count > 0 && $ok) {
-      $message = new Message([
-        sprintf("OK (%d test%s, %d assertion%s)",
-          $total_test_count,
-          $total_test_count === 1 ? '' : 's',
-          $total_assertion_count,
-          $total_assertion_count === 1 ? '' : 's'
-        ),
-        '',
-      ],
-        MessageType::SUCCESS
-      );
-    }
-    else {
-      // TODO Should this be removed because too much noise?
-      $last_failed_suite = $runner->getLastFailedSuite();
-      if ($last_failed_suite) {
-        $message = new Message([
-          sprintf("Failed suite: %s", (new GetShortPath())($last_failed_suite->getFilePath())),
-        ], MessageType::ERROR);
-        $messenger->deliver($message, Flags::BANNER);
-        $messenger->deliver(new Message(['']));
-      }
-
-      // Sometimes a test fails without an assertion failing, e.g. the HTTP response code.
-      $failed_count = max($runner->getTotalFailedTests(), $runner->getTotalFailedAssertions(), intval($runner->hasFailed()));
-      $failed_count = min($failed_count, $total_test_count);
-      $lines = [
-        '',
-        sprintf('Tests: %d, Assertions: %d, Failures: %d',
-          $total_test_count,
-          $total_assertion_count,
-          $failed_count
-        ),
-        '',
-      ];
-
-      if ($failed_count > 0 && $total_test_count > 0) {
-        array_unshift($lines, 'FAILURES!');
-      }
-      else {
-        $flags = NULL;
-      }
-
-      $message_type = $total_test_count > 0 ? MessageType::ERROR : MessageType::INFO;
-      $message = new Message($lines, $message_type);
-    }
-    $messenger->deliver($message, $flags);
-  }
-
-  private function echoTimer(MessengerInterface $messenger, Timer $timer) {
-    $message = new Message(
-      [
-        '',
-        '🏁 ' . $timer->getCurrent(),
-      ],
-      MessageType::DEBUG,
-      Verbosity::VERBOSE
-    );
-    $messenger->deliver($message);
-  }
 }

@@ -13,12 +13,13 @@ use AKlump\CheckPages\Output\Message\YamlMessage;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Response;
 use AKlump\CheckPages\Service\Assertion;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
 use Exception;
 use HeadlessChromium\BrowserFactory;
 use AKlump\CheckPages\Exceptions\JavaScriptException;
 use HeadlessChromium\Exception\OperationTimedOut;
 use HeadlessChromium\Page;
+use Symfony\Component\Console\Terminal;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /*
@@ -170,7 +171,7 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
         unset($jsResult);
       }
       catch (\Exception $exception) {
-        $this->getMessenger()->deliver(new Message([
+        $this->getMessenger()->writeln(new Message([
           $exception->getMessage(),
         ], MessageType::ERROR, Verbosity::NORMAL));
       }

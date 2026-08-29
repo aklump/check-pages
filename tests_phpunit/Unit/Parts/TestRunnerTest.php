@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
  * @uses   \AKlump\CheckPages\Handlers\AddHandlerAutoloads
  * @uses   \AKlump\CheckPages\Handlers\CommandLineTestHandlerBase
  * @uses   \AKlump\CheckPages\Helpers\BuildContainer
- * @uses   \AKlump\CheckPages\EventSubscriber\Feedback
+ * @uses   \AKlump\CheckPages\EventSubscriber\TestFeedback
  * @uses   \AKlump\CheckPages\Output\Message\Message
  * @uses   \AKlump\CheckPages\EventSubscriber\SaveResponseToFile
  * @uses   \AKlump\CheckPages\Output\VerboseDirective

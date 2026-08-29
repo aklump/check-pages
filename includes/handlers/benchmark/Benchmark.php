@@ -7,7 +7,7 @@ use AKlump\CheckPages\Event\DriverEventInterface;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Test;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
 
 class Benchmark implements HandlerInterface {
 
@@ -63,7 +63,7 @@ class Benchmark implements HandlerInterface {
 
           $event->getTest()->addMessage(new Message([
             '🟢 ' . $start,
-          ], MessageType::DEBUG, Verbosity::DEBUG));
+          ], MessageType::DEBUG, Verbosity::VERY_VERBOSE));
 
           unset($data);
         },
@@ -81,7 +81,7 @@ class Benchmark implements HandlerInterface {
           $this_elapsed = $finished - $data['started'];
           $event->getTest()->addMessage(new Message([
             '🔴 ' . sprintf('%s - ELAPSED %s', $finished, self::formatseconds($this_elapsed)),
-          ], messagetype::DEBUG, verbosity::DEBUG));
+          ], messagetype::DEBUG, verbosity::VERY_VERBOSE));
 
           $event->getTest()->setConfig($config);
 

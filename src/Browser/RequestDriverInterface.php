@@ -4,7 +4,7 @@
 namespace AKlump\CheckPages\Browser;
 
 
-use AKlump\Messaging\MessengerInterface;
+use AKlump\CheckPages\Messaging\MessengerInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;

@@ -16,8 +16,9 @@ use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Message\YamlMessage;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Service\Assertion;
-use AKlump\CheckPages\Service\SystemResourcesManager;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
+use AKlump\CheckPages\TAP\Directive;
+use AKlump\CheckPages\TAP\Result;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 final class TestRunner implements EventDispatcherInterface {
@@ -89,20 +90,6 @@ final class TestRunner implements EventDispatcherInterface {
     $this->tryValidateTestCanBeRun($this->test);
     $test = $this->test;
 
-    $resources = new SystemResourcesManager();
-
-    $open_files_usage = $resources->getOpenFilesPercentage();
-    $type = MessageType::DEBUG;
-    $verbosity = Verbosity::DEBUG;
-    if ($open_files_usage > 80) {
-      $type = MessageType::ERROR;
-      $verbosity = Verbosity::NORMAL;
-    }
-    $message = sprintf('Open files: %d%% of %d', round($open_files_usage, 2), $resources->getSystemLimit());
-    $test->addMessage(new Message([$message], $type, $verbosity));
-
-    $memory_used = round(memory_get_usage() / 1024 / 1024, 2) . 'MB';
-    $test->addMessage(new Message(['Memory used: ' . $memory_used], MessageType::DEBUG, Verbosity::DEBUG));
     $runner = $test->getRunner();
     $this->getDriver()->setBaseUrl($runner->get('base_url') ?? '');
 
@@ -128,23 +115,6 @@ final class TestRunner implements EventDispatcherInterface {
       $test->interpolate($config['url']);
       $test->setConfig($config);
       unset($config);
-
-      $yaml_message = $test->getConfig();
-
-      // BEWARE REFACTORING THIS.  READ THE COMMENTS BELOW ABOUT FIND
-      // INTERPOLATION TIMING.
-      if (empty($yaml_message['find'])) {
-        unset($yaml_message['find']);
-      }
-      else {
-        $yaml_message['find'] = '';
-      }
-      $test->addMessage(new YamlMessage($yaml_message, 0, function ($yaml) {
-        // To make the output cleaner we need to remove the printed '' since
-        // find is really an array, whose elements are yet to be printed, and
-        // which will be printed further down.
-        return str_replace("find: ''", 'find:', $yaml);
-      }, MessageType::DEBUG, Verbosity::DEBUG));
 
       try {
         $timeout = $runner->getConfig()['request']['timeout'] ?? NULL;
@@ -208,6 +178,7 @@ final class TestRunner implements EventDispatcherInterface {
       }
       catch (RequestTimedOut $exception) {
         $test->setFailed();
+        $test->setResult(Result::NOT_OK);
         $test->addMessage(new Message([$exception->getMessage()], MessageType::ERROR, Verbosity::VERBOSE));
         $test->addMessage(new DebugMessage(
             [
@@ -232,10 +203,11 @@ final class TestRunner implements EventDispatcherInterface {
           $definition = [Assert::ASSERT_CONTAINS => $definition];
         }
         $test->interpolate($definition);
-        $test->addMessage(new YamlMessage($definition, 2, NULL, MessageType::DEBUG, Verbosity::DEBUG));
+        $test->addMessage(new YamlMessage($definition));
         $assert = $assert_runner->run(new Assert($id, $definition, $test));
         if ($assert->hasFailed()) {
           $test->setFailed();
+          $test->setResult(Result::NOT_OK);
         }
         ++$id;
       }
@@ -258,6 +230,7 @@ final class TestRunner implements EventDispatcherInterface {
     // Assume the best in people.
     if (!$test->hasFailed() && !$test->isSkipped()) {
       $test->setPassed();
+      $test->setResult(Result::OK);
     }
 
     $result_per_expectations = (new GetResultCodePerExpectations())($test);
@@ -288,8 +261,8 @@ final class TestRunner implements EventDispatcherInterface {
       $this->dispatch(new TestEvent($test), Event::TEST_PASSED);
     }
     elseif ('skip suite' === $test->get('on fail')) {
-      $test->setIsSkipped(TRUE);
-      $test->getSuite()->setIsSkipped(TRUE);
+      $test->setDirective(Directive::SKIP, 'on fail: skip suite');
+      $test->getSuite()->setDirective(Directive::SKIP, 'on fail: skip suite');
       $this->dispatch(new TestEvent($test), Event::TEST_SKIPPED);
     }
     else {

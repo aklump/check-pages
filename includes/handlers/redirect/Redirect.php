@@ -10,8 +10,9 @@ use AKlump\CheckPages\Helpers\CompareStatusCodes;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Test;
+use AKlump\CheckPages\TAP\Result;
 use AKlump\CheckPages\Traits\SetTrait;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
 use Exception;
 
 /**
@@ -56,7 +57,7 @@ final class Redirect implements HandlerInterface {
               $lines = [];
               $lines[] = $handler->setKeyValuePair($variables, 'redirect.location', $driver->getLocation());
               $lines[] = $handler->setKeyValuePair($variables, 'redirect.status', $driver->getRedirectCode());
-              $test->addMessage(new Message($lines, MessageType::DEBUG, Verbosity::DEBUG));
+              $test->addMessage(new Message($lines, MessageType::DEBUG, Verbosity::VERY_VERBOSE));
             }
           }
           catch (Exception $e) {
@@ -76,9 +77,12 @@ final class Redirect implements HandlerInterface {
     $actual_location = $driver->getLocation();
     if ($actual_location === $expected_location) {
       $test->setPassed();
+      $test->setResult(Result::OK);
     }
     else {
       $test->setFailed();
+      $test->setResult(Result::NOT_OK);
+
       $test->addMessage(new Message([
         sprintf('The actual "%s" and expected "%s" locations do not match', $actual_location, $expected_location),
       ], MessageType::ERROR, Verbosity::VERBOSE));
@@ -127,6 +131,8 @@ final class Redirect implements HandlerInterface {
     }
     if ($compare($actual_status_code, $expected_status_code) !== 0) {
       $test->setFailed();
+      $test->setResult(Result::NOT_OK);
+
       $send_message = TRUE;
     }
     if ($send_message) {

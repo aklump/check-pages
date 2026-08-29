@@ -19,7 +19,7 @@ final class Event {
 
   /**
    * Can be used for fine-tuned validating beyond the json schema.  To
-   * invalidate throw a \AKlump\CheckPages\Exceptions\BadSyntaxException.
+   * invalidate, throw a \AKlump\CheckPages\Exceptions\BadSyntaxException.
    */
   const SUITE_CREATED = 'suite.created';
 
@@ -48,6 +48,8 @@ final class Event {
 
   const ASSERT_FINISHED = 'assert.finished';
 
+  const TEST_RUNSTATE_CHANGED = 'test.runstate.changed';
+
   const TEST_FINISHED = 'test.finished';
 
   const TEST_FAILED = 'test.failed';
@@ -61,6 +63,8 @@ final class Event {
   const SUITE_PASSED = 'suite.passed';
 
   const SUITE_SKIPPED = 'suite.skipped';
+
+  const SUITE_IGNORED = 'suite.ignored';
 
   const SUITE_FINISHED = 'suite.finished';
 

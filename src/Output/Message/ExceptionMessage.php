@@ -5,7 +5,7 @@ namespace AKlump\CheckPages\Output\Message;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\RuntimeContext;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
 use Exception;
 
 /**
@@ -53,6 +53,7 @@ class ExceptionMessage extends Message {
   }
 
   private function getMessageTypeByException(Exception $exception): string {
+      return MessageType::EMERGENCY;
     if ($exception instanceof StopRunnerException) {
       // This is a major error and must be seen at all times.
       return MessageType::EMERGENCY;

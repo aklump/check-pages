@@ -16,12 +16,15 @@ const ROOT = __DIR__ . '/../';
 
 require_once ROOT . '/vendor/autoload.php';
 $compiler = new AppCompiler(
-  new HandlersManager(realpath(ROOT . '/includes/' . CheckPages::DIR_HANDLERS)),
-  ROOT . '/schema.suite.json',
-  ROOT . '/' . Runner::PATH_TO_SCHEMA__SUITE,
-  ROOT . '/services.yml',
-  ROOT . Runner::PATH_TO_SERVICE_DEFINITIONS,
-  ROOT . '/example'
+    new HandlersManager(
+        realpath(ROOT . '/includes/' . CheckPages::DIR_HANDLERS),
+        '/Users/aaronklump/Code/Projects/NationalUniversity/TheCommons/site/app/tests_check_pages/handlers',
+    ),
+    ROOT . '/schema.suite.json',
+    ROOT . '/' . Runner::PATH_TO_SCHEMA__SUITE,
+    ROOT . '/services.yml',
+    ROOT . Runner::PATH_TO_SERVICE_DEFINITIONS,
+    ROOT . '/example'
 );
 try {
   $compiler->compile();

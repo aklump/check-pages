@@ -3,7 +3,7 @@
 namespace AKlump\CheckPages\Output\Message;
 
 use AKlump\CheckPages\Output\Verbosity;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
 
 /**
  * Shorthand for creating a themed-debug message.
@@ -16,15 +16,15 @@ class DebugMessage extends Message {
     // Add an icon to the first line.
     $first_line = array_shift($lines);
     $head = ["🐞 $first_line"];
-    if (count($lines)) {
-      $head[] = '';
-    }
+//    if (count($lines)) {
+//      $head[] = '';
+//    }
     $lines = array_merge($head, $lines);
 
     parent::__construct(
       $lines,
       $message_type,
-      Verbosity::DEBUG
+      Verbosity::VERY_VERBOSE
     );
   }
 

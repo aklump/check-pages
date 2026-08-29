@@ -2,23 +2,25 @@
 
 namespace AKlump\CheckPages\Output\Messenger;
 
-use AKlump\Messaging\MessageInterface;
-use AKlump\Messaging\MessengerInterface;
+use AKlump\CheckPages\Messaging\MessageInterface;
+use AKlump\CheckPages\Messaging\MessengerInterface;
+use AKlump\CheckPages\Messaging\SectionAwareMessengerInterface;
+use Symfony\Component\Console\Output\ConsoleSectionOutput;
 
 /**
  * Use this to as a master printer that will run multiple.
  *
  * You might use this for a console echo and a logger at the same time.
  */
-class MultiPrinter implements MessengerInterface {
+class MultiPrinter implements MessengerInterface, SectionAwareMessengerInterface {
 
   /**
-   * @var \AKlump\Messaging\MessengerInterface[]
+   * @var \AKlump\CheckPages\Messaging\MessengerInterface[]
    */
   private array $printers;
 
   /**
-   * @param \AKlump\Messaging\MessengerInterface[] $printers
+   * @param \AKlump\CheckPages\Messaging\MessengerInterface[] $printers
    */
   public function __construct(array $printers) {
     $this->printers = $printers;
@@ -27,20 +29,9 @@ class MultiPrinter implements MessengerInterface {
   /**
    * @inheritDoc
    */
-  public function addProcessor(callable $callback): MessengerInterface {
+  public function writeln(MessageInterface $message): void {
     foreach ($this->printers as $printer) {
-      $printer->addProcessor($callback);
-    }
-
-    return $this;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function deliver(MessageInterface $message, int $flags = NULL) {
-    foreach ($this->printers as $printer) {
-      $printer->deliver($message, $flags);
+      $printer->writeln($message);
     }
   }
 
@@ -52,4 +43,23 @@ class MultiPrinter implements MessengerInterface {
 
     return $flags;
   }
+
+  public function section(string $messageType): ConsoleSectionOutput {
+    foreach ($this->printers as $printer) {
+      if ($printer instanceof SectionAwareMessengerInterface) {
+        return $printer->section($messageType);
+      }
+    }
+
+    throw new \RuntimeException('No section-aware printer is available.');
+  }
+
+  public function resetSections(): void {
+    foreach ($this->printers as $printer) {
+      if ($printer instanceof SectionAwareMessengerInterface) {
+        $printer->resetSections();
+      }
+    }
+  }
+
 }

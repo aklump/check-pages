@@ -12,9 +12,8 @@ use AKlump\CheckPages\Helpers\NormalizeHeaders;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Suite;
-use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Traits\HasTestTrait;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
 use Mimey\MimeTypes;
 use PrettyXml\Formatter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -127,11 +126,7 @@ final class SaveResponseToFile implements EventSubscriberInterface {
   }
 
   private function addFileSavedMessages(string $path) {
-    $short_path = (new GetShortPath(getcwd()))($path);
-    $test = $this->getTest();
-    $indent = str_repeat(' ', mb_strlen(Icons::RESPONSE . Icons::FILE));
-    $test->addMessage(new Message([$indent . $short_path], MessageType::TODO, Verbosity::VERBOSE));
-    $test->echoMessages();
+    $this->getTest()->getRunner()->getTestRunState()->addFile(basename($path), $path);
   }
 
   private function getOutputBasePath(): string {

@@ -2,8 +2,9 @@
 
 namespace AKlump\CheckPages\Output\Messenger;
 
+use AKlump\CheckPages\Messaging\MessageInterface;
 use AKlump\CheckPages\Output\VerboseDirective;
-use AKlump\Messaging\MessengerInterface;
+use AKlump\CheckPages\Messaging\MessengerInterface;
 
 /**
  * A printer that does nothing (--quiet).
@@ -14,12 +15,8 @@ class DevNullPrinter implements MessengerInterface {
     return new VerboseDirective(VerboseDirective::getTotalIntersection());
   }
 
-  public function deliver(\AKlump\Messaging\MessageInterface $message, int $flags = NULL) {
+  public function writeln(MessageInterface $message): void {
     // Do nothing e.g., > /dev/null
-  }
-
-  public function addProcessor(callable $callback): MessengerInterface {
-    return $this;
   }
 
   public function getVerbosity(): int {

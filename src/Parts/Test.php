@@ -4,22 +4,24 @@ namespace AKlump\CheckPages\Parts;
 
 use AKlump\CheckPages\Interfaces\HasConfigInterface;
 use AKlump\CheckPages\Output\MessageDelivery;
+use AKlump\CheckPages\TAP\Directive;
+use AKlump\CheckPages\TAP\Result;
+use AKlump\CheckPages\TAP\TestInterface;
 use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
-use AKlump\CheckPages\Traits\SkipTrait;
+use AKlump\CheckPages\Traits\TAPTrait;
 use AKlump\CheckPages\Variables;
-use AKlump\Messaging\HasMessagesInterface;
-use AKlump\Messaging\HasMessagesTrait;
-use AKlump\Messaging\Processor;
+use AKlump\CheckPages\Messaging\HasMessagesInterface;
+use AKlump\CheckPages\Messaging\HasMessagesTrait;
 use JsonSerializable;
 
-class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMessagesInterface {
+class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMessagesInterface, TestInterface {
 
   use HasRunnerTrait;
   use HasMessagesTrait;
+  use TAPTrait;
   use PassFailTrait;
-  use SkipTrait;
   use HasConfigTrait {
     HasConfigTrait::setConfig as traitSetConfig;
   }
@@ -42,6 +44,21 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMe
   protected $badges = [];
 
   /**
+   * @var string|null
+   */
+  private ?string $description = NULL;
+
+  /**
+   * @var \AKlump\CheckPages\TAP\Directive|null
+   */
+  private ?Directive $directive = NULL;
+
+  /**
+   * @var \AKlump\CheckPages\TAP\Result|null
+   */
+  private ?Result $result = NULL;
+
+  /**
    * @var \AKlump\CheckPages\Variables
    */
   protected $vars;
@@ -51,15 +68,12 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMe
    */
   private $suite;
 
-  /**
-   * @var string
-   */
-  private $id;
+  private int $number;
 
-  public function __construct(string $id, array $config, Suite $suite) {
+  public function __construct(int $number, array $config, Suite $suite) {
     $this->suite = $suite;
     $this->setRunner($suite->getRunner());
-    $this->id = $id;
+    $this->setNumber($number);
     $this->setConfig($config);
     $this->vars = new Variables();
   }
@@ -85,15 +99,20 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMe
    *   The test description.
    */
   public function getDescription(): string {
-    $config = $this->getConfig();
-    $title = trim($config['why'] ?? '');
-    if (!$title) {
-      $url = $this->getRelativeUrl();
-      $method = $this->getHttpMethod();
-      $has_multiple_methods = count($this->getSuite()->getHttpMethods()) > 1;
-      $method = $has_multiple_methods ? $method : '';
-      if ($url) {
-        $title = ltrim("$method $url", ' ');
+    if ($this->description !== NULL) {
+      $title = $this->description;
+    }
+    else {
+      $config = $this->getConfig();
+      $title = trim($config['why'] ?? '');
+      if (!$title) {
+        $url = $this->getRelativeUrl();
+        $method = $this->getHttpMethod();
+        $has_multiple_methods = count($this->getSuite()->getHttpMethods()) > 1;
+        $method = $has_multiple_methods ? $method : '';
+        if ($url) {
+          $title = ltrim("$method $url", ' ');
+        }
       }
     }
     if ($title) {
@@ -135,7 +154,7 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMe
   }
 
   public function id(): string {
-    return $this->id;
+    return $this->getNumber();
   }
 
   /**
@@ -206,4 +225,40 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMe
     $this->setMessages([]);
   }
 
+  public function getDirective(): Directive {
+    return $this->directive ?? Directive::NONE;
+  }
+
+  public function getNumber(): int {
+    if ($this->number !== NULL) {
+      return $this->number;
+    }
+    if (is_numeric($this->id)) {
+      return (int) $this->id;
+    }
+
+    return 0;
+  }
+
+  public function getResult(): Result {
+    return $this->result ?? Result::NONE;
+  }
+
+  public function setDescription(string $description): TestInterface {
+    $this->description = $description;
+
+    return $this;
+  }
+
+  public function setNumber(int $number): TestInterface {
+    $this->number = $number;
+
+    return $this;
+  }
+
+  public function setResult(Result $result): TestInterface {
+    $this->result = $result;
+
+    return $this;
+  }
 }

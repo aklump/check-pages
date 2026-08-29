@@ -6,7 +6,8 @@ use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\TestEventInterface;
 use AKlump\CheckPages\Interfaces\ProvidesInputOptionsInterface;
 use AKlump\CheckPages\Output\Message\Message;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
+use AKlump\CheckPages\TAP\Result;
 
 /**
  * Implements the Breakpoint handler.
@@ -30,6 +31,7 @@ final class Breakpoint implements HandlerInterface, ProvidesInputOptionsInterfac
             return;
           }
           $test->setPassed();
+          $test->setResult(Result::OK);
           $description = $test->getDescription();
           if (!$description) {
             $description = 'Press any key';

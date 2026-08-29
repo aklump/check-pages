@@ -6,11 +6,7 @@ use AKlump\CheckPages\Assert;
 use AKlump\CheckPages\Browser\RequestDriverInterface;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\AssertEvent;
-use AKlump\CheckPages\EventSubscriber\Feedback;
-use AKlump\CheckPages\Output\Message\Message;
-use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Traits\HasTestTrait;
-use AKlump\Messaging\MessageType;
 
 class AssertRunner {
 
@@ -63,49 +59,25 @@ class AssertRunner {
     }
 
     $test = $assert->getTest();
-    $test->getRunner()->getDispatcher()
-      ->dispatch(new AssertEvent($assert, $test, $this->driver), Event::ASSERT_CREATED);
+    $dispatcher = $test->getRunner()->getDispatcher();
+    $event = new AssertEvent($assert, $test, $this->driver);
+    $dispatcher->dispatch($event, Event::ASSERT_CREATED);
 
     // Note: if passed or failed that will be checked inside
     // of the method \AKlump\CheckPages\Assert::run
+    $dispatcher->dispatch($event, Event::ASSERT_STARTED);
     $assert->run();
 
-    $test->getRunner()->getDispatcher()
-      ->dispatch(new AssertEvent($assert, $test, $this->driver), Event::ASSERT_FINISHED);
-
-    $why = strval($assert);
+    $dispatcher->dispatch($event, Event::ASSERT_EVALUATED);
     if ($assert->hasFailed()) {
-      if (!empty($config['why'])) {
-        $why = "{$config['why']} $why";
-      }
-      $test->addMessage(new Message(
-          [Feedback::FAILED_PREFIX . $why],
-          MessageType::ERROR,
-          Verbosity::VERBOSE
-        )
-      );
+      $dispatcher->dispatch($event, Event::ASSERT_FAILED);
+    }
 
-      $reason = $assert->getReason();
-      if ($reason) {
-        $test->addMessage(new Message(
-            [$reason],
-            MessageType::ERROR,
-            Verbosity::VERBOSE
-          )
-        );
-      }
-    }
     elseif ($assert->hasPassed()) {
-      $why = $config['why'] ?? $why;
-      if ($why) {
-        $test->addMessage(new Message(
-            [$why],
-            MessageType::SUCCESS,
-            Verbosity::VERBOSE
-          )
-        );
-      }
+      $dispatcher->dispatch($event, Event::ASSERT_PASSED);
     }
+    $dispatcher->dispatch($event, Event::ASSERT_FINISHED);
+
 
     $test->getRunner()->totalAssertions++;
     if ($assert->hasFailed()) {

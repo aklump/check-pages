@@ -110,7 +110,7 @@ final class AuthenticateProviderFactory {
     }
 
     $http_client->dispatchEventsWith(new Test(
-      $this->test->id(),
+      $this->test->getNumber(),
       ['why' => $class_name],
       $suite
     ));

@@ -3,8 +3,8 @@
 namespace AKlump\CheckPages\Output\Messenger;
 
 use AKlump\CheckPages\Parts\Runner;
-use AKlump\Messaging\MessageInterface;
-use AKlump\Messaging\MessengerInterface;
+use AKlump\CheckPages\Messaging\MessageInterface;
+use AKlump\CheckPages\Messaging\MessengerInterface;
 use DateTimeInterface;
 
 /**
@@ -12,15 +12,9 @@ use DateTimeInterface;
  */
 final class LoggerPrinter implements MessengerInterface {
 
-  /**
-   * @var \AKlump\CheckPages\Parts\Runner
-   */
-  private $runner;
+  private Runner $runner;
 
-  /**
-   * @var string
-   */
-  private $basename;
+  private string $basename;
 
   private string $type;
 
@@ -29,17 +23,7 @@ final class LoggerPrinter implements MessengerInterface {
     $this->basename = $basename;
   }
 
-  /**
-   * @inheritDoc
-   */
-  public function addProcessor(callable $callback): MessengerInterface {
-    return $this;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function deliver(MessageInterface $message, int $flags = NULL) {
+  public function writeln(MessageInterface $message): void {
     $lines = $message->getMessage();
     $this->type = $message->getMessageType();
     $lines = array_map([$this, 'addMessageType'], $lines);
@@ -52,7 +36,7 @@ final class LoggerPrinter implements MessengerInterface {
   }
 
   private function addDates($line) {
-    $time = date_create()->format(DateTimeInterface::ISO8601);
+    $time = date_create()->format(DateTimeInterface::ATOM);
 
     return sprintf('%s %s', $time, $line);
   }

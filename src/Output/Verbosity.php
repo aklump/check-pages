@@ -8,8 +8,9 @@ class Verbosity {
 
   const VERBOSE = 2;
 
-  const DEBUG = 4;
+  const VERY_VERBOSE = 4;
 
+  const DEBUG = 8;
   const REQUEST = 8;
 
   const RESPONSE = 16;

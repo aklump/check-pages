@@ -6,7 +6,7 @@ use AKlump\CheckPages\DataStructure\ContentTypeHeader;
 use AKlump\CheckPages\Files\HttpContentTypeGuesser;
 use AKlump\CheckPages\Output\Message\DebugMessage;
 use AKlump\JsonSchema\JsonDecodeLossless;
-use AKlump\Messaging\MessengerInterface;
+use AKlump\CheckPages\Messaging\MessengerInterface;
 use InvalidArgumentException;
 use Laminas\Xml2Json\Exception\RuntimeException;
 use Laminas\Xml2Json\Xml2Json;
@@ -60,7 +60,7 @@ trait SerializationTrait {
       default:
         if ($printer) {
           array_unshift($data, 'Serialization Failure!', '');
-          $printer->deliver(new DebugMessage($data));
+          $printer->writeln(new DebugMessage($data));
         }
         throw new InvalidArgumentException(sprintf('Cannot serialize content of type "%s".', $type));
     }
@@ -132,7 +132,7 @@ trait SerializationTrait {
 
       default:
         if ($printer) {
-          $printer->deliver(new DebugMessage([
+          $printer->writeln(new DebugMessage([
             'Deserialization Failure!',
             '',
             $serial,

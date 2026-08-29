@@ -1,6 +1,6 @@
 <?php
 
-namespace AKlump\Messaging;
+namespace AKlump\CheckPages\Messaging;
 
 interface HasMessagesInterface {
 

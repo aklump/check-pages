@@ -19,7 +19,7 @@ use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Service\TestResultCollectionStorage;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -201,7 +201,7 @@ final class Retest implements EventSubscriberInterface, ProvidesInputOptionsInte
 
     // Handle messaging.
     if (in_array(Retest::OPTION_CONTINUE, $options_being_used)) {
-      $this->getRunner()->echo(new Message(
+      $this->getRunner()->getMessenger()->writeln(new Message(
         [
           '...continuing with the first test of the last suite.',
         ],

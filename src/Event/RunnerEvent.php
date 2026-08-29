@@ -6,10 +6,7 @@ use AKlump\CheckPages\Parts\Runner;
 
 class RunnerEvent implements RunnerEventInterface {
 
-  /**
-   * @var \AKlump\CheckPages\Parts\Runner
-   */
-  protected $runner;
+  protected Runner $runner;
 
   public function __construct(Runner $runner) {
     $this->runner = $runner;
@@ -18,4 +15,5 @@ class RunnerEvent implements RunnerEventInterface {
   public function getRunner(): Runner {
     return $this->runner;
   }
+
 }

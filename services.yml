@@ -7,10 +7,26 @@ services:
     class: \AKlump\CheckPages\EventSubscriber\SaveResponseToFile
     tags:
       - { name: event_subscriber }
-  feedback:
-    class: \AKlump\CheckPages\EventSubscriber\Feedback
+  runner_feedback:
+    class: \AKlump\CheckPages\EventSubscriber\RunnerFeedback
     tags:
       - { name: event_subscriber }
+  suite_feedback:
+    class: \AKlump\CheckPages\EventSubscriber\SuiteFeedback
+    tags:
+      - { name: event_subscriber }
+  test_feedback:
+    class: \AKlump\CheckPages\EventSubscriber\TestFeedback
+    tags:
+      - { name: event_subscriber }
+  #  request_feedback:
+  #    class: \AKlump\CheckPages\EventSubscriber\RequestFeedback
+  #    tags:
+  #      - { name: event_subscriber }
+  #  assertion_feedback:
+  #    class: \AKlump\CheckPages\EventSubscriber\AssertionFeedback
+  #    tags:
+  #      - { name: event_subscriber }
   retest:
     class: \AKlump\CheckPages\EventSubscriber\Retest
     tags:

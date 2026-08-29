@@ -8,9 +8,11 @@ namespace AKlump\CheckPages\Output;
  */
 class Icons {
 
-  const COMPLETE = '✅ ';
+  const CONSOLE_PROMPT = '> ';
 
-  const INCOMPLETE = '❌ ';
+  const COMPLETE = '✅';
+
+  const INCOMPLETE = '❌';
 
   const OOPS = '😬 ';
 
@@ -22,9 +24,11 @@ class Icons {
 
   const THUMBS_UP = '👍 ';
 
-  const CLOCK = '⏱  ';
+  const CLOCK = '⏱ ';
 
-  const SHRUG = '🤷🏻‍♀️ ';
+  const WAIT = '⏳';
+
+  const SHRUG = '🤷🏻‍♀️';
 
   const SPYGLASS = '🔎 ';
 
@@ -49,4 +53,25 @@ class Icons {
   const FOOTBALL = '🏈 ';
 
   const HOOK = '🪝 ';
+
+  const IGNORE = '⚪';
+
+  const PASS = '🟢';
+
+  const SUITE_RESULT_NONE = '⚪';
+
+  const SUITE_RESULT_OK = '🟢';
+
+  const SUITE_RESULT_NOT_OKAY = '🔴';
+
+  const TEST_RESULT_NONE = '🏃‍♂️‍➡️';
+
+  const TEST_RESULT_OK = '  ';
+
+  const TEST_RESULT_NOT_OKAY = '❗';
+
+  const WARN = '🟡';
+
+  const FAIL = '🔴';
+
 }

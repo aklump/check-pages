@@ -94,7 +94,7 @@ class Assertion implements HasConfigInterface {
    */
   public function __construct(
     string $suite_id,
-    string $test_id,
+    int $testNumber,
     string $assert_id,
     array $config,
     array $listener_classes = NULL
@@ -128,13 +128,17 @@ class Assertion implements HasConfigInterface {
     global $container;
     $this->driver = new GuzzleDriver($container ? $runner->getDispatcher() : DispatcherFactory::create());
     $suite = new Suite($suite_id, $runner);
-    $this->test = new Test($test_id, [], $suite);
+    $this->test = new Test($testNumber, [], $suite);
     $this->assert = new Assert($assert_id, $config, $this->test);
     $this->assert->setSearch(Assert::SEARCH_ALL);
     $this->vars = new Variables();
 
     // Flag to only allow ::run() with proper setup, and only once.
     $this->mayRun = FALSE;
+  }
+
+  public function getAssert(): Assert {
+    return $this->assert;
   }
 
   public function __toString() {
@@ -151,11 +155,11 @@ class Assertion implements HasConfigInterface {
    */
   public static function create(
     string $suite_id,
-    string $test_id,
+    string $testNumber,
     string $assert_id,
     array $config
   ): self {
-    return new static($suite_id, $test_id, $assert_id, $config);
+    return new static($suite_id, $testNumber, $assert_id, $config);
   }
 
   /**
@@ -171,6 +175,7 @@ class Assertion implements HasConfigInterface {
    */
   public function reRunAgainst($haystack): bool {
     $this->assert->clearResult();
+
     return $this->setHaystack($haystack)->run()->hasPassed();
   }
 
@@ -206,14 +211,17 @@ class Assertion implements HasConfigInterface {
     $event = new AssertEvent($this->assert, $this->test, $this->driver);
     $this->dispatcher->dispatch($event, Event::ASSERT_CREATED);
     $this->assert->run();
-    $this->dispatcher->dispatch($event, Event::ASSERT_FINISHED);
+    $this->dispatcher->dispatch($event, Event::ASSERT_EVALUATED);
 
     if ($this->assert->hasPassed()) {
       $this->setPassed();
+      $this->dispatcher->dispatch($event, Event::ASSERT_PASSED);
     }
     if ($this->assert->hasFailed()) {
       $this->setFailed();
+      $this->dispatcher->dispatch($event, Event::ASSERT_FAILED);
     }
+    $this->dispatcher->dispatch($event, Event::ASSERT_FINISHED);
 
     $this->handleSetValue();
 

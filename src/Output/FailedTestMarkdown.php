@@ -3,8 +3,8 @@
 namespace AKlump\CheckPages\Output;
 
 use AKlump\CheckPages\Parts\Test;
-use AKlump\Messaging\MessageInterface;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageInterface;
+use AKlump\CheckPages\Messaging\MessageType;
 
 /**
  * Writes a markdown file for failing tests.

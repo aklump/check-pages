@@ -15,13 +15,15 @@ use AKlump\CheckPages\Files\FilesProviderInterface;
 use AKlump\CheckPages\Files\LoadConfig;
 use AKlump\CheckPages\Files\LocalFilesProvider;
 use AKlump\CheckPages\Helpers\FilterSuites;
+use AKlump\CheckPages\Messaging\SectionAwareMessengerInterface;
 use AKlump\CheckPages\Output\Flags;
 use AKlump\CheckPages\Output\Icons;
 use AKlump\CheckPages\Output\Message\Message;
-use AKlump\CheckPages\Output\Messenger\ConsoleEchoPrinter;
 use AKlump\CheckPages\Output\Messenger\DevNullPrinter;
 use AKlump\CheckPages\Output\Messenger\LoggerPrinter;
 use AKlump\CheckPages\Output\Messenger\MultiPrinter;
+use AKlump\CheckPages\Output\Messenger\SymfonyStyleConsolePrinter;
+use AKlump\CheckPages\Output\Timer;
 use AKlump\CheckPages\Output\VerboseDirective;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\RuntimeContext;
@@ -29,20 +31,24 @@ use AKlump\CheckPages\Service\DispatcherFactory;
 use AKlump\CheckPages\Storage;
 use AKlump\CheckPages\StorageInterface;
 use AKlump\CheckPages\SuiteCollection;
+use AKlump\CheckPages\TAP\Directive;
+use AKlump\CheckPages\TAP\Result;
+use AKlump\CheckPages\TestRunState;
 use AKlump\CheckPages\Traits\BaseUrlTrait;
 use AKlump\CheckPages\Traits\HasConfigTrait;
 use AKlump\CheckPages\Traits\HasSuiteTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Traits\SerializationTrait;
 use AKlump\CheckPages\Traits\SetTrait;
-use AKlump\Messaging\HasMessagesInterface;
-use AKlump\Messaging\HasMessagesTrait;
-use AKlump\Messaging\MessageType;
-use AKlump\Messaging\MessengerInterface;
+use AKlump\CheckPages\Messaging\HasMessagesInterface;
+use AKlump\CheckPages\Messaging\HasMessagesTrait;
+use AKlump\CheckPages\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessengerInterface;
 use JsonSchema\Validator;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Yaml\Yaml;
 
@@ -75,6 +81,123 @@ class Runner implements HasMessagesInterface {
 
   static protected array $state;
 
+  public int $totalAssertions = 0;
+
+  public int $failedAssertionCount = 0;
+
+  public int $skippedSuitesCount = 0;
+
+  protected string $pathToRunnerFile;
+
+  protected int $totalTestsRun = 0;
+
+  protected int $outputMode;
+
+  protected int $failedTestCount = 0;
+
+  protected int $failedSuiteCount = 0;
+
+  protected $storage;
+
+  protected $schema;
+
+  /**
+   * Keys are filter types; values are arrays of filter values for that type.
+   */
+  protected array $filters = [];
+
+  protected array $printed = [];
+
+  protected array $messages = [];
+
+  /**
+   * @var \AKlump\LoftLib\Bash\Bash
+   */
+  protected $bash;
+
+  protected string $configPath;
+
+  protected array $config = [];
+
+  protected array $runtimeOptions = [];
+
+  /**
+   * @var array
+   */
+  protected $writeToFileResources;
+
+  protected Runner $runner;
+
+  protected Suite $suite;
+
+  private ?MessengerInterface $messenger = NULL;
+
+  private Timer $timer;
+
+  private TestRunState $testRunState;
+
+  private bool $runnerCreatedEventDispatched;
+
+  private string $id;
+
+  /**
+   * Holds a true state only when any filter is set and after a suite matching
+   * the filter is used.  If a filter is set and all suites are run and this is
+   * still FALSE, it means that the filter was for a suite that was not
+   * registered in the runner.
+   *
+   * @var bool
+   */
+  private bool $atLeastOneSuiteMadeItPastTheFilters = FALSE;
+
+  private ?FilesProviderInterface $logFiles = NULL;
+
+  private InputInterface $input;
+
+  private OutputInterface $output;
+
+  private SymfonyStyle $io;
+
+  private EventDispatcher $dispatcher;
+
+  private LocalFilesProvider $files;
+
+  private Suite $lastFailedSuite;
+
+  /**
+   * @var array|mixed
+   */
+  private $suitesToIgnore = [];
+
+  public function __construct(InputInterface $input, OutputInterface $output) {
+    $this->input = $input;
+    $this->output = $output;
+    $this->outputMode = Runner::OUTPUT_NORMAL;
+    if ($this->getOutput()->isQuiet()) {
+      $this->outputMode = Runner::OUTPUT_QUIET;
+    }
+  }
+
+  public function getTestRunState(): TestRunState {
+    return $this->testRunState ??= new TestRunState($this->getDispatcher());
+  }
+
+  public function setTestRunState(TestRunState $testRunState): self {
+    $this->testRunState = $testRunState;
+
+    return $this;
+  }
+
+  public function getTimer(): Timer {
+    return $this->timer;
+  }
+
+  public function setTimer(Timer $timer): self {
+    $this->timer = $timer;
+
+    return $this;
+  }
+
   public static function getState(string $key) {
     return self::$state[$key] ?? NULL;
   }
@@ -91,133 +214,6 @@ class Runner implements HasMessagesInterface {
     self::$state[$key] = $value;
   }
 
-  /**
-   * @var bool
-   */
-  private $runnerCreatedEventDispatched;
-
-  public $totalAssertions = 0;
-
-  public $failedAssertionCount = 0;
-
-  public $skippedSuitesCount = 0;
-
-  /**
-   * @var string
-   */
-  private $id;
-
-  protected $totalTestsRun = 0;
-
-  protected $outputMode;
-
-  protected $failedTestCount = 0;
-
-  protected $failedSuiteCount = 0;
-
-  protected $storage;
-
-  protected $schema;
-
-  /**
-   * Keys are filter types; values are arrays of filter values for that type.
-   *
-   * @var array
-   */
-  protected $filters = [];
-
-  /**
-   * @var array
-   */
-  protected $printed = [];
-
-  /**
-   * An array of debug messages.
-   *
-   * @var array
-   */
-  protected $messages = [];
-
-  /**
-   * @var \AKlump\LoftLib\Bash\Bash
-   */
-  protected $bash;
-
-  /**
-   * @var string
-   */
-  protected $configPath;
-
-  /**
-   * @var array
-   */
-  protected $config = [];
-
-  /**
-   * @var array
-   */
-  protected $runtimeOptions = [];
-
-  /**
-   * @var array
-   */
-  protected $writeToFileResources;
-
-  /**
-   * @var array
-   */
-  protected $runner;
-
-  /**
-   * @var \AKlump\CheckPages\Parts\Suite
-   */
-  protected $suite;
-
-  /**
-   * Holds a true state only when any filter is set and after a suite matching
-   * the filter is used.  If a filter is set and all suites are run and this is
-   * still FALSE, it means that the filter was for a suite that was not
-   * registered in the runner.
-   *
-   * @var bool
-   */
-  private bool $atLeastOneSuiteMadeItPastTheFilters = FALSE;
-
-
-  /**
-   * @var FilesProviderInterface
-   */
-  private $logFiles;
-
-  private $input;
-
-  private $output;
-
-  /**
-   * @var \Symfony\Component\Console\Style\SymfonyStyle
-   */
-  private $io;
-
-  /**
-   * @var \Symfony\Component\EventDispatcher\EventDispatcher
-   */
-  private $dispatcher;
-
-  /**
-   * @var \AKlump\CheckPages\Files\LocalFilesProvider
-   */
-  private $files;
-
-  /**
-   * @var \AKlump\CheckPages\Parts\Suite
-   */
-  private $lastFailedSuite;
-
-  /**
-   * @var array|mixed
-   */
-  private $suitesToIgnore = [];
-
   public function io(): SymfonyStyle {
     if (!isset($this->io)) {
       $this->io = new SymfonyStyle($this->input, $this->output);
@@ -226,13 +222,8 @@ class Runner implements HasMessagesInterface {
     return $this->io;
   }
 
-  public function __construct(InputInterface $input, OutputInterface $output) {
-    $this->input = $input;
-    $this->output = $output;
-    $this->outputMode = Runner::OUTPUT_NORMAL;
-    if ($this->getOutput()->isQuiet()) {
-      $this->outputMode = Runner::OUTPUT_QUIET;
-    }
+  public function getFiles(): ?FilesProviderInterface {
+    return $this->files;
   }
 
   /**
@@ -247,37 +238,20 @@ class Runner implements HasMessagesInterface {
     return $this;
   }
 
-  public function getFiles(): ?FilesProviderInterface {
-    return $this->files;
-  }
-
-  /**
-   * Echo a message.
-   *
-   * Shorthand for $this->getMessenger()->deliver(...
-   *
-   * @param \AKlump\CheckPages\Output\Message\Message $message
-   * @param int|NULL $flags
-   *
-   * @return void
-   *
-   * @see \AKlump\CheckPages\Parts\Runner::getMessenger
-   */
-  public function echo(Message $message, int $flags = NULL) {
-    $this->getMessenger()->deliver($message, $flags);
-  }
-
   /**
    * Get a configured messenger for user feedback.
    *
-   * @return \AKlump\Messaging\MessengerInterface
+   * @return \AKlump\CheckPages\Messaging\MessengerInterface
    *   A new new instance.
    */
   public function getMessenger(): MessengerInterface {
+    if ($this->messenger) {
+      return $this->messenger;
+    }
     $output = $this->getOutput();
 
     if ($output->isQuiet()) {
-      return new DevNullPrinter();
+      return $this->messenger = new DevNullPrinter();
     }
 
     $flags = Verbosity::NORMAL;
@@ -295,7 +269,7 @@ class Runner implements HasMessagesInterface {
 
     // These are the CLI arguments: -vvv || --debug=true
     if ($output->isVeryVerbose() || $options['debug']) {
-      $flags = $flags | Verbosity::DEBUG;
+      $flags = $flags | Verbosity::VERY_VERBOSE;
     }
     $show = new VerboseDirective(strval($options['show']));
     if ($show->showSendHeaders() || $show->showResponseHeaders()) {
@@ -309,10 +283,10 @@ class Runner implements HasMessagesInterface {
     }
 
     $printers = [];
-    $printers[] = new ConsoleEchoPrinter($output, $flags);
+    $printers[] = new SymfonyStyleConsolePrinter($output);
     $printers[] = new LoggerPrinter(self::LOGGER_PRINTER_BASENAME, $this);
 
-    return new MultiPrinter($printers);
+    return $this->messenger = new MultiPrinter($printers);
   }
 
   /**
@@ -514,7 +488,7 @@ class Runner implements HasMessagesInterface {
   }
 
   /**
-   * Run a test file.
+   * Execute a runner.php file
    *
    * @throws \RuntimeException If the test completed with failures.
    * @throws \AKlump\CheckPages\Exceptions\SuiteFailedException If the runner stopped
@@ -522,44 +496,34 @@ class Runner implements HasMessagesInterface {
    * @throws \AKlump\CheckPages\Exceptions\TestFailedException If the runner stopped
    *   before it was finished due to a failure.
    */
-  public function executeRunner(string $runner_path) {
+  public function executeRunner() {
     try {
-      $filter_message = '';
       if (count($this->filters)) {
-        $filter_message = '?' . urldecode(http_build_query($this->filters));
-        $filter_message = preg_replace('/\[\d+\]/', '[]', $filter_message);
         RuntimeContext::get()->add($this->filters, 'filters');
       }
 
-      $this->echo(new Message(
-        [
-          sprintf('Testing started with %s%s', basename($runner_path), $filter_message),
-          '',
-        ],
-        MessageType::INFO,
-        Verbosity::VERBOSE
-      ));
-
-      // Create a new scope for execution of $runner_path.
+      // Create a new scope for execution of the runner file.
       (function (string $path) {
         require $path;
-      })($runner_path);
+      })($this->getPathToRunnerFile());
+
 
       if (count($this->filters) > 0 && !$this->atLeastOneSuiteMadeItPastTheFilters) {
-        $this->echo(new Message([''], MessageType::INFO, Verbosity::VERBOSE));
-        $this->getMessenger()->deliver(new Message(
+        $this->getMessenger()
+          ->writeln(new Message([''], MessageType::INFO, Verbosity::VERBOSE));
+        $this->getMessenger()->writeln(new Message(
           ['There are no suites that match at least one of your filters.'],
           MessageType::ERROR, Verbosity::NORMAL
         ));
         $filter_hints = [
-          sprintf('%sReview %s', Icons::HINT, $runner_path),
+          sprintf('%sReview %s', Icons::HINT, $this->getPathToRunnerFile()),
           sprintf('%sThis might happen if you did not add the correct `run_suite()`:', Icons::HINT),
         ];
         foreach ($this->filters as $filter) {
           $filter_hints[] = sprintf('%se.g., run_suite("%s");', Icons::HINT, $filter);
         }
         $this->getMessenger()
-          ->deliver(new Message($filter_hints, MessageType::INFO, Verbosity::VERBOSE
+          ->writeln(new Message($filter_hints, MessageType::INFO, Verbosity::VERBOSE
           ), Flags::INVERT_FIRST_LINE);
         $this->setFailed();
       }
@@ -597,7 +561,7 @@ class Runner implements HasMessagesInterface {
    *
    * @see run_suite()
    */
-  public function run(Suite $suite, string $path_to_suite) {
+  public function runSuite(Suite $suite, string $path_to_suite) {
     if (empty($this->files)) {
       throw new RuntimeException('Call setFiles() first.');
     }
@@ -609,7 +573,7 @@ class Runner implements HasMessagesInterface {
     $this->atLeastOneSuiteMadeItPastTheFilters = TRUE;
 
     // This may seem to be located in a strange place, but for a complex set of
-    // reasons having to do with runner functions and test-writing architecture
+    // reasons having to do with runner functions and test-writing architecture,
     // this is the best choice for this event.  From the perspective of event
     // handlers this is going to be called the first time a suite is run, which
     // is roughly equal to the runner being created.  The actual Runner instance
@@ -655,15 +619,14 @@ class Runner implements HasMessagesInterface {
     $ignored_filepaths = array_unique($ignored_filepaths);
 
     if ($path_to_suite && in_array($path_to_suite, $ignored_filepaths)) {
-      $status = NULL;
       if ($this->getInput()->getOption(Retest::OPTION_RETEST)) {
-        $status = TRUE;
+        $suite->setResult(Result::OK);
+        $suite->setPassed();
       }
-      $this->echo(new Message(
-        [' ↓  ' . $this->getSuite()],
-        $status ? MessageType::SUCCESS : MessageType::INFO,
-        Verbosity::NORMAL
-      ));
+      $this
+        ->setSuite($suite)
+        ->getDispatcher()
+        ->dispatch(new SuiteEvent($suite), Event::SUITE_IGNORED);
 
       return;
     }
@@ -679,6 +642,12 @@ class Runner implements HasMessagesInterface {
       return;
     }
 
+    $messenger = $this->getMessenger();
+    if ($messenger instanceof SectionAwareMessengerInterface) {
+      $messenger->resetSections();
+      $messenger->section(MessageType::SUITE_RUN_STATE_RESULT);
+    }
+
     $this->dispatcher->dispatch(new SuiteEvent($this->getSuite()), Event::SUITE_STARTED);
 
     // On return from the hook, we need to reparse to get format for validation.
@@ -687,14 +656,26 @@ class Runner implements HasMessagesInterface {
     // Do not change this to foreach as it will fail to run any tests that are
     // dynamically added during an earlier test.
     while (($test = $suite->getNextPendingTest())) {
-      $test_runner = (new TestRunner($test))->start();
+
+      $messenger = $this->getMessenger();
+      if ($messenger instanceof SectionAwareMessengerInterface) {
+        $messenger->section(MessageType::TEST_RUN_STATE_RESULT);
+        $messenger->section(MessageType::TEST_RUN_STATE_FILES);
+      }
+
+      // Create a new state object for each test.
+      $state = new TestRunState($this->getDispatcher());
+      $state->setTest($test);
+      $this->setTestRunState($state);
+
+      $testRunner = (new TestRunner($test))->start();
 
       // It's possible the test was already run during Event::TEST_CREATED, if
       // that handle has set the results, then the test should be considered
       // complete.
       if (!$test->hasFailed() && !$test->hasPassed()) {
         try {
-          $test_runner->run();
+          $testRunner->run();
         }
         catch (TestFailedException $exception) {
           // We have to catch this here, because of the dispatching and decision
@@ -702,13 +683,26 @@ class Runner implements HasMessagesInterface {
           // configuration.  Also we will add a error message so that writing
           // handlers is easier.
           $test->setFailed();
+          $test->setResult(Result::NOT_OK);
+
           foreach ($exception->getMessages() as $message) {
             $test->addMessage($message);
           }
           $test->addMessage(new Message([$exception->getMessage()], MessageType::ERROR));
         }
       }
-      $runtime_test_result = $test_runner->processResult();
+      $runtime_test_result = $testRunner->processResult();
+
+      //      if ($test->isSkipped()) {
+      //        $this->getTestRunState()->setDirective(Directive::SKIP);
+      //      }
+      //      if ($runtime_test_result) {
+      //        $this->getTestRunState()->setResult(Result::OK);
+      //      }
+      //      else {
+      //        $this->getTestRunState()->setResult(Result::NOT_OK);
+      //      }
+
       $this->totalTestsRun++;
 
       if (FALSE === $runtime_test_result) {
@@ -723,7 +717,7 @@ class Runner implements HasMessagesInterface {
         break;
       }
       foreach ($test->getMessages() as $message) {
-        $this->echo($message);
+        $this->getMessenger()->writeln($message);
       }
     }
 
@@ -748,6 +742,7 @@ class Runner implements HasMessagesInterface {
 
     // Assume the best in people.
     if (!$suite->hasFailed() && !$suite->isSkipped()) {
+      $suite->setResult(Result::OK);
       $suite->setPassed();
     }
 
@@ -832,35 +827,35 @@ class Runner implements HasMessagesInterface {
     $validator->validate($data, $schema);
 
     if (!$validator->isValid()) {
-      $directive = Verbosity::DEBUG;
+      $directive = Verbosity::VERY_VERBOSE;
 
-      $this->echo(new Message([
+      $this->getMessenger()->writeln(new Message([
         "Suite Group\\ID:",
         strval($suite),
         '',
       ], MessageType::ERROR, $directive), Flags::INVERT_FIRST_LINE);
 
-      $this->echo(new Message([
+      $this->getMessenger()->writeln(new Message([
         "Test Configuration:",
       ], MessageType::ERROR, $directive), Flags::INVERT_FIRST_LINE);
 
-      $this->echo(new Message([
+      $this->getMessenger()->writeln(new Message([
         json_encode($data, JSON_PRETTY_PRINT),
         '',
       ], MessageType::DEBUG, $directive));
 
-      $this->echo(new Message([
+      $this->getMessenger()->writeln(new Message([
         'Schema Path:',
         $path_to_schema,
         '',
       ], MessageType::ERROR, $directive), Flags::INVERT_FIRST_LINE);
 
-      $this->echo(new Message([
+      $this->getMessenger()->writeln(new Message([
         "Schema Validation Errors:",
       ], MessageType::ERROR, $directive), Flags::INVERT_FIRST_LINE);
 
       foreach ($validator->getErrors() as $error) {
-        $this->echo(new Message([
+        $this->getMessenger()->writeln(new Message([
           sprintf("[%s] %s", $error['property'], $error['message']),
           '',
         ], MessageType::DEBUG, $directive));
@@ -929,6 +924,10 @@ class Runner implements HasMessagesInterface {
     return $this->logFiles;
   }
 
+  public function getFilters(): array {
+    return $this->filters;
+  }
+
   /**
    * Send data to a file in the files directory if it exists.
    *
@@ -979,5 +978,13 @@ class Runner implements HasMessagesInterface {
 
   public function getLastFailedSuite(): ?Suite {
     return $this->lastFailedSuite ?? NULL;
+  }
+
+  public function getPathToRunnerFile(): ?string {
+    return $this->pathToRunnerFile ?? NULL;
+  }
+
+  public function setPathToRunnerFile(string $pathToRunnerFile): void {
+    $this->pathToRunnerFile = $pathToRunnerFile;
   }
 }

@@ -7,7 +7,7 @@ use AKlump\CheckPages\Response;
 use AKlump\CheckPages\Service\RequestHistory;
 use AKlump\CheckPages\Traits\BaseUrlTrait;
 use AKlump\CheckPages\Traits\HasTestTrait;
-use AKlump\Messaging\MessengerInterface;
+use AKlump\CheckPages\Messaging\MessengerInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\Utils;

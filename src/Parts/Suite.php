@@ -6,6 +6,7 @@ use AKlump\CheckPages\Traits\HasFilePathTrait;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
 use AKlump\CheckPages\Traits\SkipTrait;
+use AKlump\CheckPages\Traits\TAPTrait;
 use AKlump\CheckPages\Variables;
 use JsonSerializable;
 
@@ -13,7 +14,7 @@ class Suite implements PartInterface, JsonSerializable {
 
   use PassFailTrait;
   use HasRunnerTrait;
-  use SkipTrait;
+  use TAPTrait;
   use HasFilePathTrait;
 
   /**
@@ -21,7 +22,7 @@ class Suite implements PartInterface, JsonSerializable {
    */
   protected $tests = [];
 
-  protected $autoIncrementTestId = 0;
+  protected $autoTestNumber = 0;
 
   protected $id;
 
@@ -120,7 +121,7 @@ class Suite implements PartInterface, JsonSerializable {
    *   Self for chaining.
    */
   public function addTestByConfig(array $config): self {
-    $this->tests[] = new Test(++$this->autoIncrementTestId, $config, $this);
+    $this->tests[] = new Test(++$this->autoTestNumber, $config, $this);
 
     return $this;
   }
@@ -160,7 +161,7 @@ class Suite implements PartInterface, JsonSerializable {
     }
     if (!is_null($offset)) {
       $tests = array_map(function ($config) {
-        return new Test(++$this->autoIncrementTestId, $config, $this);
+        return new Test(++$this->autoTestNumber, $config, $this);
       }, $test_configs);
       array_splice($this->tests, $offset, 1, $tests);
     }

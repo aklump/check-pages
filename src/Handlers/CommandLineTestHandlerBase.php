@@ -9,7 +9,8 @@ use AKlump\CheckPages\Output\Message\DebugMessage;
 use AKlump\CheckPages\Output\Message\Message;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Parts\Test;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
+use AKlump\CheckPages\TAP\Result;
 
 abstract class CommandLineTestHandlerBase implements HandlerInterface {
 
@@ -40,7 +41,14 @@ abstract class CommandLineTestHandlerBase implements HandlerInterface {
           $command_output = [];
           $test_result = 0;
           exec($prepared_command, $command_output, $test_result);
-          $test_result == 0 ? $test->setPassed() : $test->setFailed();
+          if ($test_result == 0) {
+            $test->setPassed();
+            $test->setResult(Result::OK);
+          }
+          else {
+            $test->setFailed();
+            $test->setResult(Result::NOT_OK);
+          }
 
           if ($test->get(Assert::ASSERT_SETTER)) {
             $set_value = trim(implode(PHP_EOL, $command_output));
@@ -56,7 +64,7 @@ abstract class CommandLineTestHandlerBase implements HandlerInterface {
           $verbosity = Verbosity::VERBOSE;
           if ($test->hasFailed()) {
             $message_type = MessageType::ERROR;
-            $verbosity = $verbosity | Verbosity::DEBUG;
+            $verbosity = $verbosity | Verbosity::VERY_VERBOSE;
           }
           $test->addMessage(new Message(
             $command_output,

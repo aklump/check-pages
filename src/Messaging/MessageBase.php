@@ -1,11 +1,13 @@
 <?php
 
-namespace AKlump\Messaging;
+namespace AKlump\CheckPages\Messaging;
 
 /**
  * A class that represents a normal (not verbose) message.
  */
 abstract class MessageBase implements MessageInterface {
+
+  protected string $icon = '';
 
   /** @var string */
   private $messageType;
@@ -21,18 +23,31 @@ abstract class MessageBase implements MessageInterface {
   /**
    * @return string
    *
-   * @see \AKlump\Messaging\MessageType
+   * @see \AKlump\CheckPages\Messaging\MessageType
    */
   public function getMessageType(): string {
     return $this->messageType;
   }
 
-  public function setMessage(array $message): void {
-    $this->message = $message;
+  public function setMessage(array $message): self {
+    $this->message = array_values($message);
+
+    return $this;
   }
 
-  public function setMessageType(string $type): void {
+  public function setIcon(string $icon): self {
+    $this->icon = $icon;
+
+    return $this;
+  }
+
+  public function getIcon(): string {
+    return $this->icon;
+  }
+
+  public function setMessageType(string $type): self {
     $this->messageType = $type;
+    return $this;
   }
 
   /**
@@ -43,7 +58,12 @@ abstract class MessageBase implements MessageInterface {
   }
 
   public function __toString(): string {
-    return implode(PHP_EOL, $this->message);
+    $message = $this->message;
+    if (!empty($this->icon)) {
+      $message[0] = $this->icon . ' ' . ($message[0] ?? '');
+    }
+
+    return implode(PHP_EOL, $message);
   }
 
 }
