@@ -184,55 +184,76 @@ class RunCommand extends Command {
       $messenger->deliver($message);
     }
 
+    $total_suite_count = $runner->getTotalSuitesRun();
+    $passed_suite_count = $runner->getTotalPassingSuitesRun();
+    $failed_suite_count = $runner->getTotalFailedSuites();
+    $suite_percentage = $total_suite_count ? intval(100 * $passed_suite_count / $total_suite_count) : 100;
+
+    $total_test_count = $runner->getTotalTestsRun();
+    $passed_test_count = $runner->getTotalPassingTestsRun();
+    $failed_test_count = $runner->getTotalFailedTests();
+    $test_percentage = $total_test_count ? intval(100 * $passed_test_count / $total_test_count) : 100;
+
     $total_assertion_count = $runner->getTotalAssertionsRun();
-    $ok = $runner->hasPassed() || 100 === $percentage;
-    $flags = Flags::INVERT_FIRST_LINE;
-    if ($total_test_count > 0 && $ok) {
-      $message = new Message([
-        sprintf("OK (%d test%s, %d assertion%s)",
-          $total_test_count,
-          $total_test_count === 1 ? '' : 's',
-          $total_assertion_count,
-          $total_assertion_count === 1 ? '' : 's'
-        ),
-        '',
-      ],
-        MessageType::SUCCESS
-      );
+    $passed_assertion_count = $total_assertion_count - $runner->getTotalFailedAssertions();
+    $failed_assertion_count = $runner->getTotalFailedAssertions();
+    $assertion_percentage = $total_assertion_count ? intval(100 * $passed_assertion_count / $total_assertion_count) : 100;
+
+    $ok = $runner->hasPassed();
+    $flags = NULL;
+
+    if ($total_test_count > 0 && !$ok) {
+      $messenger->deliver(new Message(['FAILURES!'], MessageType::ERROR), Flags::INVERT_FIRST_LINE);
+      $messenger->deliver(new Message(['']));
     }
-    else {
+
+    $format_row = function (string $label, int $passed, int $failed, int $total, int $percentage) use ($ok) {
+      $label_str = \AKlump\LoftLib\Bash\Color::stop() . str_pad($label, 12);
+
+      $percentage_str = sprintf("%3d%%", $percentage);
+      $percentage_str = str_pad($percentage_str, 8);
+
+      $passed_str = sprintf("passed: %d/%d", $passed, $total);
+      $passed_str = str_pad($passed_str, 20);
+
+      if ($failed > 0) {
+        $failed_str = sprintf("failed: %-5d", $failed);
+      }
+      else {
+        $failed_str = str_repeat(' ', 14);
+      }
+
+      if ($percentage == 100) {
+        $row = sprintf("%s %s %s %s", str_pad($label, 12), $percentage_str, $passed_str, $failed_str);
+
+        return \AKlump\LoftLib\Bash\Color::wrap('green', $row);
+      }
+
+      $passed_str = \AKlump\LoftLib\Bash\Color::wrap('green', $passed_str);
+      if ($failed > 0) {
+        $failed_str = \AKlump\LoftLib\Bash\Color::wrap('red', $failed_str);
+      }
+
+      return sprintf("%s %s %s %s", $label_str, $percentage_str, $passed_str, $failed_str);
+    };
+
+    $summary = [
+      $format_row('Suites', $passed_suite_count, $failed_suite_count, $total_suite_count, $suite_percentage),
+      $format_row('Tests', $passed_test_count, $failed_test_count, $total_test_count, $test_percentage),
+      $format_row('Assertions', $passed_assertion_count, $failed_assertion_count, $total_assertion_count, $assertion_percentage),
+    ];
+    $message = new Message($summary, MessageType::DEBUG);
+
+    if (!($total_test_count > 0 && $ok)) {
       // TODO Should this be removed because too much noise?
       $last_failed_suite = $runner->getLastFailedSuite();
       if ($last_failed_suite) {
-        $message = new Message([
+        $failed_suite_message = new Message([
           sprintf("Failed suite: %s", (new GetShortPath())($last_failed_suite->getFilePath())),
         ], MessageType::ERROR);
-        $messenger->deliver($message, Flags::BANNER);
+        $messenger->deliver($failed_suite_message, Flags::BANNER);
         $messenger->deliver(new Message(['']));
       }
-
-      // Sometimes a test fails without an assertion failing, e.g. the HTTP response code.
-      $failed_count = max($runner->getTotalFailedTests(), $runner->getTotalFailedAssertions(), intval($runner->hasFailed()));
-      $failed_count = min($failed_count, $total_test_count);
-      $lines = [
-        '',
-        sprintf('Tests: %d, Assertions: %d, Failures: %d',
-          $total_test_count,
-          $total_assertion_count,
-          $failed_count
-        ),
-        '',
-      ];
-
-      if ($failed_count > 0 && $total_test_count > 0) {
-        array_unshift($lines, 'FAILURES!');
-      }
-      else {
-        $flags = NULL;
-      }
-
-      $message_type = $total_test_count > 0 ? MessageType::ERROR : MessageType::INFO;
-      $message = new Message($lines, $message_type);
     }
     $messenger->deliver($message, $flags);
   }

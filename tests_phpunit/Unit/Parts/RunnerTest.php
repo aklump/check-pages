@@ -64,6 +64,9 @@ final class RunnerTest extends TestCase {
     ]);
     $runner->run($suite, 'suite.yml');
     $this->assertSame(2, $runner->getTotalTestsRun());
+    $this->assertSame(1, $runner->getTotalSuitesRun());
+    $this->assertSame(1, $runner->getTotalPassingSuitesRun());
+    $this->assertSame(0, $runner->getTotalFailedSuites());
   }
 
   public function testGetTotalMethods() {

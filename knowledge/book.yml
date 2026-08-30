@@ -100,3 +100,8 @@ chapters:
     title: Scenarios
     pages:
       - images
+  -
+    id: fixtures
+    title: Fixtures
+    pages:
+      - fixture_framework

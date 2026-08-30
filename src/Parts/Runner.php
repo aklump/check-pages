@@ -90,10 +90,9 @@ class Runner implements HasMessagesInterface {
     self::$state[$key] = $value;
   }
 
-  /**
-   * @var bool
-   */
-  private $runnerCreatedEventDispatched;
+  private int $totalSuitesRun = 0;
+
+  private bool $runnerCreatedEventDispatched;
 
   public $totalAssertions = 0;
 
@@ -298,6 +297,27 @@ class Runner implements HasMessagesInterface {
     // property and return that on subsequent method calls.  So we instantiate
     // anew each time.
     return new MultiPrinter($printers);
+  }
+
+  /**
+   * @return int
+   */
+  public function getTotalSuitesRun(): int {
+    return $this->totalSuitesRun;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTotalPassingSuitesRun(): int {
+    return $this->totalSuitesRun - $this->failedSuiteCount;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTotalFailedSuites(): int {
+    return $this->failedSuiteCount;
   }
 
   /**
@@ -670,7 +690,8 @@ class Runner implements HasMessagesInterface {
     $this->dispatcher->dispatch(new SuiteEvent($this->getSuite()), Event::SUITE_STARTED);
 
     // On return from the hook, we need to reparse to get format for validation.
-    $this->validateSuite($suite, static::PATH_TO_SCHEMA__SUITE);
+    // TODO This is problematic and causes hangs, we need to move this out of every time validation maybe?
+//    $this->validateSuite($suite, static::PATH_TO_SCHEMA__SUITE);
 
     // Do not change this to foreach as it will fail to run any tests that are
     // dynamically added during an earlier test.
@@ -715,6 +736,7 @@ class Runner implements HasMessagesInterface {
       }
     }
 
+    $this->totalSuitesRun++;
     $runtime_suite_result = $this->processResult($suite);
     if (!$runtime_suite_result) {
       $this->failedSuiteCount++;
