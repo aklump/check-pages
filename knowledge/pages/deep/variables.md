@@ -98,3 +98,7 @@ The authentication plugin will create `${user.uid}`, however it will be overwrit
       dom: h1
       text: Foo User
 ```
+
+## Global Variables
+
+@see [Secrets](@config__secrets)

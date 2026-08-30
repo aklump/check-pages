@@ -1,5 +1,7 @@
 ## Critical
 
+- The mixin "http_request_files" has failed. if the directory path doesn't exist in `files: logfiles/localdev`; happens in \AKlump\CheckPages\Parts\Runner::getLogFiles; also add a test for this.
+
 - request.headers.cookie when used with form doesn't post with the form and it should
 
 - setup how to configure the x-testing-token.
