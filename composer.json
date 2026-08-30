@@ -54,7 +54,7 @@
     "spatie/browsershot": "^3.57",
     "symfony/config": "^4.4 || ^5.4 || ^6",
     "symfony/console": "^4.4 || ^5.4 || ^6",
-    "symfony/css-selector": "^3.4|^4.0|^5.0",
+    "symfony/css-selector": "^3.4 || ^4.4 || ^5.4",
     "symfony/dependency-injection": "^4.4 || ^5.4 || ^6",
     "symfony/dom-crawler": "^5.0",
     "symfony/event-dispatcher": "^4.4 || ^5.4 || ^6",
