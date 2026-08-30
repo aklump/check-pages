@@ -44,6 +44,7 @@ final class SaveResponseToFile implements EventSubscriberInterface {
     'text/html' => ['txt', 'html'],
     'application/json' => ['json'],
     'application/xml' => ['xml'],
+    'application/pdf' => ['pdf'],
   ];
 
   private static function getRelativePathBySuite(Suite $suite): string {

@@ -1,4 +1,4 @@
-composer: {}
+composer: { }
 funding:
   dot_github: ../
   channels:
@@ -10,3 +10,7 @@ installer:
   script: ../setup-check-pages.sh
   package_title: Check Pages
   install_package_to: $HOME/.check-pages
+snippets:
+  -
+    source:
+      - ./snippet/*.php

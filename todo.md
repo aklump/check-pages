@@ -1,6 +1,8 @@
 ## Critical
 
+
 - The mixin "http_request_files" has failed. if the directory path doesn't exist in `files: logfiles/localdev`; happens in \AKlump\CheckPages\Parts\Runner::getLogFiles; also add a test for this.
+- \AKlump\CheckPages\Parts\Runner::getLogFiles must not return NULL
 
 - request.headers.cookie when used with form doesn't post with the form and it should
 
@@ -38,42 +40,7 @@ find:
 - commit tests_phpunit/files/*
 - --continue needs to go back one test, I think it's starting late. WE MUST HAVE A TEST TO ENSURE THIS DOESN'T REGRESS
 - TEST FOR --retest PICKS UP AT THE CORRECT PLACE.
-- files are not getting closed during test runs; troubleshoot and fix. ulimit ISSUE
 
-* https://medium.com/mindful-technology/too-many-open-files-limit-ulimit-on-mac-os-x-add0f1bfddde
-
-I wrote
-
-* add `ulimit -n 65536` to _run_check_pages_tests.sh_ as a bandaid fix.
-
-how to fix Too many open files in /Users/aklump/Code/Packages/cli/check-pages/app/vendor/composer/ClassLoader.php on line 576
-
-* https://packagist.org/packages/cronfig/sysinfo
-
-AI Assistant
-
-It's not caused by a bug in the code you've shown but rather by the way the code is being used or the system's configuration. Here's how to troubleshoot and fix it:
-
-1. **Check System Limits:** Use the `ulimit -n` command in your terminal to see the current limit. If it's too low, increase it. You'll need administrator privileges to do this. A common way to increase the limit is to add `ulimit -n 65536` to your shell's configuration file (e.g., `.bashrc`, `.zshrc`).
-
-2. **Close Unused Files:**  Ensure your application closes files properly after using them. Look for places where files are opened but not explicitly closed, especially in loops or repeated operations. Use `fclose()` in PHP to close file handles. For network connections or sockets, ensure they're closed properly.
-
-3. **Check for File Descriptor Leaks:** If files are being opened but not closed due to a bug or unexpected behavior in your application, this can lead to leaks. Carefully review your code for proper file handling, particularly in error handling and cleanup routines.
-
-If you're still having trouble after trying these steps, please provide more information about how the `HttpClient` class is being used in your application. For example, are you making a large number of requests concurrently, or are you reusing the `HttpClient` instance for multiple requests? This information will help in providing more specific guidance.
-
-## Me
-
-how to I runtime set that?
-
-## AI Assistant
-
-You can't directly change the `ulimit` setting from within a PHP script reliably due to security restrictions and how PHP processes are handled. The `ulimit` command affects the shell environment, and a PHP script typically runs as a child process, inheriting limits but unable to change them for the parent or system-wide. Changes made within the script would only affect that specific script's execution and not other processes or subsequent runs.
-
-The most reliable way to adjust the open file limit is by modifying the shell startup files as described in my previous response, or using system administration tools provided by your operating system. Those methods ensure the limit is set correctly before the PHP process even starts.
-
-**1. **Race Conditions:** If your code involves multiple threads or processes accessing shared resources, a race condition might be the culprit. The debugger's presence alters timing, inadvertently resolving the race. Look for areas in your code where shared resources (files, databases, variables) are accessed without proper synchronization mechanisms (locks, mutexes).**
----
 
 - assert \AKlump\CheckPages\Parts\Runner::executeRunner passes only these defined vars: $path
 - tests for all runner_functions
@@ -152,6 +119,7 @@ find:
 
 ## Normal
 
+- look into https://ctrf.io/ for standard output
 - on init rename _gitignore_ to _.gitignore_
 - get rid of all global vars
 - wrap the entry file in IIFE pattern to isolate variables.

@@ -1,4 +1,5 @@
-fixtures/*users*
+users.*
+*.users.*
 logfiles/
 secrets.yml
 secrets.json

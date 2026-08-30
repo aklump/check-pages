@@ -23,14 +23,17 @@ class RuntimeContextTest extends TestCase {
 
   public function testAddContextAndToString() {
     $context = RuntimeContext::get();
+    $context->clear();
 
     // Create some dummy objects
     $obj1 = new class implements \Stringable {
+
       public function __toString() {
         return "Object 1";
       }
     };
     $obj2 = new class implements \Stringable {
+
       public function __toString() {
         return "Object 2";
       }
@@ -54,18 +57,21 @@ class RuntimeContextTest extends TestCase {
 
   public function testMultipleSameClassContexts() {
     $context = RuntimeContext::get();
+    $context->clear();
     $obj1 = new class implements \Stringable {
+
       public function __toString() {
         return "Value 1";
       }
     };
     $obj2 = new class implements \Stringable {
+
       public function __toString() {
         return "Value 2";
       }
     };
-    
-    // Anonymous classes have different internal names if defined separately, 
+
+    // Anonymous classes have different internal names if defined separately,
     // but if we use the same class definition they would have same.
     // Let's use a named class for this test.
     $obj3 = new NamedDummyContext("One");
@@ -82,6 +88,7 @@ class RuntimeContextTest extends TestCase {
 
   public function testAddWithCustomKey() {
     $context = RuntimeContext::get();
+    $context->clear();
     $context->add("bar", "foo");
     $decoded = json_decode((string) $context, TRUE);
     $this->assertEquals(["bar"], $decoded["foo"]);
@@ -89,7 +96,9 @@ class RuntimeContextTest extends TestCase {
 
   public function testAddObjectWithIdMethod() {
     $context = RuntimeContext::get();
+    $context->clear();
     $obj = new class {
+
       public function id() {
         return "my-id";
       }
@@ -101,15 +110,27 @@ class RuntimeContextTest extends TestCase {
 
   public function testAddArrayContext() {
     $context = RuntimeContext::get();
+    $context->clear();
     $data = ["foo" => "bar"];
     $context->add($data, "my-data");
     $decoded = json_decode((string) $context, TRUE);
     $this->assertEquals([$data], $decoded["my-data"]);
   }
 
+  public function testGetContextReturnsStoredItemsByKey() {
+    $context = RuntimeContext::get();
+    $context->clear();
+    $data = ["foo" => "bar"];
+
+    $context->add($data, "my-data");
+
+    $this->assertSame([$data], $context->getContext("my-data"));
+  }
+
   public function testAddUnserializableFallbackToEmptyString() {
     $context = RuntimeContext::get();
-    $obj = new \stdClass(); // stdClass has no __toString() or id()
+    $context->clear();
+    $obj = new \stdClass(); // stdClass has no asString() or id()
     $context->add($obj, "fail-key");
     $decoded = json_decode((string) $context, TRUE);
     $this->assertEquals([""], $decoded["fail-key"]);
@@ -117,7 +138,14 @@ class RuntimeContextTest extends TestCase {
 }
 
 class NamedDummyContext implements \Stringable {
+
   private $val;
-  public function __construct($val) { $this->val = $val; }
-  public function __toString() { return $this->val; }
+
+  public function __construct($val) {
+    $this->val = $val;
+  }
+
+  public function __toString() {
+    return $this->val;
+  }
 }

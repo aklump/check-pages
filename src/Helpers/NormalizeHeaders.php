@@ -25,7 +25,13 @@ class NormalizeHeaders {
         $value = [$value];
       }
 
-      $headers = array_map('strval', $value);
+      $headers = array_map(function ($item) use ($value) {
+        if (is_array($item)) {
+          throw new InvalidArgumentException('Headers must be an array of strings.');
+        }
+
+        return strval($item);
+      }, $value);
       if ($headers !== array_values($headers)) {
         throw new InvalidArgumentException('Header values must be numerically indexed arrays, not associative arrays.');
       }

@@ -100,7 +100,7 @@ final class FailedTestMarkdown {
       $runner->writeToFile($this->basename, [
         str_replace('{{ suite.why }}', $subtitle, $this->subtitle),
         '',
-      ]);
+      ], 'a');
     }
     $url = $this->test->getRelativeUrl();
     $url = $runner->withBaseUrl($url);
@@ -111,7 +111,7 @@ final class FailedTestMarkdown {
     $runner->writeToFile($this->basename, array_merge([
       $this->listLabel,
       '',
-    ], $markdown_failure));
+    ], $markdown_failure), 'a');
   }
 
 }
