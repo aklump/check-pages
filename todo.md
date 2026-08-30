@@ -1,5 +1,7 @@
 ## Critical
 
+- \AKlump\CheckPages\Parts\Runner::getLogFiles must not return NULL
+
 - request.headers.cookie when used with form doesn't post with the form and it should
 
 - setup how to configure the x-testing-token.
@@ -115,6 +117,7 @@ find:
 
 ## Normal
 
+- look into https://ctrf.io/ for standard output
 - on init rename _gitignore_ to _.gitignore_
 - get rid of all global vars
 - wrap the entry file in IIFE pattern to isolate variables.
