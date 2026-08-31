@@ -30,7 +30,7 @@ class ExceptionMessage extends Message {
 
     parent::__construct(
       explode(PHP_EOL, $message),
-      $this->getMessageTypeByException($exception),
+      MessageType::EMERGENCY,
       $this->getVerbosityByException($exception)
     );
   }
@@ -50,16 +50,6 @@ class ExceptionMessage extends Message {
     }
 
     return $this->lookDeepForMessage($previous, $context);
-  }
-
-  private function getMessageTypeByException(Exception $exception): string {
-      return MessageType::EMERGENCY;
-    if ($exception instanceof StopRunnerException) {
-      // This is a major error and must be seen at all times.
-      return MessageType::EMERGENCY;
-    }
-
-    return MessageType::ERROR;
   }
 
   private function getVerbosityByException(Exception $exception): int {

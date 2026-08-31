@@ -370,12 +370,13 @@ function add_mixin(string $mixin, array $mixin_config = []) {
     })($require_path, $container, $runner, $mixin_config);
   }
   catch (\Exception $exception) {
+    $prefix = sprintf('The mixin "%s" has failed.', $mixin);
     $runner->getMessenger()
-      ->deliver(new Message([sprintf('The mixin "%s" has failed.', $mixin)],
+      ->writeln(new Message([$prefix],
         MessageType::ERROR,
         Verbosity::NORMAL,
       ), Flags::BANNER);
-    throw $exception;
+    throw new StopRunnerException($prefix . ' ' . $exception->getMessage(), $exception->getCode(), $exception);
   }
 }
 
@@ -416,7 +417,7 @@ function add_test_option(string $selector, array $callbacks): void {
     'onBeforeRequest' => Event::REQUEST_CREATED,
     'onAfterRequest' => Event::REQUEST_FINISHED,
     'onBeforeAssert' => Event::ASSERT_CREATED,
-    'onAfterAssert' => Event::ASSERT_FINISHED,
+    'onAfterAssert' => Event::ASSERT_EVALUATED,
   ];
 
   $event_class = new ReflectionClass(Event::class);

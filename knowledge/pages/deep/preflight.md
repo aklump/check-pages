@@ -58,7 +58,7 @@ add_directory(__DIR__ . '/json_schema');
 
 // Register preflight checks.
 add_preflight_check('All Drupal database updates have run', fn() => CheckTestEnvironment::hasPendingDatabaseUpdates());
-add_preflight_check('Xdebug should be disabled', fn() => CheckTestEnvironment::isXdebugEnabledOnServer());
+add_preflight_check('Xdebug is disabled', fn() => CheckTestEnvironment::isXdebugEnabledOnServer());
 
 add_mixin('env_vars');
 add_mixin('sessions', [

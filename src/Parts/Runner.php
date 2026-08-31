@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Parts;
 
+use AKlump\CheckPages\Command\RunCommand;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\RunnerEvent;
 use AKlump\CheckPages\Event\SuiteEvent;
@@ -391,7 +392,9 @@ class Runner implements HasMessagesInterface {
   public function loadConfig(string $resolve_config_path) {
     $config_path = $resolve_config_path;
     try {
-      $config = (new LoadConfig($this->files))($config_path);
+      // TODO DI this service
+      $secrets_service = new SecretsService();
+      $config = (new LoadConfig($this->files, $secrets_service))($config_path);
     }
     catch (\UnexpectedValueException $exception) {
       throw new StopRunnerException($exception->getMessage(), $exception->getCode(), $exception);;
@@ -632,6 +635,8 @@ class Runner implements HasMessagesInterface {
     }
     // ... end of section to move.
 
+    $suite->setNumber(RunCommand::nextSuiteNumber());
+
     // To invalidate a suite throw an instance of \AKlump\CheckPages\Exceptions\BadSyntaxException.
     $this->getDispatcher()
       ->dispatch(new SuiteEvent($this->getSuite()), Event::SUITE_CREATED);
@@ -824,7 +829,7 @@ class Runner implements HasMessagesInterface {
     $data = Yaml::parse($suite_yaml, YAML::PARSE_OBJECT_FOR_MAP);
 
     // TODO This is the source of bad performance at times.
-    $validator->validate($data, $schema);
+    //    $validator->validate($data, $schema);
 
     if (!$validator->isValid()) {
       $directive = Verbosity::VERY_VERBOSE;

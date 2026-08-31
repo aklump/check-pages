@@ -8,7 +8,7 @@ use AKlump\CheckPages\HttpClient;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
-use AKlump\Messaging\HasMessagesInterface;
+use AKlump\CheckPages\Messaging\HasMessagesInterface;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Utils;
@@ -33,6 +33,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @uses   \AKlump\CheckPages\Files\HttpContentTypeGuesser
  * @uses   \AKlump\CheckPages\Output\Message\Message
  * @uses   \AKlump\CheckPages\Output\VerboseDirective
+ * @uses   \AKlump\CheckPages\Output\Message\CodeMessage
+ * @uses   \AKlump\CheckPages\Messaging\MessageBase
  */
 final class HttpClientTest extends TestCase {
 
@@ -106,8 +108,13 @@ final class HttpClientTest extends TestCase {
 
   public function testSendRequestUsesCorrectMethodAndUri() {
     $this->driver->method('setBody')->willReturn($this->driver);
-    $this->driver->expects($this->once())->method('setMethod')->with('POST')->willReturn($this->driver);
-    $this->driver->expects($this->once())->method('setUrl')->with('http://example.com/api');
+    $this->driver->expects($this->once())
+      ->method('setMethod')
+      ->with('POST')
+      ->willReturn($this->driver);
+    $this->driver->expects($this->once())
+      ->method('setUrl')
+      ->with('http://example.com/api');
 
     $request = new Request('POST', 'http://example.com/api');
     $this->client->sendRequest($request);
@@ -135,19 +142,24 @@ final class HttpClientTest extends TestCase {
     $this->runner = $this->getMockBuilder(Runner::class)
       ->disableOriginalConstructor()
       ->getMock();
-    $this->runner->method('getInput')->willReturn($this->createMock(InputInterface::class));
-    $this->runner->method('getOutput')->willReturn($this->createMock(OutputInterface::class));
-    $this->runner->method('getDispatcher')->will($this->returnCallback(function() {
+    $this->runner->method('getInput')
+      ->willReturn($this->createMock(InputInterface::class));
+    $this->runner->method('getOutput')
+      ->willReturn($this->createMock(OutputInterface::class));
+    $this->runner->method('getDispatcher')
+      ->will($this->returnCallback(function () {
         return $this->dispatcher;
-    }));
+      }));
     $this->runner->method('withBaseUrl')->willReturnArgument(0);
 
     $this->messageBag = $this->createMock(HasMessagesInterface::class);
 
     $this->driver = $this->createMock(RequestDriverInterface::class);
     $this->driver->method('request')->willReturnSelf();
-    $this->driver->method('getResponse')->willReturn(new Response(200, [], Utils::streamFor('OK')));
-    $this->driver->method('getUri')->willReturn(new \GuzzleHttp\Psr7\Uri('http://example.com'));
+    $this->driver->method('getResponse')
+      ->willReturn(new Response(200, [], Utils::streamFor('OK')));
+    $this->driver->method('getUri')
+      ->willReturn(new \GuzzleHttp\Psr7\Uri('http://example.com'));
 
     $this->dispatcher = new EventDispatcher();
 

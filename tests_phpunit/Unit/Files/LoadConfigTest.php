@@ -19,6 +19,16 @@ class LoadConfigTest extends TestCase {
 
   use TestWithFilesTrait;
 
+  protected function setUp(): void {
+    $this->deleteTestFile('config/');
+    $this->deleteTestFile('app/');
+  }
+
+  protected function tearDown(): void {
+    $this->deleteTestFile('config/');
+    $this->deleteTestFile('app/');
+  }
+
   public function testRelativeFileGetsResolved() {
     $config_path = $this->getTestFileFilepath('app/config/dev.json', TRUE);
     file_put_contents($config_path, '{"extras":{"exists":"../alpha.yml","not_exists":"../bravo.yml"}}');
@@ -28,7 +38,6 @@ class LoadConfigTest extends TestCase {
     $config = (new LoadConfig($files))($config_path);
     $this->assertSame($expected_resolved_path, $config['extras']['exists']);
     $this->assertSame('../bravo.yml', $config['extras']['not_exists']);
-    $this->deleteTestFile('app/');
   }
 
   public static function dataFortestCannotParseContentsThrowsProvider(): array {
@@ -72,10 +81,10 @@ class LoadConfigTest extends TestCase {
     $this->expectException(\UnexpectedValueException::class);
     $this->expectExceptionMessageMatches('#Failed to load configuration.+due to a parse error.#');
     (new LoadConfig($files))($config_path);
-    $this->deleteTestFile('config/');
   }
 
   public function testMissingFileThrows() {
+    $this->getTestFileFilepath('config/', TRUE);
     $files = new LocalFilesProvider($this->getTestFilesDirectory() . 'config/');
     $config_path = 'bogus';
     $this->expectException(UnresolvablePathException::class);
@@ -112,7 +121,6 @@ class LoadConfigTest extends TestCase {
     $config = (new LoadConfig($files))($config_path);
     $this->assertSame('bar', $config['foo']);
     $this->assertSame($config_path, $expected_config_path);
-    $this->deleteTestFile('config/');
   }
 
   public function testExtensionsConstant() {

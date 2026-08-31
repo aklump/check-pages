@@ -57,7 +57,7 @@ final class JavaScript implements HandlerInterface {
           }
           foreach ($assertions as $assertion) {
             if (!empty($assertion[self::SELECTOR])) {
-              $driver->addJavascriptEval($assertion[self::SELECTOR]);
+              $driver->addJavaScriptEval($assertion[self::SELECTOR]);
             }
           }
         },

@@ -7,9 +7,7 @@ use AKlump\CheckPages\DataStructure\HttpHeader;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\HttpMessageEvent;
 use AKlump\CheckPages\Exceptions\RequestTimedOut;
-use AKlump\CheckPages\Output\Icons;
 use AKlump\CheckPages\Output\Message\Message;
-use AKlump\CheckPages\Output\Message\YamlMessage;
 use AKlump\CheckPages\Output\Verbosity;
 use AKlump\CheckPages\Response;
 use AKlump\CheckPages\Service\Assertion;
@@ -165,6 +163,8 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
         $this->runAssertions($response, $assertions);
         $computedStyles = $this->getComputedStyles();
         $javaScriptResults = $this->jsEvaluations ?? [];
+
+        // TODO Move this into ::runAssertions
         foreach ($javaScriptResults as &$jsResult) {
           $jsResult['result'] = $this->evaluateJavaScript($jsResult['eval']);
         }
@@ -237,108 +237,199 @@ final class ChromeDriver extends RequestDriver implements HeadlessBrowserInterfa
    * @throws \HeadlessChromium\Exception\CommunicationException
    * @throws \HeadlessChromium\Exception\JavascriptException
    */
-  private function runAssertions(array $response, array $assertions = []): string {
-    $messenger = $this->getMessenger();
-    $unevaluatedAssertionCount = 0;
-    $waitingMessage = '';
-    $initialWaitingMessage = 'Waiting for assertion(s) to evaluate.';
-    $subsequentMessages = [
-      '...still waiting',
-      'TICK TOCK',
-      'hmmmmm',
-      'Nothing to see here.',
-      'Well alrighty, then!',
-      'um...',
-    ];
-    $nextMessageTime = NULL;
-    $this->limits['time'] = time() + $this->getRequestTimeout();
-    $fireMessageOn = time() + 10;
+  private function runAssertions(array &$response, array $assertions): void {
+    $maxSecondsToTryOneAssertion = $this->getRequestTimeout();
+    $secondsBeforeRetryAssertion = 1;
+
+    if (empty($assertions)) {
+      $this->responseBody = '';
+
+      return;
+    }
 
     $io = $this->getTest()->getRunner()->io();
-    $bar = $io->createProgressBar();
+    $totalTimeoutSeconds = count($assertions) * $maxSecondsToTryOneAssertion;
+    $completedAssertionBudget = 0;
 
-    $this->getTest()->echoMessages();
-    $bar->start();
+    if ($io->isVerbose()) {
+      $progressBar = $io->createProgressBar($totalTimeoutSeconds);
+      // TODO DI Terminal
+      $progressBarMessageWidth = (new Terminal())->getWidth();
+      $progressBar->setFormat("%bar% %remaining%\n%message%");
+      // @url https://jonczyk.me/2017/09/20/make-cool-progressbar-symfony-command/
+      //    $progressBar->setBarCharacter('<fg=green>⚬</>');
+      //    $progressBar->setEmptyBarCharacter("<fg=red>⚬</>");
+      //    $progressBar->setProgressCharacter("<fg=green>➤</>");
+      $progressBar->setMessage('Loading page...');
+      $progressBar->start();
+    }
 
-    do {
+
+    // Read the page so we can assert against it.
+    $peek = function () use (&$response) {
       $this->responseBody = $this->page->getHtml();
-      $assertions = array_filter($assertions, function (Assertion $assertion) {
-        // Only keep those that have not yet passed.  We'll try again as long as
-        // there is time left.
-        return $assertion->reRunAgainst($this->responseBody) === FALSE;
-      });
-      $remainingTime = max(0, $this->limits['time'] - time());
-      $remaining_memory = max(0, $this->limits['memory'] - memory_get_usage());
-      // Fire this at once, then possibly once more to help debug if the request
-      // is timing out.  Given an AJAX context the first and last $this->responseBody
-      // could be different.  Capturing both of these states will be the most
-      // helpful to the failing test debugging.
-      if (time() > $fireMessageOn && $remainingTime > 0 && $remaining_memory > 0) {
-        $this->getDispatcher()
-          ->dispatch(new HttpMessageEvent(
-            $response['headers'],
-            $this->responseBody,
-            $response['status'],
-            $this->getTest(),
-          ), Event::RESPONSE_RECEIVED);
-        $fireMessageOn = time() + 10;
-      }
+      $this->getDispatcher()->dispatch(new HttpMessageEvent(
+        $response['headers'],
+        $this->responseBody,
+        $response['status'],
+        $this->getTest(),
+      ), Event::RESPONSE_RECEIVED);
+    };
+    $peek();
 
-      // TODO Instead of using messenger here, we should be firing some kind of "waiting for assert in DOM to load" event.
-      // TODO We should be able to remove the messenger property for simplification?
-      if ($messenger) {
-        if (is_null($nextMessageTime) || $remainingTime < $nextMessageTime) {
-          $nextMessageTime = $remainingTime - 10;
-          $count = count($assertions);
-          // Only print the config if the assertion list changes, so the user
-          // knows for what he is waiting.
-          if ($unevaluatedAssertionCount !== $count) {
-            foreach ($assertions as $assertion) {
-              $message = new YamlMessage($assertion->getConfig());
-              $messenger->deliver($message);
-            }
-            $unevaluatedAssertionCount = $count;
-          }
+    while ($assertion = array_shift($assertions)) {
+      $assertionStart = time();
+      $assertionTimeout = $assertionStart + $maxSecondsToTryOneAssertion;
 
-          if ($waitingMessage) {
-            $bar->setMessage($waitingMessage);
-            $waitingMessage = $waitingMessage ? $subsequentMessages[array_rand($subsequentMessages)] : $initialWaitingMessage;
-            $bar->advance();
-          }
+      do {
+        // TODO Should this be a separate event?
+        $peek();
+        $assertionPassed = TRUE === $assertion->reRunAgainst($this->responseBody);
 
-          //          // This is designed to only show on the second pass and beyond
-          //          if ($waitingMessage) {
-          //            $messenger->deliver((new Message([$waitingMessage], MessageType::INFO, Verbosity::VERBOSE))->setIcon(Icons::WAIT));
-          //          }
-          //          $waitingMessage = $waitingMessage ? $subsequentMessages[array_rand($subsequentMessages)] : $initialWaitingMessage;
+        $elapsed = min($maxSecondsToTryOneAssertion, time() - $assertionStart);
+
+        if (isset($progressBar)) {
+          $message = $assertion->getAssert()->getLabel();
+          $message = mb_substr($message, 0, $progressBarMessageWidth);
+          $progressBar->setProgress($completedAssertionBudget + $elapsed);
+          $progressBar->setMessage($message);
+          $progressBar->display();
         }
-      }
-      if ($remainingTime <= 0) {
-        if ($messenger) {
-          $messenger->deliver(new Message([
-            sprintf('%srequest.timeout reached.', Icons::NO),
-          ], MessageType::ERROR, Verbosity::NORMAL));
-          $messenger->deliver(new Message([
-            sprintf('%sUse `request.time` in your test with a value > %s', Icons::HINT, $this->getRequestTimeout()),
-          ], MessageType::TODO, Verbosity::VERY_VERBOSE));
-        }
-        break;
-      }
-      if ($remaining_memory <= 0) {
-        if ($messenger) {
-          $messenger->deliver(new Message([
-            sprintf('%sMemory limit for testing was reached.', Icons::NO),
-          ], MessageType::ERROR, Verbosity::NORMAL));
-          $messenger->deliver(new Message([
-            sprintf('%sTry increasing PHP\'s memory_limit > %s.', Icons::HINT, $this->limits['php_memory_limit']),
-          ], MessageType::TODO, Verbosity::VERY_VERBOSE));
-        }
-        break;
-      }
-    } while (!empty($assertions));
 
-    $bar->finish();
+        if ($assertionPassed) {
+          break;
+        }
+
+        if (time() >= $assertionTimeout) {
+          break;
+        }
+
+        sleep($secondsBeforeRetryAssertion);
+      } while (TRUE);
+
+      if (isset($progressBar)) {
+        $completedAssertionBudget += $maxSecondsToTryOneAssertion;
+        $progressBar->setProgress($completedAssertionBudget);
+      }
+
+      // If JavaScript was part of the assertion, read the page anew as the JS may
+      // have changed the page.
+      $javascriptWasEvaluated = isset($assertion->getConfig()['javascript']);
+      if ($javascriptWasEvaluated) {
+        $this->responseBody = $this->page->getHtml();
+      }
+    }
+
+    if (isset($progressBar)) {
+      $progressBar->finish();
+      $io->newLine();
+    }
+
+    return;
+
+    //
+    //    $messenger = $this->getMessenger();
+    //    $unevaluatedAssertionCount = 0;
+    //    $waitingMessage = '';
+    //    $initialWaitingMessage = 'Waiting for assertion(s) to evaluate.';
+    //    $subsequentMessages = [
+    //      '...still waiting',
+    //      'TICK TOCK',
+    //      'hmmmmm',
+    //      'Nothing to see here.',
+    //      'Well alrighty, then!',
+    //      'um...',
+    //    ];
+    //    $nextMessageTime = NULL;
+    //    $this->limits['time'] = time() + $this->getRequestTimeout();
+    //    $fireMessageOn = time() + 10;
+    //
+    //    $io = $this->getTest()->getRunner()->io();
+    //    $bar = $io->createProgressBar();
+    //
+    //    $this->getTest()->echoMessages();
+    //    $bar->start();
+    //
+    //    do {
+    //      $this->responseBody = $this->page->getHtml();
+    //      $assertions = array_filter($assertions, function (Assertion $assertion) {
+    //        // Only keep those that have not yet passed.  We'll try again as long as
+    //        // there is time left.
+    //        return $assertion->reRunAgainst($this->responseBody) === FALSE;
+    //      });
+    //      $remainingTime = max(0, $this->limits['time'] - time());
+    //      $remaining_memory = max(0, $this->limits['memory'] - memory_get_usage());
+    //      // Fire this at once, then possibly once more to help debug if the request
+    //      // is timing out.  Given an AJAX context the first and last $this->responseBody
+    //      // could be different.  Capturing both of these states will be the most
+    //      // helpful to the failing test debugging.
+    //      if (time() > $fireMessageOn && $remainingTime > 0 && $remaining_memory > 0) {
+    //        $this->getDispatcher()
+    //          ->dispatch(new HttpMessageEvent(
+    //            $response['headers'],
+    //            $this->responseBody,
+    //            $response['status'],
+    //            $this->getTest(),
+    //          ), Event::RESPONSE_RECEIVED);
+    //        $fireMessageOn = time() + 10;
+    //      }
+    //
+    //      // TODO Instead of using messenger here, we should be firing some kind of "waiting for assert in DOM to load" event.
+    //      // TODO We should be able to remove the messenger property for simplification?
+    //      if ($messenger) {
+    //        if (is_null($nextMessageTime) || $remainingTime < $nextMessageTime) {
+    //          $nextMessageTime = $remainingTime - 10;
+    //          $count = count($assertions);
+    //          // Only print the config if the assertion list changes, so the user
+    //          // knows for what he is waiting.
+    //          if ($unevaluatedAssertionCount !== $count) {
+    //            foreach ($assertions as $assertion) {
+    //              $message = new YamlMessage($assertion->getConfig());
+    //              $messenger->writeln($message);
+    //            }
+    //            $unevaluatedAssertionCount = $count;
+    //          }
+    //
+    //          if ($waitingMessage) {
+    //            $bar->setMessage($waitingMessage);
+    //            $waitingMessage = $waitingMessage ? $subsequentMessages[array_rand($subsequentMessages)] : $initialWaitingMessage;
+    //            $bar->advance();
+    //          }
+    //
+    //          //          // This is designed to only show on the second pass and beyond
+    //          //          if ($waitingMessage) {
+    //          //            $messenger->writeln((new Message([$waitingMessage], MessageType::INFO, Verbosity::VERBOSE))->setIcon(Icons::WAIT));
+    //          //          }
+    //          //          $waitingMessage = $waitingMessage ? $subsequentMessages[array_rand($subsequentMessages)] : $initialWaitingMessage;
+    //        }
+    //      }
+    //      if ($remainingTime <= 0) {
+    //        if ($messenger) {
+    //          $messenger->writeln(new Message([
+    //            sprintf('%srequest.timeout reached.', Icons::NO),
+    //          ], MessageType::ERROR, Verbosity::NORMAL));
+    //          $messenger->writeln(new Message([
+    //            sprintf('%sUse `request.time` in your test with a value > %s', Icons::HINT, $this->getRequestTimeout()),
+    //          ], MessageType::TODO, Verbosity::VERY_VERBOSE));
+    //        }
+    //        break;
+    //      }
+    //      if ($remaining_memory <= 0) {
+    //        if ($messenger) {
+    //          $messenger->writeln(new Message([
+    //            sprintf('%sMemory limit for testing was reached.', Icons::NO),
+    //          ], MessageType::ERROR, Verbosity::NORMAL));
+    //          $messenger->writeln(new Message([
+    //            sprintf('%sTry increasing PHP\'s memory_limit > %s.', Icons::HINT, $this->limits['php_memory_limit']),
+    //          ], MessageType::TODO, Verbosity::VERY_VERBOSE));
+    //        }
+    //        break;
+    //      }
+    //    } while (!empty($assertions));
+    //
+    //    $bar->finish();
   }
+
 
   /**
    * {@inheritdoc}

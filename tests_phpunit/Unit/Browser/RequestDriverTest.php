@@ -11,6 +11,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @covers \AKlump\CheckPages\Browser\RequestDriver
  * @uses   \AKlump\CheckPages\Helpers\NormalizeHeaders
+ * @uses \AKlump\CheckPages\Browser\RequestDriver
  */
 class RequestDriverTest extends TestCase {
 

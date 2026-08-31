@@ -12,7 +12,7 @@ use AKlump\CheckPages\Tests\TestingTraits\TestWithDispatcherTrait;
 use AKlump\CheckPages\Tests\TestingTraits\TestWithFilesTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use function count;
 
 /**
@@ -125,8 +125,7 @@ final class RunnerTest extends TestCase {
   private function getRunner(): Runner {
     $input = $this->getMockBuilder(InputInterface::class)
       ->getMock();
-    $output = $this->getMockBuilder(OutputInterface::class)
-      ->getMock();
+    $output = new ConsoleOutput();
     $runner = new Runner($input, $output);
     $root_files = new LocalFilesProvider(ROOT);
     $runner->setFiles($root_files);

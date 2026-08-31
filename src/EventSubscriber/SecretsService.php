@@ -3,23 +3,21 @@
 namespace AKlump\CheckPages\EventSubscriber;
 
 use AKlump\CheckPages\Event;
-use AKlump\CheckPages\Event\RunnerEventInterface;
 use AKlump\CheckPages\Event\SuiteEvent;
-use AKlump\CheckPages\Parts\Runner;
-use AKlump\CheckPages\Variables;
+use AKlump\CheckPages\Files\LoadSerializedArray;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Yaml\Yaml;
 
 /**
- * Looks for a file called "secrets.yml" in the same directory as the loaded
- * config file, and if so, it will load using it's contents to interpolate
- * against the config file.  It will also add to the suites variables so you can
- * interpolate those values in your test files.  This is used to keep config
- * secrets out of source control.
+ * Load secrets from a "secrets" file and add them to the suite variables.
+ *
+ * It looks for a file called "secrets" with a supported extension (.yml, .yaml,
+ * .json) in the same directory as the loaded config file. If found, it will
+ * add the values to the suite variables, allowing them to be used in test
+ * files. This is used to keep sensitive configuration out of source control.
  */
 final class SecretsService implements EventSubscriberInterface {
 
-  const BASENAME = 'secrets.yml';
+  public const FILENAME = 'secrets';
 
   /**
    * @inheritDoc
@@ -28,46 +26,49 @@ final class SecretsService implements EventSubscriberInterface {
     return [
       Event::SUITE_STARTED => [
         function (SuiteEvent $event) {
-          $secrets = self::getSecrets($event->getSuite()->getRunner());
+          $service = new self();
+          $secrets = $service->loadSecretsByEvent($event);
           if (empty($secrets)) {
             return;
           }
-          $suite = $event->getSuite();
+          $variables = $event->getSuite()->variables();
           foreach ($secrets as $key => $value) {
-            $suite->variables()->setItem($key, $value);
+            $variables->setItem($key, $value);
           }
-        },
-      ],
-      Event::RUNNER_CREATED => [
-        function (RunnerEventInterface $event) {
-          $secrets = self::getSecrets($event->getRunner());
-          if (empty($secrets)) {
-            return;
-          }
-          $vars = new Variables();
-          foreach ($secrets as $key => $value) {
-            $vars->setItem($key, $value);
-          }
-          $config = $event->getRunner()->getConfig();
-          // TODO I think this should be just $config.
-          $vars->interpolate($config['extras']['query_auth']['devices']);
-          $event->getRunner()->setConfig($config);
         },
       ],
     ];
   }
 
-  private static function getSecrets(Runner $runner): array {
-    $secrets_path = dirname($runner->getLoadedConfigPath()) . '/' . self::BASENAME;
-    if (!file_exists($secrets_path) || !file_get_contents($secrets_path)) {
+  /**
+   * Deserialze the secrets file from a directory.
+   *
+   * @param string $directory The directory to search for the secrets file.
+   *
+   * @return array
+   *
+   * @throws \InvalidArgumentException When there is more than one secrets file
+   * in the provided directory.
+   */
+  public function getSecrets(string $directory): array {
+    $filepath = $directory . '/' . self::FILENAME . '.*';
+    $filepaths = glob($filepath);
+    if (empty($filepaths)) {
       return [];
     }
-    $secrets = Yaml::parseFile($secrets_path);
-    if (!is_array($secrets)) {
-      throw new \RuntimeException(sprintf('%s must return an array.', self::BASENAME));
+    if (count($filepaths) > 1) {
+      throw new \InvalidArgumentException("Multiple secrets files found in $directory; only one is allowed.");
     }
+    $filepath = reset($filepaths);
 
-    return $secrets;
+    return (new LoadSerializedArray())($filepath);
+  }
+
+  private function loadSecretsByEvent(SuiteEvent $event): array {
+    $runner = $event->getSuite()->getRunner();
+    $directory = dirname($runner->getLoadedConfigPath());
+
+    return self::getSecrets($directory);
   }
 
 }

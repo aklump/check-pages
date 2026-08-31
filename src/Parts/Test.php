@@ -154,7 +154,7 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMe
   }
 
   public function id(): string {
-    return $this->getNumber();
+    return (string) $this->getNumber();
   }
 
   /**
@@ -215,7 +215,7 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMe
   }
 
   public function __toString() {
-    return $this->getSuite() . '/' . $this->id();
+    return $this->getSuite() . '/' . $this->getNumber();
   }
 
   public function echoMessages() {
@@ -223,10 +223,6 @@ class Test implements JsonSerializable, PartInterface, HasConfigInterface, HasMe
     $delivery = new MessageDelivery();
     $delivery($this->getRunner()->getMessenger(), $messages);
     $this->setMessages([]);
-  }
-
-  public function getDirective(): Directive {
-    return $this->directive ?? Directive::NONE;
   }
 
   public function getNumber(): int {

@@ -42,18 +42,25 @@ final class Variables implements \Countable, \JsonSerializable, \Iterator {
    *
    * @param $value
    *   A value as would be sent to ::interpolate.
+   * @param array &$missing_variables
+   *   An array to collect missing variables found during interpolation.
    *
    * @return bool
    *   True if there are any tokens remaining in $value.  This can happen after
    *   calling interpolate, if the values are not set for certain tokens.
    */
-  public function needsInterpolation($value): bool {
+  public function needsInterpolation($value, array &$missing_variables = []): bool {
     if (is_string($value)) {
-      return strstr($value, '${') !== FALSE;
+      $is_missing = strstr($value, '${') !== FALSE;
+      if ($is_missing) {
+        $missing_variables[] = $value;
+      }
+
+      return $is_missing;
     }
     if (is_array($value)) {
       foreach ($value as $v) {
-        if ($this->needsInterpolation($v)) {
+        if ($this->needsInterpolation($v, $missing_variables)) {
           return TRUE;
         }
       }

@@ -46,6 +46,14 @@ final class Event {
 
   const ASSERT_CREATED = 'assert.created';
 
+  const ASSERT_STARTED = 'assert.started';
+
+  const ASSERT_EVALUATED = 'assert.evaluated';
+
+  const ASSERT_PASSED = 'assert.passed';
+
+  const ASSERT_FAILED = 'assert.failed';
+
   const ASSERT_FINISHED = 'assert.finished';
 
   const TEST_RUNSTATE_CHANGED = 'test.runstate.changed';

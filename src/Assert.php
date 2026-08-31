@@ -159,9 +159,9 @@ final class Assert implements HasConfigInterface {
   }
 
   /**
-   * @var string
+   * @var int
    */
-  private $id;
+  private int $id;
 
   /**
    * @var \AKlump\CheckPages\Parts\Test
@@ -171,13 +171,12 @@ final class Assert implements HasConfigInterface {
   /**
    * Assert constructor.
    *
-   * @param string $id
+   * @param int $id
+   *   A globally unique point number from RunCommand::nextPointNumber().
    * @param array $config
    *   The raw assert key/value array.
-   * @param string $id
-   *   An arbitrary value to track this assert by outside consumers.
    */
-  public function __construct(string $id, array $config, Test $test) {
+  public function __construct(int $id, array $config, Test $test) {
     $this->setConfig($config);
     $this->id = $id;
     $this->test = $test;
@@ -206,7 +205,7 @@ final class Assert implements HasConfigInterface {
     return $this;
   }
 
-  public function id(): string {
+  public function getNumber(): int {
     return $this->id;
   }
 

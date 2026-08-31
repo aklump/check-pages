@@ -19,9 +19,9 @@ trait TestFromCLITrait {
    */
   protected function runFromCommandLine(string $args): array {
     $check_pages_bin = realpath(ROOT . '/checkpages');
-    $runner = $this->getTestFileFilepath('runner.php');
-    $dir = $this->getTestFilesDirectory() . '/';
-    $command = PHP_BINARY . " $check_pages_bin run $runner --dir=$dir $args";
+    $fixtures_dir = TESTS_DIR . '/fixtures/cli/';
+    $runner = $fixtures_dir . 'runner.php';
+    $command = PHP_BINARY . " $check_pages_bin run $runner --dir=$fixtures_dir $args";
     $exit_code = NULL;
     exec($command, $output, $exit_code);
     $this->testFromCLITraitExitCode = (int) $exit_code;

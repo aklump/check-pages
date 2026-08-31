@@ -2,9 +2,9 @@
 
 namespace AKlump\CheckPages\Files;
 
-use UnexpectedValueException;
+use AKlump\CheckPages\EventSubscriber\SecretsService;
 use Symfony\Component\Yaml\Exception\ParseException;
-use Symfony\Component\Yaml\Yaml;
+use AKlump\CheckPages\Variables;
 
 /**
  * Responsible for loading and parsing configuration files in supported formats
@@ -21,8 +21,20 @@ class LoadConfig {
    */
   protected LocalFilesProvider $files;
 
-  public function __construct(LocalFilesProvider $files) {
+  /**
+   * @var \AKlump\CheckPages\EventSubscriber\SecretsService
+   */
+  protected SecretsService $secretsService;
+
+  public function __construct(LocalFilesProvider $files, SecretsService $secretsService = NULL) {
     $this->files = $files;
+    $this->secretsService = $secretsService ?? new SecretsService();
+  }
+
+  private function getConstants($config_path): array {
+    return [
+      'FILENAME' => pathinfo($config_path, PATHINFO_FILENAME),
+    ];
   }
 
   /**
@@ -36,22 +48,42 @@ class LoadConfig {
     $unresolved_config_path = $config_path;
     $config_path = $this->files->tryResolveFile($config_path, self::CONFIG_EXTENSIONS)[0];
     try {
-      $extension = pathinfo($config_path, PATHINFO_EXTENSION);
-      if ($extension == 'json') {
-        $config = json_decode(file_get_contents($config_path), TRUE);
+      $variables = new Variables();
+
+      /**
+       * Add constants to the variables.
+       */
+      $constants = $this->getConstants($config_path);
+      foreach ($constants as $key => $value) {
+        $variables->setItem($key, $value);
       }
-      else {
-        $config = Yaml::parseFile($config_path);
+
+      /**
+       * Add secrets to the variables.
+       */
+      $directory = dirname($config_path);
+      $secrets = $this->secretsService->getSecrets($directory);
+      foreach ($secrets as $key => $value) {
+        $variables->setItem($key, $value);
       }
-      if (!$config || !is_array($config)) {
-        throw new ParseException('');
+
+      /**
+       * Load and interpolate the configuration.
+       */
+      $config = (new LoadSerializedArray())($config_path);
+      $variables->interpolate($config);
+      $missing_variables = [];
+      if ($variables->needsInterpolation($config, $missing_variables)) {
+        throw new \UnexpectedValueException(sprintf('Configuration %s contains missing variables: %s', $unresolved_config_path, implode(', ', $missing_variables)));
       }
     }
     catch (ParseException $exception) {
-      throw new UnexpectedValueException(sprintf('Failed to load configuration from "%s" due to a parse error.', $unresolved_config_path), 0, $exception);
+      throw new \UnexpectedValueException(sprintf('Failed to load configuration from "%s" due to a parse error.', $unresolved_config_path), 0, $exception);
     }
 
+    /**
+     * Resolve any relative paths.
+     */
     return (new ResolveRecursive())($config, dirname($config_path));
   }
-
 }

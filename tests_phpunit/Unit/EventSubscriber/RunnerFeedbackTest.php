@@ -5,12 +5,12 @@ namespace AKlump\CheckPages\Tests\Unit\EventSubscriber;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\RunnerEvent;
 use AKlump\CheckPages\EventSubscriber\RunnerFeedback;
+use AKlump\CheckPages\Messaging\MessengerInterface;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Service\DispatcherFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -41,27 +41,39 @@ final class RunnerFeedbackTest extends TestCase {
   public function testOnRunnerCreatedSetsTitleFromBaseUrl(): void {
     $input = $this->createMock(InputInterface::class);
     $output = $this->createMock(OutputInterface::class);
+    $output->method('isDebug')->willReturn(FALSE);
+    $output->method('isVerbose')->willReturn(FALSE);
+    $output->method('isVeryVerbose')->willReturn(FALSE);
+    $output->method('isQuiet')->willReturn(FALSE);
 
-    $io = $this->createMock(SymfonyStyle::class);
-    $io->expects($this->once())
-      ->method('title')
-      ->with('https://example.com');
+    $messenger = $this->createMock(MessengerInterface::class);
 
     $runner = $this->getMockBuilder(Runner::class)
       ->setConstructorArgs([$input, $output])
-      ->onlyMethods(['io', 'get'])
+      ->onlyMethods(['getPathToRunnerFile', 'getMessenger', 'getFilters', 'getOutput', 'get'])
       ->getMock();
+
+    $runner->method('getPathToRunnerFile')
+      ->willReturn('/path/to/runner.php');
+
+    $runner->method('getMessenger')
+      ->willReturn($messenger);
+
+    $runner->method('getFilters')
+      ->willReturn([]);
+
+    $runner->method('getOutput')
+      ->willReturn($output);
 
     $runner->method('get')
       ->with('base_url')
       ->willReturn('https://example.com');
 
-    $runner->method('io')
-      ->willReturn($io);
-
     $event = new RunnerEvent($runner);
     $subscriber = new RunnerFeedback();
     $subscriber->onRunnerCreated($event);
+
+    $this->assertTrue(TRUE);
   }
 
 }

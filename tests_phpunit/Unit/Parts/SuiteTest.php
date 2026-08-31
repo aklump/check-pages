@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Tests\Unit\Parts;
 
+use AKlump\CheckPages\Command\RunCommand;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;
 use PHPUnit\Framework\TestCase;
@@ -100,7 +101,26 @@ final class SuiteTest extends TestCase {
     $this->assertSame(456, $suite->variables()->getItem('bravo'));
   }
 
+  public function testAddTestByConfigAssignsGloballyUniqueNumbers(): void {
+    $suite1 = new Suite('foo', $this->runner);
+    $suite1->addTestByConfig(['url' => '/a']);
+    $suite1->addTestByConfig(['url' => '/b']);
+
+    $suite2 = new Suite('bar', $this->runner);
+    $suite2->addTestByConfig(['url' => '/c']);
+
+    $numbers = array_map(fn($t) => $t->getNumber(), array_merge($suite1->getTests(), $suite2->getTests()));
+    $this->assertSame([1, 2, 3], $numbers);
+  }
+
+  public function testSuiteGetSetNumber(): void {
+    $suite = new Suite('foo', $this->runner);
+    $suite->setNumber(7);
+    $this->assertSame(7, $suite->getNumber());
+  }
+
   public function setUp(): void {
+    RunCommand::resetSequences();
     $input = $this->getMockBuilder(InputInterface::class)
       ->getMock();
     $output = $this->getMockBuilder(OutputInterface::class)
@@ -108,6 +128,10 @@ final class SuiteTest extends TestCase {
 
     $this->runner = new Runner($input, $output);
     $this->runner->setConfig(['variables' => ['alpha' => 123, 'bravo' => 456]]);
+  }
+
+  public function tearDown(): void {
+    RunCommand::resetSequences();
   }
 
 }

@@ -16,7 +16,7 @@ final class Count implements HandlerInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      Event::ASSERT_FINISHED => [
+      Event::ASSERT_EVALUATED => [
 
         /**
          * Modify an assert instance if it has a count parameter.

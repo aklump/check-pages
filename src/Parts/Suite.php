@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Parts;
 
+use AKlump\CheckPages\Command\RunCommand;
 use AKlump\CheckPages\Traits\HasFilePathTrait;
 use AKlump\CheckPages\Traits\HasRunnerTrait;
 use AKlump\CheckPages\Traits\PassFailTrait;
@@ -22,9 +23,9 @@ class Suite implements PartInterface, JsonSerializable {
    */
   protected $tests = [];
 
-  protected $autoTestNumber = 0;
-
   protected $id;
+
+  protected int $number = 0;
 
   protected $group;
 
@@ -85,6 +86,16 @@ class Suite implements PartInterface, JsonSerializable {
     return $this->id;
   }
 
+  public function setNumber(int $n): self {
+    $this->number = $n;
+
+    return $this;
+  }
+
+  public function getNumber(): int {
+    return $this->number;
+  }
+
   public function variables(): Variables {
     return $this->vars;
   }
@@ -121,14 +132,14 @@ class Suite implements PartInterface, JsonSerializable {
    *   Self for chaining.
    */
   public function addTestByConfig(array $config): self {
-    $this->tests[] = new Test(++$this->autoTestNumber, $config, $this);
+    $this->tests[] = new Test(RunCommand::nextPointNumber(), $config, $this);
 
     return $this;
   }
 
   public function removeTest(Test $test): self {
     $this->tests = array_values(array_filter($this->tests, function ($item) use ($test) {
-      return $item->id() != $test->id();
+      return $item->getNumber() != $test->getNumber();
     }));
 
     return $this;
@@ -154,14 +165,14 @@ class Suite implements PartInterface, JsonSerializable {
       throw new \InvalidArgumentException(sprintf('%s: $test_configs must have numeric keys. %s', __METHOD__, json_encode($test_configs)));
     }
     foreach ($this->tests as $offset => $current_test) {
-      if ($current_test->id() == $test->id()) {
+      if ($current_test->getNumber() == $test->getNumber()) {
         break;
       }
       $offset = NULL;
     }
     if (!is_null($offset)) {
       $tests = array_map(function ($config) {
-        return new Test(++$this->autoTestNumber, $config, $this);
+        return new Test(RunCommand::nextPointNumber(), $config, $this);
       }, $test_configs);
       array_splice($this->tests, $offset, 1, $tests);
     }

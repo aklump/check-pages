@@ -16,6 +16,7 @@ use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
 use AKlump\CheckPages\Service\DispatcherFactory;
+use AKlump\CheckPages\TAP\Result;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Input\InputInterface;
@@ -132,13 +133,14 @@ final class RequestFeedbackTest extends TestCase {
     $subscriber = new RequestFeedback();
     $subscriber->onRequestFinished($event);
 
-    $this->assertTrue(true);
+    $this->assertTrue(TRUE);
   }
 
   public function testOnRequestFinishedLogsResponseForFailedTest(): void {
     $suite = new Suite('test_suite', $this->runner);
     $test = new Test(1, ['url' => '/'], $suite);
     $test->setFailed();
+    $test->setResult(Result::NOT_OK);
 
     $response = $this->createMock(ResponseInterface::class);
     $driver = $this->createMock(RequestDriverInterface::class);
@@ -148,7 +150,7 @@ final class RequestFeedbackTest extends TestCase {
     $subscriber = new RequestFeedback();
     $subscriber->onRequestFinished($event);
 
-    $this->assertTrue(true);
+    $this->assertTrue(TRUE);
   }
 
 }

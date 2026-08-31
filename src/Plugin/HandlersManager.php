@@ -16,9 +16,9 @@ final class HandlersManager {
   private $runner;
 
   /**
-   * @var array
+   * @var string[]
    */
-  private $pathToHandlers;
+  private array $handlerDirs;
 
   /**
    * HandlersManager constructor.
@@ -26,8 +26,8 @@ final class HandlersManager {
    * @param string $path_to_handlers
    *   Path to the directory containing all handlers.
    */
-  public function __construct(string $path_to_handlers) {
-    $this->pathToHandlers = $path_to_handlers;
+  public function __construct(...$handlerDirs) {
+    $this->handlerDirs = $handlerDirs;
   }
 
   public function setRunner(Runner $runner): void {
@@ -43,24 +43,25 @@ final class HandlersManager {
    *   - filepath string Path to the plugin directory.
    */
   public function getAllHandlers(): array {
-    $base_path = $this->pathToHandlers;
-    $directory_listing = scandir($base_path);
     self::$handlers = [];
-    foreach ($directory_listing as $basename) {
-      $filepath = "$base_path/$basename";
-      if ($basename !== '.' && $basename !== '..' && is_dir($filepath)) {
-        $id = pathinfo($filepath, PATHINFO_FILENAME);
-        $filename = Strings::upperCamel($id);
-        // Maybe the class Csv was created as CSV...
-        if (!file_exists($filepath . "/$filename.php")) {
-          $filename = strtoupper($filename);
+    foreach ($this->handlerDirs as $base_path) {
+      $directory_listing = scandir($base_path);
+      foreach ($directory_listing as $basename) {
+        $filepath = "$base_path/$basename";
+        if ($basename !== '.' && $basename !== '..' && is_dir($filepath)) {
+          $id = pathinfo($filepath, PATHINFO_FILENAME);
+          $filename = Strings::upperCamel($id);
+          // Maybe the class Csv was created as CSV...
+          if (!file_exists($filepath . "/$filename.php")) {
+            $filename = strtoupper($filename);
+          }
+          self::$handlers[] = [
+            'id' => $id,
+            'path' => $filepath,
+            'autoload' => $filepath . "/$filename.php",
+            'classname' => '\\AKlump\\CheckPages\\Handlers\\' . $filename,
+          ];
         }
-        self::$handlers[] = [
-          'id' => $id,
-          'path' => $filepath,
-          'autoload' => $filepath . "/$filename.php",
-          'classname' => '\\AKlump\\CheckPages\\Handlers\\' . $filename,
-        ];
       }
     }
 

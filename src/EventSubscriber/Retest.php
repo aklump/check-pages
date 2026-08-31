@@ -121,7 +121,7 @@ final class Retest implements EventSubscriberInterface, ProvidesInputOptionsInte
       $pending_result
         ->setGroupId($suite->getGroup())
         ->setSuiteId($suite->id())
-        ->setTestId($test->id())
+        ->setTestId($test->getNumber())
         ->setResult(Test::PENDING);
       $results->add($pending_result);
     }
@@ -136,7 +136,7 @@ final class Retest implements EventSubscriberInterface, ProvidesInputOptionsInte
     $test_result
       ->setGroupId($suite->getGroup())
       ->setSuiteId($suite->id())
-      ->setTestId($test->id())
+      ->setTestId($test->getNumber())
       ->setResult($result_code_per_expectations);
     $storage_service = new TestResultCollectionStorage();
     $filepath = $this->getPathToResultsLog();

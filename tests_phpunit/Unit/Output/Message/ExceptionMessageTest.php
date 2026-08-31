@@ -5,7 +5,7 @@ namespace AKlump\CheckPages\Tests\Unit\Output\Message;
 use AKlump\CheckPages\Exceptions\StopRunnerException;
 use AKlump\CheckPages\Output\Message\ExceptionMessage;
 use AKlump\CheckPages\Output\Verbosity;
-use AKlump\Messaging\MessageType;
+use AKlump\CheckPages\Messaging\MessageType;
 use Exception;
 use PHPUnit\Framework\TestCase;
 
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  * @covers \AKlump\CheckPages\Output\Message\ExceptionMessage
  * @uses \AKlump\CheckPages\Output\Message\Message
  * @uses \AKlump\CheckPages\Output\VerboseDirective
- * @uses \AKlump\Messaging\MessageBase
+ * @uses \AKlump\CheckPages\Messaging\MessageBase
  * @uses \AKlump\CheckPages\Exceptions\StopRunnerException
  */
 class ExceptionMessageTest extends TestCase {
@@ -68,7 +68,7 @@ class ExceptionMessageTest extends TestCase {
   public function testNormalException() {
     $e = new Exception('Error');
     $msg = new ExceptionMessage($e, Verbosity::NORMAL, 'Fallback');
-    $this->assertSame(MessageType::ERROR, $msg->getMessageType());
+    $this->assertSame(MessageType::EMERGENCY, $msg->getMessageType());
     $this->assertFalse($msg->getVerboseDirective()->showVerbose());
   }
 

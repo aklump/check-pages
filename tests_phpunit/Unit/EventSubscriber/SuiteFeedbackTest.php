@@ -59,13 +59,12 @@ final class SuiteFeedbackTest extends TestCase {
   public function testGetSubscribedEvents(): void {
     $events = SuiteFeedback::getSubscribedEvents();
     $this->assertIsArray($events);
-    $this->assertArrayHasKey(Event::SUITE_CREATED, $events);
+    $this->assertArrayHasKey(Event::SUITE_STARTED, $events);
     $this->assertArrayHasKey(Event::SUITE_FAILED, $events);
     $this->assertArrayHasKey(Event::SUITE_SKIPPED, $events);
-    $this->assertArrayHasKey(Event::SUITE_PASSED, $events);
 
-    $this->assertInstanceOf(SuiteFeedback::class, $events[Event::SUITE_CREATED][0]);
-    $this->assertSame('onSuiteCreated', $events[Event::SUITE_CREATED][1]);
+    $this->assertInstanceOf(SuiteFeedback::class, $events[Event::SUITE_STARTED][0]);
+    $this->assertSame('onSuiteStarted', $events[Event::SUITE_STARTED][1]);
 
     $this->assertInstanceOf(SuiteFeedback::class, $events[Event::SUITE_FAILED][0]);
     $this->assertSame('onSuiteFailed', $events[Event::SUITE_FAILED][1]);
@@ -73,18 +72,15 @@ final class SuiteFeedbackTest extends TestCase {
     $this->assertInstanceOf(SuiteFeedback::class, $events[Event::SUITE_SKIPPED][0]);
     $this->assertSame('onSuiteSkipped', $events[Event::SUITE_SKIPPED][1]);
 
-    $this->assertInstanceOf(SuiteFeedback::class, $events[Event::SUITE_PASSED][0]);
-    $this->assertSame('onSuitePassed', $events[Event::SUITE_PASSED][1]);
-
     $dispatcher = new EventDispatcher();
     DispatcherFactory::addSubscribedEvents($dispatcher, $events);
 
-    $listeners = $dispatcher->getListeners(Event::SUITE_CREATED);
+    $listeners = $dispatcher->getListeners(Event::SUITE_STARTED);
     $this->assertCount(1, $listeners);
-    $this->assertSame($events[Event::SUITE_CREATED], $listeners[0]);
+    $this->assertSame($events[Event::SUITE_STARTED], $listeners[0]);
   }
 
-  public function testOnSuiteCreatedDeliversBannerMessage(): void {
+  public function testOnSuiteStartedDeliversSuiteRunStateResultMessage(): void {
     $suite = new Suite('my_suite', $this->runner);
     $suite->setFilePath('/path/to/suite.yml');
 
@@ -92,15 +88,13 @@ final class SuiteFeedbackTest extends TestCase {
       ->method('writeln')
       ->with(
         $this->callback(function (MessageInterface $msg) {
-          return $msg->getMessageType() === MessageType::BANNER
-            && $msg->getVerbosity() === OutputInterface::VERBOSITY_VERBOSE
-            && str_contains($msg->getMessage()[0], 'MY_SUITE');
+          return $msg->getMessageType() === MessageType::SUITE_RUN_STATE_RESULT;
         }),
       );
 
     $event = new SuiteEvent($suite);
     $subscriber = new SuiteFeedback();
-    $subscriber->onSuiteCreated($event);
+    $subscriber->onSuiteStarted($event);
   }
 
   public function testOnSuiteFailedDeliversBannerAndDivider(): void {

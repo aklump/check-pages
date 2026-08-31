@@ -68,10 +68,19 @@ class InitCommand extends Command {
         throw new \RuntimeException();
       }
 
+      /**
+       * Write the .gitignore file
+       */
       $stream = fopen("$this->dir/.gitignore", 'a');
-      $secrets = SecretsService::BASENAME;
-      if (FALSE === fwrite($stream, "$secrets\nusers*\nlogfiles/\n")) {
-        throw new \RuntimeException();
+      $git_ignore_lines = [
+        '*users*',
+        '*sessions*',
+        'logfiles/',
+        'vendor/',
+        '*' . SecretsService::FILENAME . '*',
+      ];
+      if (FALSE === fwrite($stream, implode(PHP_EOL, $git_ignore_lines))) {
+        throw new \RuntimeException('Failed to write .gitignore');
       }
       fclose($stream);
     }
