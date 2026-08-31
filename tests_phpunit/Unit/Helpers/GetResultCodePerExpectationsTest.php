@@ -6,6 +6,7 @@ use AKlump\CheckPages\Helpers\GetResultCodePerExpectations;
 use AKlump\CheckPages\Parts\Runner;
 use AKlump\CheckPages\Parts\Suite;
 use AKlump\CheckPages\Parts\Test;
+use AKlump\CheckPages\TAP\Result;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,6 +25,7 @@ class GetResultCodePerExpectationsTest extends TestCase {
       'expected outcome' => 'fail',
     ], $suite);
     $test->setPassed();
+    $test->setResult(Result::OK);
     $result = (new GetResultCodePerExpectations())($test);
     $this->assertSame(Test::FAILED, $result);
   }
@@ -35,6 +37,8 @@ class GetResultCodePerExpectationsTest extends TestCase {
       'expected outcome' => 'fail',
     ], $suite);
     $test->setFailed();
+    $test->setResult(Result::NOT_OK);
+
     $result = (new GetResultCodePerExpectations())($test);
     $this->assertSame(Test::PASSED, $result);
   }

@@ -25,7 +25,6 @@ use PHPUnit\Framework\TestCase;
  * @uses   \AKlump\CheckPages\Service\DispatcherFactory
  * @uses   \AKlump\CheckPages\EventSubscriber\InterpolationService
  * @uses   \AKlump\CheckPages\EventSubscriber\Retest
- * @uses   \AKlump\CheckPages\EventSubscriber\SecretsService
  * @uses   \AKlump\CheckPages\EventSubscriber\SuiteIndexService
  * @uses   \AKlump\CheckPages\EventSubscriber\SuiteValidator
  * @uses   \AKlump\CheckPages\Traits\HasConfigTrait

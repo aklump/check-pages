@@ -27,6 +27,31 @@ use Symfony\Component\Console\Output\OutputInterface;
 class RunCommand extends Command {
 
   /**
+   * Unified TAP point sequence shared by Test and Assert.
+   * A test is ALWAYS a TAP test point: it always consumes one number and
+   * always appears in TAP output as "ok N - # test: <basename>".
+   * A test with 0 assertions uses only its own point number.
+   * A test with N assertions uses its own number plus one number per assertion.
+   */
+  private static int $pointNumberSequence = 0;
+
+  /** Suite sequence; suites are TAP diagnostic comments, not test points. */
+  private static int $suiteNumberSequence = 0;
+
+  public static function nextPointNumber(): int {
+    return ++self::$pointNumberSequence;
+  }
+
+  public static function nextSuiteNumber(): int {
+    return ++self::$suiteNumberSequence;
+  }
+
+  public static function resetSequences(): void {
+    self::$pointNumberSequence = 0;
+    self::$suiteNumberSequence = 0;
+  }
+
+  /**
    * @var \AKlump\CheckPages\Files\FilesProviderInterface
    */
   private $rootFiles;

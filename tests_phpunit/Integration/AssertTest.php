@@ -42,7 +42,7 @@ final class AssertTest extends TestCase {
    */
   public function testEquals($expect, $a, $b) {
     $test = $this->createMock(Test::class);
-    $assert = new Assert('', [], $test);
+    $assert = new Assert(0, [], $test);
     $assert->setAssertion(Assert::ASSERT_EQUALS, $a);
     $assert->setHaystack([$b]);
     $assert->run();
@@ -51,7 +51,7 @@ final class AssertTest extends TestCase {
 
   public function testSetGetNeedle() {
     $test = $this->createMock(Test::class);
-    $assert = new Assert('', [], $test);
+    $assert = new Assert(0, [], $test);
     $this->assertNull($assert->getNeedle());
     $return = $assert->setNeedleIfNotSet('foo');
     $this->assertSame($assert, $return);

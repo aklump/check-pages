@@ -103,8 +103,6 @@ final class SaveResponseToFile implements EventSubscriberInterface {
           }
           $base_path = $handler->getOutputBasePath();
 
-          $test->addMessage(new Message([Icons::RESPONSE . Icons::FILE], MessageType::INFO, Verbosity::VERBOSE));
-
           // Write the headers to a separate file.
           $headers['Status'] = [$event->getStatusCode()];
           $headers = (new NormalizeHeaders())($headers);
@@ -119,7 +117,6 @@ final class SaveResponseToFile implements EventSubscriberInterface {
             $absolute_path = $runner->writeToFile($base_path . '.' . $extension, [$prepared_content_as_string], 'w+');
             $handler->addFileSavedMessages($absolute_path);
           }
-          $test->echoMessages();
         },
       ],
     ];
@@ -146,7 +143,7 @@ final class SaveResponseToFile implements EventSubscriberInterface {
     // The test ID is helpful, but not guaranteed to be there.  So we will add
     // it if possible, and if not make sure we don't end the file in an
     // underscore.
-    $base_path .= rtrim('_' . $test->id(), '_');
+    $base_path .= rtrim('_' . $test->getNumber(), '_');
 
     return $base_path;
   }

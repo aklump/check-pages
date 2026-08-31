@@ -28,7 +28,6 @@ use Symfony\Component\DomCrawler\Crawler;
  * @uses   \AKlump\CheckPages\EventSubscriber\InterpolationService
  * @uses   \AKlump\CheckPages\EventSubscriber\Retest
  * @uses   \AKlump\CheckPages\EventSubscriber\SaveResponseToFile
- * @uses   \AKlump\CheckPages\EventSubscriber\SecretsService
  * @uses   \AKlump\CheckPages\EventSubscriber\SuiteIndexService
  * @uses   \AKlump\CheckPages\EventSubscriber\SuiteValidator
  * @uses   \AKlump\CheckPages\Handlers\CommandLineTestHandlerBase

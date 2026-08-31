@@ -3,6 +3,7 @@
 namespace AKlump\CheckPages\Parts;
 
 use AKlump\CheckPages\Assert;
+use AKlump\CheckPages\Command\RunCommand;
 use AKlump\CheckPages\Browser\ChromeDriver;
 use AKlump\CheckPages\Browser\GuzzleDriver;
 use AKlump\CheckPages\Browser\RequestDriverInterface;
@@ -162,7 +163,7 @@ final class TestRunner implements EventDispatcherInterface {
           // it, so that's why we do this check here.
           if (!$variables->needsInterpolation($config)) {
             $assertions_to_wait_for[] = Assertion::create($test->getSuite()
-              ->id(), $test->id(), $assert_id, $config);
+              ->id(), $test->getNumber(), $assert_id, $config);
           }
         }
 
@@ -196,7 +197,6 @@ final class TestRunner implements EventDispatcherInterface {
     //
     $assertions = $test->get('find');
     if (!empty($assertions) && !$test->hasFailed() && count($assertions) > 0) {
-      $id = 0;
       $assert_runner = new AssertRunner($this->getDriver());
       while ($definition = array_shift($assertions)) {
         if (is_scalar($definition)) {
@@ -204,12 +204,11 @@ final class TestRunner implements EventDispatcherInterface {
         }
         $test->interpolate($definition);
         $test->addMessage(new YamlMessage($definition));
-        $assert = $assert_runner->run(new Assert($id, $definition, $test));
+        $assert = $assert_runner->run(new Assert(RunCommand::nextPointNumber(), $definition, $test));
         if ($assert->hasFailed()) {
           $test->setFailed();
           $test->setResult(Result::NOT_OK);
         }
-        ++$id;
       }
     }
 

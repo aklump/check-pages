@@ -33,6 +33,8 @@ abstract class RequestDriver implements RequestDriverInterface {
    */
   const MAX_REDIRECTS = 10;
 
+  protected string $protocolVersion;
+
   private EventDispatcher $dispatcher;
 
   protected string $method = 'GET';

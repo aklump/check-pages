@@ -129,7 +129,7 @@ class Assertion implements HasConfigInterface {
     $this->driver = new GuzzleDriver($container ? $runner->getDispatcher() : DispatcherFactory::create());
     $suite = new Suite($suite_id, $runner);
     $this->test = new Test($testNumber, [], $suite);
-    $this->assert = new Assert($assert_id, $config, $this->test);
+    $this->assert = new Assert(0, $config, $this->test);
     $this->assert->setSearch(Assert::SEARCH_ALL);
     $this->vars = new Variables();
 
@@ -155,7 +155,7 @@ class Assertion implements HasConfigInterface {
    */
   public static function create(
     string $suite_id,
-    string $testNumber,
+    int $testNumber,
     string $assert_id,
     array $config
   ): self {

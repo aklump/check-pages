@@ -2,6 +2,7 @@
 
 namespace AKlump\CheckPages\Parts;
 
+use AKlump\CheckPages\Command\RunCommand;
 use AKlump\CheckPages\Event;
 use AKlump\CheckPages\Event\RunnerEvent;
 use AKlump\CheckPages\Event\SuiteEvent;
@@ -631,6 +632,8 @@ class Runner implements HasMessagesInterface {
       return;
     }
     // ... end of section to move.
+
+    $suite->setNumber(RunCommand::nextSuiteNumber());
 
     // To invalidate a suite throw an instance of \AKlump\CheckPages\Exceptions\BadSyntaxException.
     $this->getDispatcher()
